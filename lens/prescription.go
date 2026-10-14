@@ -98,6 +98,24 @@ type Prescription struct {
 	// clamped by System().
 	Stop int `json:"stop"`
 
+	// Optional self-description of the prescription. These fields take no
+	// part in any optical computation: they are pure metadata for libraries,
+	// catalogues and reports. They are carried through the JSON I/O and
+	// through Clone(), so a loaded prescription stays labelled no matter how
+	// it is passed around. All four are optional; an empty field is omitted
+	// from the wire form.
+	//
+	// Description is free text (the built-in library of library/geo writes
+	// Chinese descriptions of the design intent and the expected metrics).
+	// Category groups the example (e.g. "singlet", "achromat", "eyepiece").
+	// Difficulty is a 1..5 scale (1 = a single lens, 5 = a multi-element
+	// instrument). Tags are free-form labels such as "F/5", "visible",
+	// "optimized" or "fov0.5deg".
+	Description string   `json:"description,omitempty"`
+	Category    string   `json:"category,omitempty"`
+	Difficulty  int      `json:"difficulty,omitempty"`
+	Tags        []string `json:"tags,omitempty"`
+
 	// mediumWrap, when non-nil, post-processes every resolved card medium
 	// before it enters the geo.System. It is the injection hook of the
 	// tolerance analysis (glass melt Δn); the value it renders must stay
@@ -285,7 +303,7 @@ func (p *Prescription) SetVars(specs []VarSpec, x []float64) error {
 	return nil
 }
 
-// Clone returns a deep copy (Coeffs slices are duplicated).
+// Clone returns a deep copy (Coeffs and Tags slices are duplicated).
 func (p *Prescription) Clone() *Prescription {
 	out := *p
 	out.Cards = make([]Card, len(p.Cards))
@@ -294,6 +312,9 @@ func (p *Prescription) Clone() *Prescription {
 		if p.Cards[i].Coeffs != nil {
 			out.Cards[i].Coeffs = append([]float64(nil), p.Cards[i].Coeffs...)
 		}
+	}
+	if p.Tags != nil {
+		out.Tags = append([]string(nil), p.Tags...)
 	}
 	return &out
 }
@@ -308,12 +329,25 @@ type prescJSON struct {
 	ObjectZMM json.RawMessage `json:"object_z_mm,omitempty"`
 	Cards     []Card          `json:"cards"`
 	Stop      int             `json:"stop"`
+
+	// The optional descriptive metadata (see Prescription). It is redundant
+	// here because the fields have no custom encoding, but keeping the wire
+	// form explicit means the JSON contract of a prescription is documented
+	// in one place and cannot drift from the reader.
+	Description string   `json:"description,omitempty"`
+	Category    string   `json:"category,omitempty"`
+	Difficulty  int      `json:"difficulty,omitempty"`
+	Tags        []string `json:"tags,omitempty"`
 }
 
 // MarshalJSON implements json.Marshaler. An object at infinity (ObjectZMM =
 // math.Inf(-1)) is written as the string "inf".
 func (p *Prescription) MarshalJSON() ([]byte, error) {
-	w := prescJSON{Name: p.Name, Cards: p.Cards, Stop: p.Stop}
+	w := prescJSON{
+		Name: p.Name, Cards: p.Cards, Stop: p.Stop,
+		Description: p.Description, Category: p.Category,
+		Difficulty: p.Difficulty, Tags: p.Tags,
+	}
 	switch {
 	case math.IsInf(p.ObjectZMM, -1):
 		w.ObjectZMM = json.RawMessage(`"inf"`)
@@ -339,6 +373,10 @@ func (p *Prescription) UnmarshalJSON(data []byte) error {
 	p.Name = w.Name
 	p.Cards = w.Cards
 	p.Stop = w.Stop
+	p.Description = w.Description
+	p.Category = w.Category
+	p.Difficulty = w.Difficulty
+	p.Tags = w.Tags
 	p.ObjectZMM = math.Inf(-1)
 	if len(w.ObjectZMM) > 0 && string(w.ObjectZMM) != "null" {
 		var f float64

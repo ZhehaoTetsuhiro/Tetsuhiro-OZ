@@ -1,7 +1,10 @@
 package lens
 
 import (
+	"encoding/json"
 	"math"
+	"os"
+	"strings"
 	"testing"
 
 	"tetsuhiro-oz/geo"
@@ -66,6 +69,75 @@ func TestPrescriptionJSONRoundTrip(t *testing.T) {
 	}
 	if a.EFL != b.EFL || a.BFL != b.BFL {
 		t.Fatalf("JSON round trip changed first order: %g/%g vs %g/%g", a.EFL, a.BFL, b.EFL, b.BFL)
+	}
+}
+
+func TestPrescriptionMetadataRoundTrip(t *testing.T) {
+	p := biconvexBK7()
+	p.Description = "双凸单透镜，N-BK7，f≈190mm；轴上球差为主"
+	p.Category = "singlet"
+	p.Difficulty = 1
+	p.Tags = []string{"N-BK7", "F/7.5", "visible"}
+
+	dir := t.TempDir()
+	path := dir + "/meta.json"
+	if err := p.SaveJSON(path); err != nil {
+		t.Fatal(err)
+	}
+	raw, err := os.ReadFile(path)
+	if err != nil {
+		t.Fatal(err)
+	}
+	for _, key := range []string{`"description"`, `"category"`, `"difficulty"`, `"tags"`} {
+		if !strings.Contains(string(raw), key) {
+			t.Fatalf("saved JSON is missing %s:\n%s", key, raw)
+		}
+	}
+	q, err := LoadJSON(path)
+	if err != nil {
+		t.Fatal(err)
+	}
+	if q.Description != p.Description || q.Category != p.Category || q.Difficulty != p.Difficulty {
+		t.Fatalf("metadata round trip: got %q/%q/%d, want %q/%q/%d",
+			q.Description, q.Category, q.Difficulty, p.Description, p.Category, p.Difficulty)
+	}
+	if len(q.Tags) != len(p.Tags) {
+		t.Fatalf("tags round trip: got %v, want %v", q.Tags, p.Tags)
+	}
+	for i := range p.Tags {
+		if q.Tags[i] != p.Tags[i] {
+			t.Fatalf("tags round trip: got %v, want %v", q.Tags, p.Tags)
+		}
+	}
+	// The metadata is inert: the first order must be untouched.
+	a, err := p.Paraxial(geo.Wavelengthd)
+	if err != nil {
+		t.Fatal(err)
+	}
+	b, err := q.Paraxial(geo.Wavelengthd)
+	if err != nil {
+		t.Fatal(err)
+	}
+	if a.EFL != b.EFL || a.BFL != b.BFL {
+		t.Fatalf("metadata changed the first order: %g/%g vs %g/%g", a.EFL, a.BFL, b.EFL, b.BFL)
+	}
+	// Omitted when empty.
+	plain := biconvexBK7()
+	buf, err := json.Marshal(plain)
+	if err != nil {
+		t.Fatal(err)
+	}
+	for _, key := range []string{`"description"`, `"category"`, `"difficulty"`, `"tags"`} {
+		if strings.Contains(string(buf), key) {
+			t.Fatalf("empty metadata was not omitted (%s):\n%s", key, buf)
+		}
+	}
+	// Clone duplicates the tag slice: editing the copy must not touch the
+	// original.
+	clone := p.Clone()
+	clone.Tags[0] = "mutated"
+	if p.Tags[0] != "N-BK7" {
+		t.Fatalf("Clone shares the tags backing array: %v", p.Tags)
 	}
 }
 
