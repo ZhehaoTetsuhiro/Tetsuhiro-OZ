@@ -1,19 +1,19 @@
-// Command crosscheck exports reference spectra of the coating package in
-// JSON so an independent implementation (the Python `tmm` package) can be
-// compared point by point. The material tables are exported verbatim so the
-// cross-check isolates the transfer-matrix algorithm from the material
-// models.
+// Command crosscheck exports reference results of the OZ kernels for
+// independent comparison:
 //
-//	go run ./tools/crosscheck > oz_tmm.json
-//	python3 tools/crosscheck/crosscheck.py oz_tmm.json
+//	go run ./tools/crosscheck            > oz_tmm.json   (coating spectra; see crosscheck.py)
+//	go run ./tools/crosscheck --lens P.json              (lens first order + marginal ray; see lenscheck.py)
 package main
 
 import (
 	"encoding/json"
 	"fmt"
+	"math"
 	"os"
 
 	"tetsuhiro-oz/coating"
+	"tetsuhiro-oz/geo"
+	"tetsuhiro-oz/lens"
 )
 
 type layerSpec struct {
@@ -56,6 +56,10 @@ func grid(from, to, step float64) []float64 {
 }
 
 func main() {
+	if len(os.Args) >= 3 && os.Args[1] == "--lens" {
+		runLens(os.Args[2])
+		return
+	}
 	names := []string{"Air", "MgF2", "SiO2", "TiO2", "Ta2O5", "HfO2", "BK7", "FusedSilica"}
 	materials := map[string][][]float64{}
 	for _, name := range names {
@@ -119,6 +123,125 @@ func main() {
 	enc.SetIndent("", " ")
 	if err := enc.Encode(map[string]any{"materials": materials, "cases": cases}); err != nil {
 		fmt.Fprintln(os.Stderr, "crosscheck:", err)
+		os.Exit(1)
+	}
+}
+
+// runLens prints the first-order data of a prescription plus a marginal-ray
+// reference trace, for the rayoptics cross-check (lenscheck.py).
+func runLens(path string) {
+	p, err := lens.LoadJSON(path)
+	if err != nil {
+		fmt.Fprintln(os.Stderr, "lenscheck:", err)
+		os.Exit(1)
+	}
+	sys, err := p.System()
+	if err != nil {
+		fmt.Fprintln(os.Stderr, "lenscheck:", err)
+		os.Exit(1)
+	}
+	// Cross-check configuration: a "pseudo-infinite" finite object at 1e6 mm
+	// in front of surface 0. Both sides (this tool and the rayoptics model)
+	// use exactly this distance, so every compared quantity is defined by
+	// the same geometry; 1e6 mm keeps the infinity approximation at the 1e-6
+	// relative level while staying inside the numerically safe range of the
+	// rayoptics surface intersection.
+	const objDist = 1e6
+	pc := p.Clone()
+	pc.ObjectZMM = -objDist
+	par, err := pc.Paraxial(geo.Wavelengthd)
+	if err != nil {
+		fmt.Fprintln(os.Stderr, "lenscheck:", err)
+		os.Exit(1)
+	}
+	type surf struct {
+		Name      string  `json:"name"`
+		Radius    float64 `json:"radius_mm"`
+		Thickness float64 `json:"thickness_mm"`
+		Nd        float64 `json:"nd"`
+		Vd        float64 `json:"vd"`
+		Semi      float64 `json:"semi_mm"`
+	}
+	surfs := make([]surf, len(p.Cards))
+	for i, c := range p.Cards {
+		nd, vd := 1.0, 0.0
+		if c.Glass != "" {
+			g, ok := geo.Glass(c.Glass)
+			if !ok {
+				fmt.Fprintln(os.Stderr, "lenscheck: unknown glass", c.Glass)
+				os.Exit(1)
+			}
+			nd = g.N(geo.Wavelengthd)
+			vd = g.AbbeNumber()
+		}
+		th := 0.0
+		if i < len(p.Cards)-1 {
+			th = c.ThicknessMM
+		}
+		surfs[i] = surf{Name: c.Name, Radius: c.RadiusMM, Thickness: th, Nd: nd, Vd: vd, Semi: c.SemiAperMM}
+	}
+	pup, err := sys.EntrancePupil(geo.Field{}, geo.Wavelengthd)
+	if err != nil {
+		fmt.Fprintln(os.Stderr, "lenscheck:", err)
+		os.Exit(1)
+	}
+	// Marginal ray, defined exactly as rayoptics defines it: the real ray
+	// that starts at the on-axis object point (z = -objDist) and passes
+	// through the rim of the ENTRANCE PUPIL. The stop rim is knife-edge at
+	// fraction 1.0, so fall back to 0.999 and export the fraction actually
+	// used (the python side traces the same pupil fraction).
+	traceMarginal := func(frac float64) (float64, string) {
+		objPt := geo.V(0, 0, -objDist)
+		aimPt := geo.V(0, pup.Radius*frac, pup.Z)
+		dir := aimPt.Sub(objPt).Normalized()
+		if dir.IsNaN() {
+			return math.NaN(), "bad-aim"
+		}
+		res := sys.Trace(geo.NewRay(objPt, dir, geo.Wavelengthd))
+		if !res.OK() {
+			return math.NaN(), res.Status.String()
+		}
+		zf := par.VertexZ[len(par.VertexZ)-1] + par.BFL
+		d := res.Ray.Dir
+		if d.Z == 0 {
+			return math.NaN(), "escape"
+		}
+		t := (zf - res.Ray.Origin.Z) / d.Z
+		return res.Ray.Origin.Y + d.Y*t, "ok"
+	}
+	fracUsed := 1.0
+	marginalY, mStatus := traceMarginal(fracUsed)
+	if mStatus != "ok" {
+		fracUsed = 0.999
+		marginalY, mStatus = traceMarginal(fracUsed)
+	}
+	hUsed := pup.Radius * fracUsed
+	if math.IsNaN(marginalY) {
+		marginalY = 0 // keep the JSON encodable; status carries the truth
+	}
+	objZ := any(p.ObjectZMM)
+	if math.IsInf(p.ObjectZMM, -1) {
+		objZ = "inf"
+	}
+	out := map[string]any{
+		"surfaces":      surfs,
+		"object_z_mm":   objZ,
+		"object_distance_mm": objDist,
+		"wavelength_nm": geo.Wavelengthd,
+		"efl_d_mm":      par.EFL,
+		"bfl_d_mm":      par.BFL,
+		"fno_d":         par.FNumber,
+		"pupil_radius":  pup.Radius,
+		"pupil_z_mm":    pup.Z,
+		"marginal_radius_mm":     hUsed,
+		"marginal_pupil_fraction": fracUsed,
+		"marginal_status":        mStatus,
+		"marginal_y_at_focus_mm": marginalY,
+	}
+	enc := json.NewEncoder(os.Stdout)
+	enc.SetIndent("", " ")
+	if err := enc.Encode(out); err != nil {
+		fmt.Fprintln(os.Stderr, "lenscheck:", err)
 		os.Exit(1)
 	}
 }
