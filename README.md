@@ -34,5 +34,6 @@ WOS 的 optics 内核（含 MUSA/cuFFT GPU 加速的 FFT），几何光学与波
 - coating：TMM/材料/相位物理层已验真（与独立实现交叉对拍 1e-14）；优化器与模板完成；JSON I/O 完成
 - lens：处方模型 + DLS 优化器 + 消色差自主设计（EFL 偏差 2.5µm、色差 11µm、点列图 4~7µm）+ Monte-Carlo 公差（确定性）已完成
 - cmd/oz：CLI（design/eval/tol/coating/serve）+ HTTP 服务与单页前端可用
+- wave：几何→衍射桥（OPD→PSF/Strehl/MTF），对照 Airy/解析 MTF/Maréchal 验证，真实双胶合 Strehl=0.985
 - 内置示例库：波动光学（WOS）/几何光学（OZ）各 ≥520 例编写中
 - docs：VERIFICATION.md（精确性证据）已建；其余待补
