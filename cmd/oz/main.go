@@ -20,6 +20,7 @@ import (
 	"strings"
 	"time"
 
+	"tetsuhiro-oz/coating"
 	"tetsuhiro-oz/lens"
 )
 
@@ -39,6 +40,8 @@ func main() {
 		err = cmdEval(os.Args[2:])
 	case "tol", "tolerance":
 		err = cmdTol(os.Args[2:])
+	case "coating":
+		err = cmdCoating(os.Args[2:])
 	case "version", "-v", "--version":
 		fmt.Println("oz " + version)
 	case "help", "-h", "--help":
@@ -68,6 +71,11 @@ func usage() {
             --runs N --seed S --target-efl E
             --max-focal M --max-color M --max-rms-on M --max-rms-off M [--json out.json]
       Monte-Carlo 公差分析（确定性；至少给一个 max-* 判据）。
+  oz coating design --template <t> --out stack.json [--lambda 550 --from 420 --to 680
+      --pairs 12 --cutoff 550 --inc Air --sub BK7]
+      模板: single-ar | vcoat | broadband-ar | hr | lwp | swp | splitter（自主设计膜系）
+  oz coating spectrum <膜系.json> [--from 400 --to 700 --step 10 --angle 0 --pol s|p|u]
+      打印 R/T/A 光谱表。
   oz version | oz help
 `)
 }
@@ -192,6 +200,125 @@ func cmdTol(args []string) error {
 			return err
 		}
 		fmt.Fprintln(os.Stderr, "已写入", *jsonOut)
+	}
+	return nil
+}
+
+// cmdCoating dispatches the coating subcommands.
+func cmdCoating(args []string) error {
+	if len(args) < 1 {
+		return fmt.Errorf("coating: 需要子命令 design | spectrum")
+	}
+	sub, rest := args[0], args[1:]
+	switch sub {
+	case "design":
+		return cmdCoatingDesign(rest)
+	case "spectrum":
+		return cmdCoatingSpectrum(rest)
+	}
+	return fmt.Errorf("coating: 未知子命令 %q（可用: design, spectrum）", sub)
+}
+
+// cmdCoatingDesign runs one of the built-in coating templates and saves the
+// designed stack.
+func cmdCoatingDesign(args []string) error {
+	fs := flag.NewFlagSet("coating design", flag.ExitOnError)
+	template := fs.String("template", "", "模板: single-ar|vcoat|broadband-ar|hr|lwp|swp|splitter")
+	lambda := fs.Float64("lambda", 550, "设计波长 nm")
+	from := fs.Float64("from", 420, "宽带 AR 起始波长 nm")
+	to := fs.Float64("to", 680, "宽带 AR 结束波长 nm")
+	pairs := fs.Int("pairs", 12, "高反堆 (H L) 对数")
+	cutoff := fs.Float64("cutoff", 0, "边沿滤光片截止波长 nm")
+	inc := fs.String("inc", "Air", "入射介质（材料库名）")
+	sub := fs.String("sub", "BK7", "衬底（材料库名）")
+	out := fs.String("out", "", "膜系 JSON 输出路径（必填）")
+	if err := fs.Parse(args); err != nil {
+		return err
+	}
+	incM, ok := coating.LookupMaterial(*inc)
+	if !ok {
+		return fmt.Errorf("coating design: 未知入射介质 %q", *inc)
+	}
+	subM, ok := coating.LookupMaterial(*sub)
+	if !ok {
+		return fmt.Errorf("coating design: 未知衬底 %q", *sub)
+	}
+	var (
+		stack coating.Stack
+		res   *coating.Result
+		err   error
+	)
+	switch *template {
+	case "single-ar":
+		stack, res, err = coating.SingleLayerAR(incM, subM, *lambda, coating.Options{})
+	case "vcoat":
+		stack, res, err = coating.VCoat(incM, subM, *lambda, coating.Options{})
+	case "broadband-ar":
+		stack, res, err = coating.BroadbandAR(incM, subM, *from, *to, coating.Options{})
+	case "hr":
+		stack, res, err = coating.HighReflector(incM, subM, *lambda, *pairs, coating.Options{})
+	case "lwp":
+		if !(*cutoff > 0) {
+			return fmt.Errorf("coating design: lwp 需要 --cutoff")
+		}
+		stack, res, err = coating.LongWavePass(incM, subM, *cutoff, coating.Options{})
+	case "swp":
+		if !(*cutoff > 0) {
+			return fmt.Errorf("coating design: swp 需要 --cutoff")
+		}
+		stack, res, err = coating.ShortWavePass(incM, subM, *cutoff, coating.Options{})
+	case "splitter":
+		stack, res, err = coating.Splitter50(incM, subM, *lambda, coating.Options{})
+	default:
+		return fmt.Errorf("coating design: 未知模板 %q（可用: single-ar, vcoat, broadband-ar, hr, lwp, swp, splitter）", *template)
+	}
+	if err != nil {
+		return err
+	}
+	if res != nil {
+		fmt.Print(res.Summary())
+	}
+	if *out == "" {
+		return fmt.Errorf("coating design: 需要 --out 指定膜系 JSON 输出路径")
+	}
+	if err := stack.SaveJSON(*out); err != nil {
+		return err
+	}
+	fmt.Fprintln(os.Stderr, "已写入", *out)
+	return nil
+}
+
+// cmdCoatingSpectrum prints the R/T/A spectrum of a saved stack.
+func cmdCoatingSpectrum(args []string) error {
+	fs := flag.NewFlagSet("coating spectrum", flag.ExitOnError)
+	from := fs.Float64("from", 400, "起始波长 nm")
+	to := fs.Float64("to", 700, "结束波长 nm")
+	step := fs.Float64("step", 10, "波长步长 nm")
+	angle := fs.Float64("angle", 0, "入射角（度）")
+	pol := fs.String("pol", "u", "偏振 s|p|u")
+	if err := fs.Parse(args); err != nil {
+		return err
+	}
+	if fs.NArg() != 1 {
+		return fmt.Errorf("coating spectrum: 需要一个 <膜系.json> 参数")
+	}
+	stack, err := coating.LoadStackJSON(fs.Arg(0))
+	if err != nil {
+		return err
+	}
+	p, err := coating.ParsePolarization(*pol)
+	if err != nil {
+		return err
+	}
+	rows, err := stack.SpectrumRange(*from, *to, *step, *angle, p)
+	if err != nil {
+		return err
+	}
+	fmt.Printf("# %d layers, %.1f nm total, incidence %s, %.1f deg, pol %s\n",
+		len(stack.Layers), stack.TotalThicknessNm(), stack.Incident.Name, *angle, p)
+	fmt.Printf("# lambda_nm	R	T	A\n")
+	for _, r := range rows {
+		fmt.Printf("%.0f	%.6f	%.6f	%.6f\n", r.LambdaNm, r.R, r.T, r.A)
 	}
 	return nil
 }

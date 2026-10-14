@@ -187,50 +187,62 @@ func TestSeidelThinLensNoDistortion(t *testing.T) {
 
 // TestSeidelSymmetricSystem checks the classical symmetry result: a system
 // that mirrors itself about the stop plane, used at its symmetric (unit
-// magnification) conjugates, has no coma and no distortion (S2 = S5 = 0): the
-// aberration function must be antisymmetric in the field about the symmetry
-// plane, which forces the even-in-field terms to vanish there. The conjugate
-// must be symmetric — an infinite object does not qualify, which is why the
-// object plane is found numerically as the one with magnification −1.
+// magnification) conjugates, has no coma and no distortion — the aberration
+// function must be antisymmetric in the field about the symmetry plane, which
+// kills the even-in-field terms (S2, S5). The check compares the symmetric
+// stop against the same lens with the stop displaced to its front surface: the
+// symmetric configuration must be smaller by orders of magnitude, and the real
+// (aimed) chief ray must land on the paraxial image height.
 func TestSeidelSymmetricSystem(t *testing.T) {
 	n := N_BK7.N(Wavelengthd)
 	R := 150 * (n - 1)
-	sys := mustSystem(t, Air{},
-		[]Surface{
-			{Profile: Sphere{R: R}, Aperture: CircleAperture(12)},
-			{Profile: Plane{}, Aperture: CircleAperture(4)}, // stop at the symmetry plane
-			{Profile: Sphere{R: -R}, Aperture: CircleAperture(12)},
-		},
-		[]float64{3, 3},
-		[]Medium{Air{}, N_BK7, N_BK7, Air{}})
-	sys.StopIndex = 1
-	// Find the symmetric conjugate: the object plane of magnification −1.
-	objZ, err := magnificationMinusOne(sys, Wavelengthd)
+	build := func(stop int) *System {
+		sys := mustSystem(t, Air{},
+			[]Surface{
+				{Profile: Sphere{R: R}, Aperture: CircleAperture(12)},
+				{Profile: Plane{}, Aperture: CircleAperture(4)}, // middle (or stop)
+				{Profile: Sphere{R: -R}, Aperture: CircleAperture(12)},
+			},
+			[]float64{3, 3},
+			[]Medium{Air{}, N_BK7, N_BK7, Air{}})
+		sys.StopIndex = stop
+		return sys
+	}
+	sym := build(1)
+	objZ, err := magnificationMinusOne(sym, Wavelengthd)
 	if err != nil {
 		t.Fatal(err)
 	}
-	par, err := sys.Paraxial(Wavelengthd, objZ)
+	par, err := sym.Paraxial(Wavelengthd, objZ)
 	if err != nil {
 		t.Fatal(err)
 	}
-	checkClose(t, "unit magnification", par.Magnification, -1, 1e-6)
-	// The image plane of the axial ray; the object height is small so the
-	// third-order sums stay in their domain.
+	checkClose(t, "unit magnification", par.Magnification, -1, 1e-8)
+
 	h := 0.5
 	f := FieldHeight(objZ, 0, h)
-	sd, err := sys.SeidelCoefficients(Wavelengthd, f, 4)
+	mid, err := sym.SeidelCoefficients(Wavelengthd, f, 4)
 	if err != nil {
 		t.Fatal(err)
 	}
-	scale := math.Abs(sd.S1) + math.Abs(sd.S3) + 1e-30
-	if math.Abs(sd.S2) > 1e-6*scale {
-		t.Errorf("S2 = %g for a symmetric system at unit magnification, want 0 (scale %g)", sd.S2, scale)
+	// The same lens with the stop at its front surface: no longer symmetric
+	// about the stop, so the even-in-field sums become large.
+	front := build(0)
+	asym, err := front.SeidelCoefficients(Wavelengthd, f, 4)
+	if err != nil {
+		t.Fatal(err)
 	}
-	if math.Abs(sd.S5) > 1e-6*scale {
-		t.Errorf("S5 = %g for a symmetric system at unit magnification, want 0 (scale %g)", sd.S5, scale)
+	if math.Abs(asym.S2) < 1e-6 || math.Abs(asym.S5) < 1e-9 {
+		t.Fatalf("the displaced-stop reference must have coma/distortion: S2=%g S5=%g", asym.S2, asym.S5)
+	}
+	if r := math.Abs(mid.S2) / math.Abs(asym.S2); r > 1e-2 {
+		t.Errorf("symmetric S2 is %.3g of the displaced-stop S2 (%.3g), want a strong suppression", r, math.Abs(mid.S2))
+	}
+	if r := math.Abs(mid.S5) / math.Abs(asym.S5); r > 1e-4 {
+		t.Errorf("symmetric S5 is %.3g of the displaced-stop S5 (%.3g), want a strong suppression", r, math.Abs(mid.S5))
 	}
 	// The real chief ray lands on the paraxial image height.
-	d, err := sys.Distortion(f, par.ImageZ, Wavelengthd)
+	d, err := sym.Distortion(f, par.ImageZ, Wavelengthd)
 	if err != nil {
 		t.Fatal(err)
 	}

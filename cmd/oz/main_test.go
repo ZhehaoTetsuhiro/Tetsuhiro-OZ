@@ -59,3 +59,22 @@ func TestUsagePaths(t *testing.T) {
 		t.Fatal("unknown lens type accepted")
 	}
 }
+
+// TestCoatingRoundTrip drives the coating CLI: design a single-layer AR,
+// save it, reload it and scan its spectrum.
+func TestCoatingRoundTrip(t *testing.T) {
+	dir := t.TempDir()
+	stackPath := filepath.Join(dir, "ar.json")
+	if err := cmdCoating([]string{"design", "--template", "single-ar", "--lambda", "550", "--out", stackPath}); err != nil {
+		t.Fatal(err)
+	}
+	if err := cmdCoating([]string{"spectrum", "--from", "540", "--to", "560", "--step", "10", stackPath}); err != nil {
+		t.Fatal(err)
+	}
+	if err := cmdCoating([]string{"design", "--template", "nope", "--out", stackPath}); err == nil {
+		t.Fatal("unknown template accepted")
+	}
+	if err := cmdCoating([]string{"design", "--template", "single-ar"}); err == nil {
+		t.Fatal("missing --out accepted")
+	}
+}
