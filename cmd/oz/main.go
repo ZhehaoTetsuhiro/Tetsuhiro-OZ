@@ -1,0 +1,197 @@
+// Command oz is the Tetsuhiro-OZ command line: autonomous lens design,
+// prescription evaluation and deterministic Monte-Carlo tolerance analysis
+// on top of the OZ kernel.
+//
+// Subcommands:
+//
+//	oz design achromat --efl 100 [--crown N-BK7 --flint F2 ...] [--out lens.json]
+//	oz eval lens.json
+//	oz tol lens.json --radius 0.05 --thickness 0.05 --index 0.0005 --runs 2000 \
+//	    --max-rms-on 0.02 --max-focal 0.1 --target-efl 100
+//	oz version
+package main
+
+import (
+	"encoding/json"
+	"flag"
+	"fmt"
+	"math"
+	"os"
+	"strings"
+	"time"
+
+	"tetsuhiro-oz/lens"
+)
+
+// version of the OZ preview; keep in sync with /VERSION at the repo root.
+const version = "0.1.0-Preview"
+
+func main() {
+	if len(os.Args) < 2 {
+		usage()
+		os.Exit(2)
+	}
+	var err error
+	switch os.Args[1] {
+	case "design":
+		err = cmdDesign(os.Args[2:])
+	case "eval":
+		err = cmdEval(os.Args[2:])
+	case "tol", "tolerance":
+		err = cmdTol(os.Args[2:])
+	case "version", "-v", "--version":
+		fmt.Println("oz " + version)
+	case "help", "-h", "--help":
+		usage()
+	default:
+		fmt.Fprintf(os.Stderr, "oz: unknown command %q\n\n", os.Args[1])
+		usage()
+		os.Exit(2)
+	}
+	if err != nil {
+		fmt.Fprintln(os.Stderr, "oz:", err)
+		os.Exit(1)
+	}
+}
+
+func usage() {
+	fmt.Print(`oz — Tetsuhiro-OZ 光学设计命令行 ` + version + `
+
+用法:（Go 惯例：选项在前，文件参数在最后）
+  oz design achromat [选项] --out lens.json
+      自主设计消色差双胶合（薄透镜解 → 厚透镜牛顿消色差 → DLS 抛光）。
+      选项: --efl 焦距mm(必) --crown --flint --semi --field 视场角(度) --iter --no-polish --out
+  oz eval <处方.json>
+      打印一阶性质 / F–C 色差 / 点列图报告。
+  oz tol [选项] <处方.json>
+      选项: --radius R --thickness T --index dN [--conic K] [--coef A]
+            --runs N --seed S --target-efl E
+            --max-focal M --max-color M --max-rms-on M --max-rms-off M [--json out.json]
+      Monte-Carlo 公差分析（确定性；至少给一个 max-* 判据）。
+  oz version | oz help
+`)
+}
+
+func cmdDesign(args []string) error {
+	fs := flag.NewFlagSet("design", flag.ExitOnError)
+	sub := ""
+	if len(args) > 0 && !strings.HasPrefix(args[0], "-") {
+		sub, args = args[0], args[1:]
+	}
+	switch sub {
+	case "", "achromat":
+	default:
+		return fmt.Errorf("design: unknown lens type %q (have: achromat)", sub)
+	}
+	efl := fs.Float64("efl", 0, "有效焦距 mm（必填）")
+	crown := fs.String("crown", "N-BK7", "冕玻璃名 (geo 玻璃目录)")
+	flint := fs.String("flint", "F2", "火石玻璃名")
+	semi := fs.Float64("semi", 0, "半口径 mm（0 = efl/10）")
+	fieldDeg := fs.Float64("field", 0.5, "离轴视场角（度）")
+	iter := fs.Int("iter", 0, "DLS 迭代上限（0 = 默认）")
+	noPolish := fs.Bool("no-polish", false, "只做解析解 + 厚透镜消色差，不抛光")
+	out := fs.String("out", "", "处方 JSON 输出路径")
+	if err := fs.Parse(args); err != nil {
+		return err
+	}
+	if *efl <= 0 {
+		return fmt.Errorf("design achromat: --efl 必填且为正")
+	}
+	opts := &lens.DesignOptions{SkipPolish: *noPolish, MaxIter: *iter}
+	if *fieldDeg > 0 {
+		opts.Fields = []lens.Field{{TanX: 0, TanY: 0}, {TanX: 0, TanY: math.Tan(*fieldDeg * math.Pi / 180)}}
+	}
+	t0 := time.Now()
+	p, res, err := lens.DesignAchromat(*efl, *crown, *flint, *semi, opts)
+	if err != nil {
+		return err
+	}
+	if res != nil {
+		fmt.Fprintf(os.Stderr, "optimizer: %d 次接受迭代 / %d 次求值, merit=%.6g, %.2fs\n",
+			res.Iter, res.Evals, res.Merit, time.Since(t0).Seconds())
+	}
+	if rep, err := lens.Describe(p); err == nil {
+		fmt.Println(rep)
+	}
+	if *out != "" {
+		if err := p.SaveJSON(*out); err != nil {
+			return err
+		}
+		fmt.Fprintln(os.Stderr, "已写入", *out)
+	}
+	return nil
+}
+
+func cmdEval(args []string) error {
+	fs := flag.NewFlagSet("eval", flag.ExitOnError)
+	if err := fs.Parse(args); err != nil {
+		return err
+	}
+	if fs.NArg() != 1 {
+		return fmt.Errorf("eval: 需要一个 <处方.json> 参数")
+	}
+	p, err := lens.LoadJSON(fs.Arg(0))
+	if err != nil {
+		return err
+	}
+	rep, err := lens.Describe(p)
+	if err != nil {
+		return err
+	}
+	fmt.Println(rep)
+	return nil
+}
+
+func cmdTol(args []string) error {
+	fs := flag.NewFlagSet("tol", flag.ExitOnError)
+	radius := fs.Float64("radius", 0, "半径公差 mm（±，均匀）")
+	thick := fs.Float64("thickness", 0, "厚度公差 mm（±）")
+	conic := fs.Float64("conic", 0, "圆锥常数公差（±）")
+	coef := fs.Float64("coef", 0, "非球面系数公差（±）")
+	index := fs.Float64("index", 0, "玻璃熔炼 Δn（±，整批共享）")
+	runs := fs.Int("runs", 2000, "Monte-Carlo 次数")
+	seed := fs.Int64("seed", 1, "随机种子（确定性）")
+	maxOn := fs.Float64("max-rms-on", 0, "轴上点列 RMS 判据 mm")
+	maxOff := fs.Float64("max-rms-off", 0, "离轴点列 RMS 判据 mm")
+	maxColor := fs.Float64("max-color", 0, "F–C 色差判据 mm")
+	maxFocal := fs.Float64("max-focal", 0, "焦距误差判据 mm")
+	target := fs.Float64("target-efl", 0, "目标焦距 mm（配合 --max-focal）")
+	jsonOut := fs.String("json", "", "报告 JSON 输出路径")
+	if err := fs.Parse(args); err != nil {
+		return err
+	}
+	if fs.NArg() != 1 {
+		return fmt.Errorf("tol: 需要一个 <处方.json> 参数")
+	}
+	p, err := lens.LoadJSON(fs.Arg(0))
+	if err != nil {
+		return err
+	}
+	spec := lens.ToleranceSpec{
+		RadiusMM: *radius, ThicknessMM: *thick,
+		ConicK: *conic, CoefAbs: *coef, IndexDelta: *index,
+	}
+	crit := lens.ToleranceCriteria{
+		TargetEFLMM: *target, MaxFocalErrMM: *maxFocal,
+		MaxColorShiftMM: *maxColor, MaxRMSOnAxisMM: *maxOn, MaxRMSOffAxisMM: *maxOff,
+	}
+	t0 := time.Now()
+	rep, err := lens.RunTolerances(p, spec, crit, &lens.ToleranceOptions{
+		Runs: *runs, Seed: *seed,
+	})
+	if err != nil {
+		return err
+	}
+	fmt.Printf("%s\n  （%d 次运行，%.2fs）\n", rep.String(), rep.Runs, time.Since(t0).Seconds())
+	if *jsonOut != "" {
+		buf, err := json.MarshalIndent(rep, "", "  ")
+		if err != nil {
+			return err
+		}
+		if err := os.WriteFile(*jsonOut, append(buf, '\n'), 0o644); err != nil {
+			return err
+		}
+		fmt.Fprintln(os.Stderr, "已写入", *jsonOut)
+	}
+	return nil
+}

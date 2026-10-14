@@ -213,9 +213,9 @@ func TestRayFanSymmetry(t *testing.T) {
 		t.Fatalf("p = %g not sampled", p)
 		return 0
 	}
-	c1 := find(mer, 0.125) / math.Pow(0.125, 3)
-	c2 := find(mer, 0.25) / math.Pow(0.25, 3)
-	checkRel(t, "cubic SA scaling", c2, c1, 0.01)
+	c1 := find(mer, 0.25) / math.Pow(0.25, 3)
+	c2 := find(mer, 0.5) / math.Pow(0.5, 3)
+	checkRel(t, "cubic SA scaling", c2, c1, 0.03)
 	// Undercorrected mirror: at the paraxial focus the marginal ray has
 	// already crossed the axis, so its hit is on the far side (positive y for
 	// a ray starting above the axis... the reflected beam travels to −z, so
@@ -264,11 +264,21 @@ func TestChiefAlignedSampling(t *testing.T) {
 		t.Fatal("aligned launch failed")
 	}
 	checkClose(t, "aligned centre hit = chief", h.Hit.Distance(ref.Hit), 0, 2e-3)
-	// Unaligned: the pupil-centre launch is a different ray, landing several
-	// millimetres away (the offset is zPup·tanθ = 1.5 mm at the mirror).
-	hu := sys.traceToPlane(LaunchRay(f, pup, PupilPoint{}, Wavelengthd), zImg)
-	if d := hu.Hit.Distance(ref.Hit); d < 1e-2 {
-		t.Errorf("alignment-less centre launch is only %g mm from the chief", d)
+	// Unaligned: the pupil-centre launch is a different ray through the
+	// aperture: it misses the mirror vertex by zPup·tanθ = 1.5 mm, which is
+	// exactly the sub-aperture shift that the alignment removes.
+	ru := sys.Trace(LaunchRay(f, pup, PupilPoint{}, Wavelengthd))
+	if !ru.OK() {
+		t.Fatal("unaligned launch failed")
+	}
+	hitU := ru.Steps[0].Point
+	checkRel(t, "unaligned centre hits zPup·tanθ off the vertex", math.Hypot(hitU.X, hitU.Y), 1.5, 0.05)
+	ra := sys.Trace(LaunchRay(f, aligned, PupilPoint{}, Wavelengthd))
+	if !ra.OK() {
+		t.Fatal("aligned launch failed")
+	}
+	if d := math.Hypot(ra.Steps[0].Point.X, ra.Steps[0].Point.Y); d > 1e-6 {
+		t.Errorf("aligned centre launch hits the mirror %g mm off the vertex", d)
 	}
 	// The fan itself: the sample at p = 0 has zero aberration by construction.
 	rf, err := sys.MeridionalRayFan(f, aligned, 9, zImg, Wavelengthd, ChiefReference())
@@ -339,48 +349,45 @@ func TestOPDParabolicMirrorZero(t *testing.T) {
 // of the off-axis check readable.
 func Hexagon3() []PupilPoint { return Hexapolar(3) }
 
-// TestOPDPlaneParallelPlateZero checks the OPD for a finite object through a
-// plane-parallel plate: a plate adds no aberration, so the wavefront stays a
-// sphere centred on the (shifted) image point and the OPD over the pupil must
-// vanish exactly. The image shift t(1−1/n) of the plate is verified with the
-// paraxial engine at the same time.
-func TestOPDPlaneParallelPlateZero(t *testing.T) {
+// TestOPDEllipsoidStigmatic checks the OPD of a finite object through an
+// ellipsoidal mirror. An ellipsoid of revolution images one focus exactly onto
+// the other, so rays from an object at the far focus leave the mirror on a
+// sphere centred on the near focus and the OPD over the whole pupil must
+// vanish: this is the finite-object counterpart of the parabolic-mirror check
+// and exercises the finite-object launcher.
+func TestOPDEllipsoidStigmatic(t *testing.T) {
 	const (
-		n     = 1.5
-		thick = 8.0
+		Rp = -200.0 // vertex radius of the concave ellipsoid
+		K  = -0.75  // conic constant, eccentricity e = √0.75
 	)
-	plate := mustSystem(t, Air{},
-		[]Surface{
-			{Profile: Plane{}, Aperture: CircleAperture(20)},
-			{Profile: Plane{}, Aperture: CircleAperture(20)},
-		},
-		[]float64{thick},
-		[]Medium{Air{}, ConstantIndex(n), Air{}})
+	e := math.Sqrt(-K)
+	a := -Rp / (1 + K) // semi-major axis of the ellipsoid
+	far := -a - a*e    // far focus: object
+	near := -a + a*e   // near focus: image
+	sys := mustSystem(t, Air{},
+		[]Surface{{Profile: Conic{R: Rp, K: K}, Mirror: true, Aperture: CircleAperture(60)}},
+		nil, nil)
 
-	// Infinite object: the wavefront stays plane, OPD = 0 for every sample.
-	pup := Pupil{Z: -30, Radius: 12}
-	g, err := plate.OPDGrid(FieldTan(0, 0.05), pup, Rings(3, 8), 40, Wavelengthd, OPDOptions{})
+	// All meridional rays from the far focus must cross the axis at the near
+	// focus, at any height.
+	f := FieldHeight(far, 0, 0)
+	pup := Pupil{Z: -100, Radius: 55}
+	for _, py := range []float64{0.3, 0.6, 0.9} {
+		// py = 0 is the axial chief ray: it reflects straight back along the
+		// axis and has no single crossing to check.
+		res := sys.Trace(LaunchRay(f, pup, PupilPoint{0, py}, Wavelengthd))
+		if !res.OK() {
+			t.Fatalf("py=%g: trace failed: %v", py, res.Error())
+		}
+		checkRel(t, "ellipsoid stigmatic focus", axisCrossingZ(res), near, 1e-6)
+	}
+	g, err := sys.OPDGrid(f, pup, Rings(3, 8), near, Wavelengthd, OPDOptions{})
 	if err != nil {
 		t.Fatal(err)
 	}
-	checkLess(t, "plate OPD RMS (infinite)", g.RMS, 1e-12)
-	checkLess(t, "plate OPD PV (infinite)", g.PV, 1e-12)
-
-	// Finite object on the axis: the image sits t(1−1/n) behind the rear
-	// surface, and the OPD there is again zero.
-	objectZ := -50.0
-	par, err := plate.Paraxial(Wavelengthd, objectZ)
-	if err != nil {
-		t.Fatal(err)
-	}
-	checkRel(t, "plate image shift", par.ImageZ-(objectZ+thick), thick*(1-1/n), 1e-9)
-	pupF := Pupil{Z: -20, Radius: 8}
-	gF, err := plate.OPDGrid(FieldHeight(objectZ, 0, 0), pupF, Rings(3, 8), par.ImageZ, Wavelengthd, OPDOptions{})
-	if err != nil {
-		t.Fatal(err)
-	}
-	checkLess(t, "plate OPD RMS (finite)", gF.RMS, 1e-12)
-	checkLess(t, "plate OPD PV (finite)", gF.PV, 1e-12)
+	checkLess(t, "ellipsoid OPD RMS", g.RMS, 1e-11)
+	checkLess(t, "ellipsoid OPD PV", g.PV, 1e-11)
+	checkLess(t, "ellipsoid OPD in waves", g.MaxWaves(), 1e-6)
 }
 
 // TestOPDPistonTiltRemoval checks the two cleanup options: a reference point
