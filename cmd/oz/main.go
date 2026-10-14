@@ -22,6 +22,7 @@ import (
 
 	"tetsuhiro-oz/coating"
 	"tetsuhiro-oz/lens"
+	"tetsuhiro-oz/plot"
 )
 
 // version of the OZ preview; keep in sync with /VERSION at the repo root.
@@ -301,6 +302,7 @@ func cmdCoatingSpectrum(args []string) error {
 	step := fs.Float64("step", 10, "波长步长 nm")
 	angle := fs.Float64("angle", 0, "入射角（度）")
 	pol := fs.String("pol", "u", "偏振 s|p|u")
+	svgOut := fs.String("svg", "", "把 R/T 光谱写成 SVG 图到该路径（可嵌入报告/网页）")
 	if err := fs.Parse(args); err != nil {
 		return err
 	}
@@ -324,6 +326,24 @@ func cmdCoatingSpectrum(args []string) error {
 	fmt.Printf("# lambda_nm	R	T	A\n")
 	for _, r := range rows {
 		fmt.Printf("%.0f	%.6f	%.6f	%.6f\n", r.LambdaNm, r.R, r.T, r.A)
+	}
+	if *svgOut != "" {
+		ptsR := make([][2]float64, 0, len(rows))
+		ptsT := make([][2]float64, 0, len(rows))
+		for _, r := range rows {
+			ptsR = append(ptsR, [2]float64{r.LambdaNm, r.R})
+			ptsT = append(ptsT, [2]float64{r.LambdaNm, r.T})
+		}
+		ch := plot.NewChart(720, 420)
+		ch.SetTitle(fmt.Sprintf("R/T spectrum: %d layers, %.1f deg, pol %s", len(stack.Layers), *angle, p))
+		ch.SetLabels("wavelength (nm)", "R / T")
+		ch.SetRange(0, 0, 0, 1.02) // x 自动、y 固定 0..1.02
+		ch.AddLine("R", "#ff6b6b", ptsR)
+		ch.AddLine("T", "#4dabf7", ptsT)
+		if err := ch.WriteFile(*svgOut); err != nil {
+			return err
+		}
+		fmt.Printf("# SVG 图已写入 %s\n", *svgOut)
 	}
 	return nil
 }
