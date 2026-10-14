@@ -53,8 +53,8 @@ func (c ConstIndex) Model() string {
 // the usual analytic fit for evaporated thin films over the visible and near
 // infrared. Set Ka = Kb = 0 for a lossless model.
 type Cauchy struct {
-	A, B, C  float64 // refractive index coefficients (lambda in micrometres)
-	Ka, Kb   float64 // extinction coefficients (lambda in micrometres)
+	A, B, C float64 // refractive index coefficients (lambda in micrometres)
+	Ka, Kb  float64 // extinction coefficients (lambda in micrometres)
 }
 
 // IndexNm implements Dispersion.

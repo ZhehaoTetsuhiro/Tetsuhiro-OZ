@@ -123,5 +123,5 @@ func randomStack(rng *rand.Rand, n int, lossy bool, nMin, nMax, dMin, dMax float
 			ThicknessNm: dMin + rng.Float64()*(dMax-dMin),
 		}
 	}
-	return NewStack(Air, NewMaterial("random substrate", ConstIndex{N: 1.4 + rng.Float64() * 0.3}), layers...)
+	return NewStack(Air, NewMaterial("random substrate", ConstIndex{N: 1.4 + rng.Float64()*0.3}), layers...)
 }

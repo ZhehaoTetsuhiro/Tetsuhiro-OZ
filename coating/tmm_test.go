@@ -13,8 +13,8 @@ import (
 func TestSingleLayerARZeroReflectance(t *testing.T) {
 	const lambda = 550.0
 	for _, tc := range []struct {
-		name      string
-		n0, ns    float64
+		name   string
+		n0, ns float64
 	}{
 		{"air/BK7", 1.0, 1.5168},
 		{"air/fused silica", 1.0, 1.4585},
@@ -178,7 +178,7 @@ func TestEnergyConservation(t *testing.T) {
 		lossy := i%2 == 0
 		st := randomStack(rng, nLayers, lossy, 1.1, 2.5, 10, 1200)
 		lambda := 300 + rng.Float64()*1300
-		theta := rng.Float64()*89.5 * sign(rng)
+		theta := rng.Float64() * 89.5 * sign(rng)
 		for _, pol := range []Polarization{PolS, PolP, PolUnpolarized} {
 			smp, err := st.Evaluate(lambda, theta, pol)
 			if err != nil {
@@ -215,11 +215,11 @@ func sign(rng *rand.Rand) float64 {
 func TestAbsorptionFromInternalField(t *testing.T) {
 	const lambda = 532.0
 	cases := []struct {
-		name    string
-		n1, k1  float64
-		d       float64
-		ns      float64
-		theta   float64
+		name   string
+		n1, k1 float64
+		d      float64
+		ns     float64
+		theta  float64
 	}{
 		{"normal incidence", 1.6, 0.02, 400, 1.52, 0},
 		{"oblique", 2.1, 0.005, 250, 1.52, 45},

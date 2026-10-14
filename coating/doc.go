@@ -9,6 +9,7 @@
 //
 //   - Wavelengths and layer thicknesses are in nanometres (nm), incidence
 //     angles in degrees, measured from the surface normal.
+//
 //   - The complex refractive index follows the physics convention
 //
 //     n = n' + i·k,   k >= 0 absorbing,
@@ -16,10 +17,12 @@
 //     with the time dependence exp(-i·omega·t). A plane wave therefore carries
 //     the factor exp(i·k0·n·z) with k0 = 2*pi/lambda, so an absorbing medium
 //     attenuates it.
+//
 //   - s-polarization means E perpendicular to the plane of incidence (the
 //     tangential field is Ey), p-polarization means E inside that plane (the
 //     tangential field is Ex). "Unpolarized" results are the arithmetic mean of
 //     the two.
+//
 //   - Reflectance, transmittance and absorptance are power (energy) ratios of
 //     the semi-infinite substrate system: R + T + A = 1, with
 //     A = 1 - R - T (the residue is clamped when it is pure rounding noise).
