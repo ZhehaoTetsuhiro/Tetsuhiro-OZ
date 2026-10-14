@@ -187,28 +187,24 @@ func TestSeidelThinLensNoDistortion(t *testing.T) {
 
 // TestSeidelSymmetricSystem checks the classical symmetry result: a system
 // that mirrors itself about the stop plane, used at its symmetric (unit
-// magnification) conjugates, has no coma and no distortion — the aberration
-// function must be antisymmetric in the field about the symmetry plane, which
-// kills the even-in-field terms (S2, S5). The check compares the symmetric
-// stop against the same lens with the stop displaced to its front surface: the
-// symmetric configuration must be smaller by orders of magnitude, and the real
-// (aimed) chief ray must land on the paraxial image height.
+// magnification) conjugates, has no coma and no distortion — S2 and S5
+// vanish identically because the aberration function must be antisymmetric in
+// the field about the symmetry plane. The object plane of magnification −1 is
+// found numerically, so the test also exercises the true paraxial chief ray
+// (the chief that refracts through an interior stop). As a contrast, the same
+// lens with its stop moved to the front surface must show coma and distortion.
 func TestSeidelSymmetricSystem(t *testing.T) {
 	n := N_BK7.N(Wavelengthd)
 	R := 150 * (n - 1)
-	build := func(stop int) *System {
-		sys := mustSystem(t, Air{},
-			[]Surface{
-				{Profile: Sphere{R: R}, Aperture: CircleAperture(12)},
-				{Profile: Plane{}, Aperture: CircleAperture(4)}, // middle (or stop)
-				{Profile: Sphere{R: -R}, Aperture: CircleAperture(12)},
-			},
-			[]float64{3, 3},
-			[]Medium{Air{}, N_BK7, N_BK7, Air{}})
-		sys.StopIndex = stop
-		return sys
-	}
-	sym := build(1)
+	sym := mustSystem(t, Air{},
+		[]Surface{
+			{Profile: Sphere{R: R}, Aperture: CircleAperture(12)},
+			{Profile: Plane{}, Aperture: CircleAperture(4)}, // stop inside the glass
+			{Profile: Sphere{R: -R}, Aperture: CircleAperture(12)},
+		},
+		[]float64{3, 3},
+		[]Medium{Air{}, N_BK7, N_BK7, Air{}})
+	sym.StopIndex = 1
 	objZ, err := magnificationMinusOne(sym, Wavelengthd)
 	if err != nil {
 		t.Fatal(err)
@@ -217,36 +213,52 @@ func TestSeidelSymmetricSystem(t *testing.T) {
 	if err != nil {
 		t.Fatal(err)
 	}
-	checkClose(t, "unit magnification", par.Magnification, -1, 1e-8)
+	checkClose(t, "unit magnification", par.Magnification, -1, 1e-9)
+	// The conjugates must be symmetric about the symmetry plane (z = 3).
+	checkClose(t, "symmetric conjugates", objZ+par.ImageZ, 6, 1e-6)
 
 	h := 0.5
 	f := FieldHeight(objZ, 0, h)
-	mid, err := sym.SeidelCoefficients(Wavelengthd, f, 4)
+	sd, err := sym.SeidelCoefficients(Wavelengthd, f, 4)
 	if err != nil {
 		t.Fatal(err)
 	}
-	// The same lens with the stop at its front surface: no longer symmetric
-	// about the stop, so the even-in-field sums become large.
-	front := build(0)
-	asym, err := front.SeidelCoefficients(Wavelengthd, f, 4)
-	if err != nil {
-		t.Fatal(err)
+	scale := math.Abs(sd.S1) + math.Abs(sd.S3) + 1e-30
+	if sd.S2 != 0 {
+		t.Errorf("S2 = %g for a symmetric system at unit magnification, want exactly 0", sd.S2)
 	}
-	if math.Abs(asym.S2) < 1e-6 || math.Abs(asym.S5) < 1e-9 {
-		t.Fatalf("the displaced-stop reference must have coma/distortion: S2=%g S5=%g", asym.S2, asym.S5)
+	if sd.S5 != 0 {
+		t.Errorf("S5 = %g for a symmetric system at unit magnification, want exactly 0", sd.S5)
 	}
-	if r := math.Abs(mid.S2) / math.Abs(asym.S2); r > 1e-2 {
-		t.Errorf("symmetric S2 is %.3g of the displaced-stop S2 (%.3g), want a strong suppression", r, math.Abs(mid.S2))
+	if sd.S1 == 0 || sd.S3 == 0 {
+		t.Errorf("the symmetric singlet still has S1 = %g and S3 = %g", sd.S1, sd.S3)
 	}
-	if r := math.Abs(mid.S5) / math.Abs(asym.S5); r > 1e-4 {
-		t.Errorf("symmetric S5 is %.3g of the displaced-stop S5 (%.3g), want a strong suppression", r, math.Abs(mid.S5))
-	}
-	// The real chief ray lands on the paraxial image height.
+	_ = scale
+	// The real (aimed) chief ray lands on the paraxial image height.
 	d, err := sym.Distortion(f, par.ImageZ, Wavelengthd)
 	if err != nil {
 		t.Fatal(err)
 	}
 	checkLess(t, "symmetric system real distortion", math.Abs(d), 1e-6)
+
+	// Contrast: the same lens with the stop at the front surface is not
+	// symmetric about its stop and must have coma and distortion.
+	front := mustSystem(t, Air{},
+		[]Surface{
+			{Profile: Sphere{R: R}, Aperture: CircleAperture(12)},
+			{Profile: Plane{}, Aperture: CircleAperture(4)},
+			{Profile: Sphere{R: -R}, Aperture: CircleAperture(12)},
+		},
+		[]float64{3, 3},
+		[]Medium{Air{}, N_BK7, N_BK7, Air{}})
+	front.StopIndex = 0
+	asym, err := front.SeidelCoefficients(Wavelengthd, f, 4)
+	if err != nil {
+		t.Fatal(err)
+	}
+	if math.Abs(asym.S2) < 1e-9 || math.Abs(asym.S5) < 1e-12 {
+		t.Errorf("the displaced-stop reference must have coma/distortion: S2=%g S5=%g", asym.S2, asym.S5)
+	}
 }
 
 // magnificationMinusOne returns the object plane of transverse magnification

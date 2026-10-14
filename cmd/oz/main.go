@@ -42,6 +42,8 @@ func main() {
 		err = cmdTol(os.Args[2:])
 	case "coating":
 		err = cmdCoating(os.Args[2:])
+	case "serve":
+		err = cmdServe(os.Args[2:])
 	case "version", "-v", "--version":
 		fmt.Println("oz " + version)
 	case "help", "-h", "--help":
@@ -76,6 +78,9 @@ func usage() {
       模板: single-ar | vcoat | broadband-ar | hr | lwp | swp | splitter（自主设计膜系）
   oz coating spectrum <膜系.json> [--from 400 --to 700 --step 10 --angle 0 --pol s|p|u]
       打印 R/T/A 光谱表。
+  oz serve [--addr :1130]
+      启动本地 HTTP 服务（JSON API + 单页前端）：/api/lens/design、/api/lens/eval、
+      /api/lens/tol、/api/coating/design、/api/coating/spectrum、/api/version。
   oz version | oz help
 `)
 }

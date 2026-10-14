@@ -218,18 +218,45 @@ func (s *System) SeidelCoefficients(lambdaNm float64, f Field, pupilRadius float
 	}
 	ysM, usM, uaM := traceThirdOrderRay(els, y0, u0)
 
-	// Chief ray of the field: the ray that crosses the stop vertex.
+	// Chief ray of the field: the ray that crosses the stop vertex. Its
+	// starting data at the plane of surface 0 follow from the linear
+	// condition "the traced ray passes through the stop centre", evaluated
+	// with the ray transfer matrix from surface 0 to the stop plane (this is
+	// the true paraxial chief ray; for a stop at surface 0 it reduces to the
+	// straight line through the stop vertex).
 	z0 := s.VertexZ(0)
-	zStop := s.VertexZ(s.StopIndex)
 	tx, ty := f.Transverse()
 	hMag := math.Hypot(tx, ty)
+	// (y, u) matrix from the plane of surface 0 to the plane of the stop.
+	ma, mb := 1.0, 0.0
+	mc, md := 0.0, 1.0
+	for j := 0; j < s.StopIndex; j++ {
+		phi := (els[j].nA - els[j].nB) * els[j].c
+		// refraction: u' = −(φ/n')·y + (n/n')·u
+		na, nb := ma, mb
+		nc := -phi/els[j].nA*ma + els[j].nB/els[j].nA*mc
+		nd := -phi/els[j].nA*mb + els[j].nB/els[j].nA*md
+		// transfer over the following gap: y' = y + t·u
+		ma, mb = na+els[j].t*nc, nb+els[j].t*nd
+		mc, md = nc, nd
+	}
 	var uC0, yC0 float64
 	if f.Finite {
-		uC0 = -hMag / (zStop - f.ObjectZ)
-		yC0 = hMag + uC0*(z0-f.ObjectZ)
+		// The ray leaves the object point (hMag, ObjectZ): y0 = hMag + u0·D
+		// with D the distance to the plane of surface 0; y_stop = a·y0+b·u0.
+		D := z0 - f.ObjectZ
+		den := ma*D + mb
+		if den == 0 {
+			return nil, fmt.Errorf("geo: Seidel: chief ray undefined (the stop images to infinity)")
+		}
+		uC0 = -ma * hMag / den
+		yC0 = hMag + uC0*D
 	} else {
 		uC0 = -hMag
-		yC0 = hMag * (zStop - z0)
+		if ma == 0 {
+			return nil, fmt.Errorf("geo: Seidel: chief ray undefined (the stop images to infinity)")
+		}
+		yC0 = -mb * uC0 / ma
 	}
 	ysC, usC, uaC := traceThirdOrderRay(els, yC0, uC0)
 

@@ -22,12 +22,17 @@ WOS 的 optics 内核（含 MUSA/cuFFT GPU 加速的 FFT），几何光学与波
 
 ## 快速开始
 
-    go test ./geo/ ./coating/        # 精度测试
-    go build ./cmd/oz                # 构建（开发中）
+    go build ./cmd/oz && ./oz help     # CLI: design / eval / tol / coating / serve
+    ./oz design achromat --efl 100 --out lens.json   # 自主设计消色差双胶合
+    ./oz coating design --template broadband-ar --out ar.json
+    ./oz serve --addr :1130            # 本地 HTTP 服务（JSON API + 单页前端）
+    go test ./lens/ ./coating/ ./geo/  # 精度测试（全部确定性）
 
 ## 状态
 
 - geo：追迹/近轴/像差核心已实现并验真；采样/点列图/OPD 层进行中
-- coating：TMM/材料/相位物理层已验真；优化器与模板收尾中
-- lens：处方模型（JSON I/O）+ 阻尼最小二乘优化器 + 消色差双胶合自动设计已实现；公差/报告/CMD 进行中
-- cmd/oz：待建；docs：待写
+- coating：TMM/材料/相位物理层已验真（与独立实现交叉对拍 1e-14）；优化器与模板完成；JSON I/O 完成
+- lens：处方模型 + DLS 优化器 + 消色差自主设计（EFL 偏差 2.5µm、色差 11µm、点列图 4~7µm）+ Monte-Carlo 公差（确定性）已完成
+- cmd/oz：CLI（design/eval/tol/coating/serve）+ HTTP 服务与单页前端可用
+- 内置示例库：波动光学（WOS）/几何光学（OZ）各 ≥520 例编写中
+- docs：VERIFICATION.md（精确性证据）已建；其余待补
