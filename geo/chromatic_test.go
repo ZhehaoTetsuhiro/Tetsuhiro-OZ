@@ -5,9 +5,11 @@ import (
 	"testing"
 )
 
-// singlet151 returns a biconvex N-BK7 singlet of about 151 mm focal length at
-// the d line (two equal radii, 6 mm centre thickness).
-func singlet151(t *testing.T) *System {
+// testSinglet returns a biconvex N-BK7 singlet of about 76 mm focal length at
+// the d line (two equal radii, 6 mm centre thickness), with the stop at its
+// front surface — so the classical "no lateral colour when the stop touches
+// the lens" applies to it.
+func testSinglet(t *testing.T) *System {
 	t.Helper()
 	n := N_BK7.N(Wavelengthd)
 	R := 150 * (n - 1)
@@ -24,7 +26,7 @@ func singlet151(t *testing.T) *System {
 // Δz = f_F − f_C ≈ −f_d/V_d, including sign, and cross-checks the value
 // against real ray tracing of the axial fan at the two wavelengths.
 func TestAxialChromaticSinglet(t *testing.T) {
-	sys := singlet151(t)
+	sys := testSinglet(t)
 	par, err := sys.Paraxial(Wavelengthd, math.Inf(-1))
 	if err != nil {
 		t.Fatal(err)
@@ -92,58 +94,106 @@ func TestAxialChromaticSinglet(t *testing.T) {
 	checkRel(t, "secondary point of the curve", shifts[len(shifts)-1], -dz, 0.02)
 }
 
-// TestAchromatDoublet checks the classical achromat condition: a cemented
-// crown/flint doublet whose powers satisfy φ₁/V₁ + φ₂/V₂ = 0 has a vanishing
-// F−C focus shift while a single crown lens of similar focal length shows
-// millimetres of it.
+// TestAchromatDoublet designs and checks a cemented crown/flint achromat. The
+// classic thin-lens rule φ₁/V₁ + φ₂/V₂ = 0 fixes only the ratio of the powers;
+// the thickness of the two elements adds a small chromatic power of its own,
+// so the design solves the real conditions — focal length at the d line equal
+// to the target and exactly zero F−C power difference — for both powers with
+// nested deterministic bisections. The resulting doublet must then show only a
+// vanishing F−C focus shift, far below a singlet of comparable focal length.
 func TestAchromatDoublet(t *testing.T) {
 	nd1 := N_BK7.N(Wavelengthd)
 	nd2 := N_SF5.N(Wavelengthd)
 	v1, v2 := abbeOf(N_BK7), abbeOf(N_SF5)
-	const f = 200.0 // target focal length of the doublet at the d line
-	// Split the power according to the achromat condition.
-	phi1 := (1 / f) / (1 - v2/v1)
-	phi2 := -phi1 * v2 / v1
-	// Crown: plane-convex, its plane surface is the cement.
-	R1 := (nd1 - 1) / phi1
-	// Flint: plane-concave, its plane surface is the cement.
-	R3 := -(nd2 - 1) / phi2
-	doublet := mustSystem(t, Air{},
-		[]Surface{
-			{Profile: Sphere{R: R1}, Aperture: CircleAperture(12)},
-			{Profile: Plane{}, Aperture: CircleAperture(12)},
-			{Profile: Sphere{R: R3}, Aperture: CircleAperture(12)},
-		},
-		[]float64{4, 3},
-		[]Medium{Air{}, N_BK7, N_SF5, Air{}})
+	const target = 200.0
+
+	build := func(phi1, phi2 float64) *System {
+		R1 := (nd1 - 1) / phi1  // crown: plane-convex, its plane is the cement
+		R3 := -(nd2 - 1) / phi2 // flint: plane-concave, its plane is the cement
+		return mustSystem(t, Air{},
+			[]Surface{
+				{Profile: Sphere{R: R1}, Aperture: CircleAperture(12)},
+				{Profile: Plane{}, Aperture: CircleAperture(12)},
+				{Profile: Sphere{R: R3}, Aperture: CircleAperture(12)},
+			},
+			[]float64{4, 3},
+			[]Medium{Air{}, N_BK7, N_SF5, Air{}})
+	}
+	efl := func(sys *System, lambda float64) float64 {
+		p, err := sys.Paraxial(lambda, math.Inf(-1))
+		if err != nil {
+			t.Fatal(err)
+		}
+		return p.EFL
+	}
+	chromPower := func(phi1, phi2 float64) float64 {
+		sys := build(phi1, phi2)
+		return 1/efl(sys, WavelengthF) - 1/efl(sys, WavelengthC)
+	}
+	// solveEqual finds phi2 making f(phi1, phi2) = 0 by scanning a bracket
+	// and bisecting it.
+	solveEqual := func(f func(float64) float64, lo, hi float64) float64 {
+		flo, fhi := f(lo), f(hi)
+		for i := 0; i < 60 && flo*fhi > 0; i++ {
+			lo, hi = lo+(hi-lo)*0.25, lo+(hi-lo)*0.75
+			flo, fhi = f(lo), f(hi)
+		}
+		for i := 0; i < 200 && hi-lo > 1e-15*(1+math.Abs(hi)); i++ {
+			mid := 0.5 * (lo + hi)
+			fm := f(mid)
+			if flo*fm <= 0 {
+				hi, fhi = mid, fm
+			} else {
+				lo, flo = mid, fm
+			}
+		}
+		_ = fhi
+		return 0.5 * (lo + hi)
+	}
+	// Outer: the d-line focal length; inner: the F−C power match.
+	phi1Nom := (1 / target) / (1 - v2/v1)
+	phi2Of := func(phi1 float64) float64 {
+		return solveEqual(func(p2 float64) float64 { return chromPower(phi1, p2) },
+			-2.5*phi1*v2/v1, 0.5*phi1*v2/v1)
+	}
+	powerOf := func(phi1 float64) float64 {
+		return 1/efl(build(phi1, phi2Of(phi1)), Wavelengthd) - 1/target
+	}
+	phi1 := solveEqual(powerOf, 0.7*phi1Nom, 1.4*phi1Nom)
+	phi2 := phi2Of(phi1)
+	doublet := build(phi1, phi2)
 	par, err := doublet.Paraxial(Wavelengthd, math.Inf(-1))
 	if err != nil {
 		t.Fatal(err)
 	}
-	checkRel(t, "doublet EFL", par.EFL, f, 0.02)
+	checkRel(t, "achromat design focal length", par.EFL, target, 1e-4)
 
 	dz, err := doublet.AxialChromatic(math.Inf(-1), WavelengthF, WavelengthC)
 	if err != nil {
 		t.Fatal(err)
 	}
-	// The remaining shift is the secondary spectrum; the achromat must beat
-	// the equivalent singlet by a large factor.
-	single := singlet151(t)
+	single := testSinglet(t)
 	dSingle, err := single.AxialChromatic(math.Inf(-1), WavelengthF, WavelengthC)
 	if err != nil {
 		t.Fatal(err)
 	}
-	if math.Abs(dz) > 0.05*math.Abs(dSingle) {
+	// The design makes the focal LENGTH achromatic; the image-plane shift
+	// still carries the (much smaller) chromatic movement of the principal
+	// plane with the glass thickness, so it is bounded rather than zero.
+	checkRel(t, "achromatic focal length", efl(doublet, WavelengthF), efl(doublet, WavelengthC), 1e-6)
+	if math.Abs(dz) > 0.1 {
+		t.Errorf("achromat F−C focus shift = %g mm, want a small residual", dz)
+	}
+	if math.Abs(dz) > 0.1*math.Abs(dSingle) {
 		t.Errorf("achromat F−C shift %g is not strongly suppressed vs the singlet's %g", dz, dSingle)
 	}
-	if math.Abs(dz) > 0.05 {
-		t.Errorf("achromat F−C shift = %g mm, want a small secondary spectrum", dz)
+	if math.Abs(dSingle) < 1e-3 {
+		t.Fatalf("the singlet reference shows no chromatic shift (%g)", dSingle)
 	}
 	// The system really is dispersive (otherwise the test would be vacuous).
 	if !doublet.DispersiveSystem() {
 		t.Error("the doublet must be reported as dispersive")
 	}
-	// A mirror system is not dispersive.
 	mirror := mustSystem(t, Air{},
 		[]Surface{{Profile: Sphere{R: -200}, Mirror: true, Aperture: CircleAperture(50)}},
 		nil, nil)
@@ -153,44 +203,66 @@ func TestAchromatDoublet(t *testing.T) {
 }
 
 // TestLateralChromatic checks the lateral (magnification) chromatic
-// aberration: the paraxial chief-ray image height changes with wavelength, and
-// the real chief rays reproduce the change.
+// aberration. A lens with the stop in contact has essentially none (the
+// classical "no lateral colour when the stop is at the lens"), while moving
+// the stop away from the lens produces a measurable height difference between
+// the F and C chief rays; the paraxial prediction and the real (aimed) chief
+// rays must agree.
 func TestLateralChromatic(t *testing.T) {
-	sys := singlet151(t)
 	f := FieldTan(0, 0.05)
-	par, err := sys.Paraxial(Wavelengthd, math.Inf(-1))
+	single := testSinglet(t)
+	par, err := single.Paraxial(Wavelengthd, math.Inf(-1))
 	if err != nil {
 		t.Fatal(err)
 	}
-	dh, err := sys.LateralChromatic(f, par.ImageZ, WavelengthF, WavelengthC)
+	dh, err := single.LateralChromatic(f, par.ImageZ, WavelengthF, WavelengthC)
 	if err != nil {
 		t.Fatal(err)
 	}
-	// Paraxial estimate: Δh = (f_F − f_C)·tanθ = Δz·tanθ.
-	dz, err := sys.AxialChromatic(math.Inf(-1), WavelengthF, WavelengthC)
-	if err != nil {
-		t.Fatal(err)
-	}
-	checkRel(t, "lateral vs axial·tanθ", dh, dz*f.TanY, 0.05)
+	// Stop at the lens: the classic result is a vanishing lateral colour.
+	checkLess(t, "lateral colour with the stop at the lens", math.Abs(dh), 0.01)
 
-	// Real chief rays at the two wavelengths.
-	hitY := func(lambda float64) float64 {
+	// The same lens with the stop 30 mm in front: the chief rays of the two
+	// colours land at clearly different heights.
+	n := N_BK7.N(Wavelengthd)
+	R := 150 * (n - 1)
+	displaced := mustSystem(t, Air{},
+		[]Surface{
+			{Profile: Plane{}, Aperture: CircleAperture(6)},
+			{Profile: Sphere{R: R}, Aperture: CircleAperture(12)},
+			{Profile: Sphere{R: -R}, Aperture: CircleAperture(12)},
+		},
+		[]float64{30, 6}, []Medium{Air{}, Air{}, N_BK7, Air{}})
+	displaced.StopIndex = 0
+	par2, err := displaced.Paraxial(Wavelengthd, math.Inf(-1))
+	if err != nil {
+		t.Fatal(err)
+	}
+	dh2, err := displaced.LateralChromatic(f, par2.ImageZ, WavelengthF, WavelengthC)
+	if err != nil {
+		t.Fatal(err)
+	}
+	if math.Abs(dh2) < 5*math.Abs(dh) {
+		t.Errorf("displaced-stop lateral colour %g is not clearly larger than the in-contact %g", dh2, dh)
+	}
+
+	// Real chief rays at the two wavelengths, at the same image plane.
+	hitY := func(sys *System, lambda float64) float64 {
 		chief := sys.ChiefRay(f, lambda)
 		res := sys.Trace(chief)
 		if !res.OK() {
 			t.Fatalf("chief trace failed at λ=%g: %v", lambda, res.Error())
 		}
-		// The chief exits into air; propagate to the image plane.
 		d := res.Ray.Dir
-		tt := (par.ImageZ - res.Ray.Origin.Z) / d.Z
+		tt := (par2.ImageZ - res.Ray.Origin.Z) / d.Z
 		return res.Ray.Origin.Y + tt*d.Y
 	}
-	real := hitY(WavelengthF) - hitY(WavelengthC)
-	if math.Abs(dh-real) > 0.05*math.Abs(real) {
-		t.Errorf("lateral colour: paraxial %g, real chief rays %g", dh, real)
+	real := hitY(displaced, WavelengthF) - hitY(displaced, WavelengthC)
+	if math.Abs(dh2-real) > 0.05*math.Abs(real) {
+		t.Errorf("lateral colour: paraxial %g, real chief rays %g", dh2, real)
 	}
 	// On axis there is no lateral colour to speak of.
-	dh0, err := sys.LateralChromatic(FieldTan(0, 0), par.ImageZ, WavelengthF, WavelengthC)
+	dh0, err := displaced.LateralChromatic(FieldTan(0, 0), par2.ImageZ, WavelengthF, WavelengthC)
 	if err != nil {
 		t.Fatal(err)
 	}
@@ -213,7 +285,7 @@ func TestChromaticErrors(t *testing.T) {
 	if _, err := mirror.LateralChromatic(FieldTan(0, 0.05), -100, WavelengthF, WavelengthC); err == nil {
 		t.Error("LateralChromatic must reject mirror systems")
 	}
-	sys := singlet151(t)
+	sys := testSinglet(t)
 	if _, err := sys.ChromaticFocalShift(math.Inf(-1), nil); err == nil {
 		t.Error("ChromaticFocalShift must reject an empty wavelength list")
 	}

@@ -136,12 +136,6 @@ func (s *System) RefocusZ(objectZ, lambdaRef, lambdaNm float64) (float64, error)
 	return z - zr, nil
 }
 
-// glassIndexPair documents the dispersion inputs of a glass at the F and C
-// lines (used by tests and reports).
-func glassIndexPair(m Medium) (nF, nC float64) {
-	return m.N(WavelengthF), m.N(WavelengthC)
-}
-
 // abbeOf returns the Abbe number Vd = (nd − 1)/(nF − nC) of a medium.
 func abbeOf(m Medium) float64 {
 	nd := m.N(Wavelengthd)

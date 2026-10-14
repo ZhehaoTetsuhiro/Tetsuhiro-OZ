@@ -30,7 +30,7 @@ WOS 的 optics 内核（含 MUSA/cuFFT GPU 加速的 FFT），几何光学与波
 
 ## 状态
 
-- geo：追迹/近轴/像差核心已实现并验真；采样/点列图/OPD 层进行中
+- geo：追迹/近轴/采样/点列图/光线扇/OPD/赛德尔/色差/畸变 全部完成并验真（60 项测试）
 - coating：TMM/材料/相位物理层已验真（与独立实现交叉对拍 1e-14）；优化器与模板完成；JSON I/O 完成
 - lens：处方模型 + DLS 优化器 + 消色差自主设计（EFL 偏差 2.5µm、色差 11µm、点列图 4~7µm）+ Monte-Carlo 公差（确定性）已完成
 - cmd/oz：CLI（design/eval/tol/coating/serve）+ HTTP 服务与单页前端可用

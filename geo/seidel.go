@@ -341,7 +341,10 @@ func (sd *Seidel) PetzvalRadius() float64 {
 // They are derived from the sums by W040 = −S1/8, W131 = −S2/2,
 // W222 = −S3/2, W220 = −(S3+S4)/4 and W311 = −S5/2 (see the file comment for
 // the sign convention; the relations are validated against real-ray OPD maps
-// in seidel_test.go).
+// in seidel_test.go). Because ρ is normalized to PupilRadius, the coefficients
+// are the wavefront values at the pupil rim (ρ = 1) and therefore scale with
+// that radius exactly as the sums do: W040 ∝ y₀⁴, W131 ∝ y₀³, W222 and W220
+// ∝ y₀² and W311 ∝ y₀.
 type WavefrontCoeffs struct {
 	W040 float64 // spherical aberration (mm)
 	W131 float64 // coma (mm)

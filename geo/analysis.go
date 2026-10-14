@@ -315,17 +315,16 @@ func (s *System) RayFan(f Field, pup Pupil, n int, azimuthDeg, imageZ, lambdaNm 
 	nOK := 0
 	for i, p := range pts {
 		h := s.traceToPlane(LaunchRay(f, pup, p, lambdaNm), imageZ)
+		// Fan parameter: the projection of the pupil point onto the fan
+		// direction, t = p·(cosφ, sinφ). The cardinal fans (φ = 0/90°) make
+		// one term vanish, so this is exact for them, and it is also exact
+		// for oblique azimuths where a single-component projection would be
+		// only approximate.
 		t := 0.0
-		switch {
-		case n <= 1:
-			t = 0
-		case math.Sin(azimuthDeg*math.Pi/180) != 0 && p.PX == 0:
-			t = p.PY
-		default:
-			t = p.PX * math.Cos(azimuthDeg*math.Pi/180)
-			if c := math.Sin(azimuthDeg * math.Pi / 180); math.Abs(c) > math.Abs(math.Cos(azimuthDeg*math.Pi/180)) {
-				t = p.PY
-			}
+		if n > 1 {
+			ca := math.Cos(azimuthDeg * math.Pi / 180)
+			sa := math.Sin(azimuthDeg * math.Pi / 180)
+			t = p.PX*ca + p.PY*sa
 		}
 		rf.Points[i] = FanPoint{P: t, Pupil: p, Hit: h.Hit, OPL: h.OPL, Status: h.Status}
 		if h.Status.OK() {

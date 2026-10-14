@@ -1,7 +1,9 @@
 // Package geo implements the geometrical-optics core of Tetsuhiro-OZ: surface
 // shapes, vector ray tracing through sequential systems, paraxial (first
-// order) optics, pupil/field sampling, spot and OPD analysis, and third-order
-// (Seidel) aberrations including an aspheric contribution.
+// order) optics, pupil/field sampling, spot diagrams, transverse aberration
+// and OPD analysis, third-order (Seidel) aberrations including an aspheric
+// contribution (Petzval curvature and distortion included) and the paraxial
+// chromatic aberrations (axial and lateral colour).
 //
 // The package is pure Go standard library, float64 throughout, and is meant to
 // be the numerical foundation that the lens/ and coating/ packages (and the
