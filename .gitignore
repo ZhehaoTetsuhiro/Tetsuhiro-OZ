@@ -1,0 +1,7 @@
+# 构建产物 / 临时输出（不入库）
+/crosscheck
+/bin/
+/oz
+*.test
+*.out
+*.svg
