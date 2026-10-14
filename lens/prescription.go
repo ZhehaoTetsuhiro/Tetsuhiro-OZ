@@ -97,6 +97,13 @@ type Prescription struct {
 	// the common front-stop default. Negative or out-of-range values are
 	// clamped by System().
 	Stop int `json:"stop"`
+
+	// mediumWrap, when non-nil, post-processes every resolved card medium
+	// before it enters the geo.System. It is the injection hook of the
+	// tolerance analysis (glass melt Δn); the value it renders must stay
+	// constant across all evaluations of one Monte-Carlo run. Unexported:
+	// the public prescription model stays the glass-name model.
+	mediumWrap func(card int, m geo.Medium) geo.Medium
 }
 
 // Air / glass helpers ------------------------------------------------------
@@ -164,6 +171,9 @@ func (p *Prescription) System() (*geo.System, error) {
 		m, err := resolveGlass(c.Glass)
 		if err != nil {
 			return nil, fmt.Errorf("lens: card %d: %w", i, err)
+		}
+		if p.mediumWrap != nil {
+			m = p.mediumWrap(i, m)
 		}
 		meds[i+1] = m
 		if i < n-1 {

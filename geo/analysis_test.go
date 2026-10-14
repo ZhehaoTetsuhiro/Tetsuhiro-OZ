@@ -339,42 +339,48 @@ func TestOPDParabolicMirrorZero(t *testing.T) {
 // of the off-axis check readable.
 func Hexagon3() []PupilPoint { return Hexapolar(3) }
 
-// TestOPDAplanaticSphereZero is the finite-object counterpart of the parabola
-// check: a single spherical surface used from an aplanatic point images
-// exactly, so every ray leaves the surface on the same sphere centred on the
-// image and the OPD over the pupil is zero.
-func TestOPDAplanaticSphereZero(t *testing.T) {
+// TestOPDPlaneParallelPlateZero checks the OPD for a finite object through a
+// plane-parallel plate: a plate adds no aberration, so the wavefront stays a
+// sphere centred on the (shifted) image point and the OPD over the pupil must
+// vanish exactly. The image shift t(1−1/n) of the plate is verified with the
+// paraxial engine at the same time.
+func TestOPDPlaneParallelPlateZero(t *testing.T) {
 	const (
-		R = 20.0
-		n = 1.5
+		n     = 1.5
+		thick = 8.0
 	)
-	objectZ := R * (1 - n)  // aplanatic object, in front of the vertex
-	imageZ := R * (1 + 1/n) // aplanatic image, inside the glass
-	sys := mustSystem(t, ConstantIndex(1),
-		[]Surface{{Profile: Sphere{R: R}, Aperture: CircleAperture(6)}},
-		nil, []Medium{ConstantIndex(1), ConstantIndex(n)})
-	f := FieldHeight(objectZ, 0, 0)
-	pup := Pupil{Z: -5, Radius: 2} // between the object and the surface
-	g, err := sys.OPDGrid(f, pup, Rings(3, 8), imageZ, Wavelengthd, OPDOptions{})
-	if err != nil {
-		t.Fatal(err)
-	}
-	checkLess(t, "aplanatic OPD RMS", g.RMS, 1e-12)
-	checkLess(t, "aplanatic OPD PV", g.PV, 1e-12)
+	plate := mustSystem(t, Air{},
+		[]Surface{
+			{Profile: Plane{}, Aperture: CircleAperture(20)},
+			{Profile: Plane{}, Aperture: CircleAperture(20)},
+		},
+		[]float64{thick},
+		[]Medium{Air{}, ConstantIndex(n), Air{}})
 
-	// The same surface from a non-aplanatic conjugate must show spherical
-	// aberration in the OPD.
-	sys2 := mustSystem(t, ConstantIndex(1),
-		[]Surface{{Profile: Sphere{R: R}, Aperture: CircleAperture(6)}},
-		nil, []Medium{ConstantIndex(1), ConstantIndex(n)})
-	g2, err := sys2.OPDGrid(FieldHeight(-40, 0, 0), Pupil{Z: -40, Radius: 3}, Rings(3, 8),
-		sys2.VertexZ(0)+n/((n-1)/R), Wavelengthd, OPDOptions{})
+	// Infinite object: the wavefront stays plane, OPD = 0 for every sample.
+	pup := Pupil{Z: -30, Radius: 12}
+	g, err := plate.OPDGrid(FieldTan(0, 0.05), pup, Rings(3, 8), 40, Wavelengthd, OPDOptions{})
 	if err != nil {
 		t.Fatal(err)
 	}
-	if g2.RMS < 1e-6 {
-		t.Errorf("non-aplanatic conjugate OPD RMS = %g, expected spherical aberration", g2.RMS)
+	checkLess(t, "plate OPD RMS (infinite)", g.RMS, 1e-12)
+	checkLess(t, "plate OPD PV (infinite)", g.PV, 1e-12)
+
+	// Finite object on the axis: the image sits t(1−1/n) behind the rear
+	// surface, and the OPD there is again zero.
+	objectZ := -50.0
+	par, err := plate.Paraxial(Wavelengthd, objectZ)
+	if err != nil {
+		t.Fatal(err)
 	}
+	checkRel(t, "plate image shift", par.ImageZ-(objectZ+thick), thick*(1-1/n), 1e-9)
+	pupF := Pupil{Z: -20, Radius: 8}
+	gF, err := plate.OPDGrid(FieldHeight(objectZ, 0, 0), pupF, Rings(3, 8), par.ImageZ, Wavelengthd, OPDOptions{})
+	if err != nil {
+		t.Fatal(err)
+	}
+	checkLess(t, "plate OPD RMS (finite)", gF.RMS, 1e-12)
+	checkLess(t, "plate OPD PV (finite)", gF.PV, 1e-12)
 }
 
 // TestOPDPistonTiltRemoval checks the two cleanup options: a reference point
