@@ -54,8 +54,24 @@ func TestServeEndpoints(t *testing.T) {
 	if !strings.Contains(get("/api/version"), "0.1.0-Preview") {
 		t.Fatal("version endpoint missing version")
 	}
-	if !strings.Contains(get("/"), "Tetsuhiro-OZ") {
+	page := get("/")
+	if !strings.Contains(page, "Tetsuhiro-OZ") {
 		t.Fatal("index page missing")
+	}
+	// The page must stay mobile-ready: viewport meta, responsive canvas
+	// sizing, retina handling, and every API route it advertises.
+	for _, want := range []string{
+		`<meta name="viewport" content="width=device-width, initial-scale=1">`,
+		`height:clamp(`,    // canvas height follows viewport width with a cap
+		`devicePixelRatio`, // backing store scaled for hi-dpi screens
+		`addEventListener('resize'`,
+		`orientationchange`,
+		`/api/lens/design`, `/api/lens/eval`,
+		`/api/coating/design`, `/api/coating/spectrum`, `/api/version`,
+	} {
+		if !strings.Contains(page, want) {
+			t.Errorf("index page missing %q", want)
+		}
 	}
 
 	// Lens design.
