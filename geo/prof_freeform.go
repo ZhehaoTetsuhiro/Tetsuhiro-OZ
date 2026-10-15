@@ -103,7 +103,7 @@ func (t XYTerm) String() string {
 // a two-dimensional polynomial departure in the local transverse coordinates
 // (see the package section "Freeform XY polynomial surface" above for the
 // formulas and conventions). It implements Profile through the +y meridian, and
-// the additional interface Freeform for the true two-dimensional shape.
+// the additional interface FreeformProfile for the true two-dimensional shape.
 //
 // Field order for a literal: optional base (R, K), optional normalisation
 // radius NormR, then the terms. A zero-value XYPolynomial is the plane z ≡ 0
@@ -510,9 +510,9 @@ func (p XYPolynomial) newtonXY(o, d Vec3, t, tMin float64) (float64, bool) {
 
 // zRangeXYDisc returns the smallest and largest finite sag of the surface over
 // the disc of radius r (a deterministic polar grid; see ZRangeXY). The coarse
-// variant (8 rings, 12 azimuths) is used for the intersection search window,
-// where the result is padded anyway; the public ZRangeXY uses the finer grid
-// because launch planes are placed from it.
+// variant (8 rings, 12 azimuths, 97 samples) is used for the intersection
+// search window, where the result is padded anyway; the public ZRangeXY uses
+// the finer grid because launch planes are placed from it.
 func (p XYPolynomial) zRangeXYDisc(r float64) (float64, float64) {
 	return p.zRangeXYGrid(r, 16, 24)
 }
