@@ -1,0 +1,40 @@
+{
+  "name": "球面倾斜反射镜（倾斜 15°）f=200mm F/4",
+  "object_z_mm": "inf",
+  "cards": [
+    {
+      "name": "aperture stop",
+      "radius_mm": 0,
+      "thickness_mm": 60,
+      "semi_aperture_mm": 25
+    },
+    {
+      "name": "primary",
+      "radius_mm": -400,
+      "thickness_mm": 200,
+      "semi_aperture_mm": 25.5,
+      "mirror": true,
+      "tilt_x_deg": 15
+    }
+  ],
+  "stop": 0,
+  "description": "球面倾斜反射镜｜倾斜 θ=15°（tilt_x_deg，坐标断点）｜f=200mm、F/4、口径 25mm｜实光线追迹：平行光入射经倾斜镜折转，实测出射束轴与入射光轴夹角 153.6874°（薄镜几何折转 180°−2θ=150°；镜面曲率与球差使实光束轴略偏）｜焦点由平行光束的实光线最佳焦面定位：RMS=0.0425mm（一阶引擎对 pose 系统报错，指标全部来自追迹）。预期指标（引擎计算；单位 mm、µrad、deg；libcheck 复核容差：相对 1e-6）：MODE=posed；FOCUSZ=-111.359585mm；FOCUSRMS=0.0424615405mm；RAYS=21",
+  "category": "tilt",
+  "difficulty": 4,
+  "tags": [
+    "posed",
+    "tilt",
+    "mirror",
+    "sphere",
+    "single-mirror",
+    "F/4",
+    "efl:200",
+    "visible",
+    "trace-validated",
+    "quality:classic",
+    "sweep:tilt",
+    "tilt:15deg",
+    "metrics:posed",
+    "mode:posed"
+  ]
+}

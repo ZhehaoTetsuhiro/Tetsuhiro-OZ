@@ -1,0 +1,52 @@
+{
+  "name": "Forbes Qcon 非球面单透镜 N-BK7 f=300mm F/4（2 项直接拟合）",
+  "object_z_mm": "inf",
+  "cards": [
+    {
+      "name": "aperture stop",
+      "radius_mm": 0,
+      "thickness_mm": 2.5,
+      "semi_aperture_mm": 37.5
+    },
+    {
+      "name": "L1",
+      "radius_mm": 155.0400104,
+      "thickness_mm": 15,
+      "glass": "N-BK7",
+      "semi_aperture_mm": 47.228,
+      "q_asphere": {
+        "form": "qcon",
+        "norm_radius_mm": 37.4625,
+        "coeffs": [
+          -0.03,
+          -0.00270241
+        ]
+      }
+    },
+    {
+      "name": "L1",
+      "radius_mm": 0,
+      "thickness_mm": 70,
+      "semi_aperture_mm": 46.148
+    }
+  ],
+  "stop": 0,
+  "description": "Forbes Qcon 非球面（q_asphere.form=qcon，直接拟合）｜N-BK7｜f=300mm、F/4｜ρ_max=37.4625mm、2 个系数 s0…s1｜球面基底实测轴上 RMS=0.4764mm，Qcon 多项式修正后 RMS=0.0342mm，降至 7.2%（系数由引擎点列 RMS 坐标搜索拟合）。预期指标（引擎计算；单位 mm、µrad、deg；libcheck 复核容差：相对 1e-6）：MODE=refract；EFL=300mm；BFL=290.11076mm；FNO=4；FC=-4.59524709mm；RMSAX=0.0342284159mm；FIELD=0.5deg；RMSFLD=0.0364369004mm；RAYS=37；FRAYS=37",
+  "category": "qasphere",
+  "difficulty": 3,
+  "tags": [
+    "qasphere",
+    "qcon",
+    "forbes",
+    "singlet",
+    "N-BK7",
+    "F/4",
+    "efl:300",
+    "visible",
+    "optimized",
+    "quality:optimized",
+    "compare:sphere",
+    "coeffs:2",
+    "mode:refract"
+  ]
+}

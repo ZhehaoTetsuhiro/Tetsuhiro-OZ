@@ -1,0 +1,51 @@
+{
+  "name": "Forbes Qbfs 非球面单透镜 N-BK7 f=300mm F/4（1 项直接拟合）",
+  "object_z_mm": "inf",
+  "cards": [
+    {
+      "name": "aperture stop",
+      "radius_mm": 0,
+      "thickness_mm": 2.5,
+      "semi_aperture_mm": 37.5
+    },
+    {
+      "name": "L1",
+      "radius_mm": 155.72815133996798,
+      "thickness_mm": 15,
+      "glass": "N-BK7",
+      "semi_aperture_mm": 47.228,
+      "q_asphere": {
+        "form": "qbfs",
+        "norm_radius_mm": 37.4625,
+        "coeffs": [
+          0.02
+        ]
+      }
+    },
+    {
+      "name": "L1",
+      "radius_mm": 0,
+      "thickness_mm": 70,
+      "semi_aperture_mm": 46.14
+    }
+  ],
+  "stop": 0,
+  "description": "Forbes Qbfs 非球面（q_asphere.form=qbfs，最佳拟合球基底）｜N-BK7｜f=300mm、F/4｜ρ_max=37.4625mm、1 个系数 a0…a0｜基底半径随系数重解以保持顶点曲率（=一阶焦距不变；Qbfs 面 u²(1−u²) 项含 r² 分量，曲率 c+2S(0)/ρ_max² 由 geo.QAsphere.Curvature 定义）｜球面基底实测轴上 RMS=0.4764mm，Qbfs 修正后 RMS=0.2297mm，降至 48.2%。预期指标（引擎计算；单位 mm、µrad、deg；libcheck 复核容差：相对 1e-6）：MODE=refract；EFL=300mm；BFL=290.11076mm；FNO=4；FC=-4.59524709mm；RMSAX=0.229670259mm；FIELD=0.5deg；RMSFLD=0.232724949mm；RAYS=37；FRAYS=37",
+  "category": "qasphere",
+  "difficulty": 3,
+  "tags": [
+    "qasphere",
+    "qbfs",
+    "forbes",
+    "singlet",
+    "N-BK7",
+    "F/4",
+    "efl:300",
+    "visible",
+    "optimized",
+    "quality:optimized",
+    "compare:sphere",
+    "coeffs:1",
+    "mode:refract"
+  ]
+}

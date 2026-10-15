@@ -1,0 +1,52 @@
+{
+  "name": "非球面修正双胶合 N-BK7/F2 f=50mm F/5（第 2 面 单项 r⁴）",
+  "object_z_mm": "inf",
+  "cards": [
+    {
+      "name": "crown front",
+      "radius_mm": 22.082888875087,
+      "thickness_mm": 1.1474747183536542,
+      "glass": "N-BK7",
+      "semi_aperture_mm": 5
+    },
+    {
+      "name": "cemented surface",
+      "radius_mm": -22.06355969291953,
+      "thickness_mm": 0.5030111605262826,
+      "glass": "F2",
+      "semi_aperture_mm": 6.644
+    },
+    {
+      "name": "flint rear",
+      "radius_mm": -507.4391112439621,
+      "thickness_mm": 47.5,
+      "semi_aperture_mm": 6.567,
+      "poly_terms": [
+        {
+          "power": 4,
+          "coeff": 1.83015e-7
+        }
+      ]
+    }
+  ],
+  "stop": 0,
+  "description": "双胶合消色差 + 非球面修正｜N-BK7+F2｜f=50mm、F/5｜基底为 DLS 自主设计消色差（同 achromat-dls 家族），在第 2 面追加 r⁴ 项（系数由引擎点列 RMS 坐标搜索拟合、六位有效数字冻结）｜基底实测轴上 RMS=0.002mm，修正后 RMS=0.0005mm，降至 25.5%。预期指标（引擎计算；单位 mm、µrad、deg；libcheck 复核容差：相对 1e-6）：MODE=refract；EFL=50.0012534mm；BFL=48.8240411mm；FNO=5.00012534；FC=-1.46574248e-05mm；RMSAX=0.000513920529mm；FIELD=0.5deg；RMSFLD=0.00285505483mm；RAYS=37；FRAYS=37",
+  "category": "asphere",
+  "difficulty": 3,
+  "tags": [
+    "asphere",
+    "poly-terms",
+    "achromat",
+    "doublet",
+    "N-BK7",
+    "F2",
+    "F/5",
+    "efl:50",
+    "visible",
+    "optimized",
+    "quality:optimized",
+    "compare:sphere",
+    "a4",
+    "mode:refract"
+  ]
+}

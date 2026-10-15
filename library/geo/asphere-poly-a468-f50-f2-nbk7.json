@@ -1,0 +1,58 @@
+{
+  "name": "多项式非球面单透镜 N-BK7 f=50mm F/2（r⁴+r⁶+r⁸）",
+  "object_z_mm": "inf",
+  "cards": [
+    {
+      "name": "aperture stop",
+      "radius_mm": 0,
+      "thickness_mm": 2.5,
+      "semi_aperture_mm": 12.5
+    },
+    {
+      "name": "L1",
+      "radius_mm": 25.8400017,
+      "thickness_mm": 6.157,
+      "glass": "N-BK7",
+      "semi_aperture_mm": 16.009,
+      "poly_terms": [
+        {
+          "power": 4,
+          "coeff": -0.00000205621
+        },
+        {
+          "power": 6,
+          "coeff": -1.31861e-8
+        },
+        {
+          "power": 8,
+          "coeff": -8.5803e-12
+        }
+      ]
+    },
+    {
+      "name": "L1",
+      "radius_mm": 0,
+      "thickness_mm": 20,
+      "semi_aperture_mm": 15.871
+    }
+  ],
+  "stop": 0,
+  "description": "多项式非球面单透镜（poly_terms）｜N-BK7｜f=50mm、F/2、口径 25mm｜球差修正：球面基底实测轴上 RMS=0.7274mm，前表面加 r⁴+r⁶+r⁸ 项（系数由引擎点列 RMS 坐标搜索拟合、六位有效数字冻结）后 RMS=0.0391mm，降至 5.4%｜该面边缘光线高度 12.4875mm（非球面项的量纲参考）。预期指标（引擎计算；单位 mm、µrad、deg；libcheck 复核容差：相对 1e-6）：MODE=refract；EFL=50mm；BFL=45.9407965mm；FNO=2；FC=-0.753098566mm；RMSAX=0.03909052mm；FIELD=0.5deg；RMSFLD=0.0396750195mm；RAYS=37；FRAYS=37",
+  "category": "asphere",
+  "difficulty": 2,
+  "tags": [
+    "asphere",
+    "poly-terms",
+    "singlet",
+    "N-BK7",
+    "F/2",
+    "efl:50",
+    "visible",
+    "optimized",
+    "quality:optimized",
+    "compare:sphere",
+    "sweep:efl",
+    "a4a6a8",
+    "mode:refract"
+  ]
+}

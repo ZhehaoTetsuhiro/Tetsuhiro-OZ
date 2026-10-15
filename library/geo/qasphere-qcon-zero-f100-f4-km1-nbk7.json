@@ -1,0 +1,50 @@
+{
+  "name": "Forbes Qcon 零系数退化单透镜 N-BK7 f=100mm F/4 K=-1",
+  "object_z_mm": "inf",
+  "cards": [
+    {
+      "name": "aperture stop",
+      "radius_mm": 0,
+      "thickness_mm": 2.5,
+      "semi_aperture_mm": 12.5
+    },
+    {
+      "name": "L1",
+      "radius_mm": 51.6800035,
+      "conic_k": -1,
+      "thickness_mm": 5,
+      "glass": "N-BK7",
+      "semi_aperture_mm": 16.009,
+      "q_asphere": {
+        "form": "qcon",
+        "norm_radius_mm": 12.4875
+      }
+    },
+    {
+      "name": "L1",
+      "radius_mm": 0,
+      "thickness_mm": 30,
+      "semi_aperture_mm": 15.652
+    }
+  ],
+  "stop": 0,
+  "description": "Forbes Qcon 零系数退化例｜N-BK7｜f=100mm、F/4、基底 K=-1｜q_asphere.form=qcon 且系数表为空（或全零）：u⁴ 级数项全部为零，面型严格退化为基底圆锥面 z=conic(R,K)，与非球面描述缺省时的 conic_k 系统逐点相同（实测轴上 RMS=0.1088mm，与直接写 conic_k=-1 的同一系统一致，由生成器比对）。预期指标（引擎计算；单位 mm、µrad、deg；libcheck 复核容差：相对 1e-6）：MODE=refract；EFL=100mm；BFL=96.7035867mm；FNO=4；FC=-1.53174903mm；RMSAX=0.108827395mm；FIELD=0.5deg；RMSFLD=0.107868141mm；RAYS=37；FRAYS=37",
+  "category": "qasphere",
+  "difficulty": 2,
+  "tags": [
+    "qasphere",
+    "qcon",
+    "forbes",
+    "degenerate",
+    "zero-coefficients",
+    "singlet",
+    "N-BK7",
+    "F/4",
+    "efl:100",
+    "visible",
+    "analytic",
+    "quality:analytic",
+    "K:-1",
+    "mode:refract"
+  ]
+}

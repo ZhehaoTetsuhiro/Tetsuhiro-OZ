@@ -36,6 +36,8 @@ func main() {
 	buildTelescopes(l)
 	buildMirrors(l)
 	buildInstruments(l)
+	buildAspheres(l)
+	buildPosed(l)
 
 	if !*dry {
 		if err := os.MkdirAll(outDir, 0o755); err != nil {
@@ -153,10 +155,11 @@ func checkMetadata(it item) error {
 
 // uncovered lists the families that are outside this batch.
 var uncovered = []string{
-	"非球面（偶次/奇次多项式、Forbes Q 多项式）：非球面单透镜、施密特校正板、施密特-卡塞格林 A4 校正板已从本批移除（geo 有偶次非球面，但本批只做球面与解析二次曲面）",
-	"里奇-克雷蒂安（双曲面，两镜圆锥常数联立求解）与格利高里式：本批移除。RC 需要圆锥求解；格利高里式的副镜共轭符号未核实，实测焦点与设计位置不符（焦点守卫可检出），待修正后再加入",
-	"自由曲面（XY 多项式）、泽尼克面、DOE / 二元光学、热光学（dn/dT、热膨胀）、偏振（琼斯矩阵）、杂散光（二次反射）：本批未涉及",
-	"倾斜 / 偏心（坐标断点）：牛顿式以光轴展开的主镜表示（未建 45° 折轴镜）；卡塞格林的中心遮挡未建模",
+	"自由曲面（XY 多项式离轴面，缺口 G3）与泽尼克面（G4）：依赖尚未合并的面型能力，本批未生成（若某例需要该能力则跳过并记录于此）",
+	"施密特校正板与施密特-卡塞格林的解析 A4 校正板：需要校正板设计解，本次未做",
+	"里奇-克雷蒂安（双曲面，两镜圆锥常数联立求解）与格利高里式：RC 需要圆锥求解；格利高里式的副镜共轭符号未核实",
+	"DOE / 二元光学、热光学（dn/dT、热膨胀）、偏振（琼斯矩阵）、杂散光（二次反射）：本批未涉及",
+	"卡塞格林的中心遮挡、牛顿式的完整 45° 折轴镜筒：本批只做单折轴镜折转与折叠臂透镜的折转光路",
 	"公差进阶（灵敏度、逆灵敏度、补偿器）、膜系联合评价：本批未涉及",
 }
 
@@ -171,7 +174,7 @@ func writeFailures(path string, registered, written int) error {
 	b.WriteString("由 `go run ./tools/genlib` 生成（确定性输出，无时间戳）；校验与索引由 `go run ./tools/libcheck` 完成。\n\n")
 	b.WriteString("## 计数口径\n\n")
 	fmt.Fprintf(&b, "- 登记候选（进入库的候选条目）：%d = 写入 %d + 候选跳过 %d\n", registered, written, len(candFails))
-	fmt.Fprintf(&b, "- 构造失败（求解或布局失败，未产生候选，未登记）：%d\n", len(buildFails))
+	fmt.Fprintf(&b, "- 构造失败（求解、布局或质量门槛失败，未产生候选，未登记）：%d\n", len(buildFails))
 	fmt.Fprintf(&b, "- 合并（参数指纹与已登记条目相同，不计入候选）：%d\n", len(merges))
 	fmt.Fprintf(&b, "- 同名文件改名（参数不同，不计入失败）：%d\n", len(renames))
 	fmt.Fprintf(&b, "- 失败记录合计：%d = 构造失败 %d + 候选跳过 %d（逐条不重复）\n\n", len(buildFails)+len(candFails), len(buildFails), len(candFails))
@@ -183,7 +186,7 @@ func writeFailures(path string, registered, written int) error {
 	for i, f := range candFails {
 		fmt.Fprintf(&b, "%d. %s\n", i+1, f)
 	}
-	b.WriteString("\n## 构造失败（求解或布局失败，未产生候选）\n\n")
+	b.WriteString("\n## 构造失败（求解/布局/质量门槛失败，未产生候选）\n\n")
 	if len(buildFails) == 0 {
 		b.WriteString("（无）\n\n")
 	}

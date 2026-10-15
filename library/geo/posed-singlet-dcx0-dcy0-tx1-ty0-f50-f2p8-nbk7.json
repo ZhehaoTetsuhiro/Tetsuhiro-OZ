@@ -1,0 +1,45 @@
+{
+  "name": "偏心/倾斜单透镜 N-BK7 f=50mm F/2.8（倾斜 x 轴 1°）",
+  "object_z_mm": "inf",
+  "cards": [
+    {
+      "name": "aperture stop",
+      "radius_mm": 0,
+      "thickness_mm": 2.5,
+      "semi_aperture_mm": 8.929
+    },
+    {
+      "name": "L1",
+      "radius_mm": 25.8400017,
+      "thickness_mm": 3.325,
+      "glass": "N-BK7",
+      "semi_aperture_mm": 11.55,
+      "tilt_x_deg": 1
+    },
+    {
+      "name": "L1",
+      "radius_mm": 0,
+      "thickness_mm": 20,
+      "semi_aperture_mm": 11.409,
+      "tilt_x_deg": 1
+    }
+  ],
+  "stop": 0,
+  "description": "偏心/倾斜单透镜｜N-BK7｜f=50mm、F/2.8｜倾斜 x 轴 1°（decenter_*_mm / tilt_*_deg，坐标断点；两面同 pose，面间距仍沿原光轴）｜pose 系统无一阶量：焦点由平行光束的实光线最佳焦面定位，实测最佳焦面 z=51.93414mm、RMS=0.0387mm｜像差（彗差/像散）随偏置或倾角增长，可与同一 f 数字的轴对称例对照。预期指标（引擎计算；单位 mm、µrad、deg；libcheck 复核容差：相对 1e-6）：MODE=posed；FOCUSZ=51.9341432mm；FOCUSRMS=0.0387189794mm；RAYS=21",
+  "category": "tilt",
+  "difficulty": 4,
+  "tags": [
+    "posed",
+    "tilt-x",
+    "singlet",
+    "N-BK7",
+    "F/2.8",
+    "efl:50",
+    "visible",
+    "trace-validated",
+    "quality:classic",
+    "sweep:tilt-x",
+    "mode-witness:posed-real-rays",
+    "mode:posed"
+  ]
+}

@@ -78,7 +78,7 @@ func (l *lib) add(file string, p *lens.Prescription, cat string, diff int, tg []
 		return
 	}
 	if prev, ok := l.fps[fp]; ok {
-		merges = append(merges, fmt.Sprintf("%s 与 %s 参数指纹相同（同一光学设计），合并", file, prev))
+		record(&merges, "%s 与 %s 参数指纹相同（同一光学设计），合并", file, prev)
 		return
 	}
 	name := file

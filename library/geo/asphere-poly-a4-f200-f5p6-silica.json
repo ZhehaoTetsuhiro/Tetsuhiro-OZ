@@ -1,0 +1,50 @@
+{
+  "name": "多项式非球面单透镜 FusedSilica f=200mm F/5.6（单项 r⁴）",
+  "object_z_mm": "inf",
+  "cards": [
+    {
+      "name": "aperture stop",
+      "radius_mm": 0,
+      "thickness_mm": 2.5,
+      "semi_aperture_mm": 17.857
+    },
+    {
+      "name": "L1",
+      "radius_mm": 91.6927375,
+      "thickness_mm": 10,
+      "glass": "FusedSilica",
+      "semi_aperture_mm": 22.699,
+      "poly_terms": [
+        {
+          "power": 4,
+          "coeff": -9.7624e-8
+        }
+      ]
+    },
+    {
+      "name": "L1",
+      "radius_mm": 0,
+      "thickness_mm": 50,
+      "semi_aperture_mm": 22.065
+    }
+  ],
+  "stop": 0,
+  "description": "多项式非球面单透镜（poly_terms）｜FusedSilica｜f=200mm、F/5.6、口径 35.714mm｜球差修正：球面基底实测轴上 RMS=0.1438mm，前表面加 r⁴ 项（系数由引擎点列 RMS 坐标搜索拟合、六位有效数字冻结）后 RMS=0.0008mm，降至 0.6%｜该面边缘光线高度 17.8391mm（非球面项的量纲参考）。预期指标（引擎计算；单位 mm、µrad、deg；libcheck 复核容差：相对 1e-6）：MODE=refract；EFL=200mm；BFL=193.14347mm；FNO=5.6000448；FC=-2.90092087mm；RMSAX=0.000791217262mm；FIELD=0.5deg；RMSFLD=0.00401749505mm；RAYS=37；FRAYS=37",
+  "category": "asphere",
+  "difficulty": 2,
+  "tags": [
+    "asphere",
+    "poly-terms",
+    "singlet",
+    "FusedSilica",
+    "F/5.6",
+    "efl:200",
+    "visible",
+    "optimized",
+    "quality:optimized",
+    "compare:sphere",
+    "sweep:efl",
+    "a4",
+    "mode:refract"
+  ]
+}

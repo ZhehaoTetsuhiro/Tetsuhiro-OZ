@@ -1,0 +1,56 @@
+{
+  "name": "非球面修正双胶合 N-SK16/N-SF5 f=200mm F/5（第 2 面 r⁴+r⁶）",
+  "object_z_mm": "inf",
+  "cards": [
+    {
+      "name": "crown front",
+      "radius_mm": 115.48542426145704,
+      "thickness_mm": 3.5759090518802865,
+      "glass": "N-SK16",
+      "semi_aperture_mm": 20
+    },
+    {
+      "name": "cemented surface",
+      "radius_mm": -110.04425398070438,
+      "thickness_mm": 16,
+      "glass": "N-SF5",
+      "semi_aperture_mm": 25.375
+    },
+    {
+      "name": "flint rear",
+      "radius_mm": -6000,
+      "thickness_mm": 190,
+      "semi_aperture_mm": 24.061,
+      "poly_terms": [
+        {
+          "power": 4,
+          "coeff": 2.67883e-8
+        },
+        {
+          "power": 6,
+          "coeff": -1.05194e-13
+        }
+      ]
+    }
+  ],
+  "stop": 0,
+  "description": "双胶合消色差 + 非球面修正｜N-SK16+N-SF5｜f=200mm、F/5｜基底为 DLS 自主设计消色差（同 achromat-dls 家族），在第 2 面追加 r⁴+r⁶ 项（系数由引擎点列 RMS 坐标搜索拟合、六位有效数字冻结）｜基底实测轴上 RMS=0.0672mm，修正后 RMS=0.0005mm，降至 0.8%。预期指标（引擎计算；单位 mm、µrad、deg；libcheck 复核容差：相对 1e-6）：MODE=refract；EFL=199.675684mm；BFL=187.944693mm；FNO=4.99189211；FC=0.196922144mm；RMSAX=0.000527328579mm；FIELD=0.5deg；RMSFLD=0.00319426851mm；RAYS=37；FRAYS=37",
+  "category": "asphere",
+  "difficulty": 3,
+  "tags": [
+    "asphere",
+    "poly-terms",
+    "achromat",
+    "doublet",
+    "N-SK16",
+    "N-SF5",
+    "F/5",
+    "efl:200",
+    "visible",
+    "optimized",
+    "quality:optimized",
+    "compare:sphere",
+    "a4a6",
+    "mode:refract"
+  ]
+}
