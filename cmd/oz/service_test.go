@@ -116,6 +116,16 @@ func TestServiceMountsEveryEndpoint(t *testing.T) {
 		{http.MethodPost, "/api/lens/sens", `{}`, http.StatusBadRequest},
 		{http.MethodPost, "/api/geo/mtf", `{}`, http.StatusBadRequest},
 		{http.MethodPost, "/api/geo/ghost", `{}`, http.StatusBadRequest},
+		// The lens-group endpoints and parax take a real group/prescription,
+		// so an empty body is routed (400, not 404) and proves the mount; the
+		// numbers are exercised in group_api_test.go.
+		{http.MethodPost, "/api/lens/group/layout", `{}`, http.StatusBadRequest},
+		{http.MethodPost, "/api/lens/group/image", `{}`, http.StatusBadRequest},
+		{http.MethodPost, "/api/lens/group/afocal", `{}`, http.StatusBadRequest},
+		{http.MethodPost, "/api/lens/group/dispersion", `{}`, http.StatusBadRequest},
+		{http.MethodPost, "/api/lens/group/set", `{}`, http.StatusBadRequest},
+		{http.MethodPost, "/api/lens/group/prescription", `{}`, http.StatusBadRequest},
+		{http.MethodPost, "/api/lens/parax", `{}`, http.StatusBadRequest},
 		{http.MethodPost, "/api/doe/focus", `{"focal_mm":10,"levels":4,"grid_size":128}`, http.StatusOK},
 		{http.MethodPost, "/api/coating/design", `{"template":"single-ar","lambda_nm":550}`, http.StatusOK},
 		// GUI and the pre-merge address.
@@ -152,6 +162,13 @@ func TestServiceMethodContract(t *testing.T) {
 		{http.MethodGet, "/api/lens/tol"},
 		{http.MethodGet, "/api/lens/thermal"},
 		{http.MethodGet, "/api/lens/sens"},
+		{http.MethodGet, "/api/lens/parax"},
+		{http.MethodGet, "/api/lens/group/layout"},
+		{http.MethodGet, "/api/lens/group/image"},
+		{http.MethodGet, "/api/lens/group/afocal"},
+		{http.MethodGet, "/api/lens/group/dispersion"},
+		{http.MethodGet, "/api/lens/group/set"},
+		{http.MethodGet, "/api/lens/group/prescription"},
 		{http.MethodGet, "/api/geo/mtf"},
 		{http.MethodGet, "/api/geo/ghost"},
 		{http.MethodGet, "/api/doe/focus"},
@@ -236,6 +253,17 @@ func TestOZEndpointChain(t *testing.T) {
 	}
 	if m := postMap(t, base, "/api/doe/focus", `{"focal_mm":10,"levels":4,"grid_size":128}`); m["eta_first_order"] == nil {
 		t.Errorf("doe focus answer incomplete: %v", m)
+	}
+
+	// The designed prescription goes through the mirror-capable first-order
+	// report as well: same EFL as the design (1 %).
+	px := postMap(t, base, "/api/lens/parax", `{"prescription":`+string(presc)+`}`)
+	eflPx, ok := px["efl_mm"].(float64)
+	if !ok || math.Abs(eflPx-60)/60 > 0.01 {
+		t.Errorf("parax of the designed prescription: efl_mm = %v, want ≈ 60", px["efl_mm"])
+	}
+	if px["mirrors"] != float64(0) {
+		t.Errorf("the designed achromat has no mirror: %v", px["mirrors"])
 	}
 
 	c := postMap(t, base, "/api/coating/design", `{"template":"single-ar","lambda_nm":550,"substrate":"BK7"}`)

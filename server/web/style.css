@@ -394,6 +394,14 @@ html[data-theme="dark"] .splashTitle { text-shadow: 0 0 42px rgba(77, 184, 255, 
   .aiQuick button { min-height: 44px; }
   #aiInput { min-height: 88px; }
 }
+/* ---- 透镜组（3D，含镜）：面板由 oz.js 构建，复用上面的 oz* 类 ---- */
+#ozGroupPlot { display: block; width: 100%; height: clamp(180px, 44vw, 340px); background: var(--canvas-bg);
+  border: 1px solid var(--border); border-radius: 8px; margin: 4px 0 6px; touch-action: none; cursor: grab; }
+.ozGroupEl { border: 1px solid var(--border); border-radius: 8px; padding: 6px 8px; margin: 6px 0 0;
+  background: var(--panel2); min-width: 0; }
+.ozGroupEl h4 { margin: 0 0 4px; font-size: 12px; font-weight: 600; color: var(--label);
+  overflow-wrap: anywhere; }
+.ozHint { align-self: center; font-size: 12px; color: var(--muted); min-width: 0; }
 
 /* ---- 触控设备：按钮与输入框的点击目标不小于 44px ---- */
 @media (pointer: coarse) {
