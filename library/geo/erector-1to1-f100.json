@@ -50,7 +50,7 @@
     }
   ],
   "stop": 0,
-  "description": "转像系统（1:1 正像中继）｜两组胶合 f=100mm，物距 -190mm、像距 -1273.1mm、近轴倍率 13.847｜经典构造：望远镜/潜望镜里的转像镜组，中间像位于两组之间的公共焦面。预期指标（引擎计算；单位 mm、µrad、deg；libcheck 复核容差：相对 1e-6）：MODE=focus；FOCUSZ=115.099478mm；FOCUSRMS=0.248252457mm；RAYS=21",
+  "description": "转像系统（1:1 正像中继）｜两组胶合 f=100mm，物距 -190mm、像距 -1273.1mm、近轴倍率 13.847｜经典构造：望远镜/潜望镜里的转像镜组，中间像位于两组之间的公共焦面。预期指标（引擎计算；单位 mm、µrad、deg；libcheck 复核容差：相对 1e-6）：MODE=focus；FOCUSZ=108.745298mm；FOCUSRMS=0.0458404993mm；RAYS=21",
   "category": "instrument",
   "difficulty": 4,
   "tags": [

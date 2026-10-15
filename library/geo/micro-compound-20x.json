@@ -1,0 +1,67 @@
+{
+  "name": "无限远矫正显微物镜组 20x（物镜 9mm + 镜筒透镜 180mm）",
+  "object_z_mm": -12.15,
+  "cards": [
+    {
+      "name": "aperture stop",
+      "radius_mm": 0,
+      "thickness_mm": 47.8616,
+      "semi_aperture_mm": 4
+    },
+    {
+      "name": "objective",
+      "radius_mm": 279.0234534,
+      "thickness_mm": 6.8921,
+      "glass": "N-BK7",
+      "semi_aperture_mm": 25.366
+    },
+    {
+      "name": "objective",
+      "radius_mm": -279.0234534,
+      "thickness_mm": 6.8921,
+      "glass": "F2",
+      "semi_aperture_mm": 26.6
+    },
+    {
+      "name": "objective",
+      "radius_mm": -143.474776,
+      "thickness_mm": 241.2227,
+      "semi_aperture_mm": 27.919
+    },
+    {
+      "name": "tube lens",
+      "radius_mm": 6561.9680038,
+      "thickness_mm": 99,
+      "glass": "N-SK16",
+      "semi_aperture_mm": 85.534
+    },
+    {
+      "name": "tube lens",
+      "radius_mm": -6561.9680038,
+      "thickness_mm": 51.6906,
+      "glass": "N-SF5",
+      "semi_aperture_mm": 99.222
+    },
+    {
+      "name": "tube lens",
+      "radius_mm": -3303.8702481,
+      "thickness_mm": 2067.6232,
+      "semi_aperture_mm": 106.144
+    }
+  ],
+  "stop": 0,
+  "description": "无限远矫正显微镜组｜20x（物镜 f=9mm + 镜筒透镜 f=180mm）｜经典构造：物镜把物点送到无限远、镜筒透镜成像于 -46.2mm（倍率 1.83×，近轴实测）。预期指标（引擎计算；单位 mm、µrad、deg；libcheck 复核容差：相对 1e-6）：MODE=focus；FOCUSZ=285.858891mm；FOCUSRMS=0.000512803237mm；RAYS=21",
+  "category": "micro-telescope",
+  "difficulty": 5,
+  "tags": [
+    "microscope",
+    "infinity-corrected",
+    "compound",
+    "mag:1.835",
+    "visible",
+    "classic",
+    "quality:classic",
+    "objfield:0.2",
+    "mode:focus"
+  ]
+}

@@ -23,7 +23,7 @@
     }
   ],
   "stop": 0,
-  "description": "单透镜弯曲族｜N-BK7｜f=100mm、F/5 固定，第二个面的曲率比为 -0.5：弯月形（比值→1）球差显著下降。预期指标（引擎计算；单位 mm、µrad、deg；libcheck 复核容差：相对 1e-6）：MODE=focus；FOCUSZ=278.823879mm；FOCUSRMS=1.72070827mm；RAYS=21",
+  "description": "单透镜弯曲族｜N-BK7｜f=100mm、F/5 固定，第二个面的曲率比为 -0.5：弯月形（比值→1）球差显著下降。预期指标（引擎计算；单位 mm、µrad、deg；libcheck 复核容差：相对 1e-6）：MODE=focus；FOCUSZ=220.428492mm；FOCUSRMS=0.0151026741mm；RAYS=21",
   "category": "singlet",
   "difficulty": 2,
   "tags": [

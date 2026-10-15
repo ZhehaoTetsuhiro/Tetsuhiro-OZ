@@ -1,0 +1,42 @@
+{
+  "name": "负弯月单透镜 N-BK7 f=200mm F/5",
+  "object_z_mm": "inf",
+  "cards": [
+    {
+      "name": "aperture stop",
+      "radius_mm": 0,
+      "thickness_mm": 10.633,
+      "semi_aperture_mm": 20
+    },
+    {
+      "name": "L1",
+      "radius_mm": -42.3475493,
+      "thickness_mm": 9.1047,
+      "glass": "N-BK7",
+      "semi_aperture_mm": 25.375
+    },
+    {
+      "name": "L1",
+      "radius_mm": -76.9954078,
+      "thickness_mm": 45.5234,
+      "semi_aperture_mm": 27.791
+    }
+  ],
+  "stop": 0,
+  "description": "单透镜（负弯月）｜N-BK7｜设计焦距 200mm，口径 20mm，F/5｜负透镜：平行光入射为虚像，用实光线追迹外推虚焦面。预期指标（引擎计算；单位 mm、µrad、deg；libcheck 复核容差：相对 1e-6）：MODE=focus；FOCUSZ=-173.731081mm；FOCUSRMS=0.279239333mm；RAYS=21",
+  "category": "singlet",
+  "difficulty": 1,
+  "tags": [
+    "singlet",
+    "menn",
+    "N-BK7",
+    "F/5",
+    "efl:200",
+    "visible",
+    "classic",
+    "quality:analytic",
+    "fov0.5deg",
+    "sweep:f",
+    "mode:focus"
+  ]
+}

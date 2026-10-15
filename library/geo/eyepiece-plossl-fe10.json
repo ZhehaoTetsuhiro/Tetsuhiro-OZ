@@ -50,7 +50,7 @@
     }
   ],
   "stop": 0,
-  "description": "普洛塞尔（Plössl）四片式｜f_e=10mm（眼端反向追迹：物体在无限远、孔径光阑＝眼瞳直径 4mm）｜经典构造；指标在 d 线实测。预期指标（引擎计算；单位 mm、µrad、deg；libcheck 复核容差：相对 1e-6）：MODE=focus；FOCUSZ=29.8661144mm；FOCUSRMS=0.0537455459mm；RAYS=21",
+  "description": "普洛塞尔（Plössl）四片式｜f_e=10mm（眼端反向追迹：物体在无限远、孔径光阑＝眼瞳直径 4mm）｜经典构造；指标在 d 线实测。预期指标（引擎计算；单位 mm、µrad、deg；libcheck 复核容差：相对 1e-6）：MODE=focus；FOCUSZ=29.1535658mm；FOCUSRMS=0.0215650621mm；RAYS=21",
   "category": "eyepiece",
   "difficulty": 3,
   "tags": [

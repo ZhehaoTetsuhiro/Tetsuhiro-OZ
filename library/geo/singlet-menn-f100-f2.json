@@ -1,0 +1,42 @@
+{
+  "name": "负弯月单透镜 F2 f=100mm F/5",
+  "object_z_mm": "inf",
+  "cards": [
+    {
+      "name": "aperture stop",
+      "radius_mm": 0,
+      "thickness_mm": 4.684,
+      "semi_aperture_mm": 10
+    },
+    {
+      "name": "L1",
+      "radius_mm": -25.5628738,
+      "thickness_mm": 4.5809,
+      "glass": "F2",
+      "semi_aperture_mm": 12.888
+    },
+    {
+      "name": "L1",
+      "radius_mm": -46.4779524,
+      "thickness_mm": 27.4852,
+      "semi_aperture_mm": 13.949
+    }
+  ],
+  "stop": 0,
+  "description": "单透镜（负弯月）｜F2｜设计焦距 100mm，口径 10mm，F/5｜负透镜：平行光入射为虚像，用实光线追迹外推虚焦面。预期指标（引擎计算；单位 mm、µrad、deg；libcheck 复核容差：相对 1e-6）：MODE=focus；FOCUSZ=-91.1458792mm；FOCUSRMS=0.0838765561mm；RAYS=21",
+  "category": "singlet",
+  "difficulty": 1,
+  "tags": [
+    "singlet",
+    "menn",
+    "F2",
+    "F/5",
+    "efl:100",
+    "visible",
+    "classic",
+    "quality:analytic",
+    "fov0.5deg",
+    "sweep:f",
+    "mode:focus"
+  ]
+}

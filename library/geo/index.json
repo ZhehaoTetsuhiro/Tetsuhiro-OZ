@@ -2,32 +2,32 @@
   "tool": "oz libcheck",
   "dir": "library/geo",
   "description_tolerance": "description numbers vs recomputed: |got-want| \u003c= 1e-06*|want| + 1e-12",
-  "count": 592,
+  "count": 624,
   "categories": {
     "achromat": 102,
     "asphere": 61,
     "eyepiece": 21,
-    "instrument": 46,
-    "micro-telescope": 28,
-    "mirror": 43,
+    "instrument": 47,
+    "micro-telescope": 29,
+    "mirror": 45,
     "multi": 45,
     "qasphere": 44,
-    "singlet": 112,
+    "singlet": 140,
     "tilt": 90
   },
   "validation_modes": {
     "afocal": 52,
     "collimate": 6,
-    "focus": 73,
+    "focus": 105,
     "posed": 90,
     "refract": 371
   },
   "quality": {
-    "analytic": 187,
-    "classic": 252,
+    "analytic": 215,
+    "classic": 256,
     "optimized": 153
   },
-  "sweep_examples": 429,
+  "sweep_examples": 457,
   "entries": [
     {
       "file": "achromat-asphere-s0-a4-f100-nbk7-f2.json",
@@ -7537,7 +7537,7 @@
       "name": "1:1 正像中继（转像系统）f=100mm",
       "category": "instrument",
       "difficulty": 4,
-      "description": "转像系统（1:1 正像中继）｜两组胶合 f=100mm，物距 -190mm、像距 -1273.1mm、近轴倍率 13.847｜经典构造：望远镜/潜望镜里的转像镜组，中间像位于两组之间的公共焦面。预期指标（引擎计算；单位 mm、µrad、deg；libcheck 复核容差：相对 1e-6）：MODE=focus；FOCUSZ=115.099478mm；FOCUSRMS=0.248252457mm；RAYS=21",
+      "description": "转像系统（1:1 正像中继）｜两组胶合 f=100mm，物距 -190mm、像距 -1273.1mm、近轴倍率 13.847｜经典构造：望远镜/潜望镜里的转像镜组，中间像位于两组之间的公共焦面。预期指标（引擎计算；单位 mm、µrad、deg；libcheck 复核容差：相对 1e-6）：MODE=focus；FOCUSZ=108.745298mm；FOCUSRMS=0.0458404993mm；RAYS=21",
       "tags": [
         "erector",
         "relay",
@@ -7559,8 +7559,8 @@
         "mode": "focus",
         "field": 3.8,
         "field_unit": "mm",
-        "focus_z_mm": 115.09947830705386,
-        "focus_rms_mm": 0.24825245726654435,
+        "focus_z_mm": 108.74529767883357,
+        "focus_rms_mm": 0.04584049926969648,
         "rays": 21,
         "stop_semi_aperture_mm": 12.5
       }
@@ -7570,7 +7570,7 @@
       "name": "1:1 正像中继（转像系统）f=200mm",
       "category": "instrument",
       "difficulty": 4,
-      "description": "转像系统（1:1 正像中继）｜两组胶合 f=200mm，物距 -380mm、像距 -2070.5mm、近轴倍率 11.453｜经典构造：望远镜/潜望镜里的转像镜组，中间像位于两组之间的公共焦面。预期指标（引擎计算；单位 mm、µrad、deg；libcheck 复核容差：相对 1e-6）：MODE=focus；FOCUSZ=227.179858mm；FOCUSRMS=0.496504922mm；RAYS=21",
+      "description": "转像系统（1:1 正像中继）｜两组胶合 f=200mm，物距 -380mm、像距 -2070.5mm、近轴倍率 11.453｜经典构造：望远镜/潜望镜里的转像镜组，中间像位于两组之间的公共焦面。预期指标（引擎计算；单位 mm、µrad、deg；libcheck 复核容差：相对 1e-6）：MODE=focus；FOCUSZ=214.471496mm；FOCUSRMS=0.0916809873mm；RAYS=21",
       "tags": [
         "erector",
         "relay",
@@ -7592,8 +7592,8 @@
         "mode": "focus",
         "field": 7.6,
         "field_unit": "mm",
-        "focus_z_mm": 227.1798576576202,
-        "focus_rms_mm": 0.4965049218849269,
+        "focus_z_mm": 214.47149601787194,
+        "focus_rms_mm": 0.09168098733715618,
         "rays": 21,
         "stop_semi_aperture_mm": 25
       }
@@ -7603,7 +7603,7 @@
       "name": "1:1 正像中继（转像系统）f=50mm",
       "category": "instrument",
       "difficulty": 4,
-      "description": "转像系统（1:1 正像中继）｜两组胶合 f=50mm，物距 -95mm、像距 -1132.5mm、近轴倍率 23.795｜经典构造：望远镜/潜望镜里的转像镜组，中间像位于两组之间的公共焦面。预期指标（引擎计算；单位 mm、µrad、deg；libcheck 复核容差：相对 1e-6）：MODE=focus；FOCUSZ=59.0595559mm；FOCUSRMS=0.124130992mm；RAYS=21",
+      "description": "转像系统（1:1 正像中继）｜两组胶合 f=50mm，物距 -95mm、像距 -1132.5mm、近轴倍率 23.795｜经典构造：望远镜/潜望镜里的转像镜组，中间像位于两组之间的公共焦面。预期指标（引擎计算；单位 mm、µrad、deg；libcheck 复核容差：相对 1e-6）：MODE=focus；FOCUSZ=55.8823389mm；FOCUSRMS=0.0229202067mm；RAYS=21",
       "tags": [
         "erector",
         "relay",
@@ -7625,8 +7625,8 @@
         "mode": "focus",
         "field": 1.9,
         "field_unit": "mm",
-        "focus_z_mm": 59.05955589555388,
-        "focus_rms_mm": 0.12413099243849636,
+        "focus_z_mm": 55.882338937927614,
+        "focus_rms_mm": 0.022920206741002203,
         "rays": 21,
         "stop_semi_aperture_mm": 6.25
       }
@@ -8530,7 +8530,7 @@
       "name": "埃尔弗（Erfle）五片广角 目镜 f_e=20mm",
       "category": "eyepiece",
       "difficulty": 4,
-      "description": "埃尔弗（Erfle）五片广角｜f_e=20mm（眼端反向追迹：物体在无限远、孔径光阑＝眼瞳直径 5mm）｜经典构造；指标在 d 线实测。预期指标（引擎计算；单位 mm、µrad、deg；libcheck 复核容差：相对 1e-6）：MODE=focus；FOCUSZ=67.4380527mm；FOCUSRMS=0.309634506mm；RAYS=21",
+      "description": "埃尔弗（Erfle）五片广角｜f_e=20mm（眼端反向追迹：物体在无限远、孔径光阑＝眼瞳直径 5mm）｜经典构造；指标在 d 线实测。预期指标（引擎计算；单位 mm、µrad、deg；libcheck 复核容差：相对 1e-6）：MODE=focus；FOCUSZ=59.0390303mm；FOCUSRMS=0.00255700786mm；RAYS=21",
       "tags": [
         "eyepiece",
         "erfle",
@@ -8550,8 +8550,8 @@
         "mode": "focus",
         "field": 8,
         "field_unit": "deg",
-        "focus_z_mm": 67.43805271826889,
-        "focus_rms_mm": 0.30963450557581296,
+        "focus_z_mm": 59.039030341366896,
+        "focus_rms_mm": 0.0025570078628324275,
         "rays": 21,
         "stop_semi_aperture_mm": 2.5
       }
@@ -8561,7 +8561,7 @@
       "name": "埃尔弗（Erfle）五片广角 目镜 f_e=25mm",
       "category": "eyepiece",
       "difficulty": 4,
-      "description": "埃尔弗（Erfle）五片广角｜f_e=25mm（眼端反向追迹：物体在无限远、孔径光阑＝眼瞳直径 5mm）｜经典构造；指标在 d 线实测。预期指标（引擎计算；单位 mm、µrad、deg；libcheck 复核容差：相对 1e-6）：MODE=focus；FOCUSZ=78.5475798mm；FOCUSRMS=0.309588mm；RAYS=21",
+      "description": "埃尔弗（Erfle）五片广角｜f_e=25mm（眼端反向追迹：物体在无限远、孔径光阑＝眼瞳直径 5mm）｜经典构造；指标在 d 线实测。预期指标（引擎计算；单位 mm、µrad、deg；libcheck 复核容差：相对 1e-6）：MODE=focus；FOCUSZ=67.9945482mm；FOCUSRMS=0.0016400115mm；RAYS=21",
       "tags": [
         "eyepiece",
         "erfle",
@@ -8581,8 +8581,8 @@
         "mode": "focus",
         "field": 8,
         "field_unit": "deg",
-        "focus_z_mm": 78.54757975786498,
-        "focus_rms_mm": 0.30958800017167654,
+        "focus_z_mm": 67.99454820437482,
+        "focus_rms_mm": 0.0016400114978265227,
         "rays": 21,
         "stop_semi_aperture_mm": 2.5
       }
@@ -8592,7 +8592,7 @@
       "name": "埃尔弗（Erfle）五片广角 目镜 f_e=32mm",
       "category": "eyepiece",
       "difficulty": 4,
-      "description": "埃尔弗（Erfle）五片广角｜f_e=32mm（眼端反向追迹：物体在无限远、孔径光阑＝眼瞳直径 5mm）｜经典构造；指标在 d 线实测。预期指标（引擎计算；单位 mm、µrad、deg；libcheck 复核容差：相对 1e-6）：MODE=focus；FOCUSZ=94.0745369mm；FOCUSRMS=0.309618302mm；RAYS=21",
+      "description": "埃尔弗（Erfle）五片广角｜f_e=32mm（眼端反向追迹：物体在无限远、孔径光阑＝眼瞳直径 5mm）｜经典构造；指标在 d 线实测。预期指标（引擎计算；单位 mm、µrad、deg；libcheck 复核容差：相对 1e-6）：MODE=focus；FOCUSZ=80.5160983mm；FOCUSRMS=0.00100238506mm；RAYS=21",
       "tags": [
         "eyepiece",
         "erfle",
@@ -8612,8 +8612,8 @@
         "mode": "focus",
         "field": 8,
         "field_unit": "deg",
-        "focus_z_mm": 94.07453689725187,
-        "focus_rms_mm": 0.30961830186844697,
+        "focus_z_mm": 80.5160983001303,
+        "focus_rms_mm": 0.0010023850627970616,
         "rays": 21,
         "stop_semi_aperture_mm": 2.5
       }
@@ -8623,7 +8623,7 @@
       "name": "凯尔纳（Kellner）三片式 目镜 f_e=10mm",
       "category": "eyepiece",
       "difficulty": 3,
-      "description": "凯尔纳（Kellner）三片式｜f_e=10mm（眼端反向追迹：物体在无限远、孔径光阑＝眼瞳直径 3mm）｜经典构造；指标在 d 线实测。预期指标（引擎计算；单位 mm、µrad、deg；libcheck 复核容差：相对 1e-6）：MODE=focus；FOCUSZ=28.6287973mm；FOCUSRMS=0.0168471315mm；RAYS=21",
+      "description": "凯尔纳（Kellner）三片式｜f_e=10mm（眼端反向追迹：物体在无限远、孔径光阑＝眼瞳直径 3mm）｜经典构造；指标在 d 线实测。预期指标（引擎计算；单位 mm、µrad、deg；libcheck 复核容差：相对 1e-6）：MODE=focus；FOCUSZ=28.2850962mm；FOCUSRMS=0.00756089498mm；RAYS=21",
       "tags": [
         "eyepiece",
         "kellner",
@@ -8643,8 +8643,8 @@
         "mode": "focus",
         "field": 5,
         "field_unit": "deg",
-        "focus_z_mm": 28.6287972635393,
-        "focus_rms_mm": 0.016847131480444987,
+        "focus_z_mm": 28.28509617352167,
+        "focus_rms_mm": 0.00756089498366668,
         "rays": 21,
         "stop_semi_aperture_mm": 1.5
       }
@@ -8654,7 +8654,7 @@
       "name": "凯尔纳（Kellner）三片式 目镜 f_e=15mm",
       "category": "eyepiece",
       "difficulty": 3,
-      "description": "凯尔纳（Kellner）三片式｜f_e=15mm（眼端反向追迹：物体在无限远、孔径光阑＝眼瞳直径 3mm）｜经典构造；指标在 d 线实测。预期指标（引擎计算；单位 mm、µrad、deg；libcheck 复核容差：相对 1e-6）：MODE=focus；FOCUSZ=35.4407001mm；FOCUSRMS=0.0240969344mm；RAYS=21",
+      "description": "凯尔纳（Kellner）三片式｜f_e=15mm（眼端反向追迹：物体在无限远、孔径光阑＝眼瞳直径 3mm）｜经典构造；指标在 d 线实测。预期指标（引擎计算；单位 mm、µrad、deg；libcheck 复核容差：相对 1e-6）：MODE=focus；FOCUSZ=34.6208781mm；FOCUSRMS=0.00321817379mm；RAYS=21",
       "tags": [
         "eyepiece",
         "kellner",
@@ -8674,8 +8674,8 @@
         "mode": "focus",
         "field": 5,
         "field_unit": "deg",
-        "focus_z_mm": 35.44070008310521,
-        "focus_rms_mm": 0.024096934356061667,
+        "focus_z_mm": 34.62087812080201,
+        "focus_rms_mm": 0.0032181737896225414,
         "rays": 21,
         "stop_semi_aperture_mm": 1.5
       }
@@ -8685,7 +8685,7 @@
       "name": "凯尔纳（Kellner）三片式 目镜 f_e=20mm",
       "category": "eyepiece",
       "difficulty": 3,
-      "description": "凯尔纳（Kellner）三片式｜f_e=20mm（眼端反向追迹：物体在无限远、孔径光阑＝眼瞳直径 3mm）｜经典构造；指标在 d 线实测。预期指标（引擎计算；单位 mm、µrad、deg；libcheck 复核容差：相对 1e-6）：MODE=focus；FOCUSZ=42.1066469mm；FOCUSRMS=0.0267100176mm；RAYS=21",
+      "description": "凯尔纳（Kellner）三片式｜f_e=20mm（眼端反向追迹：物体在无限远、孔径光阑＝眼瞳直径 3mm）｜经典构造；指标在 d 线实测。预期指标（引擎计算；单位 mm、µrad、deg；libcheck 复核容差：相对 1e-6）：MODE=focus；FOCUSZ=40.8856739mm；FOCUSRMS=0.00178416079mm；RAYS=21",
       "tags": [
         "eyepiece",
         "kellner",
@@ -8705,8 +8705,8 @@
         "mode": "focus",
         "field": 5,
         "field_unit": "deg",
-        "focus_z_mm": 42.10664692321835,
-        "focus_rms_mm": 0.02671001760938712,
+        "focus_z_mm": 40.88567393746295,
+        "focus_rms_mm": 0.0017841607856591208,
         "rays": 21,
         "stop_semi_aperture_mm": 1.5
       }
@@ -8716,7 +8716,7 @@
       "name": "凯尔纳（Kellner）三片式 目镜 f_e=25mm",
       "category": "eyepiece",
       "difficulty": 3,
-      "description": "凯尔纳（Kellner）三片式｜f_e=25mm（眼端反向追迹：物体在无限远、孔径光阑＝眼瞳直径 3mm）｜经典构造；指标在 d 线实测。预期指标（引擎计算；单位 mm、µrad、deg；libcheck 复核容差：相对 1e-6）：MODE=focus；FOCUSZ=48.7210902mm；FOCUSRMS=0.0279007974mm；RAYS=21",
+      "description": "凯尔纳（Kellner）三片式｜f_e=25mm（眼端反向追迹：物体在无限远、孔径光阑＝眼瞳直径 3mm）｜经典构造；指标在 d 线实测。预期指标（引擎计算；单位 mm、µrad、deg；libcheck 复核容差：相对 1e-6）：MODE=focus；FOCUSZ=47.123829mm；FOCUSRMS=0.00113433454mm；RAYS=21",
       "tags": [
         "eyepiece",
         "kellner",
@@ -8736,8 +8736,8 @@
         "mode": "focus",
         "field": 5,
         "field_unit": "deg",
-        "focus_z_mm": 48.72109018863356,
-        "focus_rms_mm": 0.027900797397811938,
+        "focus_z_mm": 47.12382899191853,
+        "focus_rms_mm": 0.0011343345391423693,
         "rays": 21,
         "stop_semi_aperture_mm": 1.5
       }
@@ -8747,7 +8747,7 @@
       "name": "凯尔纳（Kellner）三片式 目镜 f_e=32mm",
       "category": "eyepiece",
       "difficulty": 3,
-      "description": "凯尔纳（Kellner）三片式｜f_e=32mm（眼端反向追迹：物体在无限远、孔径光阑＝眼瞳直径 3mm）｜经典构造；指标在 d 线实测。预期指标（引擎计算；单位 mm、µrad、deg；libcheck 复核容差：相对 1e-6）：MODE=focus；FOCUSZ=57.9432489mm；FOCUSRMS=0.0287148123mm；RAYS=21",
+      "description": "凯尔纳（Kellner）三片式｜f_e=32mm（眼端反向追迹：物体在无限远、孔径光阑＝眼瞳直径 3mm）｜经典构造；指标在 d 线实测。预期指标（引擎计算；单位 mm、µrad、deg；libcheck 复核容差：相对 1e-6）：MODE=focus；FOCUSZ=55.8373041mm；FOCUSRMS=0.000689197183mm；RAYS=21",
       "tags": [
         "eyepiece",
         "kellner",
@@ -8767,8 +8767,8 @@
         "mode": "focus",
         "field": 5,
         "field_unit": "deg",
-        "focus_z_mm": 57.94324888805918,
-        "focus_rms_mm": 0.028714812314668603,
+        "focus_z_mm": 55.837304084700236,
+        "focus_rms_mm": 0.0006891971831978148,
         "rays": 21,
         "stop_semi_aperture_mm": 1.5
       }
@@ -8778,7 +8778,7 @@
       "name": "凯尔纳（大视场版） 目镜 f_e=18mm",
       "category": "eyepiece",
       "difficulty": 3,
-      "description": "凯尔纳（大视场版）｜f_e=18mm（眼端反向追迹：物体在无限远、孔径光阑＝眼瞳直径 3.5mm）｜经典构造；指标在 d 线实测。预期指标（引擎计算；单位 mm、µrad、deg；libcheck 复核容差：相对 1e-6）：MODE=focus；FOCUSZ=39.3062114mm；FOCUSRMS=0.028488504mm；RAYS=21",
+      "description": "凯尔纳（大视场版）｜f_e=18mm（眼端反向追迹：物体在无限远、孔径光阑＝眼瞳直径 3.5mm）｜经典构造；指标在 d 线实测。预期指标（引擎计算；单位 mm、µrad、deg；libcheck 复核容差：相对 1e-6）：MODE=focus；FOCUSZ=38.3079788mm；FOCUSRMS=0.00354227836mm；RAYS=21",
       "tags": [
         "eyepiece",
         "kellner-wide",
@@ -8798,8 +8798,8 @@
         "mode": "focus",
         "field": 8,
         "field_unit": "deg",
-        "focus_z_mm": 39.30621144082312,
-        "focus_rms_mm": 0.028488504002793288,
+        "focus_z_mm": 38.30797880546082,
+        "focus_rms_mm": 0.0035422783613486735,
         "rays": 21,
         "stop_semi_aperture_mm": 1.75
       }
@@ -8809,7 +8809,7 @@
       "name": "凯尔纳（大视场版） 目镜 f_e=24mm",
       "category": "eyepiece",
       "difficulty": 3,
-      "description": "凯尔纳（大视场版）｜f_e=24mm（眼端反向追迹：物体在无限远、孔径光阑＝眼瞳直径 3.5mm）｜经典构造；指标在 d 线实测。预期指标（引擎计算；单位 mm、µrad、deg；libcheck 复核容差：相对 1e-6）：MODE=focus；FOCUSZ=47.2965859mm；FOCUSRMS=0.0313688564mm；RAYS=21",
+      "description": "凯尔纳（大视场版）｜f_e=24mm（眼端反向追迹：物体在无限远、孔径光阑＝眼瞳直径 3.5mm）｜经典构造；指标在 d 线实测。预期指标（引擎计算；单位 mm、µrad、deg；libcheck 复核容差：相对 1e-6）：MODE=focus；FOCUSZ=45.821137mm；FOCUSRMS=0.00196548226mm；RAYS=21",
       "tags": [
         "eyepiece",
         "kellner-wide",
@@ -8829,8 +8829,8 @@
         "mode": "focus",
         "field": 8,
         "field_unit": "deg",
-        "focus_z_mm": 47.2965858576782,
-        "focus_rms_mm": 0.031368856352487366,
+        "focus_z_mm": 45.82113698282596,
+        "focus_rms_mm": 0.0019654822591308116,
         "rays": 21,
         "stop_semi_aperture_mm": 1.75
       }
@@ -8840,7 +8840,7 @@
       "name": "普洛塞尔（Plössl）四片式 目镜 f_e=10mm",
       "category": "eyepiece",
       "difficulty": 3,
-      "description": "普洛塞尔（Plössl）四片式｜f_e=10mm（眼端反向追迹：物体在无限远、孔径光阑＝眼瞳直径 4mm）｜经典构造；指标在 d 线实测。预期指标（引擎计算；单位 mm、µrad、deg；libcheck 复核容差：相对 1e-6）：MODE=focus；FOCUSZ=29.8661144mm；FOCUSRMS=0.0537455459mm；RAYS=21",
+      "description": "普洛塞尔（Plössl）四片式｜f_e=10mm（眼端反向追迹：物体在无限远、孔径光阑＝眼瞳直径 4mm）｜经典构造；指标在 d 线实测。预期指标（引擎计算；单位 mm、µrad、deg；libcheck 复核容差：相对 1e-6）：MODE=focus；FOCUSZ=29.1535658mm；FOCUSRMS=0.0215650621mm；RAYS=21",
       "tags": [
         "eyepiece",
         "plossl",
@@ -8860,8 +8860,8 @@
         "mode": "focus",
         "field": 5,
         "field_unit": "deg",
-        "focus_z_mm": 29.86611442953234,
-        "focus_rms_mm": 0.053745545931587695,
+        "focus_z_mm": 29.15356575991943,
+        "focus_rms_mm": 0.021565062129784374,
         "rays": 21,
         "stop_semi_aperture_mm": 2
       }
@@ -8871,7 +8871,7 @@
       "name": "普洛塞尔（Plössl）四片式 目镜 f_e=12mm",
       "category": "eyepiece",
       "difficulty": 3,
-      "description": "普洛塞尔（Plössl）四片式｜f_e=12.5mm（眼端反向追迹：物体在无限远、孔径光阑＝眼瞳直径 4mm）｜经典构造；指标在 d 线实测。预期指标（引擎计算；单位 mm、µrad、deg；libcheck 复核容差：相对 1e-6）：MODE=focus；FOCUSZ=33.3315415mm；FOCUSRMS=0.0508673521mm；RAYS=21",
+      "description": "普洛塞尔（Plössl）四片式｜f_e=12.5mm（眼端反向追迹：物体在无限远、孔径光阑＝眼瞳直径 4mm）｜经典构造；指标在 d 线实测。预期指标（引擎计算；单位 mm、µrad、deg；libcheck 复核容差：相对 1e-6）：MODE=focus；FOCUSZ=32.3853514mm；FOCUSRMS=0.0138315697mm；RAYS=21",
       "tags": [
         "eyepiece",
         "plossl",
@@ -8891,8 +8891,8 @@
         "mode": "focus",
         "field": 5,
         "field_unit": "deg",
-        "focus_z_mm": 33.33154146098745,
-        "focus_rms_mm": 0.05086735210826941,
+        "focus_z_mm": 32.385351366204226,
+        "focus_rms_mm": 0.013831569670283468,
         "rays": 21,
         "stop_semi_aperture_mm": 2
       }
@@ -8902,7 +8902,7 @@
       "name": "普洛塞尔（Plössl）四片式 目镜 f_e=15mm",
       "category": "eyepiece",
       "difficulty": 3,
-      "description": "普洛塞尔（Plössl）四片式｜f_e=15mm（眼端反向追迹：物体在无限远、孔径光阑＝眼瞳直径 4mm）｜经典构造；指标在 d 线实测。预期指标（引擎计算；单位 mm、µrad、deg；libcheck 复核容差：相对 1e-6）：MODE=focus；FOCUSZ=36.7909109mm；FOCUSRMS=0.0518683666mm；RAYS=21",
+      "description": "普洛塞尔（Plössl）四片式｜f_e=15mm（眼端反向追迹：物体在无限远、孔径光阑＝眼瞳直径 4mm）｜经典构造；指标在 d 线实测。预期指标（引擎计算；单位 mm、µrad、deg；libcheck 复核容差：相对 1e-6）：MODE=focus；FOCUSZ=35.5678837mm；FOCUSRMS=0.00960121383mm；RAYS=21",
       "tags": [
         "eyepiece",
         "plossl",
@@ -8922,8 +8922,8 @@
         "mode": "focus",
         "field": 5,
         "field_unit": "deg",
-        "focus_z_mm": 36.790910945921205,
-        "focus_rms_mm": 0.05186836656978323,
+        "focus_z_mm": 35.567883650375336,
+        "focus_rms_mm": 0.009601213834975104,
         "rays": 21,
         "stop_semi_aperture_mm": 2
       }
@@ -8933,7 +8933,7 @@
       "name": "普洛塞尔（Plössl）四片式 目镜 f_e=20mm",
       "category": "eyepiece",
       "difficulty": 3,
-      "description": "普洛塞尔（Plössl）四片式｜f_e=20mm（眼端反向追迹：物体在无限远、孔径光阑＝眼瞳直径 4mm）｜经典构造；指标在 d 线实测。预期指标（引擎计算；单位 mm、µrad、deg；libcheck 复核容差：相对 1e-6）：MODE=focus；FOCUSZ=43.6526143mm；FOCUSRMS=0.0546924203mm；RAYS=21",
+      "description": "普洛塞尔（Plössl）四片式｜f_e=20mm（眼端反向追迹：物体在无限远、孔径光阑＝眼瞳直径 4mm）｜经典构造；指标在 d 线实测。预期指标（引擎计算；单位 mm、µrad、deg；libcheck 复核容差：相对 1e-6）：MODE=focus；FOCUSZ=41.8538658mm；FOCUSRMS=0.00539376874mm；RAYS=21",
       "tags": [
         "eyepiece",
         "plossl",
@@ -8953,8 +8953,8 @@
         "mode": "focus",
         "field": 5,
         "field_unit": "deg",
-        "focus_z_mm": 43.65261432431627,
-        "focus_rms_mm": 0.05469242026552613,
+        "focus_z_mm": 41.85386579502594,
+        "focus_rms_mm": 0.005393768736037621,
         "rays": 21,
         "stop_semi_aperture_mm": 2
       }
@@ -8964,7 +8964,7 @@
       "name": "普洛塞尔（Plössl）四片式 目镜 f_e=25mm",
       "category": "eyepiece",
       "difficulty": 3,
-      "description": "普洛塞尔（Plössl）四片式｜f_e=25mm（眼端反向追迹：物体在无限远、孔径光阑＝眼瞳直径 4mm）｜经典构造；指标在 d 线实测。预期指标（引擎计算；单位 mm、µrad、deg；libcheck 复核容差：相对 1e-6）：MODE=focus；FOCUSZ=50.4546737mm；FOCUSRMS=0.056611828mm；RAYS=21",
+      "description": "普洛塞尔（Plössl）四片式｜f_e=25mm（眼端反向追迹：物体在无限远、孔径光阑＝眼瞳直径 4mm）｜经典构造；指标在 d 线实测。预期指标（引擎计算；单位 mm、µrad、deg；libcheck 复核容差：相对 1e-6）：MODE=focus；FOCUSZ=48.0857902mm；FOCUSRMS=0.0034490982mm；RAYS=21",
       "tags": [
         "eyepiece",
         "plossl",
@@ -8984,8 +8984,8 @@
         "mode": "focus",
         "field": 5,
         "field_unit": "deg",
-        "focus_z_mm": 50.45467369977443,
-        "focus_rms_mm": 0.056611827956667166,
+        "focus_z_mm": 48.08579017373127,
+        "focus_rms_mm": 0.0034490981953266904,
         "rays": 21,
         "stop_semi_aperture_mm": 2
       }
@@ -8995,7 +8995,7 @@
       "name": "普洛塞尔（Plössl）四片式 目镜 f_e=32mm",
       "category": "eyepiece",
       "difficulty": 3,
-      "description": "普洛塞尔（Plössl）四片式｜f_e=32mm（眼端反向追迹：物体在无限远、孔径光阑＝眼瞳直径 4mm）｜经典构造；指标在 d 线实测。预期指标（引擎计算；单位 mm、µrad、deg；libcheck 复核容差：相对 1e-6）：MODE=focus；FOCUSZ=59.9167032mm；FOCUSRMS=0.058156743mm；RAYS=21",
+      "description": "普洛塞尔（Plössl）四片式｜f_e=32mm（眼端反向追迹：物体在无限远、孔径光阑＝眼瞳直径 4mm）｜经典构造；指标在 d 线实测。预期指标（引擎计算；单位 mm、µrad、deg；libcheck 复核容差：相对 1e-6）：MODE=focus；FOCUSZ=56.7666282mm；FOCUSRMS=0.00210379031mm；RAYS=21",
       "tags": [
         "eyepiece",
         "plossl",
@@ -9015,8 +9015,8 @@
         "mode": "focus",
         "field": 5,
         "field_unit": "deg",
-        "focus_z_mm": 59.91670315672542,
-        "focus_rms_mm": 0.058156743013388405,
+        "focus_z_mm": 56.76662824273315,
+        "focus_rms_mm": 0.0021037903139970735,
         "rays": 21,
         "stop_semi_aperture_mm": 2
       }
@@ -9026,7 +9026,7 @@
       "name": "普洛塞尔（Plössl）四片式 目镜 f_e=40mm",
       "category": "eyepiece",
       "difficulty": 3,
-      "description": "普洛塞尔（Plössl）四片式｜f_e=40mm（眼端反向追迹：物体在无限远、孔径光阑＝眼瞳直径 4mm）｜经典构造；指标在 d 线实测。预期指标（引擎计算；单位 mm、µrad、deg；libcheck 复核容差：相对 1e-6）：MODE=focus；FOCUSZ=70.6824341mm；FOCUSRMS=0.0591085934mm；RAYS=21",
+      "description": "普洛塞尔（Plössl）四片式｜f_e=40mm（眼端反向追迹：物体在无限远、孔径光阑＝眼瞳直径 4mm）｜经典构造；指标在 d 线实测。预期指标（引擎计算；单位 mm、µrad、deg；libcheck 复核容差：相对 1e-6）：MODE=focus；FOCUSZ=66.6562539mm；FOCUSRMS=0.00134588544mm；RAYS=21",
       "tags": [
         "eyepiece",
         "plossl",
@@ -9046,8 +9046,8 @@
         "mode": "focus",
         "field": 5,
         "field_unit": "deg",
-        "focus_z_mm": 70.68243410966112,
-        "focus_rms_mm": 0.05910859344009458,
+        "focus_z_mm": 66.65625393227567,
+        "focus_rms_mm": 0.001345885437525164,
         "rays": 21,
         "stop_semi_aperture_mm": 2
       }
@@ -9057,7 +9057,7 @@
       "name": "普洛塞尔（6mm 眼瞳） 目镜 f_e=25mm",
       "category": "eyepiece",
       "difficulty": 3,
-      "description": "普洛塞尔（6mm 眼瞳）｜f_e=25mm（眼端反向追迹：物体在无限远、孔径光阑＝眼瞳直径 6mm）｜经典构造；指标在 d 线实测。预期指标（引擎计算；单位 mm、µrad、deg；libcheck 复核容差：相对 1e-6）：MODE=focus；FOCUSZ=49.7884879mm；FOCUSRMS=0.0793154377mm；RAYS=21",
+      "description": "普洛塞尔（6mm 眼瞳）｜f_e=25mm（眼端反向追迹：物体在无限远、孔径光阑＝眼瞳直径 6mm）｜经典构造；指标在 d 线实测。预期指标（引擎计算；单位 mm、µrad、deg；libcheck 复核容差：相对 1e-6）：MODE=focus；FOCUSZ=47.6668649mm；FOCUSRMS=0.0116599689mm；RAYS=21",
       "tags": [
         "eyepiece",
         "plossl-pup6",
@@ -9077,8 +9077,8 @@
         "mode": "focus",
         "field": 5,
         "field_unit": "deg",
-        "focus_z_mm": 49.78848793973036,
-        "focus_rms_mm": 0.07931543771904023,
+        "focus_z_mm": 47.6668649025902,
+        "focus_rms_mm": 0.011659968908774762,
         "rays": 21,
         "stop_semi_aperture_mm": 3
       }
@@ -9088,7 +9088,7 @@
       "name": "普洛塞尔（6mm 眼瞳） 目镜 f_e=40mm",
       "category": "eyepiece",
       "difficulty": 3,
-      "description": "普洛塞尔（6mm 眼瞳）｜f_e=40mm（眼端反向追迹：物体在无限远、孔径光阑＝眼瞳直径 6mm）｜经典构造；指标在 d 线实测。预期指标（引擎计算；单位 mm、µrad、deg；libcheck 复核容差：相对 1e-6）：MODE=focus；FOCUSZ=70.2274329mm；FOCUSRMS=0.0856100969mm；RAYS=21",
+      "description": "普洛塞尔（6mm 眼瞳）｜f_e=40mm（眼端反向追迹：物体在无限远、孔径光阑＝眼瞳直径 6mm）｜经典构造；指标在 d 线实测。预期指标（引擎计算；单位 mm、µrad、deg；libcheck 复核容差：相对 1e-6）：MODE=focus；FOCUSZ=66.3926741mm；FOCUSRMS=0.00454624864mm；RAYS=21",
       "tags": [
         "eyepiece",
         "plossl-pup6",
@@ -9108,8 +9108,8 @@
         "mode": "focus",
         "field": 5,
         "field_unit": "deg",
-        "focus_z_mm": 70.22743287208216,
-        "focus_rms_mm": 0.08561009694880323,
+        "focus_z_mm": 66.39267407967967,
+        "focus_rms_mm": 0.004546248636007158,
         "rays": 21,
         "stop_semi_aperture_mm": 3
       }
@@ -9119,7 +9119,7 @@
       "name": "六片超广角（Wide-field 型） 目镜 f_e=15mm",
       "category": "eyepiece",
       "difficulty": 5,
-      "description": "六片超广角（Wide-field 型）｜f_e=15mm（眼端反向追迹：物体在无限远、孔径光阑＝眼瞳直径 6mm）｜经典构造；指标在 d 线实测。预期指标（引擎计算；单位 mm、µrad、deg；libcheck 复核容差：相对 1e-6）：MODE=focus；FOCUSZ=35.6829391mm；FOCUSRMS=0.151590972mm；RAYS=21",
+      "description": "六片超广角（Wide-field 型）｜f_e=15mm（眼端反向追迹：物体在无限远、孔径光阑＝眼瞳直径 6mm）｜经典构造；指标在 d 线实测。预期指标（引擎计算；单位 mm、µrad、deg；libcheck 复核容差：相对 1e-6）：MODE=focus；FOCUSZ=33.3376415mm；FOCUSRMS=0.0179988658mm；RAYS=21",
       "tags": [
         "eyepiece",
         "wide6",
@@ -9139,8 +9139,8 @@
         "mode": "focus",
         "field": 10,
         "field_unit": "deg",
-        "focus_z_mm": 35.68293913159657,
-        "focus_rms_mm": 0.1515909718333279,
+        "focus_z_mm": 33.337641453655536,
+        "focus_rms_mm": 0.01799886577714909,
         "rays": 21,
         "stop_semi_aperture_mm": 3
       }
@@ -9150,7 +9150,7 @@
       "name": "六片超广角（Wide-field 型） 目镜 f_e=25mm",
       "category": "eyepiece",
       "difficulty": 5,
-      "description": "六片超广角（Wide-field 型）｜f_e=25mm（眼端反向追迹：物体在无限远、孔径光阑＝眼瞳直径 6mm）｜经典构造；指标在 d 线实测。预期指标（引擎计算；单位 mm、µrad、deg；libcheck 复核容差：相对 1e-6）：MODE=focus；FOCUSZ=51.1507463mm；FOCUSRMS=0.153205421mm；RAYS=21",
+      "description": "六片超广角（Wide-field 型）｜f_e=25mm（眼端反向追迹：物体在无限远、孔径光阑＝眼瞳直径 6mm）｜经典构造；指标在 d 线实测。预期指标（引擎计算；单位 mm、µrad、deg；libcheck 复核容差：相对 1e-6）：MODE=focus；FOCUSZ=46.9096378mm；FOCUSRMS=0.00653034603mm；RAYS=21",
       "tags": [
         "eyepiece",
         "wide6",
@@ -9170,8 +9170,8 @@
         "mode": "focus",
         "field": 10,
         "field_unit": "deg",
-        "focus_z_mm": 51.150746273358564,
-        "focus_rms_mm": 0.15320542112315716,
+        "focus_z_mm": 46.90963784536644,
+        "focus_rms_mm": 0.006530346027312235,
         "rays": 21,
         "stop_semi_aperture_mm": 3
       }
@@ -9295,7 +9295,7 @@
       "name": "无限远矫正显微物镜组 10x（物镜 18mm + 镜筒透镜 180mm）",
       "category": "micro-telescope",
       "difficulty": 5,
-      "description": "无限远矫正显微镜组｜10x（物镜 f=18mm + 镜筒透镜 f=180mm）｜经典构造：物镜把物点送到无限远、镜筒透镜成像于 -99.8mm（倍率 1.87×，近轴实测）。预期指标（引擎计算；单位 mm、µrad、deg；libcheck 复核容差：相对 1e-6）：MODE=focus；FOCUSZ=551.461977mm；FOCUSRMS=1.95701953mm；RAYS=21",
+      "description": "无限远矫正显微镜组｜10x（物镜 f=18mm + 镜筒透镜 f=180mm）｜经典构造：物镜把物点送到无限远、镜筒透镜成像于 -99.8mm（倍率 1.87×，近轴实测）。预期指标（引擎计算；单位 mm、µrad、deg；libcheck 复核容差：相对 1e-6）：MODE=focus；FOCUSZ=242.836863mm；FOCUSRMS=0.000571274486mm；RAYS=21",
       "tags": [
         "microscope",
         "infinity-corrected",
@@ -9315,8 +9315,39 @@
         "mode": "focus",
         "field": 0.2,
         "field_unit": "mm",
-        "focus_z_mm": 551.461976556102,
-        "focus_rms_mm": 1.95701952891058,
+        "focus_z_mm": 242.83686312425675,
+        "focus_rms_mm": 0.000571274485807718,
+        "rays": 21,
+        "stop_semi_aperture_mm": 4
+      }
+    },
+    {
+      "file": "micro-compound-20x.json",
+      "name": "无限远矫正显微物镜组 20x（物镜 9mm + 镜筒透镜 180mm）",
+      "category": "micro-telescope",
+      "difficulty": 5,
+      "description": "无限远矫正显微镜组｜20x（物镜 f=9mm + 镜筒透镜 f=180mm）｜经典构造：物镜把物点送到无限远、镜筒透镜成像于 -46.2mm（倍率 1.83×，近轴实测）。预期指标（引擎计算；单位 mm、µrad、deg；libcheck 复核容差：相对 1e-6）：MODE=focus；FOCUSZ=285.858891mm；FOCUSRMS=0.000512803237mm；RAYS=21",
+      "tags": [
+        "microscope",
+        "infinity-corrected",
+        "compound",
+        "mag:1.835",
+        "visible",
+        "classic",
+        "quality:classic",
+        "objfield:0.2",
+        "mode:focus"
+      ],
+      "quality": "classic",
+      "validation": "focus",
+      "cards": 7,
+      "fingerprint": "4dcf78a6cbe5cb3ddfefbd2cea51bc53101b3f79c6b1f285760f95b8a02fab13",
+      "metrics": {
+        "mode": "focus",
+        "field": 0.2,
+        "field_unit": "mm",
+        "focus_z_mm": 285.8588912753986,
+        "focus_rms_mm": 0.0005128032365003567,
         "rays": 21,
         "stop_semi_aperture_mm": 4
       }
@@ -9398,11 +9429,79 @@
       }
     },
     {
+      "file": "mirror-cassegrain-corrector-f1200.json",
+      "name": "卡塞格林 + 焦前校正镜 F1=1200mm",
+      "category": "mirror",
+      "difficulty": 5,
+      "description": "卡塞格林 + 焦前单透镜校正镜｜主镜 f=1200mm、副镜焦点前 40mm 放一片 N-BK7 单透镜｜经典构造：副镜圆锥常数按双镜系统求解，校正镜用于压低场曲与残余像散（像质由实测记录）。预期指标（引擎计算；单位 mm、µrad、deg；libcheck 复核容差：相对 1e-6）：MODE=focus；FOCUSZ=355.352247mm；FOCUSRMS=0.030877656mm；RAYS=21",
+      "tags": [
+        "mirror",
+        "cassegrain",
+        "catadioptric",
+        "two-mirror",
+        "efl:1200",
+        "visible",
+        "classic",
+        "quality:classic",
+        "trace-validated",
+        "field-corrector",
+        "mode:focus"
+      ],
+      "quality": "classic",
+      "validation": "focus",
+      "cards": 5,
+      "has_mirror": true,
+      "fingerprint": "f87e8f6477f1db4504f47a35e85814e935165f2027c7250271979c5eb228077c",
+      "metrics": {
+        "mode": "focus",
+        "field": 0.5,
+        "field_unit": "deg",
+        "focus_z_mm": 355.3522473705648,
+        "focus_rms_mm": 0.030877655953962774,
+        "rays": 21,
+        "stop_semi_aperture_mm": 150
+      }
+    },
+    {
+      "file": "mirror-cassegrain-corrector-f800.json",
+      "name": "卡塞格林 + 焦前校正镜 F1=800mm",
+      "category": "mirror",
+      "difficulty": 5,
+      "description": "卡塞格林 + 焦前单透镜校正镜｜主镜 f=800mm、副镜焦点前 40mm 放一片 N-BK7 单透镜｜经典构造：副镜圆锥常数按双镜系统求解，校正镜用于压低场曲与残余像散（像质由实测记录）。预期指标（引擎计算；单位 mm、µrad、deg；libcheck 复核容差：相对 1e-6）：MODE=focus；FOCUSZ=305.739856mm；FOCUSRMS=0.027530325mm；RAYS=21",
+      "tags": [
+        "mirror",
+        "cassegrain",
+        "catadioptric",
+        "two-mirror",
+        "efl:800",
+        "visible",
+        "classic",
+        "quality:classic",
+        "trace-validated",
+        "field-corrector",
+        "mode:focus"
+      ],
+      "quality": "classic",
+      "validation": "focus",
+      "cards": 5,
+      "has_mirror": true,
+      "fingerprint": "9b3706a3d89316908c0ac9a0544719d2f39b8339433c983d0802baea51b0d721",
+      "metrics": {
+        "mode": "focus",
+        "field": 0.5,
+        "field_unit": "deg",
+        "focus_z_mm": 305.73985599168986,
+        "focus_rms_mm": 0.027530325028895356,
+        "rays": 21,
+        "stop_semi_aperture_mm": 150
+      }
+    },
+    {
       "file": "mirror-cassegrain-f1000-d300-b300.json",
       "name": "卡塞格林式（球面主镜 + 球面副镜） F1=1000mm d=300mm b=300mm",
       "category": "mirror",
       "difficulty": 4,
-      "description": "卡塞格林式（球面主镜 + 球面副镜）｜主镜 f=1000mm（球面）、主副镜间距 300mm、后截距 300mm｜经典构造：两镜均为球面，副镜半径由共轭（薄镜）公式解出，不做圆锥求解，像质由实光线追迹实测；副镜中心遮挡未建模。预期指标（引擎计算；单位 mm、µrad、deg；libcheck 复核容差：相对 1e-6）：MODE=focus；FOCUSZ=345.328867mm；FOCUSRMS=60.5504072mm；RAYS=21",
+      "description": "卡塞格林式（球面主镜 + 球面副镜）｜主镜 f=1000mm（球面）、主副镜间距 300mm、后截距 300mm｜经典构造：两镜均为球面，副镜半径由共轭（薄镜）公式解出，不做圆锥求解，像质由实光线追迹实测；副镜中心遮挡未建模。预期指标（引擎计算；单位 mm、µrad、deg；libcheck 复核容差：相对 1e-6）：MODE=focus；FOCUSZ=357.097475mm；FOCUSRMS=0.0649383454mm；RAYS=21",
       "tags": [
         "mirror",
         "cassegrain",
@@ -9419,13 +9518,13 @@
       "validation": "focus",
       "cards": 3,
       "has_mirror": true,
-      "fingerprint": "9da14da0620e892515c08e19235e84987b15217995381f491a415e3a83a25f6b",
+      "fingerprint": "1efc05e48299a932d49918fbdfe7ecc5b30796ce9f40b11f7a1831bdc70f6176",
       "metrics": {
         "mode": "focus",
         "field": 0.5,
         "field_unit": "deg",
-        "focus_z_mm": 345.32886726160416,
-        "focus_rms_mm": 60.55040715230365,
+        "focus_z_mm": 357.0974746449603,
+        "focus_rms_mm": 0.06493834539797705,
         "rays": 21,
         "stop_semi_aperture_mm": 150
       }
@@ -9435,7 +9534,7 @@
       "name": "卡塞格林式（球面主镜 + 球面副镜） F1=1500mm d=400mm b=400mm",
       "category": "mirror",
       "difficulty": 4,
-      "description": "卡塞格林式（球面主镜 + 球面副镜）｜主镜 f=1500mm（球面）、主副镜间距 400mm、后截距 400mm｜经典构造：两镜均为球面，副镜半径由共轭（薄镜）公式解出，不做圆锥求解，像质由实光线追迹实测；副镜中心遮挡未建模。预期指标（引擎计算；单位 mm、µrad、deg；libcheck 复核容差：相对 1e-6）：MODE=focus；FOCUSZ=445.237481mm；FOCUSRMS=63.5714367mm；RAYS=21",
+      "description": "卡塞格林式（球面主镜 + 球面副镜）｜主镜 f=1500mm（球面）、主副镜间距 400mm、后截距 400mm｜经典构造：两镜均为球面，副镜半径由共轭（薄镜）公式解出，不做圆锥求解，像质由实光线追迹实测；副镜中心遮挡未建模。预期指标（引擎计算；单位 mm、µrad、deg；libcheck 复核容差：相对 1e-6）：MODE=focus；FOCUSZ=457.708665mm；FOCUSRMS=0.0402000803mm；RAYS=21",
       "tags": [
         "mirror",
         "cassegrain",
@@ -9452,13 +9551,13 @@
       "validation": "focus",
       "cards": 3,
       "has_mirror": true,
-      "fingerprint": "b5bb8d4c31842e0c880320f2a695cb4bddeaf03c5ce8ac70a3eec90468ff3d5e",
+      "fingerprint": "0b1b3e75277451e4a2f8492d5254bcffbad0318c03d8b7a7ac700fca83b5ffc3",
       "metrics": {
         "mode": "focus",
         "field": 0.5,
         "field_unit": "deg",
-        "focus_z_mm": 445.2374813524644,
-        "focus_rms_mm": 63.5714366867725,
+        "focus_z_mm": 457.7086645269237,
+        "focus_rms_mm": 0.04020008026885163,
         "rays": 21,
         "stop_semi_aperture_mm": 150
       }
@@ -9468,7 +9567,7 @@
       "name": "卡塞格林式（球面主镜 + 球面副镜） F1=2000mm d=500mm b=500mm",
       "category": "mirror",
       "difficulty": 4,
-      "description": "卡塞格林式（球面主镜 + 球面副镜）｜主镜 f=2000mm（球面）、主副镜间距 500mm、后截距 500mm｜经典构造：两镜均为球面，副镜半径由共轭（薄镜）公式解出，不做圆锥求解，像质由实光线追迹实测；副镜中心遮挡未建模。预期指标（引擎计算；单位 mm、µrad、deg；libcheck 复核容差：相对 1e-6）：MODE=focus；FOCUSZ=546.844013mm；FOCUSRMS=65.129156mm；RAYS=21",
+      "description": "卡塞格林式（球面主镜 + 球面副镜）｜主镜 f=2000mm（球面）、主副镜间距 500mm、后截距 500mm｜经典构造：两镜均为球面，副镜半径由共轭（薄镜）公式解出，不做圆锥求解，像质由实光线追迹实测；副镜中心遮挡未建模。预期指标（引擎计算；单位 mm、µrad、deg；libcheck 复核容差：相对 1e-6）：MODE=focus；FOCUSZ=558.110067mm；FOCUSRMS=0.0270935876mm；RAYS=21",
       "tags": [
         "mirror",
         "cassegrain",
@@ -9485,13 +9584,13 @@
       "validation": "focus",
       "cards": 3,
       "has_mirror": true,
-      "fingerprint": "9beae8bfb98a6cd4f4c708b8545f82d56705bf2b7c11be7efe9c759bc236d837",
+      "fingerprint": "3773cd06b35d07cafe556487fa6bd197bf36b611ff2ce5b715716985f2316cc9",
       "metrics": {
         "mode": "focus",
         "field": 0.5,
         "field_unit": "deg",
-        "focus_z_mm": 546.8440134279122,
-        "focus_rms_mm": 65.12915601713361,
+        "focus_z_mm": 558.110067419721,
+        "focus_rms_mm": 0.027093587608797924,
         "rays": 21,
         "stop_semi_aperture_mm": 150
       }
@@ -9501,7 +9600,7 @@
       "name": "卡塞格林式（球面主镜 + 球面副镜） F1=400mm d=150mm b=150mm",
       "category": "mirror",
       "difficulty": 4,
-      "description": "卡塞格林式（球面主镜 + 球面副镜）｜主镜 f=400mm（球面）、主副镜间距 150mm、后截距 150mm｜经典构造：两镜均为球面，副镜半径由共轭（薄镜）公式解出，不做圆锥求解，像质由实光线追迹实测；副镜中心遮挡未建模。预期指标（引擎计算；单位 mm、µrad、deg；libcheck 复核容差：相对 1e-6）：MODE=focus；FOCUSZ=209.750935mm；FOCUSRMS=36.2633514mm；RAYS=21",
+      "description": "卡塞格林式（球面主镜 + 球面副镜）｜主镜 f=400mm（球面）、主副镜间距 150mm、后截距 150mm｜经典构造：两镜均为球面，副镜半径由共轭（薄镜）公式解出，不做圆锥求解，像质由实光线追迹实测；副镜中心遮挡未建模。预期指标（引擎计算；单位 mm、µrad、deg；libcheck 复核容差：相对 1e-6）：MODE=focus；FOCUSZ=207.346855mm；FOCUSRMS=0.0707175656mm；RAYS=21",
       "tags": [
         "mirror",
         "cassegrain",
@@ -9518,23 +9617,23 @@
       "validation": "focus",
       "cards": 3,
       "has_mirror": true,
-      "fingerprint": "640a59e8f23ad9e1ef1ca34afbcef40650b6425048c08590bbf7da3920e9f79d",
+      "fingerprint": "a4ad43bd6c00f4d491069effb0799e15855ac14b5afa1692f9a6c969442f77d2",
       "metrics": {
         "mode": "focus",
         "field": 0.5,
         "field_unit": "deg",
-        "focus_z_mm": 209.75093490101852,
-        "focus_rms_mm": 36.263351440564975,
+        "focus_z_mm": 207.34685517792968,
+        "focus_rms_mm": 0.07071756559932398,
         "rays": 21,
         "stop_semi_aperture_mm": 100
       }
     },
     {
-      "file": "mirror-cassegrain-f600-d200-b200.json",
-      "name": "卡塞格林式（球面主镜 + 球面副镜） F1=600mm d=200mm b=200mm",
+      "file": "mirror-cassegrain-f600-d200-b220.json",
+      "name": "卡塞格林式（球面主镜 + 球面副镜） F1=600mm d=200mm b=220mm",
       "category": "mirror",
       "difficulty": 4,
-      "description": "卡塞格林式（球面主镜 + 球面副镜）｜主镜 f=600mm（球面）、主副镜间距 200mm、后截距 200mm｜经典构造：两镜均为球面，副镜半径由共轭（薄镜）公式解出，不做圆锥求解，像质由实光线追迹实测；副镜中心遮挡未建模。预期指标（引擎计算；单位 mm、µrad、deg；libcheck 复核容差：相对 1e-6）：MODE=focus；FOCUSZ=247.671573mm；FOCUSRMS=57.5150191mm；RAYS=21",
+      "description": "卡塞格林式（球面主镜 + 球面副镜）｜主镜 f=600mm（球面）、主副镜间距 200mm、后截距 220mm｜经典构造：两镜均为球面，副镜半径由共轭（薄镜）公式解出，不做圆锥求解，像质由实光线追迹实测；副镜中心遮挡未建模。预期指标（引擎计算；单位 mm、µrad、deg；libcheck 复核容差：相对 1e-6）：MODE=focus；FOCUSZ=275.865544mm；FOCUSRMS=0.12629663mm；RAYS=21",
       "tags": [
         "mirror",
         "cassegrain",
@@ -9551,13 +9650,13 @@
       "validation": "focus",
       "cards": 3,
       "has_mirror": true,
-      "fingerprint": "6a7122cd2138a15358e31b64dc8dbba1771365c3c04cbfae3f8c96e1cd01b71b",
+      "fingerprint": "c19b75ef2883fd455e2b8f745cbea46ef6aba4c3ef432eae61881c339b877625",
       "metrics": {
         "mode": "focus",
         "field": 0.5,
         "field_unit": "deg",
-        "focus_z_mm": 247.67157251839566,
-        "focus_rms_mm": 57.51501912575237,
+        "focus_z_mm": 275.86554356645695,
+        "focus_rms_mm": 0.12629662983985424,
         "rays": 21,
         "stop_semi_aperture_mm": 150
       }
@@ -9567,7 +9666,7 @@
       "name": "卡塞格林式（球面主镜 + 球面副镜） F1=800mm d=250mm b=250mm",
       "category": "mirror",
       "difficulty": 4,
-      "description": "卡塞格林式（球面主镜 + 球面副镜）｜主镜 f=800mm（球面）、主副镜间距 250mm、后截距 250mm｜经典构造：两镜均为球面，副镜半径由共轭（薄镜）公式解出，不做圆锥求解，像质由实光线追迹实测；副镜中心遮挡未建模。预期指标（引擎计算；单位 mm、µrad、deg；libcheck 复核容差：相对 1e-6）：MODE=focus；FOCUSZ=295.068096mm；FOCUSRMS=59.3541181mm；RAYS=21",
+      "description": "卡塞格林式（球面主镜 + 球面副镜）｜主镜 f=800mm（球面）、主副镜间距 250mm、后截距 250mm｜经典构造：两镜均为球面，副镜半径由共轭（薄镜）公式解出，不做圆锥求解，像质由实光线追迹实测；副镜中心遮挡未建模。预期指标（引擎计算；单位 mm、µrad、deg；libcheck 复核容差：相对 1e-6）：MODE=focus；FOCUSZ=306.556877mm；FOCUSRMS=0.0909896461mm；RAYS=21",
       "tags": [
         "mirror",
         "cassegrain",
@@ -9584,13 +9683,13 @@
       "validation": "focus",
       "cards": 3,
       "has_mirror": true,
-      "fingerprint": "0288b93688e2c9e3e57d7c1bb3861a1cd8a0f2946fc66b38e4fd341f297c71b7",
+      "fingerprint": "b28d9839d3060efe9c8dd1a90a4c95f5e7d31c574156088ec752909d08b4e85e",
       "metrics": {
         "mode": "focus",
         "field": 0.5,
         "field_unit": "deg",
-        "focus_z_mm": 295.06809640240203,
-        "focus_rms_mm": 59.35411812577995,
+        "focus_z_mm": 306.55687679352604,
+        "focus_rms_mm": 0.0909896460729952,
         "rays": 21,
         "stop_semi_aperture_mm": 150
       }
@@ -9600,7 +9699,7 @@
       "name": "卡塞格林式（不同遮挡比与后截距） F1=1000mm d=350mm b=250mm",
       "category": "mirror",
       "difficulty": 4,
-      "description": "卡塞格林式（不同遮挡比与后截距）｜主镜 f=1000mm（球面）、主副镜间距 350mm、后截距 250mm｜经典构造：两镜均为球面，副镜半径由共轭（薄镜）公式解出，不做圆锥求解，像质由实光线追迹实测；副镜中心遮挡未建模。预期指标（引擎计算；单位 mm、µrad、deg；libcheck 复核容差：相对 1e-6）：MODE=focus；FOCUSZ=299.620709mm；FOCUSRMS=56.3421887mm；RAYS=21",
+      "description": "卡塞格林式（不同遮挡比与后截距）｜主镜 f=1000mm（球面）、主副镜间距 350mm、后截距 250mm｜经典构造：两镜均为球面，副镜半径由共轭（薄镜）公式解出，不做圆锥求解，像质由实光线追迹实测；副镜中心遮挡未建模。预期指标（引擎计算；单位 mm、µrad、deg；libcheck 复核容差：相对 1e-6）：MODE=focus；FOCUSZ=307.317704mm；FOCUSRMS=0.0556609729mm；RAYS=21",
       "tags": [
         "mirror",
         "cassegrain-variant",
@@ -9617,13 +9716,13 @@
       "validation": "focus",
       "cards": 3,
       "has_mirror": true,
-      "fingerprint": "a2b564929b7aac5e5687515bb925ec84d26670292066834474ebb46ac3f9801a",
+      "fingerprint": "46d8098b9e7fb5477dcd6f3c7c9dff012f407aa5518d9266e07736a21cf77874",
       "metrics": {
         "mode": "focus",
         "field": 0.5,
         "field_unit": "deg",
-        "focus_z_mm": 299.6207093915179,
-        "focus_rms_mm": 56.34218871902081,
+        "focus_z_mm": 307.31770367425423,
+        "focus_rms_mm": 0.05566097286358219,
         "rays": 21,
         "stop_semi_aperture_mm": 150
       }
@@ -9633,7 +9732,7 @@
       "name": "卡塞格林式（不同遮挡比与后截距） F1=1200mm d=400mm b=300mm",
       "category": "mirror",
       "difficulty": 4,
-      "description": "卡塞格林式（不同遮挡比与后截距）｜主镜 f=1200mm（球面）、主副镜间距 400mm、后截距 300mm｜经典构造：两镜均为球面，副镜半径由共轭（薄镜）公式解出，不做圆锥求解，像质由实光线追迹实测；副镜中心遮挡未建模。预期指标（引擎计算；单位 mm、µrad、deg；libcheck 复核容差：相对 1e-6）：MODE=focus；FOCUSZ=349.239534mm；FOCUSRMS=57.8328461mm；RAYS=21",
+      "description": "卡塞格林式（不同遮挡比与后截距）｜主镜 f=1200mm（球面）、主副镜间距 400mm、后截距 300mm｜经典构造：两镜均为球面，副镜半径由共轭（薄镜）公式解出，不做圆锥求解，像质由实光线追迹实测；副镜中心遮挡未建模。预期指标（引擎计算；单位 mm、µrad、deg；libcheck 复核容差：相对 1e-6）：MODE=focus；FOCUSZ=357.664942mm；FOCUSRMS=0.0425569407mm；RAYS=21",
       "tags": [
         "mirror",
         "cassegrain-variant",
@@ -9650,13 +9749,13 @@
       "validation": "focus",
       "cards": 3,
       "has_mirror": true,
-      "fingerprint": "161b5efd29e108de8ce752ed34f1452603d3f2433ee08097df4b885b35e9e60a",
+      "fingerprint": "1b81414948a81ab6117eccdf57b6c771db69a99f8619926a6aea6d1023581e3e",
       "metrics": {
         "mode": "focus",
         "field": 0.5,
         "field_unit": "deg",
-        "focus_z_mm": 349.23953410639393,
-        "focus_rms_mm": 57.83284612156048,
+        "focus_z_mm": 357.66494192080233,
+        "focus_rms_mm": 0.042556940723448136,
         "rays": 21,
         "stop_semi_aperture_mm": 150
       }
@@ -9666,7 +9765,7 @@
       "name": "卡塞格林式（不同遮挡比与后截距） F1=600mm d=220mm b=180mm",
       "category": "mirror",
       "difficulty": 4,
-      "description": "卡塞格林式（不同遮挡比与后截距）｜主镜 f=600mm（球面）、主副镜间距 220mm、后截距 180mm｜经典构造：两镜均为球面，副镜半径由共轭（薄镜）公式解出，不做圆锥求解，像质由实光线追迹实测；副镜中心遮挡未建模。预期指标（引擎计算；单位 mm、µrad、deg；libcheck 复核容差：相对 1e-6）：MODE=focus；FOCUSZ=232.537706mm；FOCUSRMS=54.8372128mm；RAYS=21",
+      "description": "卡塞格林式（不同遮挡比与后截距）｜主镜 f=600mm（球面）、主副镜间距 220mm、后截距 180mm｜经典构造：两镜均为球面，副镜半径由共轭（薄镜）公式解出，不做圆锥求解，像质由实光线追迹实测；副镜中心遮挡未建模。预期指标（引擎计算；单位 mm、µrad、deg；libcheck 复核容差：相对 1e-6）：MODE=focus；FOCUSZ=235.842736mm；FOCUSRMS=0.126715847mm；RAYS=21",
       "tags": [
         "mirror",
         "cassegrain-variant",
@@ -9683,23 +9782,23 @@
       "validation": "focus",
       "cards": 3,
       "has_mirror": true,
-      "fingerprint": "9415f0dd72179bc7c8f0c0ed00e83546bb3ce59f28524632897666a9b3ff36aa",
+      "fingerprint": "ace3ae11f011ab5d96d9874df004051ddfba21f03ef534479290e7211cc63340",
       "metrics": {
         "mode": "focus",
         "field": 0.5,
         "field_unit": "deg",
-        "focus_z_mm": 232.53770636564192,
-        "focus_rms_mm": 54.83721282081952,
+        "focus_z_mm": 235.8427358735131,
+        "focus_rms_mm": 0.12671584737597397,
         "rays": 21,
         "stop_semi_aperture_mm": 150
       }
     },
     {
-      "file": "mirror-cassegrain-variant-f800-d300-b200.json",
-      "name": "卡塞格林式（不同遮挡比与后截距） F1=800mm d=300mm b=200mm",
+      "file": "mirror-cassegrain-variant-f800-d300-b220.json",
+      "name": "卡塞格林式（不同遮挡比与后截距） F1=800mm d=300mm b=220mm",
       "category": "mirror",
       "difficulty": 4,
-      "description": "卡塞格林式（不同遮挡比与后截距）｜主镜 f=800mm（球面）、主副镜间距 300mm、后截距 200mm｜经典构造：两镜均为球面，副镜半径由共轭（薄镜）公式解出，不做圆锥求解，像质由实光线追迹实测；副镜中心遮挡未建模。预期指标（引擎计算；单位 mm、µrad、deg；libcheck 复核容差：相对 1e-6）：MODE=focus；FOCUSZ=251.798009mm；FOCUSRMS=54.17147mm；RAYS=21",
+      "description": "卡塞格林式（不同遮挡比与后截距）｜主镜 f=800mm（球面）、主副镜间距 300mm、后截距 220mm｜经典构造：两镜均为球面，副镜半径由共轭（薄镜）公式解出，不做圆锥求解，像质由实光线追迹实测；副镜中心遮挡未建模。预期指标（引擎计算；单位 mm、µrad、deg；libcheck 复核容差：相对 1e-6）：MODE=focus；FOCUSZ=276.871044mm；FOCUSRMS=0.0720741877mm；RAYS=21",
       "tags": [
         "mirror",
         "cassegrain-variant",
@@ -9716,13 +9815,13 @@
       "validation": "focus",
       "cards": 3,
       "has_mirror": true,
-      "fingerprint": "5296a3e4d937bce7ddacbb6cf8b9acb19a89518ab7ecbad40f43ee0b1d3db82a",
+      "fingerprint": "55dec465b6d5d595899fd4d527d8fbf95e42ebb3bbdf8083266b61b59a27bef6",
       "metrics": {
         "mode": "focus",
         "field": 0.5,
         "field_unit": "deg",
-        "focus_z_mm": 251.79800883534824,
-        "focus_rms_mm": 54.17146998248405,
+        "focus_z_mm": 276.87104416543224,
+        "focus_rms_mm": 0.07207418774553223,
         "rays": 21,
         "stop_semi_aperture_mm": 150
       }
@@ -9732,7 +9831,7 @@
       "name": "圆锥曲面反射镜 R=-400mm K=0",
       "category": "mirror",
       "difficulty": 3,
-      "description": "圆锥常数扫描｜R=-400mm、K=0、F/6｜经典构造：K=-1 为抛物面（球差=0），K=0 为球面，K\u003c-1 为双曲面（球差过校正），K\u003e0 为扁球面。预期指标（引擎计算；单位 mm、µrad、deg；libcheck 复核容差：相对 1e-6）：MODE=focus；FOCUSZ=253.100063mm；FOCUSRMS=19.1926812mm；RAYS=21",
+      "description": "圆锥常数扫描｜R=-400mm、K=0、F/6｜经典构造：K=-1 为抛物面（球差=0），K=0 为球面，K\u003c-1 为双曲面（球差过校正），K\u003e0 为扁球面。预期指标（引擎计算；单位 mm、µrad、deg；libcheck 复核容差：相对 1e-6）：MODE=focus；FOCUSZ=-139.370845mm；FOCUSRMS=0.0133905495mm；RAYS=21",
       "tags": [
         "mirror",
         "conic",
@@ -9755,8 +9854,8 @@
         "mode": "focus",
         "field": 0.5,
         "field_unit": "deg",
-        "focus_z_mm": 253.1000631173836,
-        "focus_rms_mm": 19.192681224787915,
+        "focus_z_mm": -139.37084547242054,
+        "focus_rms_mm": 0.013390549469099906,
         "rays": 21,
         "stop_semi_aperture_mm": 33.333
       }
@@ -9766,7 +9865,7 @@
       "name": "圆锥曲面反射镜 R=-400mm K=0.5",
       "category": "mirror",
       "difficulty": 3,
-      "description": "圆锥常数扫描｜R=-400mm、K=0.5、F/6｜经典构造：K=-1 为抛物面（球差=0），K=0 为球面，K\u003c-1 为双曲面（球差过校正），K\u003e0 为扁球面。预期指标（引擎计算；单位 mm、µrad、deg；libcheck 复核容差：相对 1e-6）：MODE=focus；FOCUSZ=251.584853mm；FOCUSRMS=19.1336643mm；RAYS=21",
+      "description": "圆锥常数扫描｜R=-400mm、K=0.5、F/6｜经典构造：K=-1 为抛物面（球差=0），K=0 为球面，K\u003c-1 为双曲面（球差过校正），K\u003e0 为扁球面。预期指标（引擎计算；单位 mm、µrad、deg；libcheck 复核容差：相对 1e-6）：MODE=focus；FOCUSZ=-139.055585mm；FOCUSRMS=0.0201196651mm；RAYS=21",
       "tags": [
         "mirror",
         "conic",
@@ -9789,8 +9888,8 @@
         "mode": "focus",
         "field": 0.5,
         "field_unit": "deg",
-        "focus_z_mm": 251.58485276962193,
-        "focus_rms_mm": 19.13366430717037,
+        "focus_z_mm": -139.05558499628827,
+        "focus_rms_mm": 0.020119665131780297,
         "rays": 21,
         "stop_semi_aperture_mm": 33.333
       }
@@ -9800,7 +9899,7 @@
       "name": "圆锥曲面反射镜 R=-400mm K=1",
       "category": "mirror",
       "difficulty": 3,
-      "description": "圆锥常数扫描｜R=-400mm、K=1、F/6｜经典构造：K=-1 为抛物面（球差=0），K=0 为球面，K\u003c-1 为双曲面（球差过校正），K\u003e0 为扁球面。预期指标（引擎计算；单位 mm、µrad、deg；libcheck 复核容差：相对 1e-6）：MODE=focus；FOCUSZ=250.072064mm；FOCUSRMS=19.0745957mm；RAYS=21",
+      "description": "圆锥常数扫描｜R=-400mm、K=1、F/6｜经典构造：K=-1 为抛物面（球差=0），K=0 为球面，K\u003c-1 为双曲面（球差过校正），K\u003e0 为扁球面。预期指标（引擎计算；单位 mm、µrad、deg；libcheck 复核容差：相对 1e-6）：MODE=focus；FOCUSZ=-138.739513mm；FOCUSRMS=0.0268715379mm；RAYS=21",
       "tags": [
         "mirror",
         "conic",
@@ -9823,8 +9922,8 @@
         "mode": "focus",
         "field": 0.5,
         "field_unit": "deg",
-        "focus_z_mm": 250.07206441204102,
-        "focus_rms_mm": 19.074595693557907,
+        "focus_z_mm": -138.73951322754777,
+        "focus_rms_mm": 0.026871537932257092,
         "rays": 21,
         "stop_semi_aperture_mm": 33.333
       }
@@ -9834,7 +9933,7 @@
       "name": "圆锥曲面反射镜 R=-400mm K=-0.5",
       "category": "mirror",
       "difficulty": 3,
-      "description": "圆锥常数扫描｜R=-400mm、K=-0.5、F/6｜经典构造：K=-1 为抛物面（球差=0），K=0 为球面，K\u003c-1 为双曲面（球差过校正），K\u003e0 为扁球面。预期指标（引擎计算；单位 mm、µrad、deg；libcheck 复核容差：相对 1e-6）：MODE=focus；FOCUSZ=254.617692mm；FOCUSRMS=19.2516468mm；RAYS=21",
+      "description": "圆锥常数扫描｜R=-400mm、K=-0.5、F/6｜经典构造：K=-1 为抛物面（球差=0），K=0 为球面，K\u003c-1 为双曲面（球差过校正），K\u003e0 为扁球面。预期指标（引擎计算；单位 mm、µrad、deg；libcheck 复核容差：相对 1e-6）：MODE=focus；FOCUSZ=-139.685658mm；FOCUSRMS=0.00668404385mm；RAYS=21",
       "tags": [
         "mirror",
         "conic",
@@ -9857,8 +9956,8 @@
         "mode": "focus",
         "field": 0.5,
         "field_unit": "deg",
-        "focus_z_mm": 254.6176916153982,
-        "focus_rms_mm": 19.251646768583015,
+        "focus_z_mm": -139.68565844516343,
+        "focus_rms_mm": 0.00668404385031514,
         "rays": 21,
         "stop_semi_aperture_mm": 33.333
       }
@@ -9868,7 +9967,7 @@
       "name": "圆锥曲面反射镜 R=-400mm K=-1",
       "category": "mirror",
       "difficulty": 3,
-      "description": "圆锥常数扫描｜R=-400mm、K=-1、F/6｜经典构造：K=-1 为抛物面（球差=0），K=0 为球面，K\u003c-1 为双曲面（球差过校正），K\u003e0 为扁球面。预期指标（引擎计算；单位 mm、µrad、deg；libcheck 复核容差：相对 1e-6）：MODE=focus；FOCUSZ=256.137734mm；FOCUSRMS=19.3105613mm；RAYS=21",
+      "description": "圆锥常数扫描｜R=-400mm、K=-1、F/6｜经典构造：K=-1 为抛物面（球差=0），K=0 为球面，K\u003c-1 为双曲面（球差过校正），K\u003e0 为扁球面。预期指标（引擎计算；单位 mm、µrad、deg；libcheck 复核容差：相对 1e-6）：MODE=focus；FOCUSZ=-140mm；FOCUSRMS=4.34326123e-14mm；RAYS=21",
       "tags": [
         "mirror",
         "conic",
@@ -9891,8 +9990,8 @@
         "mode": "focus",
         "field": 0.5,
         "field_unit": "deg",
-        "focus_z_mm": 256.1377344418448,
-        "focus_rms_mm": 19.310561257549978,
+        "focus_z_mm": -139.9999999999991,
+        "focus_rms_mm": 4.3432612323155305e-14,
         "rays": 21,
         "stop_semi_aperture_mm": 33.333
       }
@@ -9902,7 +10001,7 @@
       "name": "圆锥曲面反射镜 R=-400mm K=-1.5",
       "category": "mirror",
       "difficulty": 3,
-      "description": "圆锥常数扫描｜R=-400mm、K=-1.5、F/6｜经典构造：K=-1 为抛物面（球差=0），K=0 为球面，K\u003c-1 为双曲面（球差过校正），K\u003e0 为扁球面。预期指标（引擎计算；单位 mm、µrad、deg；libcheck 复核容差：相对 1e-6）：MODE=focus；FOCUSZ=257.660188mm；FOCUSRMS=19.369425mm；RAYS=21",
+      "description": "圆锥常数扫描｜R=-400mm、K=-1.5、F/6｜经典构造：K=-1 为抛物面（球差=0），K=0 为球面，K\u003c-1 为双曲面（球差过校正），K\u003e0 为扁球面。预期指标（引擎计算；单位 mm、µrad、deg；libcheck 复核容差：相对 1e-6）：MODE=focus；FOCUSZ=-140.313874mm；FOCUSRMS=0.00666172863mm；RAYS=21",
       "tags": [
         "mirror",
         "conic",
@@ -9925,8 +10024,8 @@
         "mode": "focus",
         "field": 0.5,
         "field_unit": "deg",
-        "focus_z_mm": 257.6601877928967,
-        "focus_rms_mm": 19.369425007546162,
+        "focus_z_mm": -140.3138739645779,
+        "focus_rms_mm": 0.00666172863477236,
         "rays": 21,
         "stop_semi_aperture_mm": 33.333
       }
@@ -9936,7 +10035,7 @@
       "name": "圆锥曲面反射镜 R=-400mm K=-2",
       "category": "mirror",
       "difficulty": 3,
-      "description": "圆锥常数扫描｜R=-400mm、K=-2、F/6｜经典构造：K=-1 为抛物面（球差=0），K=0 为球面，K\u003c-1 为双曲面（球差过校正），K\u003e0 为扁球面。预期指标（引擎计算；单位 mm、µrad、deg；libcheck 复核容差：相对 1e-6）：MODE=focus；FOCUSZ=259.185048mm；FOCUSRMS=19.4282383mm；RAYS=21",
+      "description": "圆锥常数扫描｜R=-400mm、K=-2、F/6｜经典构造：K=-1 为抛物面（球差=0），K=0 为球面，K\u003c-1 为双曲面（球差过校正），K\u003e0 为扁球面。预期指标（引擎计算；单位 mm、µrad、deg；libcheck 复核容差：相对 1e-6）：MODE=focus；FOCUSZ=-140.627103mm；FOCUSRMS=0.0133012844mm；RAYS=21",
       "tags": [
         "mirror",
         "conic",
@@ -9959,8 +10058,8 @@
         "mode": "focus",
         "field": 0.5,
         "field_unit": "deg",
-        "focus_z_mm": 259.185047882567,
-        "focus_rms_mm": 19.428238331330622,
+        "focus_z_mm": -140.62710335367922,
+        "focus_rms_mm": 0.013301284410626309,
         "rays": 21,
         "stop_semi_aperture_mm": 33.333
       }
@@ -9970,7 +10069,7 @@
       "name": "圆锥曲面反射镜 R=-400mm K=-3",
       "category": "mirror",
       "difficulty": 3,
-      "description": "圆锥常数扫描｜R=-400mm、K=-3、F/6｜经典构造：K=-1 为抛物面（球差=0），K=0 为球面，K\u003c-1 为双曲面（球差过校正），K\u003e0 为扁球面。预期指标（引擎计算；单位 mm、µrad、deg；libcheck 复核容差：相对 1e-6）：MODE=focus；FOCUSZ=259.169035mm；FOCUSRMS=19.3968586mm；RAYS=21",
+      "description": "圆锥常数扫描｜R=-400mm、K=-3、F/6｜经典构造：K=-1 为抛物面（球差=0），K=0 为球面，K\u003c-1 为双曲面（球差过校正），K\u003e0 为扁球面。预期指标（引擎计算；单位 mm、µrad、deg；libcheck 复核容差：相对 1e-6）：MODE=focus；FOCUSZ=-141.252283mm；FOCUSRMS=0.0265144551mm；RAYS=21",
       "tags": [
         "mirror",
         "conic",
@@ -9993,8 +10092,8 @@
         "mode": "focus",
         "field": 0.5,
         "field_unit": "deg",
-        "focus_z_mm": 259.1690346714775,
-        "focus_rms_mm": 19.396858577578094,
+        "focus_z_mm": -141.2522831941271,
+        "focus_rms_mm": 0.026514455067789836,
         "rays": 21,
         "stop_semi_aperture_mm": 33.333
       }
@@ -10004,7 +10103,7 @@
       "name": "牛顿式主镜（抛物面，展开布局）f=1000mm F/5",
       "category": "mirror",
       "difficulty": 3,
-      "description": "牛顿式望远镜主镜（未折叠）｜抛物面 f=1000mm、F/5｜经典构造：牛顿式用 45° 平面折轴镜把焦点引出镜筒；本库为顺序面型、不支持倾斜面，故按光轴展开只保留抛物面主镜。预期指标（引擎计算；单位 mm、µrad、deg；libcheck 复核容差：相对 1e-6）：MODE=focus；FOCUSZ=1053.04778mm；FOCUSRMS=58.0596785mm；RAYS=21",
+      "description": "牛顿式望远镜主镜（未折叠）｜抛物面 f=1000mm、F/5｜经典构造：牛顿式用 45° 平面折轴镜把焦点引出镜筒；本库为顺序面型、不支持倾斜面，故按光轴展开只保留抛物面主镜。预期指标（引擎计算；单位 mm、µrad、deg；libcheck 复核容差：相对 1e-6）：MODE=focus；FOCUSZ=-940mm；FOCUSRMS=1.22675267e-14mm；RAYS=21",
       "tags": [
         "mirror",
         "newtonian",
@@ -10028,8 +10127,8 @@
         "mode": "focus",
         "field": 0.5,
         "field_unit": "deg",
-        "focus_z_mm": 1053.0477829516774,
-        "focus_rms_mm": 58.05967854911799,
+        "focus_z_mm": -939.9999999999998,
+        "focus_rms_mm": 1.2267526697471445e-14,
         "rays": 21,
         "stop_semi_aperture_mm": 100
       }
@@ -10039,7 +10138,7 @@
       "name": "牛顿式主镜（抛物面，展开布局）f=200mm F/5",
       "category": "mirror",
       "difficulty": 3,
-      "description": "牛顿式望远镜主镜（未折叠）｜抛物面 f=200mm、F/5｜经典构造：牛顿式用 45° 平面折轴镜把焦点引出镜筒；本库为顺序面型、不支持倾斜面，故按光轴展开只保留抛物面主镜。预期指标（引擎计算；单位 mm、µrad、deg；libcheck 复核容差：相对 1e-6）：MODE=focus；FOCUSZ=258.609557mm；FOCUSRMS=11.6119357mm；RAYS=21",
+      "description": "牛顿式望远镜主镜（未折叠）｜抛物面 f=200mm、F/5｜经典构造：牛顿式用 45° 平面折轴镜把焦点引出镜筒；本库为顺序面型、不支持倾斜面，故按光轴展开只保留抛物面主镜。预期指标（引擎计算；单位 mm、µrad、deg；libcheck 复核容差：相对 1e-6）：MODE=focus；FOCUSZ=-140mm；FOCUSRMS=3.63447319e-15mm；RAYS=21",
       "tags": [
         "mirror",
         "newtonian",
@@ -10063,8 +10162,8 @@
         "mode": "focus",
         "field": 0.5,
         "field_unit": "deg",
-        "focus_z_mm": 258.6095565903361,
-        "focus_rms_mm": 11.61193570982362,
+        "focus_z_mm": -140.0000000000001,
+        "focus_rms_mm": 3.6344731890488754e-15,
         "rays": 21,
         "stop_semi_aperture_mm": 20
       }
@@ -10074,7 +10173,7 @@
       "name": "牛顿式主镜（抛物面，展开布局）f=500mm F/5",
       "category": "mirror",
       "difficulty": 3,
-      "description": "牛顿式望远镜主镜（未折叠）｜抛物面 f=500mm、F/5｜经典构造：牛顿式用 45° 平面折轴镜把焦点引出镜筒；本库为顺序面型、不支持倾斜面，故按光轴展开只保留抛物面主镜。预期指标（引擎计算；单位 mm、µrad、deg；libcheck 复核容差：相对 1e-6）：MODE=focus；FOCUSZ=556.523891mm；FOCUSRMS=29.0298393mm；RAYS=21",
+      "description": "牛顿式望远镜主镜（未折叠）｜抛物面 f=500mm、F/5｜经典构造：牛顿式用 45° 平面折轴镜把焦点引出镜筒；本库为顺序面型、不支持倾斜面，故按光轴展开只保留抛物面主镜。预期指标（引擎计算；单位 mm、µrad、deg；libcheck 复核容差：相对 1e-6）：MODE=focus；FOCUSZ=-440mm；FOCUSRMS=6.13376335e-15mm；RAYS=21",
       "tags": [
         "mirror",
         "newtonian",
@@ -10098,8 +10197,8 @@
         "mode": "focus",
         "field": 0.5,
         "field_unit": "deg",
-        "focus_z_mm": 556.5238914758387,
-        "focus_rms_mm": 29.029839274558995,
+        "focus_z_mm": -439.9999999999999,
+        "focus_rms_mm": 6.1337633487357225e-15,
         "rays": 21,
         "stop_semi_aperture_mm": 50
       }
@@ -10109,7 +10208,7 @@
       "name": "抛物面反射镜 f=100mm F/4",
       "category": "mirror",
       "difficulty": 3,
-      "description": "抛物面反射镜（K=-1）｜f=100mm、F/4｜经典构造：平行光严格成像于 R/2（无球差），由实光线追迹验证。预期指标（引擎计算；单位 mm、µrad、deg；libcheck 复核容差：相对 1e-6）：MODE=focus；FOCUSZ=158.913716mm；FOCUSRMS=7.25243464mm；RAYS=21",
+      "description": "抛物面反射镜（K=-1）｜f=100mm、F/4｜经典构造：平行光严格成像于 R/2（无球差），由实光线追迹验证。预期指标（引擎计算；单位 mm、µrad、deg；libcheck 复核容差：相对 1e-6）：MODE=focus；FOCUSZ=-40mm；FOCUSRMS=1.66158955e-14mm；RAYS=21",
       "tags": [
         "mirror",
         "parabola",
@@ -10132,8 +10231,8 @@
         "mode": "focus",
         "field": 0.5,
         "field_unit": "deg",
-        "focus_z_mm": 158.9137160862015,
-        "focus_rms_mm": 7.252434638433643,
+        "focus_z_mm": -40.00000000000047,
+        "focus_rms_mm": 1.6615895542388794e-14,
         "rays": 21,
         "stop_semi_aperture_mm": 12.5
       }
@@ -10143,7 +10242,7 @@
       "name": "抛物面反射镜 f=100mm F/8",
       "category": "mirror",
       "difficulty": 3,
-      "description": "抛物面反射镜（K=-1）｜f=100mm、F/8｜经典构造：平行光严格成像于 R/2（无球差），由实光线追迹验证。预期指标（引擎计算；单位 mm、µrad、deg；libcheck 复核容差：相对 1e-6）：MODE=focus；FOCUSZ=159.728429mm；FOCUSRMS=3.63144442mm；RAYS=21",
+      "description": "抛物面反射镜（K=-1）｜f=100mm、F/8｜经典构造：平行光严格成像于 R/2（无球差），由实光线追迹验证。预期指标（引擎计算；单位 mm、µrad、deg；libcheck 复核容差：相对 1e-6）：MODE=focus；FOCUSZ=-40mm；FOCUSRMS=3.43282399e-15mm；RAYS=21",
       "tags": [
         "mirror",
         "parabola",
@@ -10166,8 +10265,8 @@
         "mode": "focus",
         "field": 0.5,
         "field_unit": "deg",
-        "focus_z_mm": 159.7284290215506,
-        "focus_rms_mm": 3.631444420870802,
+        "focus_z_mm": -40.000000000000206,
+        "focus_rms_mm": 3.432823993715427e-15,
         "rays": 21,
         "stop_semi_aperture_mm": 6.25
       }
@@ -10177,7 +10276,7 @@
       "name": "抛物面反射镜 f=1000mm F/4",
       "category": "mirror",
       "difficulty": 3,
-      "description": "抛物面反射镜（K=-1）｜f=1000mm、F/4｜经典构造：平行光严格成像于 R/2（无球差），由实光线追迹验证。预期指标（引擎计算；单位 mm、µrad、deg；libcheck 复核容差：相对 1e-6）：MODE=focus；FOCUSZ=1049.13716mm；FOCUSRMS=72.5243464mm；RAYS=21",
+      "description": "抛物面反射镜（K=-1）｜f=1000mm、F/4｜经典构造：平行光严格成像于 R/2（无球差），由实光线追迹验证。预期指标（引擎计算；单位 mm、µrad、deg；libcheck 复核容差：相对 1e-6）：MODE=focus；FOCUSZ=-940mm；FOCUSRMS=1.12357649e-13mm；RAYS=21",
       "tags": [
         "mirror",
         "parabola",
@@ -10200,8 +10299,8 @@
         "mode": "focus",
         "field": 0.5,
         "field_unit": "deg",
-        "focus_z_mm": 1049.1371608620098,
-        "focus_rms_mm": 72.52434638433624,
+        "focus_z_mm": -940.0000000000032,
+        "focus_rms_mm": 1.1235764877864442e-13,
         "rays": 21,
         "stop_semi_aperture_mm": 125
       }
@@ -10211,7 +10310,7 @@
       "name": "抛物面反射镜 f=1000mm F/8",
       "category": "mirror",
       "difficulty": 3,
-      "description": "抛物面反射镜（K=-1）｜f=1000mm、F/8｜经典构造：平行光严格成像于 R/2（无球差），由实光线追迹验证。预期指标（引擎计算；单位 mm、µrad、deg；libcheck 复核容差：相对 1e-6）：MODE=focus；FOCUSZ=1057.28429mm；FOCUSRMS=36.3144442mm；RAYS=21",
+      "description": "抛物面反射镜（K=-1）｜f=1000mm、F/8｜经典构造：平行光严格成像于 R/2（无球差），由实光线追迹验证。预期指标（引擎计算；单位 mm、µrad、deg；libcheck 复核容差：相对 1e-6）：MODE=focus；FOCUSZ=-940mm；FOCUSRMS=1.97247973e-14mm；RAYS=21",
       "tags": [
         "mirror",
         "parabola",
@@ -10234,8 +10333,8 @@
         "mode": "focus",
         "field": 0.5,
         "field_unit": "deg",
-        "focus_z_mm": 1057.284290215504,
-        "focus_rms_mm": 36.31444420870798,
+        "focus_z_mm": -940.0000000000011,
+        "focus_rms_mm": 1.972479732456569e-14,
         "rays": 21,
         "stop_semi_aperture_mm": 62.5
       }
@@ -10245,7 +10344,7 @@
       "name": "抛物面反射镜 f=1500mm F/4",
       "category": "mirror",
       "difficulty": 3,
-      "description": "抛物面反射镜（K=-1）｜f=1500mm、F/4｜经典构造：平行光严格成像于 R/2（无球差），由实光线追迹验证。预期指标（引擎计算；单位 mm、µrad、deg；libcheck 复核容差：相对 1e-6）：MODE=focus；FOCUSZ=1549.57167mm；FOCUSRMS=87.0895178mm；RAYS=21",
+      "description": "抛物面反射镜（K=-1）｜f=1500mm、F/4｜经典构造：平行光严格成像于 R/2（无球差），由实光线追迹验证。预期指标（引擎计算；单位 mm、µrad、deg；libcheck 复核容差：相对 1e-6）：MODE=focus；FOCUSZ=-1440mm；FOCUSRMS=5.09629617e-14mm；RAYS=21",
       "tags": [
         "mirror",
         "parabola",
@@ -10268,8 +10367,8 @@
         "mode": "focus",
         "field": 0.5,
         "field_unit": "deg",
-        "focus_z_mm": 1549.571674427524,
-        "focus_rms_mm": 87.08951782367724,
+        "focus_z_mm": -1440.0000000000018,
+        "focus_rms_mm": 5.0962961680289936e-14,
         "rays": 21,
         "stop_semi_aperture_mm": 150
       }
@@ -10279,7 +10378,7 @@
       "name": "抛物面反射镜 f=1500mm F/8",
       "category": "mirror",
       "difficulty": 3,
-      "description": "抛物面反射镜（K=-1）｜f=1500mm、F/8｜经典构造：平行光严格成像于 R/2（无球差），由实光线追迹验证。预期指标（引擎计算；单位 mm、µrad、deg；libcheck 复核容差：相对 1e-6）：MODE=focus；FOCUSZ=1555.92644mm；FOCUSRMS=54.4716663mm；RAYS=21",
+      "description": "抛物面反射镜（K=-1）｜f=1500mm、F/8｜经典构造：平行光严格成像于 R/2（无球差），由实光线追迹验证。预期指标（引擎计算；单位 mm、µrad、deg；libcheck 复核容差：相对 1e-6）：MODE=focus；FOCUSZ=-1440mm；FOCUSRMS=1.01011689e-14mm；RAYS=21",
       "tags": [
         "mirror",
         "parabola",
@@ -10302,8 +10401,8 @@
         "mode": "focus",
         "field": 0.5,
         "field_unit": "deg",
-        "focus_z_mm": 1555.9264353232502,
-        "focus_rms_mm": 54.47166631306187,
+        "focus_z_mm": -1440,
+        "focus_rms_mm": 1.0101168883332179e-14,
         "rays": 21,
         "stop_semi_aperture_mm": 93.75
       }
@@ -10313,7 +10412,7 @@
       "name": "抛物面反射镜 f=200mm F/4",
       "category": "mirror",
       "difficulty": 3,
-      "description": "抛物面反射镜（K=-1）｜f=200mm、F/4｜经典构造：平行光严格成像于 R/2（无球差），由实光线追迹验证。预期指标（引擎计算；单位 mm、µrad、deg；libcheck 复核容差：相对 1e-6）：MODE=focus；FOCUSZ=257.827432mm；FOCUSRMS=14.5048693mm；RAYS=21",
+      "description": "抛物面反射镜（K=-1）｜f=200mm、F/4｜经典构造：平行光严格成像于 R/2（无球差），由实光线追迹验证。预期指标（引擎计算；单位 mm、µrad、deg；libcheck 复核容差：相对 1e-6）：MODE=focus；FOCUSZ=-140mm；FOCUSRMS=3.03764991e-14mm；RAYS=21",
       "tags": [
         "mirror",
         "parabola",
@@ -10336,8 +10435,8 @@
         "mode": "focus",
         "field": 0.5,
         "field_unit": "deg",
-        "focus_z_mm": 257.82743217240284,
-        "focus_rms_mm": 14.504869276867277,
+        "focus_z_mm": -140.00000000000085,
+        "focus_rms_mm": 3.037649908197394e-14,
         "rays": 21,
         "stop_semi_aperture_mm": 25
       }
@@ -10347,7 +10446,7 @@
       "name": "抛物面反射镜 f=200mm F/8",
       "category": "mirror",
       "difficulty": 3,
-      "description": "抛物面反射镜（K=-1）｜f=200mm、F/8｜经典构造：平行光严格成像于 R/2（无球差），由实光线追迹验证。预期指标（引擎计算；单位 mm、µrad、deg；libcheck 复核容差：相对 1e-6）：MODE=focus；FOCUSZ=259.456858mm；FOCUSRMS=7.26288884mm；RAYS=21",
+      "description": "抛物面反射镜（K=-1）｜f=200mm、F/8｜经典构造：平行光严格成像于 R/2（无球差），由实光线追迹验证。预期指标（引擎计算；单位 mm、µrad、deg；libcheck 复核容差：相对 1e-6）：MODE=focus；FOCUSZ=-140mm；FOCUSRMS=8.43667136e-15mm；RAYS=21",
       "tags": [
         "mirror",
         "parabola",
@@ -10370,8 +10469,8 @@
         "mode": "focus",
         "field": 0.5,
         "field_unit": "deg",
-        "focus_z_mm": 259.4568580431015,
-        "focus_rms_mm": 7.26288884174161,
+        "focus_z_mm": -140.00000000000048,
+        "focus_rms_mm": 8.436671357466306e-15,
         "rays": 21,
         "stop_semi_aperture_mm": 12.5
       }
@@ -10381,7 +10480,7 @@
       "name": "抛物面反射镜 f=2000mm F/4",
       "category": "mirror",
       "difficulty": 3,
-      "description": "抛物面反射镜（K=-1）｜f=2000mm、F/4｜经典构造：平行光严格成像于 R/2（无球差），由实光线追迹验证。预期指标（引擎计算；单位 mm、µrad、deg；libcheck 复核容差：相对 1e-6）：MODE=focus；FOCUSZ=2052.17876mm；FOCUSRMS=87.1363098mm；RAYS=21",
+      "description": "抛物面反射镜（K=-1）｜f=2000mm、F/4｜经典构造：平行光严格成像于 R/2（无球差），由实光线追迹验证。预期指标（引擎计算；单位 mm、µrad、deg；libcheck 复核容差：相对 1e-6）：MODE=focus；FOCUSZ=-1940mm；FOCUSRMS=1.36988199e-14mm；RAYS=21",
       "tags": [
         "mirror",
         "parabola",
@@ -10404,8 +10503,8 @@
         "mode": "focus",
         "field": 0.5,
         "field_unit": "deg",
-        "focus_z_mm": 2052.1787558206397,
-        "focus_rms_mm": 87.13630976036175,
+        "focus_z_mm": -1940,
+        "focus_rms_mm": 1.3698819899189578e-14,
         "rays": 21,
         "stop_semi_aperture_mm": 150
       }
@@ -10415,7 +10514,7 @@
       "name": "抛物面反射镜 f=2000mm F/8",
       "category": "mirror",
       "difficulty": 3,
-      "description": "抛物面反射镜（K=-1）｜f=2000mm、F/8｜经典构造：平行光严格成像于 R/2（无球差），由实光线追迹验证。预期指标（引擎计算；单位 mm、µrad、deg；libcheck 复核容差：相对 1e-6）：MODE=focus；FOCUSZ=2054.56858mm；FOCUSRMS=72.6288884mm；RAYS=21",
+      "description": "抛物面反射镜（K=-1）｜f=2000mm、F/8｜经典构造：平行光严格成像于 R/2（无球差），由实光线追迹验证。预期指标（引擎计算；单位 mm、µrad、deg；libcheck 复核容差：相对 1e-6）：MODE=focus；FOCUSZ=-1940mm；FOCUSRMS=3.94495946e-14mm；RAYS=21",
       "tags": [
         "mirror",
         "parabola",
@@ -10438,8 +10537,8 @@
         "mode": "focus",
         "field": 0.5,
         "field_unit": "deg",
-        "focus_z_mm": 2054.568580431008,
-        "focus_rms_mm": 72.62888841741596,
+        "focus_z_mm": -1940.0000000000023,
+        "focus_rms_mm": 3.944959464913138e-14,
         "rays": 21,
         "stop_semi_aperture_mm": 125
       }
@@ -10449,7 +10548,7 @@
       "name": "抛物面反射镜 f=300mm F/4",
       "category": "mirror",
       "difficulty": 3,
-      "description": "抛物面反射镜（K=-1）｜f=300mm、F/4｜经典构造：平行光严格成像于 R/2（无球差），由实光线追迹验证。预期指标（引擎计算；单位 mm、µrad、deg；libcheck 复核容差：相对 1e-6）：MODE=focus；FOCUSZ=356.741148mm；FOCUSRMS=21.7573039mm；RAYS=21",
+      "description": "抛物面反射镜（K=-1）｜f=300mm、F/4｜经典构造：平行光严格成像于 R/2（无球差），由实光线追迹验证。预期指标（引擎计算；单位 mm、µrad、deg；libcheck 复核容差：相对 1e-6）：MODE=focus；FOCUSZ=-240mm；FOCUSRMS=3.45394447e-14mm；RAYS=21",
       "tags": [
         "mirror",
         "parabola",
@@ -10472,8 +10571,8 @@
         "mode": "focus",
         "field": 0.5,
         "field_unit": "deg",
-        "focus_z_mm": 356.74114825860306,
-        "focus_rms_mm": 21.757303915300874,
+        "focus_z_mm": -240.00000000000097,
+        "focus_rms_mm": 3.4539444684634415e-14,
         "rays": 21,
         "stop_semi_aperture_mm": 37.5
       }
@@ -10483,7 +10582,7 @@
       "name": "抛物面反射镜 f=300mm F/8",
       "category": "mirror",
       "difficulty": 3,
-      "description": "抛物面反射镜（K=-1）｜f=300mm、F/8｜经典构造：平行光严格成像于 R/2（无球差），由实光线追迹验证。预期指标（引擎计算；单位 mm、µrad、deg；libcheck 复核容差：相对 1e-6）：MODE=focus；FOCUSZ=359.185287mm；FOCUSRMS=10.8943333mm；RAYS=21",
+      "description": "抛物面反射镜（K=-1）｜f=300mm、F/8｜经典构造：平行光严格成像于 R/2（无球差），由实光线追迹验证。预期指标（引擎计算；单位 mm、µrad、deg；libcheck 复核容差：相对 1e-6）：MODE=focus；FOCUSZ=-240mm；FOCUSRMS=6.9465042e-15mm；RAYS=21",
       "tags": [
         "mirror",
         "parabola",
@@ -10506,8 +10605,8 @@
         "mode": "focus",
         "field": 0.5,
         "field_unit": "deg",
-        "focus_z_mm": 359.18528706465116,
-        "focus_rms_mm": 10.894333262612394,
+        "focus_z_mm": -240.00000000000043,
+        "focus_rms_mm": 6.946504198967693e-15,
         "rays": 21,
         "stop_semi_aperture_mm": 18.75
       }
@@ -10517,7 +10616,7 @@
       "name": "抛物面反射镜 f=500mm F/4",
       "category": "mirror",
       "difficulty": 3,
-      "description": "抛物面反射镜（K=-1）｜f=500mm、F/4｜经典构造：平行光严格成像于 R/2（无球差），由实光线追迹验证。预期指标（引擎计算；单位 mm、µrad、deg；libcheck 复核容差：相对 1e-6）：MODE=focus；FOCUSZ=554.56858mm；FOCUSRMS=36.2621732mm；RAYS=21",
+      "description": "抛物面反射镜（K=-1）｜f=500mm、F/4｜经典构造：平行光严格成像于 R/2（无球差），由实光线追迹验证。预期指标（引擎计算；单位 mm、µrad、deg；libcheck 复核容差：相对 1e-6）：MODE=focus；FOCUSZ=-440mm；FOCUSRMS=5.61788244e-14mm；RAYS=21",
       "tags": [
         "mirror",
         "parabola",
@@ -10540,8 +10639,8 @@
         "mode": "focus",
         "field": 0.5,
         "field_unit": "deg",
-        "focus_z_mm": 554.5685804310049,
-        "focus_rms_mm": 36.26217319216812,
+        "focus_z_mm": -440.0000000000016,
+        "focus_rms_mm": 5.617882438932221e-14,
         "rays": 21,
         "stop_semi_aperture_mm": 62.5
       }
@@ -10551,7 +10650,7 @@
       "name": "抛物面反射镜 f=500mm F/8",
       "category": "mirror",
       "difficulty": 3,
-      "description": "抛物面反射镜（K=-1）｜f=500mm、F/8｜经典构造：平行光严格成像于 R/2（无球差），由实光线追迹验证。预期指标（引擎计算；单位 mm、µrad、deg；libcheck 复核容差：相对 1e-6）：MODE=focus；FOCUSZ=558.642145mm；FOCUSRMS=18.1572221mm；RAYS=21",
+      "description": "抛物面反射镜（K=-1）｜f=500mm、F/8｜经典构造：平行光严格成像于 R/2（无球差），由实光线追迹验证。预期指标（引擎计算；单位 mm、µrad、deg；libcheck 复核容差：相对 1e-6）：MODE=focus；FOCUSZ=-440mm；FOCUSRMS=9.86239866e-15mm；RAYS=21",
       "tags": [
         "mirror",
         "parabola",
@@ -10574,8 +10673,8 @@
         "mode": "focus",
         "field": 0.5,
         "field_unit": "deg",
-        "focus_z_mm": 558.642145107752,
-        "focus_rms_mm": 18.15722210435399,
+        "focus_z_mm": -440.00000000000057,
+        "focus_rms_mm": 9.862398662282846e-15,
         "rays": 21,
         "stop_semi_aperture_mm": 31.25
       }
@@ -10585,7 +10684,7 @@
       "name": "抛物面反射镜 f=800mm F/4",
       "category": "mirror",
       "difficulty": 3,
-      "description": "抛物面反射镜（K=-1）｜f=800mm、F/4｜经典构造：平行光严格成像于 R/2（无球差），由实光线追迹验证。预期指标（引擎计算；单位 mm、µrad、deg；libcheck 复核容差：相对 1e-6）：MODE=focus；FOCUSZ=851.309729mm；FOCUSRMS=58.0194771mm；RAYS=21",
+      "description": "抛物面反射镜（K=-1）｜f=800mm、F/4｜经典构造：平行光严格成像于 R/2（无球差），由实光线追迹验证。预期指标（引擎计算；单位 mm、µrad、deg；libcheck 复核容差：相对 1e-6）：MODE=focus；FOCUSZ=-740mm；FOCUSRMS=1.20893316e-13mm；RAYS=21",
       "tags": [
         "mirror",
         "parabola",
@@ -10608,8 +10707,8 @@
         "mode": "focus",
         "field": 0.5,
         "field_unit": "deg",
-        "focus_z_mm": 851.309728689611,
-        "focus_rms_mm": 58.01947710746911,
+        "focus_z_mm": -740.0000000000034,
+        "focus_rms_mm": 1.208933157483299e-13,
         "rays": 21,
         "stop_semi_aperture_mm": 100
       }
@@ -10619,7 +10718,7 @@
       "name": "抛物面反射镜 f=800mm F/8",
       "category": "mirror",
       "difficulty": 3,
-      "description": "抛物面反射镜（K=-1）｜f=800mm、F/8｜经典构造：平行光严格成像于 R/2（无球差），由实光线追迹验证。预期指标（引擎计算；单位 mm、µrad、deg；libcheck 复核容差：相对 1e-6）：MODE=focus；FOCUSZ=857.827432mm；FOCUSRMS=29.0515554mm；RAYS=21",
+      "description": "抛物面反射镜（K=-1）｜f=800mm、F/8｜经典构造：平行光严格成像于 R/2（无球差），由实光线追迹验证。预期指标（引擎计算；单位 mm、µrad、deg；libcheck 复核容差：相对 1e-6）：MODE=focus；FOCUSZ=-740mm；FOCUSRMS=3.12290624e-14mm；RAYS=21",
       "tags": [
         "mirror",
         "parabola",
@@ -10642,8 +10741,8 @@
         "mode": "focus",
         "field": 0.5,
         "field_unit": "deg",
-        "focus_z_mm": 857.827432172406,
-        "focus_rms_mm": 29.05155536696644,
+        "focus_z_mm": -740.0000000000018,
+        "focus_rms_mm": 3.122906238238376e-14,
         "rays": 21,
         "stop_semi_aperture_mm": 50
       }
@@ -10653,7 +10752,7 @@
       "name": "球面反射镜 f=1000mm F/4",
       "category": "mirror",
       "difficulty": 3,
-      "description": "球面反射镜｜f=1000mm、F/4｜经典构造：与同口径抛物面成对照，纵向球差 ∝ 口径²／f³。预期指标（引擎计算；单位 mm、µrad、deg；libcheck 复核容差：相对 1e-6）：MODE=focus；FOCUSZ=1040.58291mm；FOCUSRMS=72.2762817mm；RAYS=21",
+      "description": "球面反射镜｜f=1000mm、F/4｜经典构造：与同口径抛物面成对照，纵向球差 ∝ 口径²／f³。预期指标（引擎计算；单位 mm、µrad、deg；libcheck 复核容差：相对 1e-6）：MODE=focus；FOCUSZ=-938.234252mm；FOCUSRMS=0.028123236mm；RAYS=21",
       "tags": [
         "mirror",
         "sphere",
@@ -10676,8 +10775,8 @@
         "mode": "focus",
         "field": 0.5,
         "field_unit": "deg",
-        "focus_z_mm": 1040.5829053934992,
-        "focus_rms_mm": 72.27628167171528,
+        "focus_z_mm": -938.2342518075332,
+        "focus_rms_mm": 0.028123235970816333,
         "rays": 21,
         "stop_semi_aperture_mm": 125
       }
@@ -10687,7 +10786,7 @@
       "name": "球面反射镜 f=1000mm F/8",
       "category": "mirror",
       "difficulty": 3,
-      "description": "球面反射镜｜f=1000mm、F/8｜经典构造：与同口径抛物面成对照，纵向球差 ∝ 口径²／f³。预期指标（引擎计算；单位 mm、µrad、deg；libcheck 复核容差：相对 1e-6）：MODE=focus；FOCUSZ=1055.14316mm；FOCUSRMS=36.2835071mm；RAYS=21",
+      "description": "球面反射镜｜f=1000mm、F/8｜经典构造：与同口径抛物面成对照，纵向球差 ∝ 口径²／f³。预期指标（引擎计算；单位 mm、µrad、deg；libcheck 复核容差：相对 1e-6）：MODE=focus；FOCUSZ=-939.559433mm；FOCUSRMS=0.0035006637mm；RAYS=21",
       "tags": [
         "mirror",
         "sphere",
@@ -10710,8 +10809,8 @@
         "mode": "focus",
         "field": 0.5,
         "field_unit": "deg",
-        "focus_z_mm": 1055.1431647033028,
-        "focus_rms_mm": 36.283507058397284,
+        "focus_z_mm": -939.5594332257476,
+        "focus_rms_mm": 0.003500663695990369,
         "rays": 21,
         "stop_semi_aperture_mm": 62.5
       }
@@ -10721,7 +10820,7 @@
       "name": "球面反射镜 f=200mm F/4",
       "category": "mirror",
       "difficulty": 3,
-      "description": "球面反射镜｜f=200mm、F/4｜经典构造：与同口径抛物面成对照，纵向球差 ∝ 口径²／f³。预期指标（引擎计算；单位 mm、µrad、deg；libcheck 复核容差：相对 1e-6）：MODE=focus；FOCUSZ=256.116581mm；FOCUSRMS=14.4552563mm；RAYS=21",
+      "description": "球面反射镜｜f=200mm、F/4｜经典构造：与同口径抛物面成对照，纵向球差 ∝ 口径²／f³。预期指标（引擎计算；单位 mm、µrad、deg；libcheck 复核容差：相对 1e-6）：MODE=focus；FOCUSZ=-139.64685mm；FOCUSRMS=0.00562464719mm；RAYS=21",
       "tags": [
         "mirror",
         "sphere",
@@ -10744,8 +10843,8 @@
         "mode": "focus",
         "field": 0.5,
         "field_unit": "deg",
-        "focus_z_mm": 256.11658107869806,
-        "focus_rms_mm": 14.45525633434299,
+        "focus_z_mm": -139.64685036150632,
+        "focus_rms_mm": 0.005624647194163184,
         "rays": 21,
         "stop_semi_aperture_mm": 25
       }
@@ -10755,7 +10854,7 @@
       "name": "球面反射镜 f=200mm F/8",
       "category": "mirror",
       "difficulty": 3,
-      "description": "球面反射镜｜f=200mm、F/8｜经典构造：与同口径抛物面成对照，纵向球差 ∝ 口径²／f³。预期指标（引擎计算；单位 mm、µrad、deg；libcheck 复核容差：相对 1e-6）：MODE=focus；FOCUSZ=259.028633mm；FOCUSRMS=7.25670141mm；RAYS=21",
+      "description": "球面反射镜｜f=200mm、F/8｜经典构造：与同口径抛物面成对照，纵向球差 ∝ 口径²／f³。预期指标（引擎计算；单位 mm、µrad、deg；libcheck 复核容差：相对 1e-6）：MODE=focus；FOCUSZ=-139.911887mm；FOCUSRMS=0.000700132739mm；RAYS=21",
       "tags": [
         "mirror",
         "sphere",
@@ -10778,8 +10877,8 @@
         "mode": "focus",
         "field": 0.5,
         "field_unit": "deg",
-        "focus_z_mm": 259.02863294065946,
-        "focus_rms_mm": 7.256701411679438,
+        "focus_z_mm": -139.91188664514928,
+        "focus_rms_mm": 0.0007001327391978467,
         "rays": 21,
         "stop_semi_aperture_mm": 12.5
       }
@@ -10789,7 +10888,7 @@
       "name": "球面反射镜 f=500mm F/4",
       "category": "mirror",
       "difficulty": 3,
-      "description": "球面反射镜｜f=500mm、F/4｜经典构造：与同口径抛物面成对照，纵向球差 ∝ 口径²／f³。预期指标（引擎计算；单位 mm、µrad、deg；libcheck 复核容差：相对 1e-6）：MODE=focus；FOCUSZ=550.291453mm；FOCUSRMS=36.1381408mm；RAYS=21",
+      "description": "球面反射镜｜f=500mm、F/4｜经典构造：与同口径抛物面成对照，纵向球差 ∝ 口径²／f³。预期指标（引擎计算；单位 mm、µrad、deg；libcheck 复核容差：相对 1e-6）：MODE=focus；FOCUSZ=-439.117126mm；FOCUSRMS=0.014061618mm；RAYS=21",
       "tags": [
         "mirror",
         "sphere",
@@ -10812,8 +10911,8 @@
         "mode": "focus",
         "field": 0.5,
         "field_unit": "deg",
-        "focus_z_mm": 550.2914526967496,
-        "focus_rms_mm": 36.13814083585764,
+        "focus_z_mm": -439.1171259037666,
+        "focus_rms_mm": 0.014061617985408167,
         "rays": 21,
         "stop_semi_aperture_mm": 62.5
       }
@@ -10823,7 +10922,7 @@
       "name": "球面反射镜 f=500mm F/8",
       "category": "mirror",
       "difficulty": 3,
-      "description": "球面反射镜｜f=500mm、F/8｜经典构造：与同口径抛物面成对照，纵向球差 ∝ 口径²／f³。预期指标（引擎计算；单位 mm、µrad、deg；libcheck 复核容差：相对 1e-6）：MODE=focus；FOCUSZ=557.571582mm；FOCUSRMS=18.1417535mm；RAYS=21",
+      "description": "球面反射镜｜f=500mm、F/8｜经典构造：与同口径抛物面成对照，纵向球差 ∝ 口径²／f³。预期指标（引擎计算；单位 mm、µrad、deg；libcheck 复核容差：相对 1e-6）：MODE=focus；FOCUSZ=-439.779717mm；FOCUSRMS=0.00175033185mm；RAYS=21",
       "tags": [
         "mirror",
         "sphere",
@@ -10846,8 +10945,8 @@
         "mode": "focus",
         "field": 0.5,
         "field_unit": "deg",
-        "focus_z_mm": 557.5715823516514,
-        "focus_rms_mm": 18.141753529198642,
+        "focus_z_mm": -439.7797166128738,
+        "focus_rms_mm": 0.0017503318479951844,
         "rays": 21,
         "stop_semi_aperture_mm": 31.25
       }
@@ -15965,11 +16064,43 @@
       }
     },
     {
+      "file": "relay-4f-f100-f100.json",
+      "name": "4f 中继（f1=100mm, f2=100mm）",
+      "category": "instrument",
+      "difficulty": 4,
+      "description": "4f 中继系统｜f1=100mm、f2=100mm、物距 -100mm｜经典构造：物在 L1 前焦面、中间像在公共焦面、像在 L2 后焦面（近轴倍率 0.519×），两片均为胶合组以压色差。预期指标（引擎计算；单位 mm、µrad、deg；libcheck 复核容差：相对 1e-6）：MODE=focus；FOCUSZ=322.560176mm；FOCUSRMS=0.00795209368mm；RAYS=21",
+      "tags": [
+        "relay",
+        "4f",
+        "telecentric",
+        "finite-conjugate",
+        "visible",
+        "classic",
+        "quality:classic",
+        "mag:0.519",
+        "objfield:2",
+        "mode:focus"
+      ],
+      "quality": "classic",
+      "validation": "focus",
+      "cards": 7,
+      "fingerprint": "fd8aa9ba41aee2408a6d0dd38517bb6a9733208b9f42b3e93f07fb5859ba83ef",
+      "metrics": {
+        "mode": "focus",
+        "field": 2,
+        "field_unit": "mm",
+        "focus_z_mm": 322.56017559784476,
+        "focus_rms_mm": 0.00795209367591318,
+        "rays": 21,
+        "stop_semi_aperture_mm": 12.5
+      }
+    },
+    {
       "file": "relay-4f-f150-f75.json",
       "name": "4f 中继（f1=150mm, f2=75mm）",
       "category": "instrument",
       "difficulty": 4,
-      "description": "4f 中继系统｜f1=150mm、f2=75mm、物距 -150mm｜经典构造：物在 L1 前焦面、中间像在公共焦面、像在 L2 后焦面（近轴倍率 0.338×），两片均为胶合组以压色差。预期指标（引擎计算；单位 mm、µrad、deg；libcheck 复核容差：相对 1e-6）：MODE=focus；FOCUSZ=559.388654mm；FOCUSRMS=5.85676429mm；RAYS=21",
+      "description": "4f 中继系统｜f1=150mm、f2=75mm、物距 -150mm｜经典构造：物在 L1 前焦面、中间像在公共焦面、像在 L2 后焦面（近轴倍率 0.338×），两片均为胶合组以压色差。预期指标（引擎计算；单位 mm、µrad、deg；libcheck 复核容差：相对 1e-6）：MODE=focus；FOCUSZ=401.516371mm；FOCUSRMS=0.00184639903mm；RAYS=21",
       "tags": [
         "relay",
         "4f",
@@ -15990,8 +16121,8 @@
         "mode": "focus",
         "field": 3,
         "field_unit": "mm",
-        "focus_z_mm": 559.3886535458441,
-        "focus_rms_mm": 5.856764294512953,
+        "focus_z_mm": 401.5163705195173,
+        "focus_rms_mm": 0.0018463990343636804,
         "rays": 21,
         "stop_semi_aperture_mm": 18.75
       }
@@ -16157,7 +16288,7 @@
       "name": "弯曲族 N-BK7 f=100mm（c2/c1=0.00）",
       "category": "singlet",
       "difficulty": 2,
-      "description": "单透镜弯曲族｜N-BK7｜f=100mm、F/5 固定，第二个面的曲率比为 0：弯月形（比值→1）球差显著下降。预期指标（引擎计算；单位 mm、µrad、deg；libcheck 复核容差：相对 1e-6）：MODE=focus；FOCUSZ=456.979583mm；FOCUSRMS=4.1428901mm；RAYS=21",
+      "description": "单透镜弯曲族｜N-BK7｜f=100mm、F/5 固定，第二个面的曲率比为 0：弯月形（比值→1）球差显著下降。预期指标（引擎计算；单位 mm、µrad、deg；libcheck 复核容差：相对 1e-6）：MODE=focus；FOCUSZ=316.688218mm；FOCUSRMS=0.00704653768mm；RAYS=21",
       "tags": [
         "singlet",
         "bending",
@@ -16179,8 +16310,8 @@
         "mode": "focus",
         "field": 0.5,
         "field_unit": "deg",
-        "focus_z_mm": 456.9795834954384,
-        "focus_rms_mm": 4.142890103869628,
+        "focus_z_mm": 316.6882183350297,
+        "focus_rms_mm": 0.007046537675889244,
         "rays": 21,
         "stop_semi_aperture_mm": 10
       }
@@ -16190,7 +16321,7 @@
       "name": "弯曲族 N-BK7 f=100mm（c2/c1=0.50）",
       "category": "singlet",
       "difficulty": 2,
-      "description": "单透镜弯曲族｜N-BK7｜f=100mm、F/5 固定，第二个面的曲率比为 0.5：弯月形（比值→1）球差显著下降。预期指标（引擎计算；单位 mm、µrad、deg；libcheck 复核容差：相对 1e-6）：MODE=focus；FOCUSZ=593.794671mm；FOCUSRMS=4.12891343mm；RAYS=21",
+      "description": "单透镜弯曲族｜N-BK7｜f=100mm、F/5 固定，第二个面的曲率比为 0.5：弯月形（比值→1）球差显著下降。预期指标（引擎计算；单位 mm、µrad、deg；libcheck 复核容差：相对 1e-6）：MODE=focus；FOCUSZ=453.799382mm；FOCUSRMS=0.00268452868mm；RAYS=21",
       "tags": [
         "singlet",
         "bending",
@@ -16212,8 +16343,8 @@
         "mode": "focus",
         "field": 0.5,
         "field_unit": "deg",
-        "focus_z_mm": 593.7946708004353,
-        "focus_rms_mm": 4.128913434977565,
+        "focus_z_mm": 453.7993824951338,
+        "focus_rms_mm": 0.0026845286802664793,
         "rays": 21,
         "stop_semi_aperture_mm": 10
       }
@@ -16223,7 +16354,7 @@
       "name": "弯曲族 N-BK7 f=100mm（c2/c1=0.90）",
       "category": "singlet",
       "difficulty": 2,
-      "description": "单透镜弯曲族｜N-BK7｜f=100mm、F/5 固定，第二个面的曲率比为 0.9：弯月形（比值→1）球差显著下降。预期指标（引擎计算；单位 mm、µrad、deg；libcheck 复核容差：相对 1e-6）：MODE=focus；FOCUSZ=701.395263mm；FOCUSRMS=4.07524526mm；RAYS=21",
+      "description": "单透镜弯曲族｜N-BK7｜f=100mm、F/5 固定，第二个面的曲率比为 0.9：弯月形（比值→1）球差显著下降。预期指标（引擎计算；单位 mm、µrad、deg；libcheck 复核容差：相对 1e-6）：MODE=focus；FOCUSZ=563.242579mm；FOCUSRMS=0.00729305601mm；RAYS=21",
       "tags": [
         "singlet",
         "bending",
@@ -16245,8 +16376,8 @@
         "mode": "focus",
         "field": 0.5,
         "field_unit": "deg",
-        "focus_z_mm": 701.3952631029933,
-        "focus_rms_mm": 4.075245257739689,
+        "focus_z_mm": 563.2425788791934,
+        "focus_rms_mm": 0.007293056014718288,
         "rays": 21,
         "stop_semi_aperture_mm": 10
       }
@@ -16256,7 +16387,7 @@
       "name": "弯曲族 N-BK7 f=100mm（c2/c1=-0.50）",
       "category": "singlet",
       "difficulty": 2,
-      "description": "单透镜弯曲族｜N-BK7｜f=100mm、F/5 固定，第二个面的曲率比为 -0.5：弯月形（比值→1）球差显著下降。预期指标（引擎计算；单位 mm、µrad、deg；libcheck 复核容差：相对 1e-6）：MODE=focus；FOCUSZ=278.823879mm；FOCUSRMS=1.72070827mm；RAYS=21",
+      "description": "单透镜弯曲族｜N-BK7｜f=100mm、F/5 固定，第二个面的曲率比为 -0.5：弯月形（比值→1）球差显著下降。预期指标（引擎计算；单位 mm、µrad、deg；libcheck 复核容差：相对 1e-6）：MODE=focus；FOCUSZ=220.428492mm；FOCUSRMS=0.0151026741mm；RAYS=21",
       "tags": [
         "singlet",
         "bending",
@@ -16278,8 +16409,8 @@
         "mode": "focus",
         "field": 0.5,
         "field_unit": "deg",
-        "focus_z_mm": 278.8238793951117,
-        "focus_rms_mm": 1.720708274654471,
+        "focus_z_mm": 220.4284915322509,
+        "focus_rms_mm": 0.015102674077848943,
         "rays": 21,
         "stop_semi_aperture_mm": 10
       }
@@ -17365,6 +17496,270 @@
       }
     },
     {
+      "file": "singlet-menn-f100-f2.json",
+      "name": "负弯月单透镜 F2 f=100mm F/5",
+      "category": "singlet",
+      "difficulty": 1,
+      "description": "单透镜（负弯月）｜F2｜设计焦距 100mm，口径 10mm，F/5｜负透镜：平行光入射为虚像，用实光线追迹外推虚焦面。预期指标（引擎计算；单位 mm、µrad、deg；libcheck 复核容差：相对 1e-6）：MODE=focus；FOCUSZ=-91.1458792mm；FOCUSRMS=0.0838765561mm；RAYS=21",
+      "tags": [
+        "singlet",
+        "menn",
+        "F2",
+        "F/5",
+        "efl:100",
+        "visible",
+        "classic",
+        "quality:analytic",
+        "fov0.5deg",
+        "sweep:f",
+        "mode:focus"
+      ],
+      "quality": "analytic",
+      "validation": "focus",
+      "cards": 3,
+      "fingerprint": "4b38905d05b604e18140bbe041c52b60f4a3e00076488b175d954472731f2b6b",
+      "metrics": {
+        "mode": "focus",
+        "field": 0.5,
+        "field_unit": "deg",
+        "focus_z_mm": -91.14587916432228,
+        "focus_rms_mm": 0.08387655605538849,
+        "rays": 21,
+        "stop_semi_aperture_mm": 10
+      }
+    },
+    {
+      "file": "singlet-menn-f100-nbk7.json",
+      "name": "负弯月单透镜 N-BK7 f=100mm F/5",
+      "category": "singlet",
+      "difficulty": 1,
+      "description": "单透镜（负弯月）｜N-BK7｜设计焦距 100mm，口径 10mm，F/5｜负透镜：平行光入射为虚像，用实光线追迹外推虚焦面。预期指标（引擎计算；单位 mm、µrad、deg；libcheck 复核容差：相对 1e-6）：MODE=focus；FOCUSZ=-86.4332301mm；FOCUSRMS=0.13961469mm；RAYS=21",
+      "tags": [
+        "singlet",
+        "menn",
+        "N-BK7",
+        "F/5",
+        "efl:100",
+        "visible",
+        "classic",
+        "quality:analytic",
+        "fov0.5deg",
+        "sweep:f",
+        "mode:focus"
+      ],
+      "quality": "analytic",
+      "validation": "focus",
+      "cards": 3,
+      "fingerprint": "805e40b144febc7a374b1462592de5443e93516aeee8b64b5b34faaf81f03e83",
+      "metrics": {
+        "mode": "focus",
+        "field": 0.5,
+        "field_unit": "deg",
+        "focus_z_mm": -86.43323014118864,
+        "focus_rms_mm": 0.13961469046532332,
+        "rays": 21,
+        "stop_semi_aperture_mm": 10
+      }
+    },
+    {
+      "file": "singlet-menn-f200-f2.json",
+      "name": "负弯月单透镜 F2 f=200mm F/5",
+      "category": "singlet",
+      "difficulty": 1,
+      "description": "单透镜（负弯月）｜F2｜设计焦距 200mm，口径 20mm，F/5｜负透镜：平行光入射为虚像，用实光线追迹外推虚焦面。预期指标（引擎计算；单位 mm、µrad、deg；libcheck 复核容差：相对 1e-6）：MODE=focus；FOCUSZ=-183.069732mm；FOCUSRMS=0.167752562mm；RAYS=21",
+      "tags": [
+        "singlet",
+        "menn",
+        "F2",
+        "F/5",
+        "efl:200",
+        "visible",
+        "classic",
+        "quality:analytic",
+        "fov0.5deg",
+        "sweep:f",
+        "mode:focus"
+      ],
+      "quality": "analytic",
+      "validation": "focus",
+      "cards": 3,
+      "fingerprint": "8b82040f9a2f957c3c27d7a68f46d96cd48a1478adb7c4960e50181b87c94f7d",
+      "metrics": {
+        "mode": "focus",
+        "field": 0.5,
+        "field_unit": "deg",
+        "focus_z_mm": -183.0697319488786,
+        "focus_rms_mm": 0.16775256238445405,
+        "rays": 21,
+        "stop_semi_aperture_mm": 20
+      }
+    },
+    {
+      "file": "singlet-menn-f200-nbk7.json",
+      "name": "负弯月单透镜 N-BK7 f=200mm F/5",
+      "category": "singlet",
+      "difficulty": 1,
+      "description": "单透镜（负弯月）｜N-BK7｜设计焦距 200mm，口径 20mm，F/5｜负透镜：平行光入射为虚像，用实光线追迹外推虚焦面。预期指标（引擎计算；单位 mm、µrad、deg；libcheck 复核容差：相对 1e-6）：MODE=focus；FOCUSZ=-173.731081mm；FOCUSRMS=0.279239333mm；RAYS=21",
+      "tags": [
+        "singlet",
+        "menn",
+        "N-BK7",
+        "F/5",
+        "efl:200",
+        "visible",
+        "classic",
+        "quality:analytic",
+        "fov0.5deg",
+        "sweep:f",
+        "mode:focus"
+      ],
+      "quality": "analytic",
+      "validation": "focus",
+      "cards": 3,
+      "fingerprint": "c9e5c10f3a518114ff869f01e5b35a5443b0369dc11e5b0b68420b6b0e13a254",
+      "metrics": {
+        "mode": "focus",
+        "field": 0.5,
+        "field_unit": "deg",
+        "focus_z_mm": -173.73108079649063,
+        "focus_rms_mm": 0.27923933304241944,
+        "rays": 21,
+        "stop_semi_aperture_mm": 20
+      }
+    },
+    {
+      "file": "singlet-menn-f400-f2.json",
+      "name": "负弯月单透镜 F2 f=400mm F/5",
+      "category": "singlet",
+      "difficulty": 1,
+      "description": "单透镜（负弯月）｜F2｜设计焦距 400mm，口径 40mm，F/5｜负透镜：平行光入射为虚像，用实光线追迹外推虚焦面。预期指标（引擎计算；单位 mm、µrad、deg；libcheck 复核容差：相对 1e-6）：MODE=focus；FOCUSZ=-366.912418mm；FOCUSRMS=0.335507496mm；RAYS=21",
+      "tags": [
+        "singlet",
+        "menn",
+        "F2",
+        "F/5",
+        "efl:400",
+        "visible",
+        "classic",
+        "quality:analytic",
+        "fov0.5deg",
+        "sweep:f",
+        "mode:focus"
+      ],
+      "quality": "analytic",
+      "validation": "focus",
+      "cards": 3,
+      "fingerprint": "48d0792e64e8ff723e55342be0ab50ee2d919e147f21b57683ce06e93a8a7450",
+      "metrics": {
+        "mode": "focus",
+        "field": 0.5,
+        "field_unit": "deg",
+        "focus_z_mm": -366.91241796970564,
+        "focus_rms_mm": 0.33550749576670136,
+        "rays": 21,
+        "stop_semi_aperture_mm": 40
+      }
+    },
+    {
+      "file": "singlet-menn-f400-nbk7.json",
+      "name": "负弯月单透镜 N-BK7 f=400mm F/5",
+      "category": "singlet",
+      "difficulty": 1,
+      "description": "单透镜（负弯月）｜N-BK7｜设计焦距 400mm，口径 40mm，F/5｜负透镜：平行光入射为虚像，用实光线追迹外推虚焦面。预期指标（引擎计算；单位 mm、µrad、deg；libcheck 复核容差：相对 1e-6）：MODE=focus；FOCUSZ=-348.31941mm；FOCUSRMS=0.558473037mm；RAYS=21",
+      "tags": [
+        "singlet",
+        "menn",
+        "N-BK7",
+        "F/5",
+        "efl:400",
+        "visible",
+        "classic",
+        "quality:analytic",
+        "fov0.5deg",
+        "sweep:f",
+        "mode:focus"
+      ],
+      "quality": "analytic",
+      "validation": "focus",
+      "cards": 3,
+      "fingerprint": "769586929e92dfd691133cf9343a95238b9be9f7b67831da3ee427a333512c05",
+      "metrics": {
+        "mode": "focus",
+        "field": 0.5,
+        "field_unit": "deg",
+        "focus_z_mm": -348.31940957761867,
+        "focus_rms_mm": 0.5584730373903615,
+        "rays": 21,
+        "stop_semi_aperture_mm": 40
+      }
+    },
+    {
+      "file": "singlet-menn-f50-f2.json",
+      "name": "负弯月单透镜 F2 f=50mm F/5",
+      "category": "singlet",
+      "difficulty": 1,
+      "description": "单透镜（负弯月）｜F2｜设计焦距 50mm，口径 5mm，F/5｜负透镜：平行光入射为虚像，用实光线追迹外推虚焦面。预期指标（引擎计算；单位 mm、µrad、deg；libcheck 复核容差：相对 1e-6）：MODE=focus；FOCUSZ=-45.1799965mm；FOCUSRMS=0.0419362576mm；RAYS=21",
+      "tags": [
+        "singlet",
+        "menn",
+        "F2",
+        "F/5",
+        "efl:50",
+        "visible",
+        "classic",
+        "quality:analytic",
+        "fov0.5deg",
+        "sweep:f",
+        "mode:focus"
+      ],
+      "quality": "analytic",
+      "validation": "focus",
+      "cards": 3,
+      "fingerprint": "4a856420eb77e057b56c846904ec714f5ed03c4de3753b09a02a5ef690c9e013",
+      "metrics": {
+        "mode": "focus",
+        "field": 0.5,
+        "field_unit": "deg",
+        "focus_z_mm": -45.17999652545271,
+        "focus_rms_mm": 0.04193625758958908,
+        "rays": 21,
+        "stop_semi_aperture_mm": 5
+      }
+    },
+    {
+      "file": "singlet-menn-f50-nbk7.json",
+      "name": "负弯月单透镜 N-BK7 f=50mm F/5",
+      "category": "singlet",
+      "difficulty": 1,
+      "description": "单透镜（负弯月）｜N-BK7｜设计焦距 50mm，口径 5mm，F/5｜负透镜：平行光入射为虚像，用实光线追迹外推虚焦面。预期指标（引擎计算；单位 mm、µrad、deg；libcheck 复核容差：相对 1e-6）：MODE=focus；FOCUSZ=-42.7780426mm；FOCUSRMS=0.0698096593mm；RAYS=21",
+      "tags": [
+        "singlet",
+        "menn",
+        "N-BK7",
+        "F/5",
+        "efl:50",
+        "visible",
+        "classic",
+        "quality:analytic",
+        "fov0.5deg",
+        "sweep:f",
+        "mode:focus"
+      ],
+      "quality": "analytic",
+      "validation": "focus",
+      "cards": 3,
+      "fingerprint": "254d436f4daf17b05bc531896951209fd20c6e62d89401828f202fe5013f1315",
+      "metrics": {
+        "mode": "focus",
+        "field": 0.5,
+        "field_unit": "deg",
+        "focus_z_mm": -42.778042621134404,
+        "focus_rms_mm": 0.06980965933463656,
+        "rays": 21,
+        "stop_semi_aperture_mm": 5
+      }
+    },
+    {
       "file": "singlet-menp-f100-nbk7.json",
       "name": "正弯月单透镜 N-BK7 f=100mm F/5",
       "category": "singlet",
@@ -18002,6 +18397,666 @@
         "rays": 37,
         "field_rays": 37,
         "stop_semi_aperture_mm": 7.5
+      }
+    },
+    {
+      "file": "singlet-pcm-f100-nbk7.json",
+      "name": "平凹（平面朝物）单透镜 N-BK7 f=100mm F/5",
+      "category": "singlet",
+      "difficulty": 1,
+      "description": "单透镜（平凹（平面朝物））｜N-BK7｜设计焦距 100mm，口径 10mm，F/5｜负透镜：平行光入射为虚像，用实光线追迹外推虚焦面。预期指标（引擎计算；单位 mm、µrad、deg；libcheck 复核容差：相对 1e-6）：MODE=focus；FOCUSZ=-88.5541838mm；FOCUSRMS=0.0509811474mm；RAYS=21",
+      "tags": [
+        "singlet",
+        "pcm",
+        "N-BK7",
+        "F/5",
+        "efl:100",
+        "visible",
+        "classic",
+        "quality:analytic",
+        "fov0.5deg",
+        "sweep:f",
+        "mode:focus"
+      ],
+      "quality": "analytic",
+      "validation": "focus",
+      "cards": 3,
+      "fingerprint": "fdb38573866696c2ed8e9d900b3472d7d8360403cda1cc0aa33a3dc0e9cfd39f",
+      "metrics": {
+        "mode": "focus",
+        "field": 0.5,
+        "field_unit": "deg",
+        "focus_z_mm": -88.55418384668596,
+        "focus_rms_mm": 0.05098114737056712,
+        "rays": 21,
+        "stop_semi_aperture_mm": 10
+      }
+    },
+    {
+      "file": "singlet-pcm-f100-nsf5.json",
+      "name": "平凹（平面朝物）单透镜 N-SF5 f=100mm F/5",
+      "category": "singlet",
+      "difficulty": 1,
+      "description": "单透镜（平凹（平面朝物））｜N-SF5｜设计焦距 100mm，口径 10mm，F/5｜负透镜：平行光入射为虚像，用实光线追迹外推虚焦面。预期指标（引擎计算；单位 mm、µrad、deg；libcheck 复核容差：相对 1e-6）：MODE=focus；FOCUSZ=-89.6811456mm；FOCUSRMS=0.0362308519mm；RAYS=21",
+      "tags": [
+        "singlet",
+        "pcm",
+        "N-SF5",
+        "F/5",
+        "efl:100",
+        "visible",
+        "classic",
+        "quality:analytic",
+        "fov0.5deg",
+        "sweep:f",
+        "mode:focus"
+      ],
+      "quality": "analytic",
+      "validation": "focus",
+      "cards": 3,
+      "fingerprint": "dce6bb37144d28dce7624d318a9719b827d0aa250d9f12da3df840f6457a5663",
+      "metrics": {
+        "mode": "focus",
+        "field": 0.5,
+        "field_unit": "deg",
+        "focus_z_mm": -89.68114564958844,
+        "focus_rms_mm": 0.03623085192690985,
+        "rays": 21,
+        "stop_semi_aperture_mm": 10
+      }
+    },
+    {
+      "file": "singlet-pcm-f1000-nbk7.json",
+      "name": "平凹（平面朝物）单透镜 N-BK7 f=1000mm F/8.33",
+      "category": "singlet",
+      "difficulty": 1,
+      "description": "单透镜（平凹（平面朝物））｜N-BK7｜设计焦距 1000mm，口径 60.024mm，F/8.33｜负透镜：平行光入射为虚像，用实光线追迹外推虚焦面。预期指标（引擎计算；单位 mm、µrad、deg；libcheck 复核容差：相对 1e-6）：MODE=focus；FOCUSZ=-963.429995mm；FOCUSRMS=0.107939952mm；RAYS=21",
+      "tags": [
+        "singlet",
+        "pcm",
+        "N-BK7",
+        "F/8.33",
+        "efl:1000",
+        "visible",
+        "classic",
+        "quality:analytic",
+        "fov0.5deg",
+        "sweep:f",
+        "mode:focus"
+      ],
+      "quality": "analytic",
+      "validation": "focus",
+      "cards": 3,
+      "fingerprint": "877111c76407a36899d52d88de684c873a3e837ecf15ae36e2acf17973a769d9",
+      "metrics": {
+        "mode": "focus",
+        "field": 0.5,
+        "field_unit": "deg",
+        "focus_z_mm": -963.4299950290721,
+        "focus_rms_mm": 0.1079399515003909,
+        "rays": 21,
+        "stop_semi_aperture_mm": 60.024
+      }
+    },
+    {
+      "file": "singlet-pcm-f1000-nsf5.json",
+      "name": "平凹（平面朝物）单透镜 N-SF5 f=1000mm F/8.33",
+      "category": "singlet",
+      "difficulty": 1,
+      "description": "单透镜（平凹（平面朝物））｜N-SF5｜设计焦距 1000mm，口径 60.024mm，F/8.33｜负透镜：平行光入射为虚像，用实光线追迹外推虚焦面。预期指标（引擎计算；单位 mm、µrad、deg；libcheck 复核容差：相对 1e-6）：MODE=focus；FOCUSZ=-967.417586mm；FOCUSRMS=0.0772066092mm；RAYS=21",
+      "tags": [
+        "singlet",
+        "pcm",
+        "N-SF5",
+        "F/8.33",
+        "efl:1000",
+        "visible",
+        "classic",
+        "quality:analytic",
+        "fov0.5deg",
+        "sweep:f",
+        "mode:focus"
+      ],
+      "quality": "analytic",
+      "validation": "focus",
+      "cards": 3,
+      "fingerprint": "654c967e6778a8f5567f4f5ccf09272970fcc7ea89061ebdccc0cc6a58d9a071",
+      "metrics": {
+        "mode": "focus",
+        "field": 0.5,
+        "field_unit": "deg",
+        "focus_z_mm": -967.4175862174268,
+        "focus_rms_mm": 0.0772066091632947,
+        "rays": 21,
+        "stop_semi_aperture_mm": 60.024
+      }
+    },
+    {
+      "file": "singlet-pcm-f150-nbk7.json",
+      "name": "平凹（平面朝物）单透镜 N-BK7 f=150mm F/5",
+      "category": "singlet",
+      "difficulty": 1,
+      "description": "单透镜（平凹（平面朝物））｜N-BK7｜设计焦距 150mm，口径 15mm，F/5｜负透镜：平行光入射为虚像，用实光线追迹外推虚焦面。预期指标（引擎计算；单位 mm、µrad、deg；libcheck 复核容差：相对 1e-6）：MODE=focus；FOCUSZ=-134.081276mm；FOCUSRMS=0.0764717212mm；RAYS=21",
+      "tags": [
+        "singlet",
+        "pcm",
+        "N-BK7",
+        "F/5",
+        "efl:150",
+        "visible",
+        "classic",
+        "quality:analytic",
+        "fov0.5deg",
+        "sweep:f",
+        "mode:focus"
+      ],
+      "quality": "analytic",
+      "validation": "focus",
+      "cards": 3,
+      "fingerprint": "289a2058169676da2fca77c85c1cfc9fd3654524ca21239eb97b942498d63155",
+      "metrics": {
+        "mode": "focus",
+        "field": 0.5,
+        "field_unit": "deg",
+        "focus_z_mm": -134.08127566958177,
+        "focus_rms_mm": 0.07647172115783168,
+        "rays": 21,
+        "stop_semi_aperture_mm": 15
+      }
+    },
+    {
+      "file": "singlet-pcm-f150-nsf5.json",
+      "name": "平凹（平面朝物）单透镜 N-SF5 f=150mm F/5",
+      "category": "singlet",
+      "difficulty": 1,
+      "description": "单透镜（平凹（平面朝物））｜N-SF5｜设计焦距 150mm，口径 15mm，F/5｜负透镜：平行光入射为虚像，用实光线追迹外推虚焦面。预期指标（引擎计算；单位 mm、µrad、deg；libcheck 复核容差：相对 1e-6）：MODE=focus；FOCUSZ=-135.771719mm；FOCUSRMS=0.0543462778mm；RAYS=21",
+      "tags": [
+        "singlet",
+        "pcm",
+        "N-SF5",
+        "F/5",
+        "efl:150",
+        "visible",
+        "classic",
+        "quality:analytic",
+        "fov0.5deg",
+        "sweep:f",
+        "mode:focus"
+      ],
+      "quality": "analytic",
+      "validation": "focus",
+      "cards": 3,
+      "fingerprint": "a2355b552b1fcdcec0279a489a54f48d86a3191d1a4850b937dc139a7c675311",
+      "metrics": {
+        "mode": "focus",
+        "field": 0.5,
+        "field_unit": "deg",
+        "focus_z_mm": -135.77171855075818,
+        "focus_rms_mm": 0.054346277835250346,
+        "rays": 21,
+        "stop_semi_aperture_mm": 15
+      }
+    },
+    {
+      "file": "singlet-pcm-f200-nbk7.json",
+      "name": "平凹（平面朝物）单透镜 N-BK7 f=200mm F/5",
+      "category": "singlet",
+      "difficulty": 1,
+      "description": "单透镜（平凹（平面朝物））｜N-BK7｜设计焦距 200mm，口径 20mm，F/5｜负透镜：平行光入射为虚像，用实光线追迹外推虚焦面。预期指标（引擎计算；单位 mm、µrad、deg；libcheck 复核容差：相对 1e-6）：MODE=focus；FOCUSZ=-179.608367mm；FOCUSRMS=0.101962295mm；RAYS=21",
+      "tags": [
+        "singlet",
+        "pcm",
+        "N-BK7",
+        "F/5",
+        "efl:200",
+        "visible",
+        "classic",
+        "quality:analytic",
+        "fov0.5deg",
+        "sweep:f",
+        "mode:focus"
+      ],
+      "quality": "analytic",
+      "validation": "focus",
+      "cards": 3,
+      "fingerprint": "f4fb27df456e03ed0305217c5f947f4e8178d4b97c73237175ab7d41c9a27c35",
+      "metrics": {
+        "mode": "focus",
+        "field": 0.5,
+        "field_unit": "deg",
+        "focus_z_mm": -179.60836749247756,
+        "focus_rms_mm": 0.10196229494509539,
+        "rays": 21,
+        "stop_semi_aperture_mm": 20
+      }
+    },
+    {
+      "file": "singlet-pcm-f200-nsf5.json",
+      "name": "平凹（平面朝物）单透镜 N-SF5 f=200mm F/5",
+      "category": "singlet",
+      "difficulty": 1,
+      "description": "单透镜（平凹（平面朝物））｜N-SF5｜设计焦距 200mm，口径 20mm，F/5｜负透镜：平行光入射为虚像，用实光线追迹外推虚焦面。预期指标（引擎计算；单位 mm、µrad、deg；libcheck 复核容差：相对 1e-6）：MODE=focus；FOCUSZ=-181.862291mm；FOCUSRMS=0.0724617039mm；RAYS=21",
+      "tags": [
+        "singlet",
+        "pcm",
+        "N-SF5",
+        "F/5",
+        "efl:200",
+        "visible",
+        "classic",
+        "quality:analytic",
+        "fov0.5deg",
+        "sweep:f",
+        "mode:focus"
+      ],
+      "quality": "analytic",
+      "validation": "focus",
+      "cards": 3,
+      "fingerprint": "071582eec46871f375ef123b76415a994c70cb06009c9fa2676548ac635c3211",
+      "metrics": {
+        "mode": "focus",
+        "field": 0.5,
+        "field_unit": "deg",
+        "focus_z_mm": -181.8622912991769,
+        "focus_rms_mm": 0.0724617038538197,
+        "rays": 21,
+        "stop_semi_aperture_mm": 20
+      }
+    },
+    {
+      "file": "singlet-pcm-f25-nbk7.json",
+      "name": "平凹（平面朝物）单透镜 N-BK7 f=25mm F/5",
+      "category": "singlet",
+      "difficulty": 1,
+      "description": "单透镜（平凹（平面朝物））｜N-BK7｜设计焦距 25mm，口径 2.5mm，F/5｜负透镜：平行光入射为虚像，用实光线追迹外推虚焦面。预期指标（引擎计算；单位 mm、µrad、deg；libcheck 复核容差：相对 1e-6）：MODE=focus；FOCUSZ=-20.263546mm；FOCUSRMS=0.0127452868mm；RAYS=21",
+      "tags": [
+        "singlet",
+        "pcm",
+        "N-BK7",
+        "F/5",
+        "efl:25",
+        "visible",
+        "classic",
+        "quality:analytic",
+        "fov0.5deg",
+        "sweep:f",
+        "mode:focus"
+      ],
+      "quality": "analytic",
+      "validation": "focus",
+      "cards": 3,
+      "fingerprint": "189a1575e0c5cbcb843e7748aa4582b2e66116f9dde405c29406afe332781cbb",
+      "metrics": {
+        "mode": "focus",
+        "field": 0.5,
+        "field_unit": "deg",
+        "focus_z_mm": -20.263546011894743,
+        "focus_rms_mm": 0.012745286791651817,
+        "rays": 21,
+        "stop_semi_aperture_mm": 2.5
+      }
+    },
+    {
+      "file": "singlet-pcm-f25-nsf5.json",
+      "name": "平凹（平面朝物）单透镜 N-SF5 f=25mm F/5",
+      "category": "singlet",
+      "difficulty": 1,
+      "description": "单透镜（平凹（平面朝物））｜N-SF5｜设计焦距 25mm，口径 2.5mm，F/5｜负透镜：平行光入射为虚像，用实光线追迹外推虚焦面。预期指标（引擎计算；单位 mm、µrad、deg；libcheck 复核容差：相对 1e-6）：MODE=focus；FOCUSZ=-20.5452865mm；FOCUSRMS=0.00905771295mm；RAYS=21",
+      "tags": [
+        "singlet",
+        "pcm",
+        "N-SF5",
+        "F/5",
+        "efl:25",
+        "visible",
+        "classic",
+        "quality:analytic",
+        "fov0.5deg",
+        "sweep:f",
+        "mode:focus"
+      ],
+      "quality": "analytic",
+      "validation": "focus",
+      "cards": 3,
+      "fingerprint": "ed03d91a956b4982229e3542b382b43ddf253d2646201c8de7ceff91957ee91e",
+      "metrics": {
+        "mode": "focus",
+        "field": 0.5,
+        "field_unit": "deg",
+        "focus_z_mm": -20.545286450584932,
+        "focus_rms_mm": 0.009057712954169976,
+        "rays": 21,
+        "stop_semi_aperture_mm": 2.5
+      }
+    },
+    {
+      "file": "singlet-pcm-f300-nbk7.json",
+      "name": "平凹（平面朝物）单透镜 N-BK7 f=300mm F/5",
+      "category": "singlet",
+      "difficulty": 1,
+      "description": "单透镜（平凹（平面朝物））｜N-BK7｜设计焦距 300mm，口径 30mm，F/5｜负透镜：平行光入射为虚像，用实光线追迹外推虚焦面。预期指标（引擎计算；单位 mm、µrad、deg；libcheck 复核容差：相对 1e-6）：MODE=focus；FOCUSZ=-270.662551mm；FOCUSRMS=0.152943442mm；RAYS=21",
+      "tags": [
+        "singlet",
+        "pcm",
+        "N-BK7",
+        "F/5",
+        "efl:300",
+        "visible",
+        "classic",
+        "quality:analytic",
+        "fov0.5deg",
+        "sweep:f",
+        "mode:focus"
+      ],
+      "quality": "analytic",
+      "validation": "focus",
+      "cards": 3,
+      "fingerprint": "c9612dc355fb192b33ea41a8fa076e1210326ec08c816d211be9679e0c57859b",
+      "metrics": {
+        "mode": "focus",
+        "field": 0.5,
+        "field_unit": "deg",
+        "focus_z_mm": -270.66255133916354,
+        "focus_rms_mm": 0.15294344231566337,
+        "rays": 21,
+        "stop_semi_aperture_mm": 30
+      }
+    },
+    {
+      "file": "singlet-pcm-f300-nsf5.json",
+      "name": "平凹（平面朝物）单透镜 N-SF5 f=300mm F/5",
+      "category": "singlet",
+      "difficulty": 1,
+      "description": "单透镜（平凹（平面朝物））｜N-SF5｜设计焦距 300mm，口径 30mm，F/5｜负透镜：平行光入射为虚像，用实光线追迹外推虚焦面。预期指标（引擎计算；单位 mm、µrad、deg；libcheck 复核容差：相对 1e-6）：MODE=focus；FOCUSZ=-274.043437mm；FOCUSRMS=0.108692556mm；RAYS=21",
+      "tags": [
+        "singlet",
+        "pcm",
+        "N-SF5",
+        "F/5",
+        "efl:300",
+        "visible",
+        "classic",
+        "quality:analytic",
+        "fov0.5deg",
+        "sweep:f",
+        "mode:focus"
+      ],
+      "quality": "analytic",
+      "validation": "focus",
+      "cards": 3,
+      "fingerprint": "96394bc203538466638f6a525b6fcb6be908ce1e1cff91d7c73bbbda85501b24",
+      "metrics": {
+        "mode": "focus",
+        "field": 0.5,
+        "field_unit": "deg",
+        "focus_z_mm": -274.04343710151636,
+        "focus_rms_mm": 0.10869255567050069,
+        "rays": 21,
+        "stop_semi_aperture_mm": 30
+      }
+    },
+    {
+      "file": "singlet-pcm-f50-nbk7.json",
+      "name": "平凹（平面朝物）单透镜 N-BK7 f=50mm F/5",
+      "category": "singlet",
+      "difficulty": 1,
+      "description": "单透镜（平凹（平面朝物））｜N-BK7｜设计焦距 50mm，口径 5mm，F/5｜负透镜：平行光入射为虚像，用实光线追迹外推虚焦面。预期指标（引擎计算；单位 mm、µrad、deg；libcheck 复核容差：相对 1e-6）：MODE=focus；FOCUSZ=-43.0270918mm；FOCUSRMS=0.0254905738mm；RAYS=21",
+      "tags": [
+        "singlet",
+        "pcm",
+        "N-BK7",
+        "F/5",
+        "efl:50",
+        "visible",
+        "classic",
+        "quality:analytic",
+        "fov0.5deg",
+        "sweep:f",
+        "mode:focus"
+      ],
+      "quality": "analytic",
+      "validation": "focus",
+      "cards": 3,
+      "fingerprint": "7250cfc6e1aff3300213aa97347dc43c58922c1cd08c0ce49a80d007225c2709",
+      "metrics": {
+        "mode": "focus",
+        "field": 0.5,
+        "field_unit": "deg",
+        "focus_z_mm": -43.02709182289617,
+        "focus_rms_mm": 0.025490573787263913,
+        "rays": 21,
+        "stop_semi_aperture_mm": 5
+      }
+    },
+    {
+      "file": "singlet-pcm-f50-nsf5.json",
+      "name": "平凹（平面朝物）单透镜 N-SF5 f=50mm F/5",
+      "category": "singlet",
+      "difficulty": 1,
+      "description": "单透镜（平凹（平面朝物））｜N-SF5｜设计焦距 50mm，口径 5mm，F/5｜负透镜：平行光入射为虚像，用实光线追迹外推虚焦面。预期指标（引擎计算；单位 mm、µrad、deg；libcheck 复核容差：相对 1e-6）：MODE=focus；FOCUSZ=-43.5905729mm；FOCUSRMS=0.0181154259mm；RAYS=21",
+      "tags": [
+        "singlet",
+        "pcm",
+        "N-SF5",
+        "F/5",
+        "efl:50",
+        "visible",
+        "classic",
+        "quality:analytic",
+        "fov0.5deg",
+        "sweep:f",
+        "mode:focus"
+      ],
+      "quality": "analytic",
+      "validation": "focus",
+      "cards": 3,
+      "fingerprint": "d4e688a094eeafba4fef869a3238b45aceae8e225e8f5c901c6a012c92b853c6",
+      "metrics": {
+        "mode": "focus",
+        "field": 0.5,
+        "field_unit": "deg",
+        "focus_z_mm": -43.590572901169864,
+        "focus_rms_mm": 0.018115425908339953,
+        "rays": 21,
+        "stop_semi_aperture_mm": 5
+      }
+    },
+    {
+      "file": "singlet-pcm-f500-nbk7.json",
+      "name": "平凹（平面朝物）单透镜 N-BK7 f=500mm F/5",
+      "category": "singlet",
+      "difficulty": 1,
+      "description": "单透镜（平凹（平面朝物））｜N-BK7｜设计焦距 500mm，口径 50mm，F/5｜负透镜：平行光入射为虚像，用实光线追迹外推虚焦面。预期指标（引擎计算；单位 mm、µrad、deg；libcheck 复核容差：相对 1e-6）：MODE=focus；FOCUSZ=-457.770919mm；FOCUSRMS=0.254905737mm；RAYS=21",
+      "tags": [
+        "singlet",
+        "pcm",
+        "N-BK7",
+        "F/5",
+        "efl:500",
+        "visible",
+        "classic",
+        "quality:analytic",
+        "fov0.5deg",
+        "sweep:f",
+        "mode:focus"
+      ],
+      "quality": "analytic",
+      "validation": "focus",
+      "cards": 3,
+      "fingerprint": "a2de26b6ecdad83996c6b2bcd2d7b9762be462db4c6a3830778c59a3e0e71ec0",
+      "metrics": {
+        "mode": "focus",
+        "field": 0.5,
+        "field_unit": "deg",
+        "focus_z_mm": -457.7709188316436,
+        "focus_rms_mm": 0.254905737260754,
+        "rays": 21,
+        "stop_semi_aperture_mm": 50
+      }
+    },
+    {
+      "file": "singlet-pcm-f500-nsf5.json",
+      "name": "平凹（平面朝物）单透镜 N-SF5 f=500mm F/5",
+      "category": "singlet",
+      "difficulty": 1,
+      "description": "单透镜（平凹（平面朝物））｜N-SF5｜设计焦距 500mm，口径 50mm，F/5｜负透镜：平行光入射为虚像，用实光线追迹外推虚焦面。预期指标（引擎计算；单位 mm、µrad、deg；libcheck 复核容差：相对 1e-6）：MODE=focus；FOCUSZ=-463.405728mm；FOCUSRMS=0.18115426mm；RAYS=21",
+      "tags": [
+        "singlet",
+        "pcm",
+        "N-SF5",
+        "F/5",
+        "efl:500",
+        "visible",
+        "classic",
+        "quality:analytic",
+        "fov0.5deg",
+        "sweep:f",
+        "mode:focus"
+      ],
+      "quality": "analytic",
+      "validation": "focus",
+      "cards": 3,
+      "fingerprint": "c4921183ae26ec3ee7eecea5cbc9418aaf5e8ad38ecad219ff75b8399f16412c",
+      "metrics": {
+        "mode": "focus",
+        "field": 0.5,
+        "field_unit": "deg",
+        "focus_z_mm": -463.4057284006925,
+        "focus_rms_mm": 0.18115425952431866,
+        "rays": 21,
+        "stop_semi_aperture_mm": 50
+      }
+    },
+    {
+      "file": "singlet-pcmconc-f100-nbk7.json",
+      "name": "平凹（凹面朝物）单透镜 N-BK7 f=100mm F/5",
+      "category": "singlet",
+      "difficulty": 1,
+      "description": "单透镜（平凹（凹面朝物））｜N-BK7｜设计焦距 100mm，口径 10mm，F/5｜负透镜：平行光入射为虚像，用实光线追迹外推虚焦面。预期指标（引擎计算；单位 mm、µrad、deg；libcheck 复核容差：相对 1e-6）：MODE=focus；FOCUSZ=-94.7891177mm；FOCUSRMS=0.0129230971mm；RAYS=21",
+      "tags": [
+        "singlet",
+        "pcmconc",
+        "N-BK7",
+        "F/5",
+        "efl:100",
+        "visible",
+        "classic",
+        "quality:analytic",
+        "fov0.5deg",
+        "sweep:f",
+        "mode:focus"
+      ],
+      "quality": "analytic",
+      "validation": "focus",
+      "cards": 3,
+      "fingerprint": "2516709d890edb2391ed63a555da38890344e6ccbcc12797fb1c86a3eb77fc47",
+      "metrics": {
+        "mode": "focus",
+        "field": 0.5,
+        "field_unit": "deg",
+        "focus_z_mm": -94.78911769583918,
+        "focus_rms_mm": 0.012923097058909407,
+        "rays": 21,
+        "stop_semi_aperture_mm": 10
+      }
+    },
+    {
+      "file": "singlet-pcmconc-f200-nbk7.json",
+      "name": "平凹（凹面朝物）单透镜 N-BK7 f=200mm F/5",
+      "category": "singlet",
+      "difficulty": 1,
+      "description": "单透镜（平凹（凹面朝物））｜N-BK7｜设计焦距 200mm，口径 20mm，F/5｜负透镜：平行光入射为虚像，用实光线追迹外推虚焦面。预期指标（引擎计算；单位 mm、µrad、deg；libcheck 复核容差：相对 1e-6）：MODE=focus；FOCUSZ=-190.282235mm；FOCUSRMS=0.0258461942mm；RAYS=21",
+      "tags": [
+        "singlet",
+        "pcmconc",
+        "N-BK7",
+        "F/5",
+        "efl:200",
+        "visible",
+        "classic",
+        "quality:analytic",
+        "fov0.5deg",
+        "sweep:f",
+        "mode:focus"
+      ],
+      "quality": "analytic",
+      "validation": "focus",
+      "cards": 3,
+      "fingerprint": "036db64e20279de756c5dcbd13087027541a94cc05367ae2cd2939ddaae3952d",
+      "metrics": {
+        "mode": "focus",
+        "field": 0.5,
+        "field_unit": "deg",
+        "focus_z_mm": -190.28223519622796,
+        "focus_rms_mm": 0.025846194169071687,
+        "rays": 21,
+        "stop_semi_aperture_mm": 20
+      }
+    },
+    {
+      "file": "singlet-pcmconc-f400-nbk7.json",
+      "name": "平凹（凹面朝物）单透镜 N-BK7 f=400mm F/5",
+      "category": "singlet",
+      "difficulty": 1,
+      "description": "单透镜（平凹（凹面朝物））｜N-BK7｜设计焦距 400mm，口径 40mm，F/5｜负透镜：平行光入射为虚像，用实光线追迹外推虚焦面。预期指标（引擎计算；单位 mm、µrad、deg；libcheck 复核容差：相对 1e-6）：MODE=focus；FOCUSZ=-381.18547mm；FOCUSRMS=0.0516923883mm；RAYS=21",
+      "tags": [
+        "singlet",
+        "pcmconc",
+        "N-BK7",
+        "F/5",
+        "efl:400",
+        "visible",
+        "classic",
+        "quality:analytic",
+        "fov0.5deg",
+        "sweep:f",
+        "mode:focus"
+      ],
+      "quality": "analytic",
+      "validation": "focus",
+      "cards": 3,
+      "fingerprint": "daa857ebd2474adaa1c86bbfcfd0ad10f11a8ba935a20d7ea797f40c7e2f60ee",
+      "metrics": {
+        "mode": "focus",
+        "field": 0.5,
+        "field_unit": "deg",
+        "focus_z_mm": -381.1854703924559,
+        "focus_rms_mm": 0.051692388338143075,
+        "rays": 21,
+        "stop_semi_aperture_mm": 40
+      }
+    },
+    {
+      "file": "singlet-pcmconc-f50-nbk7.json",
+      "name": "平凹（凹面朝物）单透镜 N-BK7 f=50mm F/5",
+      "category": "singlet",
+      "difficulty": 1,
+      "description": "单透镜（平凹（凹面朝物））｜N-BK7｜设计焦距 50mm，口径 5mm，F/5｜负透镜：平行光入射为虚像，用实光线追迹外推虚焦面。预期指标（引擎计算；单位 mm、µrad、deg；libcheck 复核容差：相对 1e-6）：MODE=focus；FOCUSZ=-46.1445588mm；FOCUSRMS=0.00646154856mm；RAYS=21",
+      "tags": [
+        "singlet",
+        "pcmconc",
+        "N-BK7",
+        "F/5",
+        "efl:50",
+        "visible",
+        "classic",
+        "quality:analytic",
+        "fov0.5deg",
+        "sweep:f",
+        "mode:focus"
+      ],
+      "quality": "analytic",
+      "validation": "focus",
+      "cards": 3,
+      "fingerprint": "058fa480134721c369a33f232afd401ec0049a759eb1ff13b5dd0ce1c1a641a8",
+      "metrics": {
+        "mode": "focus",
+        "field": 0.5,
+        "field_unit": "deg",
+        "focus_z_mm": -46.14455875019453,
+        "focus_rms_mm": 0.006461548555080295,
+        "rays": 21,
+        "stop_semi_aperture_mm": 5
       }
     },
     {

@@ -17,7 +17,7 @@
     }
   ],
   "stop": 0,
-  "description": "球面反射镜｜f=500mm、F/4｜经典构造：与同口径抛物面成对照，纵向球差 ∝ 口径²／f³。预期指标（引擎计算；单位 mm、µrad、deg；libcheck 复核容差：相对 1e-6）：MODE=focus；FOCUSZ=550.291453mm；FOCUSRMS=36.1381408mm；RAYS=21",
+  "description": "球面反射镜｜f=500mm、F/4｜经典构造：与同口径抛物面成对照，纵向球差 ∝ 口径²／f³。预期指标（引擎计算；单位 mm、µrad、deg；libcheck 复核容差：相对 1e-6）：MODE=focus；FOCUSZ=-439.117126mm；FOCUSRMS=0.014061618mm；RAYS=21",
   "category": "mirror",
   "difficulty": 3,
   "tags": [

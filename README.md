@@ -30,7 +30,7 @@
     doe/       衍射光学元件（相位型 DOE 设计、量化效率）
     xcheck/    几何↔波动互验（E1–E6 与 G7 联合示例，自动断言）
     cmd/oz/    CLI 与单一 HTTP 服务（API + GUI）
-    library/   wave/（760 例）+ geo/（592 例）示例库与索引
+    library/   wave/（760 例）+ geo/（624 例）示例库与索引
     docs/      物理模型、内核、API、GUI、验证文档
 
 ## 快速开始
@@ -53,8 +53,10 @@ helper 源码见 `tools/musa-fft/`。
 ## 状态（2026-10-15）
 
 - 测试：全仓 `go test ./...` 全绿；GPU/CPU 一致性 < 1e-9（MUSA 实测）。
-- 示例库：`library/wave` 760 例（整库校验通过、抽样实跑通过）、`library/geo` 592 例
-  （`tools/libcheck` 逐例复核通过；含非球面 61 / Forbes Q 44 / 偏心倾斜 90）。
+- 示例库：`library/wave` 760 例（整库校验通过、抽样实跑通过）、`library/geo` 624 例
+  （`tools/libcheck` 逐例复核 624/624 通过、两跑 sha256 逐位一致；含 singlet 140 /
+  achromat 102 / 偏心倾斜 90 / 非球面 61 / Forbes Q 44 / 镜面 45；镜面家族为会聚设计、
+  FOCUSZ 为实测最佳焦面）。
 - 证据链：`docs/VERIFICATION.md`（TMM 对拍 1e-14、rayoptics 对拍、互验 E1–E6 等）。
 - 图形与交互：内嵌 GUI（键盘+鼠标、移动端适配、几何/膜系模式页、高级分析折叠区）。
 

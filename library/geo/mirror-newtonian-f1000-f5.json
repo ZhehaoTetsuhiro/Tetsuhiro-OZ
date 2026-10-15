@@ -18,7 +18,7 @@
     }
   ],
   "stop": 0,
-  "description": "牛顿式望远镜主镜（未折叠）｜抛物面 f=1000mm、F/5｜经典构造：牛顿式用 45° 平面折轴镜把焦点引出镜筒；本库为顺序面型、不支持倾斜面，故按光轴展开只保留抛物面主镜。预期指标（引擎计算；单位 mm、µrad、deg；libcheck 复核容差：相对 1e-6）：MODE=focus；FOCUSZ=1053.04778mm；FOCUSRMS=58.0596785mm；RAYS=21",
+  "description": "牛顿式望远镜主镜（未折叠）｜抛物面 f=1000mm、F/5｜经典构造：牛顿式用 45° 平面折轴镜把焦点引出镜筒；本库为顺序面型、不支持倾斜面，故按光轴展开只保留抛物面主镜。预期指标（引擎计算；单位 mm、µrad、deg；libcheck 复核容差：相对 1e-6）：MODE=focus；FOCUSZ=-940mm；FOCUSRMS=1.22675267e-14mm；RAYS=21",
   "category": "mirror",
   "difficulty": 3,
   "tags": [

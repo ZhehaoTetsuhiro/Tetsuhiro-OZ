@@ -1,0 +1,55 @@
+{
+  "name": "卡塞格林 + 焦前校正镜 F1=800mm",
+  "object_z_mm": "inf",
+  "cards": [
+    {
+      "name": "aperture stop",
+      "radius_mm": 0,
+      "thickness_mm": 60,
+      "semi_aperture_mm": 150
+    },
+    {
+      "name": "primary",
+      "radius_mm": -1600,
+      "conic_k": -1,
+      "thickness_mm": -250,
+      "semi_aperture_mm": 153,
+      "mirror": true
+    },
+    {
+      "name": "secondary",
+      "radius_mm": 11000,
+      "thickness_mm": 460,
+      "semi_aperture_mm": 115.438,
+      "mirror": true
+    },
+    {
+      "name": "corrector",
+      "radius_mm": 155.04001035017657,
+      "thickness_mm": 4,
+      "glass": "N-BK7"
+    },
+    {
+      "name": "corrector",
+      "radius_mm": 0,
+      "thickness_mm": 50
+    }
+  ],
+  "stop": 0,
+  "description": "卡塞格林 + 焦前单透镜校正镜｜主镜 f=800mm、副镜焦点前 40mm 放一片 N-BK7 单透镜｜经典构造：副镜圆锥常数按双镜系统求解，校正镜用于压低场曲与残余像散（像质由实测记录）。预期指标（引擎计算；单位 mm、µrad、deg；libcheck 复核容差：相对 1e-6）：MODE=focus；FOCUSZ=305.739856mm；FOCUSRMS=0.027530325mm；RAYS=21",
+  "category": "mirror",
+  "difficulty": 5,
+  "tags": [
+    "mirror",
+    "cassegrain",
+    "catadioptric",
+    "two-mirror",
+    "efl:800",
+    "visible",
+    "classic",
+    "quality:classic",
+    "trace-validated",
+    "field-corrector",
+    "mode:focus"
+  ]
+}

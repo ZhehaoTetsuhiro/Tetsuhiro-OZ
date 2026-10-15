@@ -50,7 +50,7 @@
     }
   ],
   "stop": 0,
-  "description": "4f 中继系统｜f1=150mm、f2=75mm、物距 -150mm｜经典构造：物在 L1 前焦面、中间像在公共焦面、像在 L2 后焦面（近轴倍率 0.338×），两片均为胶合组以压色差。预期指标（引擎计算；单位 mm、µrad、deg；libcheck 复核容差：相对 1e-6）：MODE=focus；FOCUSZ=559.388654mm；FOCUSRMS=5.85676429mm；RAYS=21",
+  "description": "4f 中继系统｜f1=150mm、f2=75mm、物距 -150mm｜经典构造：物在 L1 前焦面、中间像在公共焦面、像在 L2 后焦面（近轴倍率 0.338×），两片均为胶合组以压色差。预期指标（引擎计算；单位 mm、µrad、deg；libcheck 复核容差：相对 1e-6）：MODE=focus；FOCUSZ=401.516371mm；FOCUSRMS=0.00184639903mm；RAYS=21",
   "category": "instrument",
   "difficulty": 4,
   "tags": [

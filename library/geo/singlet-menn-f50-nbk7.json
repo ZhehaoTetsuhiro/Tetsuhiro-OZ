@@ -1,0 +1,42 @@
+{
+  "name": "负弯月单透镜 N-BK7 f=50mm F/5",
+  "object_z_mm": "inf",
+  "cards": [
+    {
+      "name": "aperture stop",
+      "radius_mm": 0,
+      "thickness_mm": 3.313,
+      "semi_aperture_mm": 5
+    },
+    {
+      "name": "L1",
+      "radius_mm": -10.5868966,
+      "thickness_mm": 2.2762,
+      "glass": "N-BK7",
+      "semi_aperture_mm": 6.644
+    },
+    {
+      "name": "L1",
+      "radius_mm": -19.2488938,
+      "thickness_mm": 18.2094,
+      "semi_aperture_mm": 7.248
+    }
+  ],
+  "stop": 0,
+  "description": "单透镜（负弯月）｜N-BK7｜设计焦距 50mm，口径 5mm，F/5｜负透镜：平行光入射为虚像，用实光线追迹外推虚焦面。预期指标（引擎计算；单位 mm、µrad、deg；libcheck 复核容差：相对 1e-6）：MODE=focus；FOCUSZ=-42.7780426mm；FOCUSRMS=0.0698096593mm；RAYS=21",
+  "category": "singlet",
+  "difficulty": 1,
+  "tags": [
+    "singlet",
+    "menn",
+    "N-BK7",
+    "F/5",
+    "efl:50",
+    "visible",
+    "classic",
+    "quality:analytic",
+    "fov0.5deg",
+    "sweep:f",
+    "mode:focus"
+  ]
+}

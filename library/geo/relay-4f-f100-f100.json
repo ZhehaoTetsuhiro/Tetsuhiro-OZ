@@ -1,0 +1,68 @@
+{
+  "name": "4f 中继（f1=100mm, f2=100mm）",
+  "object_z_mm": -100,
+  "cards": [
+    {
+      "name": "aperture stop",
+      "radius_mm": 0,
+      "thickness_mm": 6.0158,
+      "semi_aperture_mm": 12.5
+    },
+    {
+      "name": "L1",
+      "radius_mm": 324.7309029,
+      "thickness_mm": 5.0132,
+      "glass": "N-BK7",
+      "semi_aperture_mm": 16.991
+    },
+    {
+      "name": "L1",
+      "radius_mm": -324.7309029,
+      "thickness_mm": 5.0132,
+      "glass": "F2",
+      "semi_aperture_mm": 17.369
+    },
+    {
+      "name": "L1",
+      "radius_mm": -166.9776015,
+      "thickness_mm": 401.054,
+      "semi_aperture_mm": 17.759
+    },
+    {
+      "name": "L2",
+      "radius_mm": -166.9776015,
+      "thickness_mm": 5.0132,
+      "glass": "F2",
+      "semi_aperture_mm": 45.312
+    },
+    {
+      "name": "L2",
+      "radius_mm": -324.7309029,
+      "thickness_mm": 5.0132,
+      "glass": "N-BK7",
+      "semi_aperture_mm": 46.321
+    },
+    {
+      "name": "L2",
+      "radius_mm": 324.7309029,
+      "thickness_mm": 200.527,
+      "semi_aperture_mm": 47.697
+    }
+  ],
+  "stop": 0,
+  "description": "4f 中继系统｜f1=100mm、f2=100mm、物距 -100mm｜经典构造：物在 L1 前焦面、中间像在公共焦面、像在 L2 后焦面（近轴倍率 0.519×），两片均为胶合组以压色差。预期指标（引擎计算；单位 mm、µrad、deg；libcheck 复核容差：相对 1e-6）：MODE=focus；FOCUSZ=322.560176mm；FOCUSRMS=0.00795209368mm；RAYS=21",
+  "category": "instrument",
+  "difficulty": 4,
+  "tags": [
+    "relay",
+    "4f",
+    "telecentric",
+    "finite-conjugate",
+    "visible",
+    "classic",
+    "quality:classic",
+    "mag:0.519",
+    "objfield:2",
+    "mode:focus"
+  ]
+}

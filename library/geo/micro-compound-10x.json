@@ -50,7 +50,7 @@
     }
   ],
   "stop": 0,
-  "description": "无限远矫正显微镜组｜10x（物镜 f=18mm + 镜筒透镜 f=180mm）｜经典构造：物镜把物点送到无限远、镜筒透镜成像于 -99.8mm（倍率 1.87×，近轴实测）。预期指标（引擎计算；单位 mm、µrad、deg；libcheck 复核容差：相对 1e-6）：MODE=focus；FOCUSZ=551.461977mm；FOCUSRMS=1.95701953mm；RAYS=21",
+  "description": "无限远矫正显微镜组｜10x（物镜 f=18mm + 镜筒透镜 f=180mm）｜经典构造：物镜把物点送到无限远、镜筒透镜成像于 -99.8mm（倍率 1.87×，近轴实测）。预期指标（引擎计算；单位 mm、µrad、deg；libcheck 复核容差：相对 1e-6）：MODE=focus；FOCUSZ=242.836863mm；FOCUSRMS=0.000571274486mm；RAYS=21",
   "category": "micro-telescope",
   "difficulty": 5,
   "tags": [

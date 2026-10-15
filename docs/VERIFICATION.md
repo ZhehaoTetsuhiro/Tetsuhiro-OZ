@@ -151,5 +151,36 @@
 
 - `library/wave`：760 例；`scripts/check_wave_library.py` 整库校验
   （759 validate+quantum 全 ok）+ 抽样 48 例实跑（done=48），分类数量硬指标全过。
-- `library/geo`：397 例；`tools/libcheck` 逐例复核（重载/重算指标/描述比对/
-  名称与参数指纹唯一）退出码 0；两次生成 sha256 逐位一致（确定性）。
+- `library/geo`：624 例；`tools/libcheck` 逐例复核（重载/重算指标/描述比对/
+  名称与参数指纹唯一）**624/624 通过、退出码 0**；两次生成 sha256 逐位一致
+  （确定性，2026-10-15：`96f8fc80…`；FAILURES.md：构造失败 13、候选跳过 52）。
+  类别：singlet 140、achromat 102、tilt 90、asphere 61、instrument 47、multi 45、
+  mirror 45、qasphere 44、micro-telescope 29、eyepiece 21。
+
+## 镜面一阶 / 透镜组（3D）/ 库修正（2026-10-15）
+
+- **一阶引擎含镜支持**（展开法，`geo/paraxial.go`；测试 `geo/mirror_paraxial_test.go`）：
+  单镜闭式 `ImageZ=sR/(R+2s)`、`m=ImageZ/s`（1e-12）；折叠链 paraxial 与实光线
+  −840.000000000 vs −840.0000000007（1e-9）；门塞纳 afocal Γ=f1/(f1−d)=2（实光 1.22e-8）；
+  Kepler Γ=−5、Galileo Γ=+5；纯镜 F–C ≡0（≤1e-12）；镜像实现交叉验证
+  `Matrix()=diag(1,σ)·unfoldedChain`（1e-12）。
+- **可编辑透镜组 + 3D**（`lens/group*.go`；测试 `lens/group_3d_test.go`、`group_edit_test.go`、
+  `group_layout_test.go`）：抛物面像 = R/2（1e-9，RMS 8.6e-14 mm）；两次 90° 折转系统像
+  与手算刚体搬运差 2.1e-8 mm；Γ 折转不变（实测 1.2e-11 ≤1e-9）；纯镜色散 0、折反射与
+  无折转差 4.3e-8；球面镜→抛物面点列 0.0131→3.9e-15 mm；半径→EFL 与薄透镜公式逐位一致。
+- **三处库/引擎修正**（同日修复并重生成库）：
+  1. `tools/libcheck/measure` 的 `crossZ` 交点符号修正（原先把交点镜像到入射面
+     `2·z_hit − z`）。修复后 mirror 库例 FOCUSZ 由伪值变为实测最佳焦面：牛顿 −940
+     （原 1053.04778）、卡塞格林 357.097475（原 345.328867）；对 14 个代表例（镜/
+     虚拟焦面单透镜/目镜/中继）与独立全窗最小 RMS 扫描一致（|Δz| ≤ 6e-4 mm）。
+     回归：`measure_test.go`、`geo/mirror_paraxial_test.go` 测试 15。
+  2. `tools/genlib` 的 `twoMirror` 副镜半径改为会聚共轭解 `R2 = 2(F−d)(b+d)/(F−b−2d)`
+     （原式给出发散系统，与"后截距"描述不符）；卡塞格林家族现为会聚设计
+     （f1000-d300-b300：R2=+8400、像 z=+360=60+b）；2 个退化参数组（F=b+2d）微调 b 后保留。
+     副镜共轭公式与实光线一致（`geo/mirror_paraxial_test.go` 测试 4/5）。
+  3. `geo/paraxial.go` 出瞳共轭改用追加间隔所支配的 D 元（原用 A 元）。单镜
+     [光阑 z=0 + N-BK7 双凸 f≈100 @50] 出瞳 z=−53.172（实光线 −53.224，旧公式 ≈0）；
+     单镜闭式 [光阑 60 + 凹镜 R=−2000] z=60+3000/47≈123.8298、半径 (50/47)·r
+     （1e-12，实光线 1e-4 内）。回归：`geo/pupil_conjugate_test.go`。
+- **库规模 592 → 624**：+32 例（pcm/pcmconc/menn 单透镜 28、卡塞格林校正镜 2、
+  micro-compound/relay 等）；mirror 家族 45 例含 2 个新校正镜与重解的 Cassegrain。

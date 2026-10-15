@@ -4,98 +4,66 @@
 
 ## 计数口径
 
-- 登记候选（进入库的候选条目）：676 = 写入 592 + 候选跳过 84
+- 登记候选（进入库的候选条目）：676 = 写入 624 + 候选跳过 52
 - 构造失败（求解、布局或质量门槛失败，未产生候选，未登记）：13
 - 合并（参数指纹与已登记条目相同，不计入候选）：1
 - 同名文件改名（参数不同，不计入失败）：0
-- 失败记录合计：97 = 构造失败 13 + 候选跳过 84（逐条不重复）
+- 失败记录合计：65 = 构造失败 13 + 候选跳过 52（逐条不重复）
 
 ## 候选跳过（已登记，测量 / 断言 / 描述复核未通过，未写入 JSON）
 
-1. singlet-pcm-f25-nbk7.json: assertion: virtual-focus RMS 1.35046mm exceeds half the aperture 2.5mm
-2. singlet-pcm-f50-nbk7.json: assertion: virtual-focus RMS 2.70092mm exceeds half the aperture 5mm
-3. singlet-pcm-f100-nbk7.json: assertion: virtual-focus RMS 5.40184mm exceeds half the aperture 10mm
-4. singlet-pcm-f150-nbk7.json: assertion: virtual-focus RMS 8.10277mm exceeds half the aperture 15mm
-5. singlet-pcm-f200-nbk7.json: assertion: virtual-focus RMS 10.8037mm exceeds half the aperture 20mm
-6. singlet-pcm-f300-nbk7.json: assertion: virtual-focus RMS 16.2055mm exceeds half the aperture 30mm
-7. singlet-pcm-f500-nbk7.json: assertion: virtual-focus RMS 27.0092mm exceeds half the aperture 50mm
-8. singlet-pcm-f1000-nbk7.json: assertion: virtual-focus RMS 34.0066mm exceeds half the aperture 60.024mm
-9. singlet-pcm-f25-nsf5.json: assertion: virtual-focus RMS 1.37996mm exceeds half the aperture 2.5mm
-10. singlet-pcm-f50-nsf5.json: assertion: virtual-focus RMS 2.75993mm exceeds half the aperture 5mm
-11. singlet-pcm-f100-nsf5.json: assertion: virtual-focus RMS 5.51986mm exceeds half the aperture 10mm
-12. singlet-pcm-f150-nsf5.json: assertion: virtual-focus RMS 8.27979mm exceeds half the aperture 15mm
-13. singlet-pcm-f200-nsf5.json: assertion: virtual-focus RMS 11.0397mm exceeds half the aperture 20mm
-14. singlet-pcm-f300-nsf5.json: assertion: virtual-focus RMS 16.5596mm exceeds half the aperture 30mm
-15. singlet-pcm-f500-nsf5.json: assertion: virtual-focus RMS 27.5993mm exceeds half the aperture 50mm
-16. singlet-pcm-f1000-nsf5.json: assertion: virtual-focus RMS 34.26mm exceeds half the aperture 60.024mm
-17. singlet-pcmconc-f50-nbk7.json: assertion: virtual-focus RMS 2.96419mm exceeds half the aperture 5mm
-18. singlet-pcmconc-f100-nbk7.json: assertion: virtual-focus RMS 5.92839mm exceeds half the aperture 10mm
-19. singlet-pcmconc-f200-nbk7.json: assertion: virtual-focus RMS 11.8568mm exceeds half the aperture 20mm
-20. singlet-pcmconc-f400-nbk7.json: assertion: virtual-focus RMS 23.7135mm exceeds half the aperture 40mm
-21. singlet-menn-f50-nbk7.json: assertion: virtual-focus RMS 2.61095mm exceeds half the aperture 5mm
-22. singlet-menn-f100-nbk7.json: assertion: virtual-focus RMS 5.22192mm exceeds half the aperture 10mm
-23. singlet-menn-f200-nbk7.json: assertion: virtual-focus RMS 10.4438mm exceeds half the aperture 20mm
-24. singlet-menn-f400-nbk7.json: assertion: virtual-focus RMS 20.8876mm exceeds half the aperture 40mm
-25. singlet-menn-f50-f2.json: assertion: virtual-focus RMS 2.78809mm exceeds half the aperture 5mm
-26. singlet-menn-f100-f2.json: assertion: virtual-focus RMS 5.57616mm exceeds half the aperture 10mm
-27. singlet-menn-f200-f2.json: assertion: virtual-focus RMS 11.1523mm exceeds half the aperture 20mm
-28. singlet-menn-f400-f2.json: assertion: virtual-focus RMS 22.3046mm exceeds half the aperture 40mm
-29. achromat-dls-f50-nsk16-nsf5.json: assertion: only 19 of 37 sampled rays reach the image plane; only 19 of 37 sampled off-axis rays reach the image plane
-30. achromat-dls-f60-nsk16-nsf5.json: assertion: only 19 of 37 sampled rays reach the image plane; only 19 of 37 sampled off-axis rays reach the image plane
-31. achromat-dls-f150-nsk16-nsf5.json: assertion: only 19 of 37 sampled rays reach the image plane; only 19 of 37 sampled off-axis rays reach the image plane
-32. achromat-solve-f100-f2p8-nbk7-f2.json: assertion: only 7 of 37 sampled rays reach the image plane; only 7 of 37 sampled off-axis rays reach the image plane
-33. achromat-solve-f100-f4-nbk7-f2.json: assertion: only 19 of 37 sampled rays reach the image plane; only 19 of 37 sampled off-axis rays reach the image plane
-34. petzval-f100-f5.json: assertion: only 19 of 37 sampled off-axis rays reach the image plane
-35. petzval-f150-f5.json: assertion: only 19 of 37 sampled off-axis rays reach the image plane
-36. petzval-f200-f5.json: assertion: only 19 of 37 sampled off-axis rays reach the image plane
-37. petzval-f300-f5.json: assertion: only 15 of 37 sampled off-axis rays reach the image plane
-38. petzval-f400-f5.json: assertion: only 15 of 37 sampled off-axis rays reach the image plane
-39. petzval-f500-f5.json: assertion: only 15 of 37 sampled off-axis rays reach the image plane
-40. symmetric-f50-f4.json: assertion: on-axis spot RMS = 0 is not positive and finite; only 1 of 37 sampled rays reach the image plane; field spot RMS = 0 is not positive and finite; only 1 of 37 sampled off-axis rays reach the image plane
-41. symmetric-f100-f4.json: measure: lens: no ray reached the image plane
-42. symmetric-f150-f4.json: measure: lens: no ray reached the image plane
-43. symmetric-f200-f4.json: measure: lens: no ray reached the image plane
-44. symmetric-f300-f4.json: measure: lens: no ray reached the image plane
-45. macro-f50-f4.json: assertion: on-axis spot RMS = 0 is not positive and finite; only 1 of 37 sampled rays reach the image plane; field spot RMS = 0 is not positive and finite; only 1 of 37 sampled off-axis rays reach the image plane
-46. macro-f100-f4.json: measure: lens: no ray reached the image plane
-47. eyepiece-huygens-fe20.json: measure: lens: no ray reached the image plane
-48. eyepiece-huygens-fe25.json: measure: lens: no ray reached the image plane
-49. eyepiece-huygens-fe32.json: measure: lens: no ray reached the image plane
-50. eyepiece-huygens-fe40.json: measure: lens: no ray reached the image plane
-51. eyepiece-huygens-fe50.json: measure: lens: no ray reached the image plane
-52. eyepiece-ramsden-fe15.json: measure: lens: no ray reached the image plane
-53. eyepiece-ramsden-fe20.json: measure: lens: no ray reached the image plane
-54. eyepiece-ramsden-fe25.json: measure: lens: no ray reached the image plane
-55. eyepiece-ramsden-fe32.json: measure: lens: no ray reached the image plane
-56. eyepiece-ramsden-fe40.json: measure: lens: no ray reached the image plane
-57. eyepiece-abbe-fe6.json: measure: lens: no ray reached the image plane
-58. eyepiece-abbe-fe10.json: measure: lens: no ray reached the image plane
-59. eyepiece-abbe-fe12.5.json: measure: lens: no ray reached the image plane
-60. eyepiece-abbe-fe15.json: measure: lens: no ray reached the image plane
-61. eyepiece-abbe-fe20.json: measure: lens: no ray reached the image plane
-62. eyepiece-abbe-fe25.json: measure: lens: no ray reached the image plane
-63. eyepiece-huygens-pup5-fe20.json: measure: lens: no ray reached the image plane
-64. eyepiece-huygens-pup5-fe32.json: measure: lens: no ray reached the image plane
-65. eyepiece-abbe-short-fe9.json: measure: lens: no ray reached the image plane
-66. eyepiece-abbe-short-fe16.json: measure: lens: no ray reached the image plane
-67. micro-achr-40x.json: assertion: on-axis spot RMS 5.27607mm exceeds half the focal length; field spot RMS 5.30986mm exceeds the focal length
-68. micro-achr-60x.json: assertion: on-axis spot RMS 31.8611mm exceeds half the focal length; field spot RMS 32.004mm exceeds the focal length
-69. micro-lister-10x.json: assertion: only 19 of 37 sampled rays reach the image plane; only 15 of 37 sampled off-axis rays reach the image plane
-70. micro-lister-20x.json: assertion: only 7 of 37 sampled rays reach the image plane; only 7 of 37 sampled off-axis rays reach the image plane
-71. micro-compound-20x.json: assertion: virtual-focus RMS 2.15196mm exceeds half the aperture 4mm
-72. micro-compound-40x.json: measure: only 2 of 21 rays reach the last surface
-73. mirror-cassegrain-corrector-f800.json: assertion: only 4 of 21 traced rays survive
-74. mirror-cassegrain-corrector-f1200.json: assertion: only 4 of 21 traced rays survive
-75. mirror-fieldlens-f400.json: measure: only 0 of 21 rays reach the last surface
-76. mirror-fieldlens-f800.json: measure: only 0 of 21 rays reach the last surface
-77. relay-1to1-f50.json: measure: lens: no ray reached the image plane
-78. relay-1to1-f100.json: measure: lens: no ray reached the image plane
-79. relay-1to1-f200.json: measure: lens: no ray reached the image plane
-80. relay-4f-f100-f100.json: assertion: virtual-focus RMS 7.68603mm exceeds half the aperture 12.5mm
-81. telephoto-f150-ratio0p85.json: assertion: on-axis spot RMS = 0 is not positive and finite; only 1 of 37 sampled rays reach the image plane; field spot RMS = 0 is not positive and finite; only 1 of 37 sampled off-axis rays reach the image plane
-82. telephoto-f300-ratio0p75.json: assertion: on-axis spot RMS = 0 is not positive and finite; only 1 of 37 sampled rays reach the image plane; field spot RMS = 0 is not positive and finite; only 1 of 37 sampled off-axis rays reach the image plane
-83. telephoto-f500-ratio0p7.json: measure: lens: no ray reached the image plane
-84. achromat-asphere-s1-a4-f100-nsk16-nsf5.json: assertion: only 19 of 37 sampled rays reach the image plane; only 19 of 37 sampled off-axis rays reach the image plane
+1. achromat-dls-f50-nsk16-nsf5.json: assertion: only 19 of 37 sampled rays reach the image plane; only 19 of 37 sampled off-axis rays reach the image plane
+2. achromat-dls-f60-nsk16-nsf5.json: assertion: only 19 of 37 sampled rays reach the image plane; only 19 of 37 sampled off-axis rays reach the image plane
+3. achromat-dls-f150-nsk16-nsf5.json: assertion: only 19 of 37 sampled rays reach the image plane; only 19 of 37 sampled off-axis rays reach the image plane
+4. achromat-solve-f100-f2p8-nbk7-f2.json: assertion: only 7 of 37 sampled rays reach the image plane; only 7 of 37 sampled off-axis rays reach the image plane
+5. achromat-solve-f100-f4-nbk7-f2.json: assertion: only 19 of 37 sampled rays reach the image plane; only 19 of 37 sampled off-axis rays reach the image plane
+6. petzval-f100-f5.json: assertion: only 19 of 37 sampled off-axis rays reach the image plane
+7. petzval-f150-f5.json: assertion: only 19 of 37 sampled off-axis rays reach the image plane
+8. petzval-f200-f5.json: assertion: only 19 of 37 sampled off-axis rays reach the image plane
+9. petzval-f300-f5.json: assertion: only 15 of 37 sampled off-axis rays reach the image plane
+10. petzval-f400-f5.json: assertion: only 15 of 37 sampled off-axis rays reach the image plane
+11. petzval-f500-f5.json: assertion: only 15 of 37 sampled off-axis rays reach the image plane
+12. symmetric-f50-f4.json: assertion: on-axis spot RMS = 0 is not positive and finite; only 1 of 37 sampled rays reach the image plane; field spot RMS = 0 is not positive and finite; only 1 of 37 sampled off-axis rays reach the image plane
+13. symmetric-f100-f4.json: measure: lens: no ray reached the image plane
+14. symmetric-f150-f4.json: measure: lens: no ray reached the image plane
+15. symmetric-f200-f4.json: measure: lens: no ray reached the image plane
+16. symmetric-f300-f4.json: measure: lens: no ray reached the image plane
+17. macro-f50-f4.json: assertion: on-axis spot RMS = 0 is not positive and finite; only 1 of 37 sampled rays reach the image plane; field spot RMS = 0 is not positive and finite; only 1 of 37 sampled off-axis rays reach the image plane
+18. macro-f100-f4.json: measure: lens: no ray reached the image plane
+19. eyepiece-huygens-fe20.json: measure: lens: no ray reached the image plane
+20. eyepiece-huygens-fe25.json: measure: lens: no ray reached the image plane
+21. eyepiece-huygens-fe32.json: measure: lens: no ray reached the image plane
+22. eyepiece-huygens-fe40.json: measure: lens: no ray reached the image plane
+23. eyepiece-huygens-fe50.json: measure: lens: no ray reached the image plane
+24. eyepiece-ramsden-fe15.json: measure: lens: no ray reached the image plane
+25. eyepiece-ramsden-fe20.json: measure: lens: no ray reached the image plane
+26. eyepiece-ramsden-fe25.json: measure: lens: no ray reached the image plane
+27. eyepiece-ramsden-fe32.json: measure: lens: no ray reached the image plane
+28. eyepiece-ramsden-fe40.json: measure: lens: no ray reached the image plane
+29. eyepiece-abbe-fe6.json: measure: lens: no ray reached the image plane
+30. eyepiece-abbe-fe10.json: measure: lens: no ray reached the image plane
+31. eyepiece-abbe-fe12.5.json: measure: lens: no ray reached the image plane
+32. eyepiece-abbe-fe15.json: measure: lens: no ray reached the image plane
+33. eyepiece-abbe-fe20.json: measure: lens: no ray reached the image plane
+34. eyepiece-abbe-fe25.json: measure: lens: no ray reached the image plane
+35. eyepiece-huygens-pup5-fe20.json: measure: lens: no ray reached the image plane
+36. eyepiece-huygens-pup5-fe32.json: measure: lens: no ray reached the image plane
+37. eyepiece-abbe-short-fe9.json: measure: lens: no ray reached the image plane
+38. eyepiece-abbe-short-fe16.json: measure: lens: no ray reached the image plane
+39. micro-achr-40x.json: assertion: on-axis spot RMS 5.27607mm exceeds half the focal length; field spot RMS 5.30986mm exceeds the focal length
+40. micro-achr-60x.json: assertion: on-axis spot RMS 31.8611mm exceeds half the focal length; field spot RMS 32.004mm exceeds the focal length
+41. micro-lister-10x.json: assertion: only 19 of 37 sampled rays reach the image plane; only 15 of 37 sampled off-axis rays reach the image plane
+42. micro-lister-20x.json: assertion: only 7 of 37 sampled rays reach the image plane; only 7 of 37 sampled off-axis rays reach the image plane
+43. micro-compound-40x.json: measure: only 2 of 21 rays reach the last surface
+44. mirror-fieldlens-f400.json: measure: only 0 of 21 rays reach the last surface
+45. mirror-fieldlens-f800.json: measure: only 0 of 21 rays reach the last surface
+46. relay-1to1-f50.json: measure: lens: no ray reached the image plane
+47. relay-1to1-f100.json: measure: lens: no ray reached the image plane
+48. relay-1to1-f200.json: measure: lens: no ray reached the image plane
+49. telephoto-f150-ratio0p85.json: assertion: on-axis spot RMS = 0 is not positive and finite; only 1 of 37 sampled rays reach the image plane; field spot RMS = 0 is not positive and finite; only 1 of 37 sampled off-axis rays reach the image plane
+50. telephoto-f300-ratio0p75.json: assertion: on-axis spot RMS = 0 is not positive and finite; only 1 of 37 sampled rays reach the image plane; field spot RMS = 0 is not positive and finite; only 1 of 37 sampled off-axis rays reach the image plane
+51. telephoto-f500-ratio0p7.json: measure: lens: no ray reached the image plane
+52. achromat-asphere-s1-a4-f100-nsk16-nsf5.json: assertion: only 19 of 37 sampled rays reach the image plane; only 19 of 37 sampled off-axis rays reach the image plane
 
 ## 构造失败（求解/布局/质量门槛失败，未产生候选）
 

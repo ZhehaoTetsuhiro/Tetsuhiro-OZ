@@ -1,0 +1,42 @@
+{
+  "name": "负弯月单透镜 F2 f=400mm F/5",
+  "object_z_mm": "inf",
+  "cards": [
+    {
+      "name": "aperture stop",
+      "radius_mm": 0,
+      "thickness_mm": 16.407,
+      "semi_aperture_mm": 40
+    },
+    {
+      "name": "L1",
+      "radius_mm": -102.2513633,
+      "thickness_mm": 18.3235,
+      "glass": "F2",
+      "semi_aperture_mm": 50.35
+    },
+    {
+      "name": "L1",
+      "radius_mm": -185.9113514,
+      "thickness_mm": 82.4556,
+      "semi_aperture_mm": 54.594
+    }
+  ],
+  "stop": 0,
+  "description": "单透镜（负弯月）｜F2｜设计焦距 400mm，口径 40mm，F/5｜负透镜：平行光入射为虚像，用实光线追迹外推虚焦面。预期指标（引擎计算；单位 mm、µrad、deg；libcheck 复核容差：相对 1e-6）：MODE=focus；FOCUSZ=-366.912418mm；FOCUSRMS=0.335507496mm；RAYS=21",
+  "category": "singlet",
+  "difficulty": 1,
+  "tags": [
+    "singlet",
+    "menn",
+    "F2",
+    "F/5",
+    "efl:400",
+    "visible",
+    "classic",
+    "quality:analytic",
+    "fov0.5deg",
+    "sweep:f",
+    "mode:focus"
+  ]
+}

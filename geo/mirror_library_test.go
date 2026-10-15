@@ -1,10 +1,11 @@
 // Package geo_test drives the mirror examples of the built-in library through
 // the public API (lens.LoadJSON → Prescription.System → geo.Paraxial) and
 // cross-checks the first-order image against the real ray trace, which is the
-// interface a user of the library sees. It also documents the FOCUSZ numbers
-// stored in the descriptions of those examples: they are not the physical focus
-// of the layout (see the in-package TestLibraryMirrorFocusNumbers for the
-// derivation of the artifact).
+// interface a user of the library sees. The FOCUSZ numbers stored in the
+// descriptions are the measured best focus of the parallel fan and are frozen
+// here as regression pins; they used to be artifacts of a ray-pair crossing
+// sign error in tools/libcheck/measure that was fixed on 2026-10-15 (see the
+// in-package TestLibraryMirrorFocusNumbers).
 package geo_test
 
 import (
@@ -79,14 +80,15 @@ func checkRelT(t *testing.T, name string, got, want, tol float64) {
 // example named "Cassegrain".
 func TestLibraryMirrorExamplesParaxial(t *testing.T) {
 	for _, tc := range []struct {
-		file     string
-		wantZ    float64
-		mirrors  int
-		vertices []float64
+		file       string
+		wantZ      float64
+		wantFocusZ float64
+		mirrors    int
+		vertices   []float64
 	}{
-		{"mirror-newtonian-f1000-f5.json", -940, 1, []float64{0, 60}},
-		{"mirror-parabola-f1000-f8.json", -940, 1, []float64{0, 60}},
-		{"mirror-cassegrain-f1000-d300-b300.json", -840, 2, []float64{0, 60, -240}},
+		{"mirror-newtonian-f1000-f5.json", -940, -940, 1, []float64{0, 60}},
+		{"mirror-parabola-f1000-f8.json", -940, -940, 1, []float64{0, 60}},
+		{"mirror-cassegrain-f1000-d300-b300.json", 360, 357.097475, 2, []float64{0, 60, -240}},
 	} {
 		p := libraryMirror(t, tc.file)
 		sys, err := p.System()
@@ -112,15 +114,16 @@ func TestLibraryMirrorExamplesParaxial(t *testing.T) {
 		// Real rays: the image of a parallel bundle of vanishing aperture.
 		got := axisCrossingZ(sys, 1e-4, geo.Wavelengthd)
 		checkRelT(t, tc.file+" real ray image", got, tc.wantZ, 1e-9)
-		// The FOCUSZ stored in the description is not that focus: it is the
-		// artifact of the bracketing ray-pair crossing of tools/libcheck/measure
-		// (see TestLibraryMirrorFocusNumbers) and lies on the other side of the
-		// last surface, with the quoted FOCUSRMS being no spot size at all.
+		// The FOCUSZ stored in the description is the measured best focus of
+		// the parallel fan (tools/libcheck/measure.focusScan). Since the
+		// crossZ sign fix it coincides with the physical focus within the
+		// design tolerance; the values are frozen here as regression pins.
 		stored := storedFocusZ(t, p)
-		if math.Abs(stored-par.ImageZ) < 100 {
-			t.Errorf("%s: FOCUSZ=%g is suspiciously close to the physical focus %g", tc.file, stored, par.ImageZ)
+		checkRelT(t, tc.file+" stored FOCUSZ (frozen)", stored, tc.wantFocusZ, 1e-6)
+		if math.Abs(stored-par.ImageZ) > 30 {
+			t.Errorf("%s: stored FOCUSZ=%g is not within the design tolerance of the physical focus %g", tc.file, stored, par.ImageZ)
 		}
-		t.Logf("%s: paraxial ImageZ %.9f, real ray %.9f, stored FOCUSZ %.6f (artifact)", tc.file, par.ImageZ, got, stored)
+		t.Logf("%s: paraxial ImageZ %.9f, real ray %.9f, stored FOCUSZ %.6f (measured best focus)", tc.file, par.ImageZ, got, stored)
 	}
 }
 

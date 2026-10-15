@@ -18,7 +18,7 @@
     }
   ],
   "stop": 0,
-  "description": "抛物面反射镜（K=-1）｜f=800mm、F/8｜经典构造：平行光严格成像于 R/2（无球差），由实光线追迹验证。预期指标（引擎计算；单位 mm、µrad、deg；libcheck 复核容差：相对 1e-6）：MODE=focus；FOCUSZ=857.827432mm；FOCUSRMS=29.0515554mm；RAYS=21",
+  "description": "抛物面反射镜（K=-1）｜f=800mm、F/8｜经典构造：平行光严格成像于 R/2（无球差），由实光线追迹验证。预期指标（引擎计算；单位 mm、µrad、deg；libcheck 复核容差：相对 1e-6）：MODE=focus；FOCUSZ=-740mm；FOCUSRMS=3.12290624e-14mm；RAYS=21",
   "category": "mirror",
   "difficulty": 3,
   "tags": [

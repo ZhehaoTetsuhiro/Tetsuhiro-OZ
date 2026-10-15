@@ -17,14 +17,14 @@
     },
     {
       "name": "secondary",
-      "radius_mm": -523.8095238095239,
+      "radius_mm": 11000,
       "thickness_mm": 500,
       "semi_aperture_mm": 115.438,
       "mirror": true
     }
   ],
   "stop": 0,
-  "description": "卡塞格林式（球面主镜 + 球面副镜）｜主镜 f=800mm（球面）、主副镜间距 250mm、后截距 250mm｜经典构造：两镜均为球面，副镜半径由共轭（薄镜）公式解出，不做圆锥求解，像质由实光线追迹实测；副镜中心遮挡未建模。预期指标（引擎计算；单位 mm、µrad、deg；libcheck 复核容差：相对 1e-6）：MODE=focus；FOCUSZ=295.068096mm；FOCUSRMS=59.3541181mm；RAYS=21",
+  "description": "卡塞格林式（球面主镜 + 球面副镜）｜主镜 f=800mm（球面）、主副镜间距 250mm、后截距 250mm｜经典构造：两镜均为球面，副镜半径由共轭（薄镜）公式解出，不做圆锥求解，像质由实光线追迹实测；副镜中心遮挡未建模。预期指标（引擎计算；单位 mm、µrad、deg；libcheck 复核容差：相对 1e-6）：MODE=focus；FOCUSZ=306.556877mm；FOCUSRMS=0.0909896461mm；RAYS=21",
   "category": "mirror",
   "difficulty": 4,
   "tags": [

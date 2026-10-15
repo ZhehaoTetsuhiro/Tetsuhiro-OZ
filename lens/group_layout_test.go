@@ -336,7 +336,7 @@ func TestGroupPrescriptionCassegrain(t *testing.T) {
 	primary := MirrorElement(-2000, 0, 153)
 	primary.Name = "primary"
 	primary.GapMM = -300
-	secondary := MirrorElement(-646.1538461538461, 0, 117.5)
+	secondary := MirrorElement(8400, 0, 117.5)
 	secondary.Name = "secondary"
 	secondary.GapMM = 600
 	g := gWantGroup(t, &Group{Name: "cassegrain", ObjectZMM: math.Inf(-1), Elements: []Element{stop, primary, secondary}})
