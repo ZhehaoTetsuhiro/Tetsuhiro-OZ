@@ -32,7 +32,7 @@ Tetsuhiro-OZ 只有一个 HTTP 服务：`oz serve`。它在同一个 mux 上提�
 
 | 路径 | 归属 | 说明 |
 |---|---|---|
-| `/api/version`、`/api/lens/design`、`/api/lens/eval`、`/api/lens/tol`、`/api/lens/thermal`、`/api/lens/sens`、`/api/geo/mtf`、`/api/geo/ghost`、`/api/doe/focus`、`/api/coating/design`、`/api/coating/spectrum` | OZ | 精确路径，优先于 `/api/` 前缀 |
+| `/api/version`、`/api/lens/design`、`/api/lens/eval`、`/api/lens/tol`、`/api/lens/thermal`、`/api/lens/sens`、`/api/lens/parax`、`/api/lens/group/layout`、`/api/lens/group/image`、`/api/lens/group/afocal`、`/api/lens/group/dispersion`、`/api/lens/group/set`、`/api/lens/group/prescription`、`/api/geo/mtf`、`/api/geo/ghost`、`/api/doe/focus`、`/api/coating/design`、`/api/coating/spectrum` | OZ | 精确路径，优先于 `/api/` 前缀 |
 | `/api/...`（其余） | WOS | 仿真 API，由 `server.Server.Handler()` 处理；未知路径 404 |
 | `/oz/` | 重定向 | 301 → `/#oz`（合并前的几何/膜系页面地址） |
 | `/` 及静态文件 | GUI | 内嵌在二进制中：`index.html`、`app.js`、`oz.js`、`style.css`、`favicon.svg`、字体 |
@@ -42,14 +42,14 @@ Tetsuhiro-OZ 只有一个 HTTP 服务：`oz serve`。它在同一个 mux 上提�
 - 请求与响应：JSON（`Content-Type: application/json; charset=utf-8`），除非端点另有说明。
 - 错误：`{"error": "…"}`，状态码 400（请求无效）、404（资源不存在）、405（方法不允许）、409（运行未完成）、429（排队已满）、500（内部错误或响应含 NaN/Inf）。
 - 方法：计算端点为 POST，查询端点为 GET；错误方法返回 405。`GET /api/health` 不限制方法（既有行为）。
-- 工作量上限（超出即 400，计算前拒绝）：光谱点数 ≤ 10000；公差运行次数 ≤ 20000；设计迭代 ≤ 10000；热漂移 |ΔT| ≤ 500 K；灵敏度参数 ≤ 128 个、补偿器迭代 ≤ 10000；MTF 视场 ≤ 64、每视场光线 ≤ 200000、LSF 分箱 ≤ 4096、频率点 ≤ 512；鬼像双反射路径 ≤ 512 条、采样环数 ≤ 8；DOE 网格 ≤ 2048（2 的幂）、级数 ≤ 4096。仿真网格与元件数由 `/api/validate` 检查。
-- 请求体上限：`/api/quantum` 1 MB；`/api/validate`、`/api/simulate`、`/api/convert` 2 MB；`/api/lens/design`、`/api/lens/eval`、`/api/lens/thermal`、`/api/lens/sens`、`/api/geo/mtf`、`/api/geo/ghost`、`/api/doe/focus`、`/api/coating/design` 1 MB；`/api/lens/tol` 4 MB；`/api/coating/spectrum` 8 MB。
-- 确定性：全部计算端点对相同请求给出逐字节相同的响应（无时钟、无 map 迭代顺序、无随机数）；`cmd/oz/analysis_test.go` 的 `TestAnalysisEndpointDeterminism` 逐个端点断言。
+- 工作量上限（超出即 400，计算前拒绝）：光谱点数 ≤ 10000；公差运行次数 ≤ 20000；设计迭代 ≤ 10000；热漂移 |ΔT| ≤ 500 K；灵敏度参数 ≤ 128 个、补偿器迭代 ≤ 10000；MTF 视场 ≤ 64、每视场光线 ≤ 200000、LSF 分箱 ≤ 4096、频率点 ≤ 512；鬼像双反射路径 ≤ 512 条、采样环数 ≤ 8；DOE 网格 ≤ 2048（2 的幂）、级数 ≤ 4096；透镜组元件数 ≤ 512、Hexapolar 采样环数 ≤ 8、焦面搜索粗采样 ≤ 4096、单次编辑 ≤ 512 项。仿真网格与元件数由 `/api/validate` 检查。
+- 请求体上限：`/api/quantum` 1 MB；`/api/validate`、`/api/simulate`、`/api/convert` 2 MB；`/api/lens/design`、`/api/lens/eval`、`/api/lens/thermal`、`/api/lens/sens`、`/api/geo/mtf`、`/api/geo/ghost`、`/api/doe/focus`、`/api/coating/design` 1 MB；`/api/lens/tol`、`/api/lens/parax`、`/api/lens/group/*` 4 MB；`/api/coating/spectrum` 8 MB。
+- 确定性：全部计算端点对相同请求给出逐字节相同的响应（无时钟、无 map 迭代顺序、无随机数）；`cmd/oz/analysis_test.go` 的 `TestAnalysisEndpointDeterminism` 与 `cmd/oz/group_api_test.go` 的 `TestGroupEndpointDeterminism` 逐个端点断言。
 - `GET /api/version` 返回的 `version` 与仓库根目录 `VERSION` 文件一致（由 `cmd/oz` 的测试保证）。
 
 ## 4. 几何与膜系（OZ）
 
-本节每个端点与对应的 CLI 子命令共用同一个实现（`cmd/oz/analysis.go` 的 `run*` 函数，`cmd/oz/analysis_ghost.go` 为鬼像）：`oz lens thermal`、`oz lens sens`、`oz geo mtf`、`oz geo ghost`、`oz doe focus` 与 HTTP 端点给出同样的数字（CLI 用 `--json` 可导出与本文件字段一致的响应）。
+本节每个端点与对应的 CLI 子命令共用同一个实现（`cmd/oz/analysis.go`、`cmd/oz/group_api.go` 的 `run*` 函数，`cmd/oz/analysis_ghost.go` 为鬼像）：`oz lens thermal`、`oz lens sens`、`oz lens group ...`、`oz lens parax`、`oz geo mtf`、`oz geo ghost`、`oz doe focus` 与 HTTP 端点给出同样的数字（CLI 用 `--json` 可导出与本文件字段一致的响应）。
 
 ### GET /api/version
 
@@ -155,6 +155,177 @@ Tetsuhiro-OZ 只有一个 HTTP 服务：`oz serve`。它在同一个 mux 上提�
 `inverse` 的分配使用 `lens.AllocateTolerances`：每个未封顶参数贡献相同份额（linear：|s·t| = ΔM/N；rss：(s·t)² = ΔM²/N），触到上限的参数固定在 `max_*` 并把剩余预算分给其余参数；预算无法放置（全部参数先到上限）返回 400，提示放宽 `max_*` 或降低 `budget_mm`。参数 > 128 返回 400。
 
     curl -s -X POST localhost:1130/api/lens/sens -d '{"prescription":{…},"metric":"merit","inverse":true,"budget_mm":0.005}'
+
+### POST /api/lens/group/layout
+
+透镜组（`lens.Group`，元件级可编辑模型：透镜/反射镜/光阑、前后表面面型、玻璃、厚度、可负的 gap、偏心与倾斜、fold 折转）的逐面全局布局。请求体是 group 的 JSON wire form：既可以直接平铺在顶层（`name`/`elements`/`stop`/`origin_z_mm`），也可以嵌在 `"group"` 字段里（两种写法等价，响应逐字节相同）。同一模型与 `oz lens group layout` 同源。
+
+group 的 wire form（`lens.Group` 的 JSON）：
+
+| 字段 | 类型 | 默认 | 说明 |
+|---|---|---|---|
+| `name` | string | `""` | 组名 |
+| `object_z_mm` | number 或 `"inf"` | `"inf"` | 物面轴向位置（mm）；`"inf"` = 无穷远物 |
+| `elements` | array | 必填 | 元件表（见下） |
+| `stop` | int | `0` | 光阑元件下标（该元件的前表面是光阑面） |
+| `origin_z_mm` | number | `0` | 第一面顶点的全局 z（mm） |
+
+元件（`elements[]`）：`kind`（`"lens"`/`"mirror"`/`"stop"`）、`front`/`rear`（面型：`radius_mm`、`conic_k`、`coeffs`（A4,A6,…）、`poly_terms`、`q_asphere`、`xy_polynomial`、`zernike`、`semi_aperture_mm`；`rear` 只属于 `lens`）、`glass`（元件内介质）、`gap_glass`（到下一元件的间隔介质，默认空气——胶合面/双胶合靠它表达）、`thickness_mm`（中心厚度，单面元件必须为 0）、`gap_mm`（到下一元件的轴向距离，**可负** = 轴向折返，如卡塞格林）、`decenter_x_mm`/`decenter_y_mm`、`tilt_x_deg`/`tilt_y_deg`/`tilt_z_deg`（先偏心后倾斜，`geo.CoordBreak` 语义）、`fold`（`0`=auto：倾斜的反射镜把链轴转到反射光束；`1`=off）。
+
+链的语义（`lens/group.go` 的文档与 `Group.Layout`）：面按链序排布，元件的前表面在上一元件末面之后 `gap_mm` 处（沿链轴量）；链轴初始为全局 +z，被倾斜反射镜折转后跟随反射光束；元件的厚度沿元件自身轴量（元件刚性），**posed 元件不会移动后续元件**（自动复位）。反射镜自身不计基板厚度。
+
+响应：
+
+| 字段 | 说明 |
+|---|---|
+| `surfaces[]` | 逐面（面顺序 = 链序）：`element`（元件下标）、`face`（`"front"`/`"rear"`）、`surface`（该面在 `Group.System()` 中的下标，含坐标断点）、`vertex`/`axis`/`normal`（全局 `{x,y,z}` mm）、`folds`（该面之前的折转次数） |
+| `exit_vertex` / `exit_axis` | 末面顶点与出射光束方向（含折转、反射；`Group.ExitFrame`） |
+| `folds` | 总折转次数 |
+| `num_surfaces` | 光学面数（不含坐标断点） |
+
+    curl -s -X POST localhost:1130/api/lens/group/layout -d '{"elements":[
+      {"kind":"stop","front":{"semi_aperture_mm":150},"thickness_mm":0,"gap_mm":60},
+      {"kind":"mirror","front":{"radius_mm":-2000,"semi_aperture_mm":153},"thickness_mm":0,"gap_mm":-300},
+      {"kind":"mirror","front":{"radius_mm":-646.1538461538461,"semi_aperture_mm":117.5},"thickness_mm":0,"gap_mm":600}]}'
+
+    {"surfaces":[
+      {"element":0,"face":"front","surface":0,"vertex":{"x":0,"y":0,"z":0},"axis":{"x":0,"y":0,"z":1},"normal":{"x":0,"y":0,"z":1},"folds":0},
+      {"element":1,"face":"front","surface":1,"vertex":{"x":0,"y":0,"z":60}, ...},
+      {"element":2,"face":"front","surface":2,"vertex":{"x":0,"y":0,"z":-240}, ...}],
+     "exit_vertex":{"x":0,"y":0,"z":-240},"exit_axis":{"x":0,"y":0,"z":1},"folds":0,"num_surfaces":3}
+
+（库例 `library/geo/mirror-cassegrain-f1000-d300-b300.json` 的元件形式：负 gap −300 使副镜落在 z = −240；主镜与副镜都未倾斜，所以链不折转。）
+
+**折转链的适用范围**（与 `lens` 包的实现一致，示例与测试都在这两个范围内构造）：①折转镜处在沿链轴传播的光束里（典型：45° 平面镜折转准直/会聚光束，后续元件落在反射链轴上）；②未倾斜的反射镜用**负 gap** 表达轴向折返（卡塞格林）。另有两点实现边界，`layout` 与成像质心不受影响、但读数要按下面的说明理解：③折转镜后面紧跟“返回型”反射镜时，`Group.ExitFrame()` 的出射方向会残留前一元件坐标系的量，`image`/`dispersion` 的焦面会落在错误平面上（此类组合请改用等价的面序，例如把折转镜放在链尾）；④“返回型”反射镜（如抛物面主镜）之后接折转镜时，链轴与光束反平行，`exit_axis` 与 `focus_mm` 的符号按链轴给出（焦面与像点本身正确，如上面的牛顿式示例：像 (0,−100,−840) 而 `focus_mm` 读作 −100）。这两处都在 `lens/group_build.go` 的 `plan()`/`foldBreak` 内，本轮接线未改 `lens` 包。
+
+### POST /api/lens/group/image
+
+实光线成像位置：在组的光瞳上采样（默认 Hexapolar 3 环 = 37 条），追迹后沿**出射轴**搜索使 RMS 最小的焦面（粗扫描 + 黄金分割，确定性；`lens.Group.ImagePosition`）。对折转、偏心、倾斜的含镜系统同样有效（一阶引擎不适用时它仍可用）。
+
+请求 = group 的 wire form（平铺或 `"group"`）+ 束参数：
+
+| 字段 | 类型 | 默认 | 说明 |
+|---|---|---|---|
+| `object_z_mm` | number 或 `"inf"` | group 自身的物距 | 物面 z；数字 = 有限物 |
+| `field_deg` | number | `0` | 无穷远物的视场角（度，子午 y 方向；\\|θ\\|<90） |
+| `field_tan` | number | 由 `field_deg` 换算 | 无穷远物 = 场角切线；有限物 = 物高 mm（给定时优先于 `field_deg`） |
+| `pupil_radius_mm` | number | `0`（自动） | 采样光瞳半径 mm；0 = 用光阑元件的半口径，在最前面之前 1 mm、以真实主光线为中心，采样按 0.1 % 内缩 |
+| `pupil_z_mm` | number | `0` | 显式光瞳平面的 z（配合 `pupil_radius_mm` 使用） |
+| `samples` | int | `3` | Hexapolar 环数（1…8） |
+| `lambda_nm` | number | `587.5618` | 波长 nm |
+| `range_mm` | number | 0（自动） | 焦面搜索窗半宽 mm（0 = 0.5·\\|估计焦距\\|+10） |
+| `scan` | int | 0（65） | 粗扫描点数（≤ 4096） |
+| `tol_mm` | number | 0（1e-9） | 黄金分割的轴向容差 mm |
+
+响应（纯数值，可确定性序列化）：
+
+| 字段 | 说明 |
+|---|---|
+| `point` | 最佳焦面上追迹光线的质心（全局 mm） |
+| `rms_mm` / `geo_radius_mm` | 关于质心的 RMS 半径 / 最大半径 mm |
+| `axis` / `plane_o` | 焦面法向（= 出射轴）与平面参考点（末面顶点） |
+| `focus_mm` | 从 `plane_o` 沿 `axis` 到焦面的有符号距离 mm |
+| `rays` / `failed` | 进入统计的光线数 / 未到达末面的采样数 |
+| `chief_hit` / `chief_dir` | 主光线（采样中心）的落点与出射方向 |
+| `lambda_nm` / `field_tan_y` / `object_z_mm` / `samples` | 回显束参数（`object_z_mm` 为 `null` = 无穷远） |
+
+    curl -s -X POST localhost:1130/api/lens/group/image -d '{"elements":[
+      {"kind":"mirror","front":{"radius_mm":-400,"conic_k":-1,"semi_aperture_mm":24}}]}'
+
+    {"point":{"x":0,"y":0,"z":-200.00000000000617},"rms_mm":5.94e-13,"geo_radius_mm":7.38e-13,
+     "axis":{"x":0,"y":0,"z":-1},"plane_o":{"x":0,"y":0,"z":0},"focus_mm":200.00000000000608,
+     "rays":37,"failed":0, ...}
+
+（抛物面 K=−1 对轴上平行光无球差：像点恰在 f = \\|R\\|/2 = 200 mm，RMS 在搜索容差量级；负号是因为反射光束沿 −z 出射，焦面到顶点的距离沿轴读数为 +200。）
+
+### POST /api/lens/group/afocal
+
+无焦组的角放大率 Γ（实光线，`lens.Group.AngularMagnification`）：以两个倾斜 ±δ = 1e-6 的平行束在弧矢（x）方向测量出射斜率之比；另有 D_in/D_out（束径比，\\|Γ\\| 的独立几何交叉验证）与出射准直残差。**出射束准直不好（> 1e-2 rad）的系统返回 400**（有光焦度的系统没有角放大率）。
+
+请求 = group 的 wire form + `object_z_mm`/`field_tan`/`pupil_radius_mm`/`samples`/`lambda_nm`（同上）；对象必须是无穷远物（`field_tan` 对 Γ 无影响，Γ 由弧矢方向定义）。
+
+响应：`gamma`、`beam_ratio`、`spread_rad`、`rays`、`entry_dir`/`exit_dir`（探测束入射/出射方向）、`axis_in`/`axis_out`、`lambda_nm`、`samples`。
+
+    curl -s -X POST localhost:1130/api/lens/group/afocal -d '{"group":{...开普勒望远镜...}}'
+    {"gamma":-1.0000000000201266,"beam_ratio":0.9940377442497541,"spread_rad":3.497e-4,
+     "rays":37,"axis_out":{"x":0,"y":0,"z":1}, ...}
+
+（两片 f = 100 mm 的薄透镜组成开普勒望远镜：Γ = −1；在准直空间插入 45° 平面折转镜后 Γ 逐位不变，出射轴转为 +y，`TestGroupAngularMagnificationFoldInvariant`。）
+
+### POST /api/lens/group/dispersion
+
+两个波长的最佳焦面轴向差（`lens.Group.Dispersion`，同一束参数与搜索选项）。
+
+请求 = group 的 wire form + 束参数 + `lambda_a_nm`（默认 F 线 486.1327）/`lambda_b_nm`（默认 C 线 656.2725）。
+
+响应：`shift_mm`（`a.focus_mm − b.focus_mm`，沿出射轴）、`lambda_a_nm`/`lambda_b_nm`、`a`/`b`（两次 `image` 的完整响应）。**纯反射镜系统（介质恒定）的位移恰好为 0**：每个波长的追迹逐位相同。
+
+    curl -s -X POST localhost:1130/api/lens/group/dispersion -d '{"group":{...双胶合...}}'
+    {"shift_mm":-0.4065509316004352,"lambda_a_nm":486.1327,"lambda_b_nm":656.2725,
+     "a":{"point":{"x":0,"y":0,"z":73.6214...},"focus_mm":64.6214...},"b":{...,"focus_mm":65.0279...}}
+
+### POST /api/lens/group/set
+
+把一串参数编辑应用到 group 上（按顺序，`lens.Group.SetParam`），返回更新后的 group。参数语法与 CLI 的 `-p` 相同：`lens.GroupParam.String()` 的写法（`e0.front.R`、`e0.rear.c`、`e0.front.K`、`e0.front.A4`、`e0.front.poly0`/`q0`/`xy0`/`z1`、`e0.front.semi`、`e0.thk`、`e0.gap`、`e0.z`、`e0.dx`/`dy`、`e0.tx`/`ty`/`tz`）以及长别名（`radius_mm`、`curvature`、`conic_k`、`semi_aperture_mm`、`thickness_mm`、`gap_mm`、`position_mm`、`decenter_x_mm`、`tilt_x_deg`，…）；面向 `f`/`r`/`1`/`2` 与 `front`/`rear` 等价。`R = 0`（或 ±Inf）表示平面，`gap_mm` 可为负。
+
+请求：`{"group": <group wire form>, "sets": [{"param": "e1.front.R", "value": -1600}, …]}`（`sets` 最多 512 项）。响应：`{"group": <更新后的 group>, "applied": n}`。
+
+编辑失败返回 400，**错误文本就是 `lens` 包的文本**（含元件下标与原因），例如：
+
+    {"error":"lens: parameter e0.rear.R: lens: element 0 (stop) has no rear surface"}
+
+    curl -s -X POST localhost:1130/api/lens/group/set -d '{"group":{...},"sets":[{"param":"e1.front.R","value":-1600}]}'
+
+### POST /api/lens/group/prescription
+
+把元件级的 group 转成「卡片链」处方（`lens.Group.Prescription`）：纯轴向或轴向折返（负厚度，如卡塞格林）的布局可以精确表达，非末元件的 3D 折转、含中心厚度的倾斜两面元件等不可表达的布局返回 400 并给出原因。响应：`{"prescription": <处方 JSON>}`。
+
+    curl -s -X POST localhost:1130/api/lens/group/prescription -d '{"elements":[...卡塞格林...]}'
+    {"prescription":{"name":"…","object_z_mm":"inf","cards":[
+      {"radius_mm":0,"thickness_mm":60,"semi_aperture_mm":150},
+      {"radius_mm":-2000,"thickness_mm":-300,"semi_aperture_mm":153,"mirror":true},
+      {"radius_mm":-646.1538461538461,"thickness_mm":600,"semi_aperture_mm":117.5,"mirror":true}],"stop":0}}
+
+（输出与 `library/geo/mirror-cassegrain-f1000-d300-b300.json` 的卡片逐位一致——`cmd/oz` 的 `TestLensGroupToPrescriptionCLI` 就是这么断言的。反向的 处方→group 在 `lens` 包内（`Prescription.Group()`），暂未开放为端点。）
+
+### POST /api/lens/parax
+
+处方的一阶（近轴）报告，**含反射镜**（`geo.System.Paraxial` 的展开法：镜面按 ū' = −ū − 2ncy 处理，负厚度写折返；`Mirrors`/`Parity`/`Afocal` 与角放大率为本次接线新增的公开量）。与 `oz lens parax` 同源。偏心/倾斜（posed）系统仍返回 400（一阶引擎只接受共轴系统，含 z 轴 roll）。
+
+请求：
+
+| 字段 | 类型 | 默认 | 说明 |
+|---|---|---|---|
+| `prescription` | object | 必填 | 处方 JSON |
+| `object_z_mm` | number 或 `"inf"` | 处方自身的物距 | 物面位置 mm（`"inf"` = 无穷远） |
+| `field_tan` | number | — | 参考光线的场切线（afocal 的 Γ 需要 ≠0；有限物的 Γ 与它无关） |
+| `lambda_nm` | number | `587.5618` | 波长 nm |
+
+响应（不存在或非有限的量用 `null`，并在对应的 `*_note` 里说明原因——JSON 没有 NaN/Inf）：
+
+| 字段 | 说明 |
+|---|---|
+| `lambda_nm`、`object_z_mm` | 回显（`null` = 无穷远物） |
+| `mirrors`、`parity`、`afocal` | 反射面数、出射传播方向奇偶性 `(-1)^mirrors`、\\|C\\| ≤ 1e-12 /mm |
+| `efl_mm`、`focal_length_mm` | 带符号 EFL（凹镜 R<0 时 EFL = R/2 < 0）与习惯焦距 `Parity·EFL` |
+| `ffl_mm`、`bfl_mm`、`image_z_mm` | 前/后焦距与轴向像面位置（同一 z 轴，可直接与实光线比较） |
+| `magnification` | 横向放大率（无穷远物为 0，引擎约定） |
+| `entrance_pupil_z_mm`/`entrance_pupil_radius_mm`、`exit_pupil_z_mm`/`exit_pupil_radius_mm` | 入/出瞳位置与半口径 |
+| `gamma` | 角放大率：afocal 用主光线比值；有光焦度的系统在有限物距下给 γ = n/(n'·m)。不可用时 `null` |
+| `gamma_note` | Γ 未给出的原因（afocal 缺 `field_tan`、无穷远物 + 有光焦度、posed 系统…） |
+| `fc_shift_mm` | F–C 焦移（`FocusAt(F) − FocusAt(C)`，mm）；**纯镜系统恰好 0** |
+| `fc_note` | 焦移未给出的原因（afocal 系统没有像面等） |
+
+    curl -s -X POST localhost:1130/api/lens/parax -d '{"prescription":{...卡塞格林...}}'
+    {"lambda_nm":587.5618,"object_z_mm":null,"mirrors":2,"parity":1,"afocal":false,
+     "efl_mm":-857.1428571428569,"focal_length_mm":-857.1428571428569,"ffl_mm":1713.0612244897957,
+     "bfl_mm":-599.9999999999998,"image_z_mm":-839.9999999999998,"magnification":0,
+     "entrance_pupil_z_mm":0,"entrance_pupil_radius_mm":150,
+     "exit_pupil_z_mm":-728.5714285714287,"exit_pupil_radius_mm":214.2857142857143,
+     "gamma":null,"gamma_note":"无穷远物 + 有光焦度的系统没有角放大率（Γ）：给 --object-z 有限物距或换 afocal 系统",
+     "fc_shift_mm":0}
+
+单镜（R = −2000、空气）的闭式：`EFL = R/2 = −1000`；物在 z = −3000 时 `image_z_mm = −1500`、`magnification = −0.5`、`gamma = −2 = 1/m`（`TestLensParaxCLI`）。
 
 ### POST /api/geo/mtf
 
@@ -274,8 +445,24 @@ N 级量化相位聚焦 DOE 的一级效率与焦点偏差（G8；`oz doe focus`
     P="$(python3 -c 'import json;print(json.dumps(json.load(open("d.json"))["prescription"]))')"
     curl -s -X POST localhost:1130/api/lens/thermal -d "{\"prescription\":$P,\"delta_t_k\":10}"
     curl -s -X POST localhost:1130/api/lens/sens -d "{\"prescription\":$P}"
+    curl -s -X POST localhost:1130/api/lens/parax -d "{\"prescription\":$P}"          # 一阶（含镜）
     curl -s -X POST localhost:1130/api/geo/mtf -d "{\"prescription\":$P,\"fields_deg\":[0,0.5],\"cycles_per_mm\":[10,30]}"
     curl -s -X POST localhost:1130/api/geo/ghost -d "{\"prescription\":$P}"
+    # 透镜组（3D，含镜）：布局 / 成像位置 / 角放大率 / 色散 / 编辑 / 转处方
+    G='{"name":"newtonian-45","elements":[{"kind":"stop","front":{"semi_aperture_mm":20},"gap_mm":60},
+        {"kind":"mirror","front":{"radius_mm":-2000,"conic_k":-1,"semi_aperture_mm":40},"gap_mm":-900},
+        {"kind":"mirror","front":{"radius_mm":0,"semi_aperture_mm":14},"gap_mm":120,"tilt_x_deg":45}]}'
+    curl -s -X POST localhost:1130/api/lens/group/layout -d "$G"          # 顶点 (0,0,0)/(0,0,60)/(0,0,-840)
+    curl -s -X POST localhost:1130/api/lens/group/image -d "$G"           # 像 (0,-100,-840)，RMS ~6e-14
+    curl -s -X POST localhost:1130/api/lens/group/set -d "{\"group\":$G,\"sets\":[{\"param\":\"e0.gap_mm\",\"value\":50}]}"
+    curl -s -X POST localhost:1130/api/lens/group/dispersion -d "$G"      # 纯镜：shift_mm 恰为 0
+    curl -s -X POST localhost:1130/api/lens/group/afocal -d '{"elements":[
+        {"kind":"stop","front":{"semi_aperture_mm":4},"gap_mm":0},
+        {"kind":"lens","front":{"radius_mm":51.68000345005885,"semi_aperture_mm":20},
+         "rear":{"radius_mm":0,"semi_aperture_mm":20},"glass":"N-BK7","thickness_mm":2,"gap_mm":198.68},
+        {"kind":"lens","front":{"radius_mm":51.68000345005885,"semi_aperture_mm":20},
+         "rear":{"radius_mm":0,"semi_aperture_mm":20},"glass":"N-BK7","thickness_mm":2}]}'   # Γ = −1
+    curl -s -X POST localhost:1130/api/lens/group/prescription -d "$G"
     # DOE（G8）：一级效率与解析 η_N 的对比
     curl -s -X POST localhost:1130/api/doe/focus -d '{"focal_mm":10,"levels":4}'
     # 膜系光谱
