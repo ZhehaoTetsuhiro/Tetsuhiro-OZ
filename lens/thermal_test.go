@@ -2,6 +2,7 @@ package lens
 
 import (
 	"math"
+	"math/rand"
 	"testing"
 
 	"tetsuhiro-oz/geo"
@@ -282,5 +283,84 @@ func TestThermalRejectsBadInput(t *testing.T) {
 	}
 	if _, err := p.ThermalDriftOf(geo.Wavelengthd, 0, nil); err == nil {
 		t.Error("zero ΔT drift accepted")
+	}
+}
+
+// TestThermalDriftIntegratesAnalytic: the EFL drift returned by ThermalDriftOf
+// over [0, ΔT] equals the integral of the analytic thin-lens derivative over
+// the same interval (Simpson's rule on 17 points; the integrand is smooth, so
+// the quadrature error is far below the 1e-6 bound).
+func TestThermalDriftIntegratesAnalytic(t *testing.T) {
+	const lam = geo.Wavelengthd
+	for _, glass := range []string{"N-BK7", "fused silica"} {
+		p := thinBiconvex(glass)
+		base, _ := geo.Glass(glass)
+		g, _ := geo.ThermalGlassByName(glass)
+		const dT = 30.0
+		drift, err := p.ThermalDriftOf(lam, dT, nil)
+		if err != nil {
+			t.Fatal(err)
+		}
+		deriv := func(x float64) float64 {
+			q, err := p.Thermal(x, nil)
+			if err != nil {
+				t.Fatal(err)
+			}
+			par, err := q.Paraxial(lam)
+			if err != nil {
+				t.Fatal(err)
+			}
+			n0 := base.N(lam)
+			return geo.ThinLensEFLDrift(par.EFL, n0+g.DeltaNRel(lam, x, n0), g.DnRelDT(lam, x, n0), g.CTE, x)
+		}
+		const nSeg = 16
+		h := dT / nSeg
+		sum := deriv(0) + deriv(dT)
+		for i := 1; i < nSeg; i++ {
+			w := 2.0
+			if i%2 == 1 {
+				w = 4.0
+			}
+			sum += w * deriv(float64(i)*h)
+		}
+		integral := sum * h / 3
+		if rel := math.Abs(drift.EFL1-drift.EFL0-integral) / math.Abs(integral); rel > 1e-6 {
+			t.Errorf("%s: ΔEFL over %g K = %.10g mm, ∫ analytic derivative = %.10g mm (rel %.2g)",
+				glass, dT, drift.EFL1-drift.EFL0, integral, rel)
+		}
+		t.Logf("%s thin singlet f=%.4f mm: EFL drift %+.6f µm/K (secant over %g K), BFL %+.6f µm/K",
+			glass, drift.EFL0, drift.EFLPerK*1e3, dT, drift.BFLPerK*1e3)
+	}
+}
+
+// TestThermalComposesWithMeltHook: the thermal shift is applied on top of the
+// glass-melt index offset installed by the tolerance analysis (both use the
+// mediumWrap hook): N_total(ΔT) = N_melt + Δn_rel(λ, ΔT, N_melt).
+func TestThermalComposesWithMeltHook(t *testing.T) {
+	const lam = geo.Wavelengthd
+	const dT = 30.0
+	p := thinBiconvex("N-BK7")
+	// A melt-only prescription: the tolerance hook with a fixed Δn = +0.0005.
+	melt, err := perturbPrescription(p, ToleranceSpec{IndexDelta: 0.0005}, rand.New(rand.NewSource(7)))
+	if err != nil {
+		t.Fatal(err)
+	}
+	sysMelt, err := melt.System()
+	if err != nil {
+		t.Fatal(err)
+	}
+	both, err := melt.Thermal(dT, nil)
+	if err != nil {
+		t.Fatal(err)
+	}
+	sysBoth, err := both.System()
+	if err != nil {
+		t.Fatal(err)
+	}
+	g, _ := geo.ThermalGlassByName("N-BK7")
+	nMelt := sysMelt.Mediums[1].N(lam)
+	want := nMelt + g.DeltaNRel(lam, dT, nMelt)
+	if got := sysBoth.Mediums[1].N(lam); math.Abs(got-want) > 1e-14 {
+		t.Errorf("composed index %.15g, want %.15g", got, want)
 	}
 }
