@@ -54,7 +54,7 @@ func TestServeEndpoints(t *testing.T) {
 	if !strings.Contains(get("/api/version"), "0.1.0-Preview") {
 		t.Fatal("version endpoint missing version")
 	}
-	page := get("/")
+	page := get("/oz/")
 	if !strings.Contains(page, "Tetsuhiro-OZ") {
 		t.Fatal("index page missing")
 	}
