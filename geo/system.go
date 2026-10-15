@@ -455,8 +455,10 @@ func (s *System) WithImagePlane(z float64) *System {
 }
 
 // Reversed returns the time-reversed system, or nil when the system contains
-// coordinate breaks or posed surfaces (a time-reversed chain of tilted frames is
-// not provided). For a coaxial system it describes exactly the same
+// coordinate breaks, posed surfaces or a freeform surface that is not
+// rotationally symmetric (a time-reversed chain of tilted frames, or the
+// mirrored shape of an asymmetric freeform, is not provided). For a coaxial
+// system it describes exactly the same
 // physical surfaces (the profiles are unchanged, the sag still measured from
 // each vertex in +z), traversed in the opposite direction: the surface list is
 // reversed, the gaps are listed in reverse order and therefore become negative,
@@ -465,7 +467,7 @@ func (s *System) WithImagePlane(z float64) *System {
 // forward trace, which is the standard way to solve conjugates and double-pass
 // systems.
 func (s *System) Reversed() *System {
-	if s.hasPose() {
+	if s.hasPose() || s.hasAsymmetricFreeform() {
 		return nil
 	}
 	n := len(s.Surfaces)

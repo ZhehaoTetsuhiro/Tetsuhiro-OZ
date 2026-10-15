@@ -84,6 +84,43 @@
 // normal's z component is always > 0). Ray–surface interaction routines flip
 // it as needed, so an incoming ray may hit either face of a surface.
 //
+// # Freeform surfaces (XY polynomial)
+//
+// Next to the rotationally symmetric profiles (Plane, Conic, Sphere,
+// EvenAsphere, PolyAsphere, QAsphere) the package provides the freeform
+// profile XYPolynomial, whose sag in the local frame is
+//
+//	z(x, y) = conicBase(r) + Σ a_k (x/N)^i_k (y/N)^j_k ,   r = √(x²+y²),
+//
+// with the optional conic base of revolution (R, K) of Conic, integer
+// exponents i_k, j_k ≥ 0 with i_k + j_k ≥ 2 (no piston, no tilt: the vertex is
+// at the origin with a horizontal tangent plane) and an optional normalisation
+// radius N (N > 0 normalises the coordinates so that the coefficients are sags
+// in mm; N = 0 uses the raw coordinates). Terms are summed in a canonical
+// order (ascending i+j, then i, then j; see XYPolynomial.Canonical), so the
+// evaluation is deterministic bit for bit. The analytic normal is
+// n ∝ (−∂z/∂x, −∂z/∂y, 1) and the ray intersection is a Newton iteration with a
+// bracketed-bisection fallback that uses the two-dimensional sag — no
+// rotational symmetry is assumed anywhere in the solver, so the surface is
+// valid off the axis and far from its vertex.
+//
+// The type implements the FreeformProfile interface; Surface and System
+// dispatch to it for the two-dimensional shape (Surface.Sag, Surface.Normal,
+// Surface.Intersect, Surface.ZRange), and its Profile methods report the +y
+// meridian (x = 0) as the rotationally symmetric surrogate.
+//
+// Applicability. The paraxial (first-order) engine and the third-order
+// (Seidel) sums of the package are defined for rotationally symmetric coaxial
+// systems only. A freeform surface whose departure is not a polynomial in r²
+// is rejected by them (System.requireCoaxial, like a decentred or tilted
+// surface) and has no meaningful first-order description; genuinely freeform
+// systems must be analysed with real rays (Trace, SpotDiagram, RayFan, OPDGrid,
+// geometric MTF), usually with Surface.Pose / Surface.Break coordinate breaks,
+// since freeform elements are almost always decentred or tilted. A
+// rotationally symmetric XYPolynomial (XYPolynomial.RotationallySymmetric)
+// degenerates to an ordinary rotationally symmetric profile and stays usable
+// with the first-order engine.
+//
 // # Status model
 //
 // Outcomes of a ray–surface interaction are reported as a Status value

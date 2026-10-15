@@ -588,10 +588,15 @@ func (s Surface) Label() string {
 	return s.Profile.String()
 }
 
-// Sag returns the local sag z at (x, y).
+// Sag returns the local sag z at (x, y). For a freeform profile (see
+// FreeformProfile) the two-dimensional sag is used; otherwise the rotationally
+// symmetric sag at r = sqrt(x²+y²).
 func (s Surface) Sag(x, y float64) float64 {
 	if s.Profile == nil {
 		return math.NaN()
+	}
+	if fp, ok := s.Profile.(FreeformProfile); ok {
+		return fp.SagXY(x, y)
 	}
 	return s.Profile.Sag(math.Hypot(x, y))
 }
@@ -619,10 +624,14 @@ func (s Surface) SlopeR(r float64) float64 {
 //	n ∝ (-∂z/∂x, -∂z/∂y, 1) .
 //
 // At the vertex (r = 0) the normal is (0, 0, 1). The normal is analytic: no
-// finite differences are involved.
+// finite differences are involved. A freeform profile (see FreeformProfile)
+// supplies the two partial derivatives directly.
 func (s Surface) Normal(x, y float64) Vec3 {
 	if s.Profile == nil {
 		return Vec3{}
+	}
+	if fp, ok := s.Profile.(FreeformProfile); ok {
+		return fp.NormalXY(x, y)
 	}
 	r := math.Hypot(x, y)
 	if r == 0 {
@@ -653,12 +662,20 @@ func (s Surface) Vignetted(x, y float64) bool {
 
 // Intersect returns the first intersection of the ray (o, d) — d unit, o in
 // the surface's local frame — with the surface, using the profile's solver
-// with the aperture radius as the search hint. The returned point is local.
+// with the aperture radius as the search hint. The returned point is local. A
+// freeform profile (see FreeformProfile) is solved with the two-dimensional
+// intersection.
 func (s Surface) Intersect(o, d Vec3, tMin float64) (Vec3, float64, bool) {
 	if s.Profile == nil {
 		return Vec3{}, 0, false
 	}
-	t, ok := s.Profile.Intersect(o, d, tMin, s.MaxRadius())
+	var t float64
+	var ok bool
+	if fp, isFree := s.Profile.(FreeformProfile); isFree {
+		t, ok = fp.IntersectXY(o, d, tMin, s.MaxRadius())
+	} else {
+		t, ok = s.Profile.Intersect(o, d, tMin, s.MaxRadius())
+	}
 	if !ok {
 		return Vec3{}, 0, false
 	}
@@ -667,7 +684,8 @@ func (s Surface) Intersect(o, d Vec3, tMin float64) (Vec3, float64, bool) {
 
 // ZRange returns the smallest and largest z the surface reaches over the clear
 // aperture (or over radius rMax when the aperture is unlimited and rMax > 0).
-// It is used to place launch planes and search windows.
+// It is used to place launch planes and search windows. A freeform profile
+// (see FreeformProfile) is sampled two-dimensionally over the aperture disc.
 func (s Surface) ZRange(rMax float64) (float64, float64) {
 	if s.Profile == nil {
 		return 0, 0
@@ -675,6 +693,9 @@ func (s Surface) ZRange(rMax float64) (float64, float64) {
 	r := s.MaxRadius()
 	if math.IsInf(r, 1) {
 		r = rMax
+	}
+	if fp, ok := s.Profile.(FreeformProfile); ok {
+		return fp.ZRangeXY(r)
 	}
 	return sagRange(s.Profile, r)
 }
