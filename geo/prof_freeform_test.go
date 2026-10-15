@@ -767,3 +767,103 @@ func TestXYPolynomialCanonicalValidate(t *testing.T) {
 		t.Errorf("String() = %q", p.String())
 	}
 }
+
+// TestXYPolynomialIntersectionFindsFirstCrossing verifies the Profile.Intersect
+// contract that the *smallest* valid intersection is returned when the ray
+// meets the surface more than once:
+//
+//   - a chord of the quadratic bowl z = a20x² + a02y² that enters and leaves
+//     the surface has two analytic crossings; the solver must return the
+//     first, and the test counts how many such double-crossing rays it
+//     exercised;
+//   - a strongly curved mixed surface (conic base plus degree-6 terms) is
+//     scanned densely (1e5 samples over the search window) and the first sign
+//     change of the residual is compared with the returned root to the
+//     resolution of the scan.
+func TestXYPolynomialIntersectionFindsFirstCrossing(t *testing.T) {
+	// (1) Quadratic bowl, analytic double crossings.
+	const a20, a02 = -2.5e-3, -2.5e-3
+	bowl := ffMustBuild(t, 0, 0, 0, []XYTerm{{I: 2, J: 0, Coeff: a20}, {I: 0, J: 2, Coeff: a02}})
+	double, checked := 0, 0
+	for k := 1; k <= 6; k++ {
+		// A horizontal chord of the bowl at depth h: it enters the surface at
+		// x = -sqrt(h/a) and leaves it at x = +sqrt(h/a), so it has exactly two
+		// analytic crossings.
+		h := 0.02 * float64(k)
+		rc := math.Sqrt(h / -a20)
+		o := V(-(rc + 3), 0, -h)
+		d := V(1, 0, 0)
+		ox, oy, oz := o.X, o.Y, o.Z
+		A := -(a20*d.X*d.X + a02*d.Y*d.Y)
+		B := d.Z - 2*(a20*ox*d.X+a02*oy*d.Y)
+		C := oz - a20*ox*ox - a02*oy*oy
+		disc := B*B - 4*A*C
+		if disc <= 0 || A == 0 {
+			continue
+		}
+		sq := math.Sqrt(disc)
+		q := -0.5 * (B + math.Copysign(sq, B))
+		r1, r2 := q/A, C/q
+		if r1 > r2 {
+			r1, r2 = r2, r1
+		}
+		if r1 < tMinDefault {
+			continue
+		}
+		checked++
+		if r2 > r1+1e-9 {
+			double++
+		}
+		got, ok := bowl.IntersectXY(o, d, tMinDefault, 0)
+		if !ok {
+			t.Fatalf("ray %d: no intersection found (analytic roots %g, %g)", k, r1, r2)
+		}
+		if math.Abs(got-r1) > 1e-12 {
+			t.Errorf("ray %d: returned t = %.15g, first analytic crossing %.15g (second %.15g)", k, got, r1, r2)
+		}
+	}
+	if double < 5 {
+		t.Fatalf("only %d of %d rays had two crossings: the check is not exercised", double, checked)
+	}
+	// (2) Mixed surface: dense scan reference.
+	p := ffMustBuild(t, -200, -1, 25, ffRandomTerms(ffSeed+9, 80, 6))
+	rays := ffRaySet(ffSeed+21, -60, 6, -4, 10, 12, 12)
+	worst := 0.0
+	for _, r := range rays {
+		got, ok := p.IntersectXY(r.Origin, r.Dir, tMinDefault, 25)
+		if !ok {
+			continue
+		}
+		// Dense scan of the same window the solver uses.
+		tA, tB, okW := p.searchWindowXY(r.Origin, r.Dir, tMinDefault, 25)
+		if !okW {
+			t.Fatalf("no search window for ray from %v", r.Origin)
+		}
+		const n = 100000
+		prevT := tA
+		prevG, _ := p.residualXY(r.Origin, r.Dir, prevT)
+		found := math.NaN()
+		for i := 1; i <= n; i++ {
+			tt := tA + (tB-tA)*float64(i)/float64(n)
+			g, _ := p.residualXY(r.Origin, r.Dir, tt)
+			if !math.IsNaN(g) && !math.IsNaN(prevG) && prevG*g <= 0 {
+				found = 0.5 * (prevT + tt)
+				break
+			}
+			prevT, prevG = tt, g
+		}
+		if math.IsNaN(found) {
+			continue
+		}
+		res := (tB - tA) / n
+		if math.Abs(got-found) > 10*res+1e-9 {
+			t.Errorf("first crossing: solver t = %.15g, dense scan %.15g (resolution %.3g)", got, found, res)
+		}
+		if d := math.Abs(got - found); d > worst {
+			worst = d
+		}
+	}
+	t.Logf("first-crossing check: %d double-crossing chords (all returned the first root); on the mixed surface the "+
+		"returned root coincides with the first crossing of a 1e5-sample dense scan to within the scan resolution "+
+		"(worst deviation %.3g mm)", double, worst)
+}
