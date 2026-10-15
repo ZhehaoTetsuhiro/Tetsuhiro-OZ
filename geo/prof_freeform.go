@@ -474,6 +474,22 @@ func (p XYPolynomial) newtonXY(o, d Vec3, t, tMin float64) (float64, bool) {
 			return 0, false
 		}
 		if math.Abs(g) <= xyTol(o, d, t, xyResidualTol) {
+			// Two extra guarded Newton steps (accepted only when they strictly
+			// reduce |g|) bring the residual down to the round-off floor of the
+			// evaluation of the sag, which matters for hits far from the
+			// vertex where the local scale is large.
+			for k := 0; k < 2; k++ {
+				_, gd1 := p.residualXY(o, d, t)
+				if gd1 == 0 || math.IsNaN(gd1) || math.IsInf(gd1, 0) {
+					break
+				}
+				tn := t - g/gd1
+				gn, _ := p.residualXY(o, d, tn)
+				if math.IsNaN(gn) || tn < tMin || math.Abs(tn) > 1e12 || !(math.Abs(gn) < math.Abs(g)) {
+					break
+				}
+				t, g = tn, gn
+			}
 			return t, true
 		}
 		if gd == 0 || math.IsNaN(gd) || math.IsInf(gd, 0) {
@@ -696,6 +712,12 @@ func (p XYPolynomial) IntersectXY(o, d Vec3, tMin, rMax float64) (float64, bool)
 		return best, true
 	}
 	return p.scanXY(o, d, tMin, math.Inf(1), rMax, xyScanFine)
+}
+
+// Intersect implements Profile: it is IntersectXY, the two-dimensional solver
+// (the radial method must not be used for a freeform surface).
+func (p XYPolynomial) Intersect(o, d Vec3, tMin, rMax float64) (float64, bool) {
+	return p.IntersectXY(o, d, tMin, rMax)
 }
 
 // IntersectRay is IntersectXY with the failure reported as an error, for
