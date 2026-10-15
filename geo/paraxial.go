@@ -314,6 +314,12 @@ type Paraxial struct {
 //   - the effective focal length keeps the sign of the surface radius
 //     (a concave mirror seen from the object side has R < 0 and EFL = R/2 < 0,
 //     its back focal point lies at -f in front of the vertex);
+//   - FrontPrincipalZ and BackPrincipalZ are derived from EFL with the
+//     refracting relations and are therefore not consistent with each other for
+//     a single mirror (BackPrincipalZ = 0 is the physical one, the principal
+//     plane of a mirror is its vertex); the physically verified quantities of a
+//     mirror system are the focal points, ImageZ, Magnification and the angular
+//     magnification;
 //   - the Helmholtz–Lagrange invariant n(ȳu − yū) of the physical slopes
 //     changes sign at every mirror; the invariant that is conserved, and the one
 //     behind the relation m·γ = n/n' used by AngularMagnification, is the one
