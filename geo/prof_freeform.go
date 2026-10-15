@@ -432,7 +432,7 @@ const (
 	// xyScanCoarse and xyScanFine are the sample counts of the pre-scan (a
 	// cheap check for a root before the Newton solution) and of the full
 	// fallback scan.
-	xyScanCoarse = 64
+	xyScanCoarse = 24
 	xyScanFine   = 512
 )
 
@@ -509,9 +509,21 @@ func (p XYPolynomial) newtonXY(o, d Vec3, t, tMin float64) (float64, bool) {
 }
 
 // zRangeXYDisc returns the smallest and largest finite sag of the surface over
-// the disc of radius r (a deterministic polar grid; see ZRangeXY).
+// the disc of radius r (a deterministic polar grid; see ZRangeXY). The coarse
+// variant (8 rings, 12 azimuths) is used for the intersection search window,
+// where the result is padded anyway; the public ZRangeXY uses the finer grid
+// because launch planes are placed from it.
 func (p XYPolynomial) zRangeXYDisc(r float64) (float64, float64) {
-	const nr, na = 16, 24
+	return p.zRangeXYGrid(r, 16, 24)
+}
+
+// zRangeXYCoarse is zRangeXYDisc on the 97-point polar grid.
+func (p XYPolynomial) zRangeXYCoarse(r float64) (float64, float64) {
+	return p.zRangeXYGrid(r, 8, 12)
+}
+
+// zRangeXYGrid samples the sag over the aperture disc on a polar grid.
+func (p XYPolynomial) zRangeXYGrid(r float64, nr, na int) (float64, float64) {
 	zmin, zmax := math.Inf(1), math.Inf(-1)
 	upd := func(x, y float64) {
 		z := p.SagXY(x, y)
@@ -527,9 +539,9 @@ func (p XYPolynomial) zRangeXYDisc(r float64) (float64, float64) {
 	}
 	upd(0, 0)
 	for k := 1; k <= nr; k++ {
-		rr := r * float64(k) / nr
+		rr := r * float64(k) / float64(nr)
 		for j := 0; j < na; j++ {
-			a := 2 * math.Pi * float64(j) / na
+			a := 2 * math.Pi * float64(j) / float64(na)
 			upd(rr*math.Cos(a), rr*math.Sin(a))
 		}
 	}
@@ -571,7 +583,10 @@ func (p XYPolynomial) searchWindowXY(o, d Vec3, tMin, rMax float64) (float64, fl
 			hi = t
 		}
 	}
-	zmin, zmax := p.ZRangeXY(rSearch)
+	zmin, zmax := math.Inf(-1), math.Inf(1)
+	if rSearch > 0 && !math.IsInf(rSearch, 1) {
+		zmin, zmax = p.zRangeXYCoarse(rSearch)
+	}
 	if !math.IsInf(zmin, -1) && !math.IsInf(zmax, 1) {
 		pad := 0.25*(zmax-zmin) + 1e-3*(1+math.Abs(zmin)+math.Abs(zmax))
 		zmin -= pad
@@ -672,42 +687,49 @@ func (p XYPolynomial) scanXY(o, d Vec3, tMin, tStop, rMax float64, n int) (float
 // IntersectXY implements FreeformProfile and the Profile.Intersect contract:
 // the smallest t ≥ tMin with o + t·d on the surface (d unit). The candidates
 // are the analytic roots of the base conicoid (Newton-polished on the exact
-// freeform residual) and the vertex-plane crossing; when Newton finds a root, a
-// coarse scan of the window before it checks for an earlier crossing, and when
-// no seed converges the full bracketed scan runs. ok = false when there is no
-// intersection: the solver never returns NaN or ±Inf.
+// freeform residual; the pair of roots brackets the two branches of the
+// surface, the same guarantee the other profiles of the package rely on) and
+// the vertex-plane crossing. Without a base conic — or when the conic seeds
+// fail — a single seed remains, so a coarse scan of the window in front of the
+// Newton solution checks for an earlier crossing before the root is accepted;
+// when no seed converges at all the full bracketed scan runs. ok = false when
+// there is no intersection: the solver never returns NaN or ±Inf.
 func (p XYPolynomial) IntersectXY(o, d Vec3, tMin, rMax float64) (float64, bool) {
 	if o.IsNaN() || d.IsNaN() || !d.UnitValid() || math.IsNaN(tMin) {
 		return 0, false
 	}
 	best := math.Inf(1)
-	found := false
-	consider := func(t0 float64) {
+	found, fromConic := false, false
+	consider := func(t0 float64, conicSeed bool) {
 		if math.IsNaN(t0) || math.IsInf(t0, 0) || t0 < tMin {
 			return
 		}
-		if t, ok := p.newtonXY(o, d, t0, tMin); ok && t < best {
-			best, found = t, true
+		if t, ok := p.newtonXY(o, d, t0, tMin); ok {
+			if conicSeed {
+				fromConic = true
+			}
+			if t < best {
+				best, found = t, true
+			}
 		}
 	}
 	if !math.IsInf(p.R, 0) && p.R != 0 {
-		// The base conicoid gives up to two analytic seeds; they bracket the
-		// near and far branches of the surface.
 		for _, t0 := range conicRoots(p.R, p.K, o, d) {
-			consider(t0)
+			consider(t0, true)
 		}
 	}
 	if math.Abs(d.Z) > 1e-300 {
-		consider(-o.Z / d.Z) // crossing of the vertex tangent plane
+		consider(-o.Z/d.Z, false) // crossing of the vertex tangent plane
 	}
 	if found {
-		// Newton converges to *a* root; make sure no earlier crossing of the
-		// surface lies in front of it (a freeform can be crossed several
-		// times). The check is coarse and only replaces the root when the
-		// earlier crossing is unambiguous.
-		if t, ok := p.scanXY(o, d, tMin, best, rMax, xyScanCoarse); ok &&
-			t < best-1e-9*(1+math.Abs(best)) {
-			return t, true
+		// A single seed can converge to a later crossing of a surface that the
+		// ray meets several times; the check is coarse and only replaces the
+		// root when the earlier crossing is unambiguous.
+		if !fromConic {
+			if t, ok := p.scanXY(o, d, tMin, best, rMax, xyScanCoarse); ok &&
+				t < best-1e-9*(1+math.Abs(best)) {
+				return t, true
+			}
 		}
 		return best, true
 	}
