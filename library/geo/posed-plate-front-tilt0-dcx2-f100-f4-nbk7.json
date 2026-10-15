@@ -1,0 +1,59 @@
+{
+  "name": "倾斜平板（平行光中）+ 单透镜 N-BK7 f=100mm F/4（tilt 0°）（变体3）",
+  "object_z_mm": "inf",
+  "cards": [
+    {
+      "name": "aperture stop",
+      "radius_mm": 0,
+      "thickness_mm": 2.5,
+      "semi_aperture_mm": 12.5
+    },
+    {
+      "name": "plate front",
+      "radius_mm": 0,
+      "thickness_mm": 3,
+      "glass": "N-BK7",
+      "semi_aperture_mm": 15,
+      "decenter_x_mm": 2
+    },
+    {
+      "name": "plate rear",
+      "radius_mm": 0,
+      "thickness_mm": 5,
+      "semi_aperture_mm": 15,
+      "decenter_x_mm": 2
+    },
+    {
+      "name": "L1",
+      "radius_mm": 51.6800035,
+      "thickness_mm": 5,
+      "glass": "N-BK7",
+      "semi_aperture_mm": 16.009
+    },
+    {
+      "name": "L1",
+      "radius_mm": 0,
+      "thickness_mm": 30,
+      "semi_aperture_mm": 15.644
+    }
+  ],
+  "stop": 0,
+  "description": "倾斜平板 + 球面单透镜｜N-BK7｜f=100mm、F/4｜3毫米厚平板置于平行光中（tilt_x_deg=0、decenter_x_mm=2，坐标断点；平板两面同 pose）｜平板使光束平移（会聚光中另引入像散）：实测最佳焦面 z=110.65038mm、RMS=0.025mm｜一阶引擎对 pose 系统报错，指标全部来自实光线追迹。预期指标（引擎计算；单位 mm、µrad、deg；libcheck 复核容差：相对 1e-6）：MODE=posed；FOCUSZ=110.650377mm；FOCUSRMS=0.0250210673mm；RAYS=21",
+  "category": "tilt",
+  "difficulty": 3,
+  "tags": [
+    "posed",
+    "tilt",
+    "plate",
+    "singlet",
+    "N-BK7",
+    "F/4",
+    "efl:100",
+    "visible",
+    "trace-validated",
+    "quality:classic",
+    "sweep:tilt",
+    "plane-parallel",
+    "mode:posed"
+  ]
+}

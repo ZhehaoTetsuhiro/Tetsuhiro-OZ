@@ -1,0 +1,55 @@
+{
+  "name": "折转光路（90° 折轴镜）+ 折叠臂单透镜 N-BK7 f=50mm F/2.8",
+  "object_z_mm": "inf",
+  "cards": [
+    {
+      "name": "aperture stop",
+      "radius_mm": 0,
+      "thickness_mm": 2.5,
+      "semi_aperture_mm": 8.929
+    },
+    {
+      "name": "fold mirror",
+      "radius_mm": 0,
+      "thickness_mm": -0,
+      "semi_aperture_mm": 13.393,
+      "mirror": true,
+      "tilt_x_deg": 45
+    },
+    {
+      "name": "L1 (folded arm)",
+      "radius_mm": 25.8400017,
+      "thickness_mm": -0,
+      "glass": "N-BK7",
+      "semi_aperture_mm": 13.393,
+      "decenter_y_mm": 40,
+      "tilt_x_deg": -90
+    },
+    {
+      "name": "L1 rear (folded arm)",
+      "radius_mm": 0,
+      "thickness_mm": 0,
+      "semi_aperture_mm": 13.393,
+      "decenter_y_mm": 42.5,
+      "tilt_x_deg": -90
+    }
+  ],
+  "stop": 0,
+  "description": "折叠光路：平面折轴镜 + 折叠臂单透镜｜N-BK7｜f=50mm、F/2.8｜折轴镜倾斜 θ=45°（tilt_x_deg），折叠臂长 40mm，透镜两面用 pose 放到折叠臂上（decenter_y_mm=40、42.5，tilt_x_deg=-90；链厚承接折叠臂的 z 分量）｜实光线在折轴镜上的折转 90°（解析 180°−2θ=90°，实测与解析一致）｜最佳焦面 z=2.565mm、RMS=0.0376mm｜全部指标来自追迹（一阶引擎对 pose 系统报错）。预期指标（引擎计算；单位 mm、µrad、deg；libcheck 复核容差：相对 1e-6）：MODE=posed；FOCUSZ=2.56499999mm；FOCUSRMS=0.0376348478mm；RAYS=21",
+  "category": "tilt",
+  "difficulty": 5,
+  "tags": [
+    "posed",
+    "tilt",
+    "fold",
+    "flat-mirror",
+    "singlet",
+    "N-BK7",
+    "F/2.8",
+    "efl:50",
+    "visible",
+    "trace-validated",
+    "quality:classic",
+    "mode:posed"
+  ]
+}

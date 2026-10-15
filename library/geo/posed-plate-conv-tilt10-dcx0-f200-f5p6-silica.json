@@ -1,0 +1,59 @@
+{
+  "name": "倾斜平板（会聚光中）+ 单透镜 FusedSilica f=200mm F/5.6（tilt 10°）",
+  "object_z_mm": "inf",
+  "cards": [
+    {
+      "name": "aperture stop",
+      "radius_mm": 0,
+      "thickness_mm": 2.5,
+      "semi_aperture_mm": 17.857
+    },
+    {
+      "name": "L1",
+      "radius_mm": 91.6927375,
+      "thickness_mm": 10,
+      "glass": "FusedSilica",
+      "semi_aperture_mm": 22.699
+    },
+    {
+      "name": "L1",
+      "radius_mm": 0,
+      "thickness_mm": 50,
+      "semi_aperture_mm": 22.059
+    },
+    {
+      "name": "plate front",
+      "radius_mm": 0,
+      "thickness_mm": 3,
+      "glass": "FusedSilica",
+      "semi_aperture_mm": 21.429,
+      "tilt_x_deg": 10
+    },
+    {
+      "name": "plate rear",
+      "radius_mm": 0,
+      "thickness_mm": 5,
+      "semi_aperture_mm": 21.429,
+      "tilt_x_deg": 10
+    }
+  ],
+  "stop": 0,
+  "description": "倾斜平板 + 球面单透镜｜FusedSilica｜f=200mm、F/5.6｜3毫米厚平板置于会聚光中（tilt_x_deg=10、decenter_x_mm=0，坐标断点；平板两面同 pose）｜平板使光束平移（会聚光中另引入像散）：实测最佳焦面 z=204.59387mm、RMS=0.0229mm｜一阶引擎对 pose 系统报错，指标全部来自实光线追迹。预期指标（引擎计算；单位 mm、µrad、deg；libcheck 复核容差：相对 1e-6）：MODE=posed；FOCUSZ=204.593872mm；FOCUSRMS=0.0229207961mm；RAYS=21",
+  "category": "tilt",
+  "difficulty": 3,
+  "tags": [
+    "posed",
+    "tilt",
+    "plate",
+    "singlet",
+    "FusedSilica",
+    "F/5.6",
+    "efl:200",
+    "visible",
+    "trace-validated",
+    "quality:classic",
+    "sweep:tilt",
+    "plane-parallel",
+    "mode:posed"
+  ]
+}

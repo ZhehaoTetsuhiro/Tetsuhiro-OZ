@@ -1,0 +1,45 @@
+{
+  "name": "偏心/倾斜单透镜 FusedSilica f=100mm F/4（横向偏心 y=0.5mm）",
+  "object_z_mm": "inf",
+  "cards": [
+    {
+      "name": "aperture stop",
+      "radius_mm": 0,
+      "thickness_mm": 2.5,
+      "semi_aperture_mm": 12.5
+    },
+    {
+      "name": "L1",
+      "radius_mm": 45.8463687,
+      "thickness_mm": 5,
+      "glass": "FusedSilica",
+      "semi_aperture_mm": 16.009,
+      "decenter_y_mm": 0.5
+    },
+    {
+      "name": "L1",
+      "radius_mm": 0,
+      "thickness_mm": 30,
+      "semi_aperture_mm": 15.649,
+      "decenter_y_mm": 0.5
+    }
+  ],
+  "stop": 0,
+  "description": "偏心/倾斜单透镜｜FusedSilica｜f=100mm、F/4｜横向偏心 y=0.5mm（decenter_*_mm / tilt_*_deg，坐标断点；两面同 pose，面间距仍沿原光轴）｜pose 系统无一阶量：焦点由平行光束的实光线最佳焦面定位，实测最佳焦面 z=102.35431mm、RMS=0.0293mm｜像差（彗差/像散）随偏置或倾角增长，可与同一 f 数字的轴对称例对照。预期指标（引擎计算；单位 mm、µrad、deg；libcheck 复核容差：相对 1e-6）：MODE=posed；FOCUSZ=102.354311mm；FOCUSRMS=0.0292526286mm；RAYS=21",
+  "category": "tilt",
+  "difficulty": 4,
+  "tags": [
+    "posed",
+    "decenter-y",
+    "singlet",
+    "FusedSilica",
+    "F/4",
+    "efl:100",
+    "visible",
+    "trace-validated",
+    "quality:classic",
+    "sweep:decenter-y",
+    "mode-witness:posed-real-rays",
+    "mode:posed"
+  ]
+}

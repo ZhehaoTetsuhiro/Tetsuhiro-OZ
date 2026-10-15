@@ -4,11 +4,11 @@
 
 ## 计数口径
 
-- 登记候选（进入库的候选条目）：480 = 写入 397 + 候选跳过 83
-- 构造失败（求解或布局失败，未产生候选，未登记）：9
+- 登记候选（进入库的候选条目）：676 = 写入 592 + 候选跳过 84
+- 构造失败（求解、布局或质量门槛失败，未产生候选，未登记）：13
 - 合并（参数指纹与已登记条目相同，不计入候选）：1
 - 同名文件改名（参数不同，不计入失败）：0
-- 失败记录合计：92 = 构造失败 9 + 候选跳过 83（逐条不重复）
+- 失败记录合计：97 = 构造失败 13 + 候选跳过 84（逐条不重复）
 
 ## 候选跳过（已登记，测量 / 断言 / 描述复核未通过，未写入 JSON）
 
@@ -95,8 +95,9 @@
 81. telephoto-f150-ratio0p85.json: assertion: on-axis spot RMS = 0 is not positive and finite; only 1 of 37 sampled rays reach the image plane; field spot RMS = 0 is not positive and finite; only 1 of 37 sampled off-axis rays reach the image plane
 82. telephoto-f300-ratio0p75.json: assertion: on-axis spot RMS = 0 is not positive and finite; only 1 of 37 sampled rays reach the image plane; field spot RMS = 0 is not positive and finite; only 1 of 37 sampled off-axis rays reach the image plane
 83. telephoto-f500-ratio0p7.json: measure: lens: no ray reached the image plane
+84. achromat-asphere-s1-a4-f100-nsk16-nsf5.json: assertion: only 19 of 37 sampled rays reach the image plane; only 19 of 37 sampled off-axis rays reach the image plane
 
-## 构造失败（求解或布局失败，未产生候选）
+## 构造失败（求解/布局/质量门槛失败，未产生候选）
 
 1. bend k=1.3: solveEFL: no sign change of the power residual for s in [1e-5.11, 1e0.89] (target -100 mm)
 2. bend k=2: solveEFL: no sign change of the power residual for s in [1e-5.36, 1e0.64] (target -100 mm)
@@ -107,6 +108,10 @@
 7. relay1to1 f=50: solveEFL: no sign change of the power residual for s in [1e-1.52, 1e4.48] (target 50 mm)
 8. relay1to1 f=100: solveEFL: no sign change of the power residual for s in [1e-1.52, 1e4.48] (target 100 mm)
 9. relay1to1 f=200: solveEFL: no sign change of the power residual for s in [1e-1.52, 1e4.48] (target 200 mm)
+10. achromat asphere N-BK7/F2 f=100 F/2.8: marginal height: geo: ray escape at surface 1
+11. achromat asphere N-SK16/N-SF5 f=50 F/5: marginal height: geo: ray escape at surface 1
+12. achromat asphere N-SK16/N-SF5 f=150 F/5: marginal height: geo: ray escape at surface 1
+13. achromat asphere N-SK16/N-SF5 f=100 F/2.8: marginal height: geo: ray escape at surface 1
 
 ## 合并（参数完全相同，保留先出现的条目）
 
@@ -119,8 +124,9 @@
 
 ## 本批未覆盖（留给后续批次）
 
-- 非球面（偶次/奇次多项式、Forbes Q 多项式）：非球面单透镜、施密特校正板、施密特-卡塞格林 A4 校正板已从本批移除（geo 有偶次非球面，但本批只做球面与解析二次曲面）
-- 里奇-克雷蒂安（双曲面，两镜圆锥常数联立求解）与格利高里式：本批移除。RC 需要圆锥求解；格利高里式的副镜共轭符号未核实，实测焦点与设计位置不符（焦点守卫可检出），待修正后再加入
-- 自由曲面（XY 多项式）、泽尼克面、DOE / 二元光学、热光学（dn/dT、热膨胀）、偏振（琼斯矩阵）、杂散光（二次反射）：本批未涉及
-- 倾斜 / 偏心（坐标断点）：牛顿式以光轴展开的主镜表示（未建 45° 折轴镜）；卡塞格林的中心遮挡未建模
+- 自由曲面（XY 多项式离轴面，缺口 G3）与泽尼克面（G4）：依赖尚未合并的面型能力，本批未生成（若某例需要该能力则跳过并记录于此）
+- 施密特校正板与施密特-卡塞格林的解析 A4 校正板：需要校正板设计解，本次未做
+- 里奇-克雷蒂安（双曲面，两镜圆锥常数联立求解）与格利高里式：RC 需要圆锥求解；格利高里式的副镜共轭符号未核实
+- DOE / 二元光学、热光学（dn/dT、热膨胀）、偏振（琼斯矩阵）、杂散光（二次反射）：本批未涉及
+- 卡塞格林的中心遮挡、牛顿式的完整 45° 折轴镜筒：本批只做单折轴镜折转与折叠臂透镜的折转光路
 - 公差进阶（灵敏度、逆灵敏度、补偿器）、膜系联合评价：本批未涉及

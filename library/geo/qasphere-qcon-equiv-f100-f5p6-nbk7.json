@@ -1,0 +1,51 @@
+{
+  "name": "Forbes Qcon 非球面单透镜 N-BK7 f=100mm F/5.6（与多项式面等价）",
+  "object_z_mm": "inf",
+  "cards": [
+    {
+      "name": "aperture stop",
+      "radius_mm": 0,
+      "thickness_mm": 2.5,
+      "semi_aperture_mm": 8.929
+    },
+    {
+      "name": "L1",
+      "radius_mm": 51.6800035,
+      "thickness_mm": 5,
+      "glass": "N-BK7",
+      "semi_aperture_mm": 11.55,
+      "q_asphere": {
+        "form": "qcon",
+        "norm_radius_mm": 8.92007,
+        "coeffs": [
+          -0.00344089
+        ]
+      }
+    },
+    {
+      "name": "L1",
+      "radius_mm": 0,
+      "thickness_mm": 30,
+      "semi_aperture_mm": 11.238
+    }
+  ],
+  "stop": 0,
+  "description": "Forbes Qcon 非球面（q_asphere.form=qcon）｜N-BK7｜f=100mm、F/5.6｜ρ_max=8.9201mm｜s0=a4·ρ_max⁴（m=0 项 u⁴ 即 r⁴/ρ_max⁴，与多项式 a4 面逐点等价，故实测 RMS 与多项式面一致）｜球面基底 RMS=0.0566mm，Qcon 修正后 RMS=0.0002mm（多项式面 0.000248063mm，相对差 0）。预期指标（引擎计算；单位 mm、µrad、deg；libcheck 复核容差：相对 1e-6）：MODE=refract；EFL=100mm；BFL=96.7035867mm；FNO=5.59973122；FC=-1.53174903mm；RMSAX=0.000248063186mm；FIELD=0.5deg；RMSFLD=0.00129806687mm；RAYS=37；FRAYS=37",
+  "category": "qasphere",
+  "difficulty": 3,
+  "tags": [
+    "qasphere",
+    "qcon",
+    "forbes",
+    "singlet",
+    "N-BK7",
+    "F/5.6",
+    "efl:100",
+    "visible",
+    "optimized",
+    "quality:optimized",
+    "compare:poly",
+    "sweep:efl",
+    "mode:refract"
+  ]
+}
