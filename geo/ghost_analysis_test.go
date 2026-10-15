@@ -118,6 +118,57 @@ func TestGhostSingletSpotVsParaxial(t *testing.T) {
 		r.Pair, r.Spot.Centroid, r.Paraxial, delta, displacement)
 }
 
+// TestGhostIncidenceAnglesDocumentValidityDomain measures the incidence angles
+// the ghost model replaces by a normal-incidence reflectance, which is the
+// honest domain statement of the energy estimate (see the limitations of
+// GhostPath):
+//
+//   - in the small-aperture acceptance configuration (0.25 mm of a 12 mm
+//     aperture, 0.5° field) every interaction of every path of the doublet
+//     stays below 1° of incidence, so R = ((n₁−n₂)/(n₁+n₂))² differs from the
+//     angle-dependent s/p mean by O(θ²) ~ 1e-4 relative;
+//   - at the full aperture the rim rays of the same paths reach 13° to 31°,
+//     where the s/p split is large and the model's R is a normal-incidence
+//     estimate only.
+func TestGhostIncidenceAnglesDocumentValidityDomain(t *testing.T) {
+	sys := ghostDoublet(t)
+	p, err := sys.Paraxial(Wavelengthd, math.Inf(-1))
+	if err != nil {
+		t.Fatal(err)
+	}
+	maxAngle := func(radius float64) float64 {
+		opt := GhostOptions{
+			Field: FieldTan(0.5*math.Pi/180, 0), Pupil: Pupil{Z: -5, Radius: radius},
+			ImageZ: p.BackFocalZ, LambdaNm: Wavelengthd, Points: Hexapolar(1),
+		}
+		worst := 0.0
+		for _, pr := range GhostPairs(sys.NumSurfaces()) {
+			path, err := sys.GhostPathOf(pr)
+			if err != nil {
+				t.Fatal(err)
+			}
+			for _, pt := range opt.Points {
+				hit := sys.ReplayGhost(path, LaunchRay(opt.Field, opt.Pupil, pt, opt.LambdaNm), opt.ImageZ)
+				for _, st := range hit.Steps {
+					if st.IncAngle > worst {
+						worst = st.IncAngle
+					}
+				}
+			}
+		}
+		return worst
+	}
+	small := maxAngle(0.25)
+	if small > 1*math.Pi/180 {
+		t.Errorf("small-aperture acceptance configuration reaches %.3f deg of incidence, want < 1 deg", small*180/math.Pi)
+	}
+	full := maxAngle(12)
+	if full < 5*math.Pi/180 {
+		t.Errorf("the full aperture was expected to reach several degrees of incidence, got %.3f deg", full*180/math.Pi)
+	}
+	t.Logf("max incidence: %.3f deg at a 0.25 mm pupil, %.3f deg at the full 12 mm aperture", small*180/math.Pi, full*180/math.Pi)
+}
+
 // ---------------------------------------------------------------------------
 // Acceptance (b): the relative energy is R_I·R_J
 // ---------------------------------------------------------------------------

@@ -223,52 +223,6 @@ func GhostParaxialOfRay(r Ray, z0 float64) (GhostParaxial, bool) {
 	}, true
 }
 
-// ghostParaxialRecurse propagates the paraxial ray (y, u) through the ghost
-// path p with the y–u recurrence
-//
-//	transfer    y' = y + (z' − z) u
-//	refraction  u' = η u + (η − 1) c y ,  η = n_in/n_out
-//	reflection  u' = −u − 2 c y
-//
-// and returns the height and the slope (dy/dz) at the plane z = imageZ. The
-// zs slice holds the vertex positions of the surfaces; an interval crossed
-// backwards gives a negative transfer, which is exactly the reverse
-// propagation convention (see the GhostPath documentation).
-func ghostParaxialRecurse(els []paraxialElement, zs []float64, p GhostPair, y, u, imageZ float64) (float64, float64) {
-	n := len(els)
-	cur := 0
-	moveTo := func(k int) {
-		y += (zs[k] - zs[cur]) * u
-		cur = k
-	}
-	for k := 0; k < p.I; k++ {
-		if k > 0 {
-			moveTo(k)
-		}
-		e := els[k]
-		eta := e.nB / e.nA
-		u = eta*u + (eta-1)*e.c*y
-	}
-	moveTo(p.I)
-	u = -u - 2*els[p.I].c*y
-	for k := p.I - 1; k > p.J; k-- {
-		moveTo(k)
-		e := els[k]
-		eta := e.nA / e.nB // reversed pass: the incident medium is the one behind
-		u = eta*u + (eta-1)*e.c*y
-	}
-	moveTo(p.J)
-	u = -u - 2*els[p.J].c*y
-	for k := p.J + 1; k < n; k++ {
-		moveTo(k)
-		e := els[k]
-		eta := e.nB / e.nA
-		u = eta*u + (eta-1)*e.c*y
-	}
-	y += (imageZ - zs[n-1]) * u
-	return y, u
-}
-
 // ghostParaxialChain propagates the same paraxial ray with explicit 2×2 ray
 // transfer matrices in (y, ū) coordinates, ū = σ n u the reduced angle of the
 // segment the ray is in (σ = +1 travelling towards +z, σ = −1 towards −z, n
