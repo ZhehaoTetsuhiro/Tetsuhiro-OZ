@@ -77,10 +77,15 @@ func localOf(cb geo.CoordBreak, v geo.Vec3) geo.Vec3 {
 
 // surfaceBeam returns the beam direction behind a surface, in the local
 // coordinates of its frame: the reflected direction for a mirror (the normal is
-// the local +z there), the frame axis for a refracting surface.
+// the local +z there), the propagation sense of the incoming beam for a
+// refracting surface (a refractor does not turn the beam around, so a corrector
+// in the return path of a mirror keeps its -z sense).
 func surfaceBeam(in geo.Vec3, mirror bool) geo.Vec3 {
 	if mirror {
 		return geo.Reflect(in, geo.V(0, 0, 1))
+	}
+	if in.Z < 0 {
+		return geo.V(0, 0, -1)
 	}
 	return geo.V(0, 0, 1)
 }
@@ -95,19 +100,14 @@ func breakWithAxis(w geo.Vec3) geo.CoordBreak {
 }
 
 // foldBreak returns the break that redirects the chain of a mirror: the
-// incoming chain axis axisIn (unit, global frame) is reflected at the mirror,
-// whose vertex normal is the local +z of the frame f, and the frame after the
-// break follows the reflected beam. The break is expressed in f (the frame of
-// the mirror surface), so the fold happens at the mirror vertex.
-func foldBreak(f gframe, axisIn geo.Vec3) geo.CoordBreak {
-	// The incoming axis in the mirror frame.
-	local := geo.Vec3{
-		X: f.ex.Dot(axisIn),
-		Y: f.ey.Dot(axisIn),
-		Z: f.ez.Dot(axisIn),
-	}
-	w := geo.Reflect(local, geo.Vec3{Z: 1})
-	return breakWithAxis(w)
+// incoming beam beamIn (unit, in the coordinates of the mirror frame — the
+// mirror normal is the local +z there) is reflected at the mirror, and the
+// frame after the break follows the reflected beam, so the fold happens at the
+// mirror vertex. The beam is folded, not the chain axis: behind a mirror that
+// returns the beam (a Cassegrain primary) the beam is antiparallel to the chain
+// axis, and reflecting the axis would lay the following elements out backwards.
+func foldBreak(beamIn geo.Vec3) geo.CoordBreak {
+	return breakWithAxis(geo.Reflect(beamIn, geo.V(0, 0, 1)))
 }
 
 // ---------------------------------------------------------------------------
@@ -255,7 +255,6 @@ func (g *Group) plan() (*plan, error) {
 			pl.record(k2, rf, profR, nfold)
 			frameAfter = rf
 			medAfter = medRear
-			beamLocal = geo.V(0, 0, 1)
 		}
 		// Close the element: the return break of its pose, or the fold break of
 		// a mirror that tilts the beam.
@@ -264,7 +263,11 @@ func (g *Group) plan() (*plan, error) {
 			closeCB := pose.Inverse()
 			name := fmt.Sprintf("element %d return", i)
 			if e.folds() {
-				closeCB = foldBreak(frameAfter, in.ez)
+				// Fold the beam, not the chain axis: beamLocal holds the
+				// beam behind the mirror surface (the reflection of the
+				// incoming one); reflecting it once more recovers the
+				// incoming direction that foldBreak expects.
+				closeCB = foldBreak(geo.Reflect(beamLocal, geo.V(0, 0, 1)))
 				name = fmt.Sprintf("element %d fold", i)
 				nfold++
 			} else {
@@ -282,6 +285,9 @@ func (g *Group) plan() (*plan, error) {
 			after := frameAfter.apply(closeCB)
 			pl.emit(planSurface{brk: true, pose: &closeCB, element: i, name: name}, medAfter, e.GapMM)
 			pl.exit, pl.beam = after, geo.V(0, 0, 1)
+			// After a posed element the beam follows the chain (the chain
+			// axis for a return break, the folded axis for a fold).
+			beamLocal = geo.V(0, 0, 1)
 			c = after.shift(e.GapMM)
 		default:
 			pl.exit, pl.beam = frameAfter, beamLocal
