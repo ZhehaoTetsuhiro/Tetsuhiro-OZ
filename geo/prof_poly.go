@@ -54,8 +54,8 @@ func (p PolyAsphere) Validate() error {
 	return nil
 }
 
-// Sag implements Profile: base conic plus the polynomial sum (Horner-free
-// evaluation through powInt, so odd and sparse powers cost nothing extra).
+// Sag implements Profile: base conic plus the polynomial sum, evaluated term by
+// term with powInt so that sparse and odd powers need no special casing.
 func (p PolyAsphere) Sag(r float64) float64 {
 	z := conicBaseSag(r, p.R, p.K)
 	if math.IsNaN(z) {
