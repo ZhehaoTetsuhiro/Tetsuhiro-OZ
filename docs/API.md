@@ -186,7 +186,7 @@ group 的 wire form（`lens.Group` 的 JSON）：
     curl -s -X POST localhost:1130/api/lens/group/layout -d '{"elements":[
       {"kind":"stop","front":{"semi_aperture_mm":150},"thickness_mm":0,"gap_mm":60},
       {"kind":"mirror","front":{"radius_mm":-2000,"semi_aperture_mm":153},"thickness_mm":0,"gap_mm":-300},
-      {"kind":"mirror","front":{"radius_mm":-646.1538461538461,"semi_aperture_mm":117.5},"thickness_mm":0,"gap_mm":600}]}'
+      {"kind":"mirror","front":{"radius_mm":8400,"semi_aperture_mm":117.5},"thickness_mm":0,"gap_mm":600}]}'
 
     {"surfaces":[
       {"element":0,"face":"front","surface":0,"vertex":{"x":0,"y":0,"z":0},"axis":{"x":0,"y":0,"z":1},"normal":{"x":0,"y":0,"z":1},"folds":0},
@@ -196,7 +196,7 @@ group 的 wire form（`lens.Group` 的 JSON）：
 
 （库例 `library/geo/mirror-cassegrain-f1000-d300-b300.json` 的元件形式：负 gap −300 使副镜落在 z = −240；主镜与副镜都未倾斜，所以链不折转。）
 
-**折转链的适用范围**（与 `lens` 包的实现一致，示例与测试都在这两个范围内构造）：①折转镜处在沿链轴传播的光束里（典型：45° 平面镜折转准直/会聚光束，后续元件落在反射链轴上）；②未倾斜的反射镜用**负 gap** 表达轴向折返（卡塞格林）。另有两点实现边界，`layout` 与成像质心不受影响、但读数要按下面的说明理解：③折转镜后面紧跟“返回型”反射镜时，`Group.ExitFrame()` 的出射方向会残留前一元件坐标系的量，`image`/`dispersion` 的焦面会落在错误平面上（此类组合请改用等价的面序，例如把折转镜放在链尾）；④“返回型”反射镜（如抛物面主镜）之后接折转镜时，链轴与光束反平行，`exit_axis` 与 `focus_mm` 的符号按链轴给出（焦面与像点本身正确，如上面的牛顿式示例：像 (0,−100,−840) 而 `focus_mm` 读作 −100）。这两处都在 `lens/group_build.go` 的 `plan()`/`foldBreak` 内，本轮接线未改 `lens` 包。
+**折转与返回光路的语义**（与 `lens` 包的实现一致；三个回归测试在 `lens/fold_beam_test.go`）：①倾斜反射镜沿**光束**折转链条——包括“返回型”反射镜之后的折转（此时光束与链轴反平行，折转的是光束本身，`exit_axis` 与 `focus_mm` 按真实出射方向读数）；②未倾斜的反射镜用**负 gap** 表达轴向折返（卡塞格林）；折返光束里的折射元件（校正镜/平片）保持光束的 −z 传播方向，直到下一个镜面把它翻回 +z；③折转之后紧跟的镜面按新链轴（= 光束方向）反射。三个可核对的闭式：`stop+折转镜(45°)+抛物面(R−400)` 的 `exit_axis` 为 (0,−1,0)、像 (0,−180,15)、`focus_mm` +200；`stop+抛物面(R−4000,gap−900)+折转镜(45°)` 的 `exit_axis` (0,−1,0)、像 (0,−1100,−885)、`focus_mm` +1100；`stop+收集镜(R−400)+返回路平片` 的 `exit_axis` (0,0,−1)、像 (0,0,−50)、`focus_mm` +150。（2026-10 的 `lens` 修复前，后两种组合的读出曾分别有坐标残留与符号反转；现由上述测试固定。）
 
 ### POST /api/lens/group/image
 
@@ -284,7 +284,7 @@ group 的 wire form（`lens.Group` 的 JSON）：
     {"prescription":{"name":"…","object_z_mm":"inf","cards":[
       {"radius_mm":0,"thickness_mm":60,"semi_aperture_mm":150},
       {"radius_mm":-2000,"thickness_mm":-300,"semi_aperture_mm":153,"mirror":true},
-      {"radius_mm":-646.1538461538461,"thickness_mm":600,"semi_aperture_mm":117.5,"mirror":true}],"stop":0}}
+      {"radius_mm":8400,"thickness_mm":600,"semi_aperture_mm":117.5,"mirror":true}],"stop":0}}
 
 （输出与 `library/geo/mirror-cassegrain-f1000-d300-b300.json` 的卡片逐位一致——`cmd/oz` 的 `TestLensGroupToPrescriptionCLI` 就是这么断言的。反向的 处方→group 在 `lens` 包内（`Prescription.Group()`），暂未开放为端点。）
 
@@ -318,10 +318,10 @@ group 的 wire form（`lens.Group` 的 JSON）：
 
     curl -s -X POST localhost:1130/api/lens/parax -d '{"prescription":{...卡塞格林...}}'
     {"lambda_nm":587.5618,"object_z_mm":null,"mirrors":2,"parity":1,"afocal":false,
-     "efl_mm":-857.1428571428569,"focal_length_mm":-857.1428571428569,"ffl_mm":1713.0612244897957,
-     "bfl_mm":-599.9999999999998,"image_z_mm":-839.9999999999998,"magnification":0,
+     "efl_mm":857.1428571428571,"focal_length_mm":857.1428571428571,"ffl_mm":-735.9183673469387,
+     "bfl_mm":599.9999999999999,"image_z_mm":359.9999999999999,"magnification":0,
      "entrance_pupil_z_mm":0,"entrance_pupil_radius_mm":150,
-     "exit_pupil_z_mm":-728.5714285714287,"exit_pupil_radius_mm":214.2857142857143,
+     "exit_pupil_z_mm":-638.3361064891847,"exit_pupil_radius_mm":174.70881863560734,
      "gamma":null,"gamma_note":"无穷远物 + 有光焦度的系统没有角放大率（Γ）：给 --object-z 有限物距或换 afocal 系统",
      "fc_shift_mm":0}
 
@@ -453,7 +453,7 @@ N 级量化相位聚焦 DOE 的一级效率与焦点偏差（G8；`oz doe focus`
         {"kind":"mirror","front":{"radius_mm":-2000,"conic_k":-1,"semi_aperture_mm":40},"gap_mm":-900},
         {"kind":"mirror","front":{"radius_mm":0,"semi_aperture_mm":14},"gap_mm":120,"tilt_x_deg":45}]}'
     curl -s -X POST localhost:1130/api/lens/group/layout -d "$G"          # 顶点 (0,0,0)/(0,0,60)/(0,0,-840)
-    curl -s -X POST localhost:1130/api/lens/group/image -d "$G"           # 像 (0,-100,-840)，RMS ~6e-14
+    curl -s -X POST localhost:1130/api/lens/group/image -d "$G"           # 像 (0,-100,-840)，exit_axis (0,-1,0)、focus_mm +100，RMS ~1e-12
     curl -s -X POST localhost:1130/api/lens/group/set -d "{\"group\":$G,\"sets\":[{\"param\":\"e0.gap_mm\",\"value\":50}]}"
     curl -s -X POST localhost:1130/api/lens/group/dispersion -d "$G"      # 纯镜：shift_mm 恰为 0
     curl -s -X POST localhost:1130/api/lens/group/afocal -d '{"elements":[

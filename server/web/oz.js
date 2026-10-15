@@ -156,7 +156,7 @@
           },
           {
             "kind": "mirror",
-            "front": { "radius_mm": -646.1538461538461, "semi_aperture_mm": 117.5 },
+            "front": { "radius_mm": 8400, "semi_aperture_mm": 117.5 },
             "thickness_mm": 0,
             "gap_mm": 600
           }

@@ -38,16 +38,17 @@ func gParabolaFixture() *lens.Group {
 }
 
 // gCassegrainFixture is the element form of the library Cassegrain: stop at
-// z = 0 (semi 150), primary R = −2000 at z = 60, secondary R = −646.1538 at
+// z = 0 (semi 150), primary R = −2000 at z = 60, secondary R = +8400 at
 // z = 60 − 300 = −240 (a negative gap: the beam returns, so the vertex is
-// behind the primary on the same z axis). EFL = −857.142857 mm, paraxial image
-// z = −840 mm (library numbers, see wt-notes/mirrorparax.md).
+// behind the primary on the same z axis). EFL = +857.142857 mm, paraxial image
+// z = +360 mm, BFL +600 mm (library numbers after the 2026-10 regeneration,
+// where the secondary is the converging conjugate; see wt-notes/mirrorparax.md).
 func gCassegrainFixture() *lens.Group {
 	stop := lens.StopElement(150)
 	stop.GapMM = 60
 	primary := lens.MirrorElement(-2000, 0, 153)
 	primary.GapMM = -300
-	secondary := lens.MirrorElement(-646.1538461538461, 0, 117.5)
+	secondary := lens.MirrorElement(8400, 0, 117.5)
 	secondary.GapMM = 600
 	return &lens.Group{
 		Name: "cassegrain", ObjectZMM: math.Inf(-1), Stop: 0,
@@ -186,7 +187,7 @@ func TestLensGroupShowCLI(t *testing.T) {
 	if err != nil {
 		t.Fatalf("show: %v", err)
 	}
-	for _, want := range []string{`group "cassegrain": 3 elements, stop 0`, "[1] mirror R=-2000", "[2] mirror R=-646.2"} {
+	for _, want := range []string{`group "cassegrain": 3 elements, stop 0`, "[1] mirror R=-2000", "[2] mirror R=8400"} {
 		if !strings.Contains(out, want) {
 			t.Errorf("show output lacks %q:\n%s", want, out)
 		}
@@ -587,8 +588,8 @@ func TestLensGroupToPrescriptionCLI(t *testing.T) {
 }
 
 // TestLensParaxCLI drives `oz lens parax` on the library Cassegrain (a two
-// mirror system: EFL = −857.142857 mm, image at −840 mm, parity +1, F–C
-// exactly zero), on a single mirror with a finite object (the closed form
+// mirror system: EFL = +857.142857 mm, image at +360 mm, BFL +600 mm, parity
+// +1, F–C exactly zero), on a single mirror with a finite object (the closed form
 // 1/s + 1/s' = 2/R) and on the afocal Kepler (Γ through --field-tan).
 func TestLensParaxCLI(t *testing.T) {
 	dir := t.TempDir()
@@ -603,9 +604,9 @@ func TestLensParaxCLI(t *testing.T) {
 	if res.Mirrors != 2 || res.Parity != 1 || res.Afocal {
 		t.Errorf("mirrors %d, parity %g, afocal %v (want 2, +1, false)", res.Mirrors, res.Parity, res.Afocal)
 	}
-	gClose(t, "cassegrain EFL", *res.EFLMM, -857.1428571428571, 1e-9)
-	gClose(t, "cassegrain ImageZ", *res.ImageZMM, -840, 1e-9)
-	gClose(t, "cassegrain BFL", *res.BFLMM, -600, 1e-9)
+	gClose(t, "cassegrain EFL", *res.EFLMM, 857.1428571428571, 1e-9)
+	gClose(t, "cassegrain ImageZ", *res.ImageZMM, 360, 1e-9)
+	gClose(t, "cassegrain BFL", *res.BFLMM, 600, 1e-9)
 	if res.FCShiftMM == nil || *res.FCShiftMM != 0 {
 		t.Errorf("a pure mirror system has no F–C shift: %v", res.FCShiftMM)
 	}

@@ -136,8 +136,9 @@ func TestGroupLayoutEndpoint(t *testing.T) {
 }
 
 // TestGroupImageEndpoint checks the image measurement of the parabola (R/2) and
-// of the Cassegrain (a virtual focus 601.7 mm past the secondary, matching the
-// paraxial −840 mm within the spherical aberration) plus the finite-object path.
+// of the Cassegrain (a real focus 597.3 mm past the secondary, 2.7 mm in front
+// of the paraxial +360 mm within the spherical aberration of the pair) plus the
+// finite-object path.
 func TestGroupImageEndpoint(t *testing.T) {
 	ts := httptest.NewServer(ozMux())
 	defer ts.Close()
@@ -160,13 +161,13 @@ func TestGroupImageEndpoint(t *testing.T) {
 	groupCall(t, ts.URL, "/api/lens/group/image", groupJSON(t, gCassegrainFixture()), &cass)
 	t.Logf("cassegrain image (%g, %g, %g), focus %g mm, RMS %g mm, rays %d",
 		cass.Point.X, cass.Point.Y, cass.Point.Z, cass.FocusMM, cass.RMSMM, cass.Rays)
-	// The real best focus sits 1.7 mm behind the paraxial image (the two
+	// The real best focus sits 2.7 mm in front of the paraxial image (the two
 	// spherical mirrors); the threshold is the aberration budget of that pair.
-	if d := math.Abs(cass.Point.Z + 841.709370442); d > 0.05 {
-		t.Errorf("cassegrain image z = %g, want −841.709 (Δ %g)", cass.Point.Z, d)
+	if d := math.Abs(cass.Point.Z - 357.2577157); d > 0.05 {
+		t.Errorf("cassegrain image z = %g, want +357.258 (Δ %g)", cass.Point.Z, d)
 	}
-	if d := math.Abs(cass.Point.Z + 840); d > 2 {
-		t.Errorf("the real image is %g mm away from the paraxial −840 mm", d)
+	if d := math.Abs(cass.Point.Z - 360); d > 3 {
+		t.Errorf("the real image is %g mm away from the paraxial +360 mm", d)
 	}
 	if cass.RMSMM > 0.2 || cass.Rays != 37 || cass.Failed != 0 {
 		t.Errorf("cassegrain image: %+v", cass)
@@ -329,7 +330,7 @@ func TestGroupPrescriptionEndpoint(t *testing.T) {
 }
 
 // TestParaxEndpoint checks POST /api/lens/parax: the library Cassegrain (two
-// mirrors, EFL = −857.142857, image −840, parity +1, F–C exactly zero), the
+// mirrors, EFL = +857.142857, image +360, parity +1, F–C exactly zero), the
 // finite-object override and the afocal Kepler with its field tangent.
 func TestParaxEndpoint(t *testing.T) {
 	ts := httptest.NewServer(ozMux())
@@ -343,10 +344,10 @@ func TestParaxEndpoint(t *testing.T) {
 	if res.Mirrors != 2 || res.Parity != 1 || res.Afocal {
 		t.Fatalf("mirrors %d, parity %g, afocal %v", res.Mirrors, res.Parity, res.Afocal)
 	}
-	if res.EFLMM == nil || math.Abs(*res.EFLMM+857.1428571428571) > 1e-9 {
+	if res.EFLMM == nil || math.Abs(*res.EFLMM-857.1428571428571) > 1e-9 {
 		t.Errorf("EFL = %v", res.EFLMM)
 	}
-	if res.ImageZMM == nil || math.Abs(*res.ImageZMM+840) > 1e-9 {
+	if res.ImageZMM == nil || math.Abs(*res.ImageZMM-360) > 1e-9 {
 		t.Errorf("ImageZ = %v", res.ImageZMM)
 	}
 	if res.FCShiftMM == nil || *res.FCShiftMM != 0 {
@@ -494,7 +495,7 @@ func TestGroupExamplesInGUI(t *testing.T) {
 	if len(cass.Elements) != 3 || cass.Elements[1].Kind != lens.ElementMirror {
 		t.Fatalf("example 0: %+v", cass.Elements)
 	}
-	if cass.Elements[1].Front.RadiusMM != -2000 || cass.Elements[2].Front.RadiusMM != -646.1538461538461 {
+	if cass.Elements[1].Front.RadiusMM != -2000 || cass.Elements[2].Front.RadiusMM != 8400 {
 		t.Errorf("example 0 radii: %g, %g", cass.Elements[1].Front.RadiusMM, cass.Elements[2].Front.RadiusMM)
 	}
 	// A lens example (doublet) and a folded example must be present.
