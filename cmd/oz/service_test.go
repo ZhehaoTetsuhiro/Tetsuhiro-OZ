@@ -108,8 +108,15 @@ func TestServiceMountsEveryEndpoint(t *testing.T) {
 		{http.MethodGet, "/api/runs/no-such-run", "", http.StatusNotFound},
 		// OZ geometry and coating API. eval, tol and the spectrum take a real
 		// prescription or stack, so they are exercised in TestOZEndpointChain.
+		// The analysis endpoints below take one too; an empty body is routed
+		// (400, not 404) and proves the mount.
 		{http.MethodGet, "/api/version", "", http.StatusOK},
 		{http.MethodPost, "/api/lens/design", `{"efl_mm":60,"semi_aperture_mm":6}`, http.StatusOK},
+		{http.MethodPost, "/api/lens/thermal", `{}`, http.StatusBadRequest},
+		{http.MethodPost, "/api/lens/sens", `{}`, http.StatusBadRequest},
+		{http.MethodPost, "/api/geo/mtf", `{}`, http.StatusBadRequest},
+		{http.MethodPost, "/api/geo/ghost", `{}`, http.StatusBadRequest},
+		{http.MethodPost, "/api/doe/focus", `{"focal_mm":10,"levels":4,"grid_size":128}`, http.StatusOK},
 		{http.MethodPost, "/api/coating/design", `{"template":"single-ar","lambda_nm":550}`, http.StatusOK},
 		// GUI and the pre-merge address.
 		{http.MethodGet, "/", "", http.StatusOK},
@@ -137,6 +144,11 @@ func TestServiceMethodContract(t *testing.T) {
 		{http.MethodGet, "/api/lens/design"},
 		{http.MethodGet, "/api/lens/eval"},
 		{http.MethodGet, "/api/lens/tol"},
+		{http.MethodGet, "/api/lens/thermal"},
+		{http.MethodGet, "/api/lens/sens"},
+		{http.MethodGet, "/api/geo/mtf"},
+		{http.MethodGet, "/api/geo/ghost"},
+		{http.MethodGet, "/api/doe/focus"},
 		{http.MethodGet, "/api/coating/design"},
 		{http.MethodGet, "/api/coating/spectrum"},
 		{http.MethodGet, "/api/simulate"},
@@ -201,6 +213,23 @@ func TestOZEndpointChain(t *testing.T) {
 	tol := postMap(t, base, "/api/lens/tol", string(tolBody))
 	if len(tol) == 0 {
 		t.Fatal("tolerance report is empty")
+	}
+
+	// The analysis endpoints accept the designed prescription as well: design →
+	// thermal / sensitivity / MTF / ghost in one chain.
+	for _, c := range []struct{ path, tail string }{
+		{"/api/lens/thermal", `,"delta_t_k":10`},
+		{"/api/lens/sens", `,"metric":"merit","inverse":true,"budget_mm":0.005`},
+		{"/api/geo/mtf", `,"fields_deg":[0,0.5],"cycles_per_mm":[10,30]`},
+		{"/api/geo/ghost", ``},
+	} {
+		m := postMap(t, base, c.path, `{"prescription":`+string(presc)+c.tail+`}`)
+		if len(m) == 0 {
+			t.Errorf("%s answered an empty object", c.path)
+		}
+	}
+	if m := postMap(t, base, "/api/doe/focus", `{"focal_mm":10,"levels":4,"grid_size":128}`); m["eta_first_order"] == nil {
+		t.Errorf("doe focus answer incomplete: %v", m)
 	}
 
 	c := postMap(t, base, "/api/coating/design", `{"template":"single-ar","lambda_nm":550,"substrate":"BK7"}`)
