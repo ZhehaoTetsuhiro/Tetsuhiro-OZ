@@ -3,10 +3,13 @@ package wave
 import (
 	"math"
 	"math/cmplx"
+	"math/rand"
 	"testing"
 )
 
-// naiveDFT is the O(n²) reference transform.
+// naiveDFT is the O(n²) reference transform. The twiddle exp(±2πi·m/n) is
+// tabulated for m = (k·j) mod n, so every angle lies in [0, 2π) and carries
+// no argument-reduction error (k·j/n can reach ~10³ turns for n = 1024).
 func naiveDFT(a []complex128, inverse bool) []complex128 {
 	n := len(a)
 	out := make([]complex128, n)
@@ -14,10 +17,14 @@ func naiveDFT(a []complex128, inverse bool) []complex128 {
 	if inverse {
 		sign = 1.0
 	}
+	tw := make([]complex128, n)
+	for m := range tw {
+		tw[m] = cmplx.Exp(complex(0, sign*2*math.Pi*float64(m)/float64(n)))
+	}
 	for k := 0; k < n; k++ {
 		var s complex128
 		for j := 0; j < n; j++ {
-			s += a[j] * cmplx.Exp(complex(0, sign*2*math.Pi*float64(k*j)/float64(n)))
+			s += a[j] * tw[(k*j)%n]
 		}
 		if inverse {
 			s /= complex(float64(n), 0)
@@ -25,6 +32,47 @@ func naiveDFT(a []complex128, inverse bool) []complex128 {
 		out[k] = s
 	}
 	return out
+}
+
+// maxRelErr is max_k |got_k − want_k| / max_k |want_k|: the error relative to
+// the largest reference coefficient (per-bin relative errors are ill-defined
+// where the spectrum is near zero).
+func maxRelErr(got, want []complex128) float64 {
+	var d, scale float64
+	for i := range want {
+		if v := cmplx.Abs(got[i] - want[i]); v > d {
+			d = v
+		}
+		if v := cmplx.Abs(want[i]); v > scale {
+			scale = v
+		}
+	}
+	return d / scale
+}
+
+// TestFFT1DNaiveDFTPowersOfTwo checks the transform against the naive DFT for
+// N = 8, 16, …, 1024 on a fixed-seed random complex input, in both
+// directions. Acceptance: max relative error ≤ 1e-12.
+func TestFFT1DNaiveDFTPowersOfTwo(t *testing.T) {
+	rng := rand.New(rand.NewSource(20261015)) // fixed seed: reproducible input
+	worst := 0.0
+	for n := 8; n <= 1024; n <<= 1 {
+		a := make([]complex128, n)
+		for i := range a {
+			a[i] = complex(2*rng.Float64()-1, 2*rng.Float64()-1)
+		}
+		ef := maxRelErr(FFT1D(a, false), naiveDFT(a, false))
+		ei := maxRelErr(FFT1D(a, true), naiveDFT(a, true))
+		t.Logf("N=%4d: max relative error forward %.3e, inverse %.3e", n, ef, ei)
+		if ef > 1e-12 {
+			t.Errorf("N=%d forward: max relative error %.3g > 1e-12", n, ef)
+		}
+		if ei > 1e-12 {
+			t.Errorf("N=%d inverse: max relative error %.3g > 1e-12", n, ei)
+		}
+		worst = math.Max(worst, math.Max(ef, ei))
+	}
+	t.Logf("worst over N = 8…1024: %.3e (threshold 1e-12)", worst)
 }
 
 func TestFFT1DMatchesDFT(t *testing.T) {
