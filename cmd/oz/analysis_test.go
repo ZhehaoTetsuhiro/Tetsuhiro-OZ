@@ -435,7 +435,10 @@ func TestAnalysisEndpointErrors(t *testing.T) {
 		{"/api/lens/sens", body(`,"compensate":true,"perturb_radius_mm":0.05}`)}, // compensate needs metric=merit
 		{"/api/lens/sens", body(`,"compensator_vars":["s9.R"]}`)},                // card out of range
 		{"/api/geo/mtf", body(`,"fields_deg":[95]}`)},                            // non-physical field
-		{"/api/geo/mtf", body(`,"rays":4}`)},
+		{"/api/geo/mtf", body(`,"rays":3}`)},                                     // below the minimum
+		{"/api/geo/mtf", body(`,"rays":200001}`)},                                // above maxMTFRays
+		{"/api/geo/mtf", body(`,"bins":1}`)},                                     // below the minimum
+		{"/api/geo/mtf", body(`,"cycles_per_mm":[-10]}`)},                        // negative frequency
 		{"/api/geo/ghost", body(`,"rings":99}`)},
 		{"/api/geo/ghost", body(`,"reflectance":[0.5,2]}`)}, // wrong length / out of [0,1]
 		{"/api/doe/focus", `{}`},                            // no focal length
