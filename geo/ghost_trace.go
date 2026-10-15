@@ -236,7 +236,8 @@ func GhostParaxialOfRay(r Ray, z0 float64) (GhostParaxial, bool) {
 // index −n; flipping σ is what keeps ū = σ n u consistent across it. The
 // returned matrix is the product from the plane of surface 0 to the image
 // plane. It is an independent transcription of the same path as
-// ghostParaxialRecurse and the two agree to round-off (tested).
+// the independent y–u recurrence oracle of the tests (TestGhostParaxialRepeatability),
+// with which it agrees to round-off.
 func ghostParaxialChain(els []paraxialElement, zs []float64, n0 float64, p GhostPair, y0, u0, imageZ float64) (float64, float64, Mat2) {
 	n := len(els)
 	y, ubar := y0, n0*u0

@@ -40,9 +40,9 @@ import (
 //     undoes the forward refraction); geo.Refract orients the surface normal
 //     against the incoming ray on its own, so this medium swap is the only
 //     change the vector tracer needs.
-//   - Paraxially (see ghostParaxialRecurse) the same statement in (y, u) form —
-//     u = dy/dz and η = n_in/n_out the ratio of the incident to the exit index
-//     — is
+//   - Paraxially the same statement in (y, u) form (the form GhostABCD is built
+//     from), with u = dy/dz and η = n_in/n_out the ratio of the incident to the
+//     exit index, is
 //
 //	refraction:  u' = η u + (η − 1) c y   (either direction of travel),
 //	reflection:  u' = −u − 2 c y          (either direction of travel),
