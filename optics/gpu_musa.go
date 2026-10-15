@@ -55,6 +55,7 @@ import (
 	"path/filepath"
 	"sync"
 	"sync/atomic"
+	"syscall"
 	"time"
 	"unsafe"
 )
@@ -211,6 +212,16 @@ func helperQueryName(c net.Conn) string {
 	return string(buf)
 }
 
+// helperLogPath is where the helper daemon writes its log (ready/idle-exit
+// messages and, with --verbose, per-request timings). WOS_MUSA_LOG overrides
+// the default under the OS temp directory.
+func helperLogPath() string {
+	if p := os.Getenv("WOS_MUSA_LOG"); p != "" {
+		return p
+	}
+	return filepath.Join(os.TempDir(), "wos-musa-fft.log")
+}
+
 // helperAcquireLocked returns a live daemon connection, spawning the
 // helper if none is running. Callers must hold helperMu.
 func helperAcquireLocked() (net.Conn, error) {
@@ -226,8 +237,18 @@ func helperAcquireLocked() (net.Conn, error) {
 		return nil, fmt.Errorf("musa helper binary not found")
 	}
 	cmd := exec.Command(helperPath, "--socket", helperSock, "--idle-exit", helperIdleExitSec)
-	cmd.Stdout = os.Stdout
-	cmd.Stderr = os.Stderr
+	// The daemon must NOT inherit this process's stdout/stderr: when the
+	// caller is a test binary run under `go test`, a helper holding the
+	// test's pipes keeps them open after the test exits and `go test` then
+	// fails with "Test I/O incomplete". Its output goes to a log file, and
+	// Setsid detaches it from this process group (it outlives the caller;
+	// --idle-exit reaps it).
+	if logf, err := os.OpenFile(helperLogPath(), os.O_CREATE|os.O_WRONLY|os.O_APPEND, 0o644); err == nil {
+		cmd.Stdout = logf
+		cmd.Stderr = logf
+		defer logf.Close()
+	}
+	cmd.SysProcAttr = &syscall.SysProcAttr{Setsid: true}
 	if err := cmd.Start(); err != nil {
 		return nil, fmt.Errorf("spawn musa helper: %w", err)
 	}
