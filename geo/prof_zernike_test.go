@@ -730,4 +730,27 @@ func TestZernikeSurfaceStructure(t *testing.T) {
 		// A sphere of R = 100 is real out to r = 100; use a hyperbola rim instead.
 		t.Logf("sag inside the conic domain is finite (expected)")
 	}
+
+	// For a rotationally symmetric coefficient list the r-only Profile path
+	// must be exact: Sag(r) equals SagXY at every azimuth and Slope(r) the
+	// radial derivative. This is the guarantee behind Symmetric().
+	sym := ZernikeSurface{R: -300, K: -0.5, NormR: 12, Coeffs: []float64{2e-3, 0, 0, 1.5e-3, 0, 0, 0, 0, 0, 0, -4e-4, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 8e-5}}
+	if !sym.Symmetric() {
+		t.Fatalf("m = 0 coefficient list not detected as symmetric")
+	}
+	worstSym := 0.0
+	for i := 1; i <= 20; i++ {
+		r := 12.0 * float64(i) / 20
+		for j := 0; j < 12; j++ {
+			th := 2 * math.Pi * float64(j) / 12
+			x, y := r*math.Cos(th), r*math.Sin(th)
+			worstSym = math.Max(worstSym, math.Abs(sym.Sag(r)-sym.SagXY(x, y)))
+			gx, gy := sym.GradXY(x, y)
+			worstSym = math.Max(worstSym, math.Abs(gx*math.Cos(th)+gy*math.Sin(th)-sym.Slope(r)))
+		}
+	}
+	if worstSym > 1e-15 {
+		t.Errorf("symmetric surface: r-only path deviates from the XY path by %.3g", worstSym)
+	}
+	t.Logf("symmetric surface: r-only vs XY path worst deviation %.3g", worstSym)
 }
