@@ -14,10 +14,11 @@ import (
 // A group is laid out as a chain of rigid frames, exactly the model package geo
 // implements with its coordinate-break elements (geo.CoordBreak, see
 // coordbreak.go): each element sits in the current frame, and the frame either
-// returns to the enclosing axis after the element (the auto-return of a pose)
-// or is redirected by the fold break of a tilted mirror. The chain is written
-// into the geo.System as Break elements, so the trace, BoundsZ, VertexZ and the
-// real-ray analyses of package geo walk the same geometry this file computes.
+// returns to the enclosing frame after the element (the auto-return of a pose,
+// origin included: a posed element does not move the following elements) or is
+// redirected by the fold break of a tilted mirror. The chain is written into the
+// geo.System as Break elements, so the trace, BoundsZ, VertexZ and the real-ray
+// analyses of package geo walk the same geometry this file computes.
 
 // gframe is a rigid frame of the chain: the origin o and the orthonormal local
 // axes ex, ey, ez in the global frame, so that the local point (x, y, z) sits
