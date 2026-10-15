@@ -102,7 +102,7 @@ var thermalGlasses = []ThermalGlass{
 		CTE:      8.2e-6,
 		Source:   "[S5] F2 datasheet (Stand 01.02.2014): constants of formula for dn/dT; α−30/+70 = 8.2e-6 /K. Cross-checked against [S1] Tab. 2 (F2 e-line +20/+40 °C relative 4.40e-6 /K).",
 		Verified: true,
-		Note:     "Constants read from the 2014 issue. The 2023 TIE-19 e-line value (4.40e-6 /K relative) agrees within rounding; the current F2 datasheet issue was not retrieved (待核对).",
+		Note:     "Constants read from the 2014 issue. The model gives 4.374e-6 /K (relative, e-line, +20/+40 °C) against 4.40e-6 /K in the 2023 TIE-19 Tab. 2: a 0.03e-6 /K difference, so the current F2 datasheet issue should be checked (待核对).",
 	},
 	{
 		Name: "fused silica",
