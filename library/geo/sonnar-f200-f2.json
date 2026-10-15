@@ -1,0 +1,74 @@
+{
+  "name": "Sonnar 型 5 片物镜 f=200mm F/2",
+  "object_z_mm": "inf",
+  "cards": [
+    {
+      "name": "aperture stop",
+      "radius_mm": 0,
+      "thickness_mm": 5.9285,
+      "semi_aperture_mm": 50
+    },
+    {
+      "name": "L1/L2",
+      "radius_mm": 668.1578739,
+      "thickness_mm": 14.8214,
+      "glass": "N-SK16",
+      "semi_aperture_mm": 62.838
+    },
+    {
+      "name": "L1/L2",
+      "radius_mm": -668.1578739,
+      "thickness_mm": 14.8214,
+      "glass": "F2",
+      "semi_aperture_mm": 62.439
+    },
+    {
+      "name": "L1/L2",
+      "radius_mm": -302.8228428,
+      "thickness_mm": 31.6189,
+      "semi_aperture_mm": 61.986
+    },
+    {
+      "name": "L3",
+      "radius_mm": 269.7294491,
+      "thickness_mm": 23.7142,
+      "glass": "N-SK16",
+      "semi_aperture_mm": 54.536
+    },
+    {
+      "name": "L3",
+      "radius_mm": -269.7294491,
+      "thickness_mm": 39.5236,
+      "semi_aperture_mm": 51.189
+    },
+    {
+      "name": "L4",
+      "radius_mm": -343.0873353,
+      "thickness_mm": 15.8095,
+      "glass": "F2",
+      "semi_aperture_mm": 31.628
+    },
+    {
+      "name": "L4",
+      "radius_mm": 343.0873353,
+      "thickness_mm": 395.2364,
+      "semi_aperture_mm": 27.478
+    }
+  ],
+  "stop": 0,
+  "description": "Sonnar 型 5 片物镜｜f=200mm、F/2、3° 视场｜经典构造（薄透镜初值 + 近轴标定）。预期指标（引擎计算；单位 mm、µrad、deg；libcheck 复核容差：相对 1e-6）：MODE=refract；EFL=200mm；BFL=97.6251602mm；FNO=2；FC=-3.29465831mm；RMSAX=3.47451961mm；FIELD=3deg；RMSFLD=3.63843195mm；RAYS=37；FRAYS=37",
+  "category": "multi",
+  "difficulty": 4,
+  "tags": [
+    "sonnar",
+    "multi-element",
+    "F/2",
+    "efl:200",
+    "visible",
+    "quality:classic",
+    "fov3deg",
+    "sweep:efl",
+    "front-stop",
+    "mode:refract"
+  ]
+}

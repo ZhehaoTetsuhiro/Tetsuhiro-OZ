@@ -1,0 +1,42 @@
+{
+  "name": "双凸单透镜 N-BK7 f=100mm F/5",
+  "object_z_mm": "inf",
+  "cards": [
+    {
+      "name": "aperture stop",
+      "radius_mm": 0,
+      "thickness_mm": 2.4794,
+      "semi_aperture_mm": 10
+    },
+    {
+      "name": "L1",
+      "radius_mm": 102.5082127,
+      "thickness_mm": 4.9588,
+      "glass": "N-BK7",
+      "semi_aperture_mm": 12.888
+    },
+    {
+      "name": "L1",
+      "radius_mm": -102.5082127,
+      "thickness_mm": 29.7528,
+      "semi_aperture_mm": 12.721
+    }
+  ],
+  "stop": 0,
+  "description": "单透镜（双凸）｜N-BK7｜设计焦距 100mm，口径 10mm，F/5。预期指标（引擎计算；单位 mm、µrad、deg；libcheck 复核容差：相对 1e-6）：MODE=refract；EFL=100mm；BFL=98.3517915mm；FNO=5；FC=-1.53215279mm；RMSAX=0.116135051mm；FIELD=0.5deg；RMSFLD=0.116983842mm；RAYS=37；FRAYS=37",
+  "category": "singlet",
+  "difficulty": 1,
+  "tags": [
+    "singlet",
+    "dcx",
+    "N-BK7",
+    "F/5",
+    "efl:100",
+    "visible",
+    "classic",
+    "quality:analytic",
+    "fov0.5deg",
+    "sweep:f",
+    "mode:refract"
+  ]
+}

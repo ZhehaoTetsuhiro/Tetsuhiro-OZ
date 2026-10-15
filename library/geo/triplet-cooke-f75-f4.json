@@ -1,0 +1,67 @@
+{
+  "name": "三片式 Cooke 型物镜（正-负-正） f=75mm F/4（DLS 抛光）",
+  "object_z_mm": "inf",
+  "cards": [
+    {
+      "name": "aperture stop",
+      "radius_mm": 0,
+      "thickness_mm": 2.0162,
+      "semi_aperture_mm": 9.375
+    },
+    {
+      "name": "L1",
+      "radius_mm": 22.9393754,
+      "thickness_mm": 8.2313,
+      "glass": "N-SK16",
+      "semi_aperture_mm": 12.107
+    },
+    {
+      "name": "L1",
+      "radius_mm": 0,
+      "thickness_mm": 8.9999,
+      "semi_aperture_mm": 11.789
+    },
+    {
+      "name": "L2",
+      "radius_mm": -28.5144694,
+      "thickness_mm": 8.9992,
+      "glass": "F2",
+      "semi_aperture_mm": 10.023
+    },
+    {
+      "name": "L2",
+      "radius_mm": 27.2019708,
+      "thickness_mm": 5.0406,
+      "semi_aperture_mm": 9.782
+    },
+    {
+      "name": "L3",
+      "radius_mm": 54.5879415,
+      "thickness_mm": 2.735,
+      "glass": "N-SK16",
+      "semi_aperture_mm": 10.28
+    },
+    {
+      "name": "L3",
+      "radius_mm": -54.0219421,
+      "thickness_mm": 60.4864,
+      "semi_aperture_mm": 10.266
+    }
+  ],
+  "stop": 0,
+  "description": "三片式 Cooke 型物镜（正-负-正）｜f=75mm、F/4、1° 视场｜经典构造（薄透镜初值 + 近轴标定）｜DLS 抛光：150 次接受迭代／1457 次求值，merit=146.5。预期指标（引擎计算；单位 mm、µrad、deg；libcheck 复核容差：相对 1e-6）：MODE=refract；EFL=75.0000001mm；BFL=39.4098067mm；FNO=4.00000001；FC=-0.600762451mm；RMSAX=0.0417682046mm；FIELD=1deg；RMSFLD=0.0417098636mm；RAYS=37；FRAYS=37",
+  "category": "multi",
+  "difficulty": 3,
+  "tags": [
+    "triplet-cooke",
+    "multi-element",
+    "F/4",
+    "efl:75",
+    "visible",
+    "quality:optimized",
+    "fov1deg",
+    "sweep:efl",
+    "front-stop",
+    "mode:refract"
+  ]
+}

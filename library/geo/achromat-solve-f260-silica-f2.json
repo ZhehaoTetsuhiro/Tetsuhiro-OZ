@@ -1,0 +1,44 @@
+{
+  "name": "消色差双胶合 FusedSilica/F2 f=260mm F/5（解析解）",
+  "object_z_mm": "inf",
+  "cards": [
+    {
+      "name": "crown front",
+      "radius_mm": 109.10356402160821,
+      "thickness_mm": 7.8,
+      "glass": "FusedSilica",
+      "semi_aperture_mm": 26
+    },
+    {
+      "name": "cemented surface",
+      "radius_mm": -109.10356402160821,
+      "thickness_mm": 3.12,
+      "glass": "F2",
+      "semi_aperture_mm": 26
+    },
+    {
+      "name": "flint rear",
+      "radius_mm": -552.1707518703444,
+      "thickness_mm": 247,
+      "semi_aperture_mm": 26
+    }
+  ],
+  "stop": 0,
+  "description": "双胶合消色差｜FusedSilica+F2｜f=260mm、F/5｜解析构造（薄透镜消色差解 + 厚透镜牛顿修正，未经 DLS 抛光）。预期指标（引擎计算；单位 mm、µrad、deg；libcheck 复核容差：相对 1e-6）：MODE=refract；EFL=260mm；BFL=252.777745mm；FNO=5；FC=-0.029638075mm；RMSAX=0.0620061661mm；FIELD=0.5deg；RMSFLD=0.0621703162mm；RAYS=37；FRAYS=35",
+  "category": "achromat",
+  "difficulty": 2,
+  "tags": [
+    "achromat",
+    "doublet",
+    "FusedSilica",
+    "F2",
+    "F/5",
+    "efl:260",
+    "visible",
+    "classic",
+    "quality:analytic",
+    "fov0.5deg",
+    "sweep:efl",
+    "mode:refract"
+  ]
+}

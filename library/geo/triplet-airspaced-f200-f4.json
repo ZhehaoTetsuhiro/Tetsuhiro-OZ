@@ -1,0 +1,67 @@
+{
+  "name": "三片分离式（空气间隔三片） f=200mm F/4（DLS 抛光）",
+  "object_z_mm": "inf",
+  "cards": [
+    {
+      "name": "aperture stop",
+      "radius_mm": 0,
+      "thickness_mm": 2.2589,
+      "semi_aperture_mm": 25
+    },
+    {
+      "name": "L1",
+      "radius_mm": 204.6360972,
+      "thickness_mm": 24.0003,
+      "glass": "N-BK7",
+      "semi_aperture_mm": 31.619
+    },
+    {
+      "name": "L1",
+      "radius_mm": -222.735097,
+      "thickness_mm": 24.0003,
+      "semi_aperture_mm": 31.389
+    },
+    {
+      "name": "L2",
+      "radius_mm": -221.591297,
+      "thickness_mm": 22.6231,
+      "glass": "F2",
+      "semi_aperture_mm": 26.834
+    },
+    {
+      "name": "L2",
+      "radius_mm": 231.3896968,
+      "thickness_mm": 37.6488,
+      "semi_aperture_mm": 25.693
+    },
+    {
+      "name": "L3",
+      "radius_mm": 169.2225977,
+      "thickness_mm": 7.5298,
+      "glass": "N-BK7",
+      "semi_aperture_mm": 25.414
+    },
+    {
+      "name": "L3",
+      "radius_mm": -175.2809976,
+      "thickness_mm": 150.5952,
+      "semi_aperture_mm": 25.124
+    }
+  ],
+  "stop": 0,
+  "description": "三片分离式（空气间隔三片）｜f=200mm、F/4、1° 视场｜经典构造（薄透镜初值 + 近轴标定）｜DLS 抛光：150 次接受迭代／1607 次求值，merit=1960。预期指标（引擎计算；单位 mm、µrad、deg；libcheck 复核容差：相对 1e-6）：MODE=refract；EFL=200mm；BFL=158.314592mm；FNO=4；FC=-1.08234567mm；RMSAX=0.419327921mm；FIELD=1deg；RMSFLD=0.425589629mm；RAYS=37；FRAYS=37",
+  "category": "multi",
+  "difficulty": 3,
+  "tags": [
+    "triplet-airspaced",
+    "multi-element",
+    "F/4",
+    "efl:200",
+    "visible",
+    "quality:optimized",
+    "fov1deg",
+    "sweep:efl",
+    "front-stop",
+    "mode:refract"
+  ]
+}

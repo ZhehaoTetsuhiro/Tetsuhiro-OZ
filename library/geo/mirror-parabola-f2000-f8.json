@@ -1,0 +1,37 @@
+{
+  "name": "抛物面反射镜 f=2000mm F/8",
+  "object_z_mm": "inf",
+  "cards": [
+    {
+      "name": "aperture stop",
+      "radius_mm": 0,
+      "thickness_mm": 60,
+      "semi_aperture_mm": 125
+    },
+    {
+      "name": "primary",
+      "radius_mm": -4000,
+      "conic_k": -1,
+      "thickness_mm": 200,
+      "semi_aperture_mm": 127.5,
+      "mirror": true
+    }
+  ],
+  "stop": 0,
+  "description": "抛物面反射镜（K=-1）｜f=2000mm、F/8｜经典构造：平行光严格成像于 R/2（无球差），由实光线追迹验证。预期指标（引擎计算；单位 mm、µrad、deg；libcheck 复核容差：相对 1e-6）：MODE=focus；FOCUSZ=2054.56858mm；FOCUSRMS=72.6288884mm；RAYS=21",
+  "category": "mirror",
+  "difficulty": 3,
+  "tags": [
+    "mirror",
+    "parabola",
+    "single-mirror",
+    "F/8",
+    "efl:2000",
+    "visible",
+    "classic",
+    "quality:classic",
+    "trace-validated",
+    "sweep:efl",
+    "mode:focus"
+  ]
+}

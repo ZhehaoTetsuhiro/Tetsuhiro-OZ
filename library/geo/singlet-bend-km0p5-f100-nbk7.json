@@ -1,0 +1,42 @@
+{
+  "name": "弯曲族 N-BK7 f=100mm（c2/c1=-0.50）",
+  "object_z_mm": "inf",
+  "cards": [
+    {
+      "name": "aperture stop",
+      "radius_mm": 0,
+      "thickness_mm": 83.7483,
+      "semi_aperture_mm": 10
+    },
+    {
+      "name": "L1",
+      "radius_mm": 44.0207381,
+      "thickness_mm": 167.4966,
+      "glass": "N-BK7",
+      "semi_aperture_mm": 12.888
+    },
+    {
+      "name": "L1",
+      "radius_mm": -88.0415762,
+      "thickness_mm": 1004.9798,
+      "semi_aperture_mm": 4.316
+    }
+  ],
+  "stop": 0,
+  "description": "单透镜弯曲族｜N-BK7｜f=100mm、F/5 固定，第二个面的曲率比为 -0.5：弯月形（比值→1）球差显著下降。预期指标（引擎计算；单位 mm、µrad、deg；libcheck 复核容差：相对 1e-6）：MODE=focus；FOCUSZ=278.823879mm；FOCUSRMS=1.72070827mm；RAYS=21",
+  "category": "singlet",
+  "difficulty": 2,
+  "tags": [
+    "singlet",
+    "bending",
+    "N-BK7",
+    "F/5",
+    "visible",
+    "classic",
+    "quality:analytic",
+    "fov0.5deg",
+    "sweep:bending",
+    "efl:100",
+    "mode:focus"
+  ]
+}

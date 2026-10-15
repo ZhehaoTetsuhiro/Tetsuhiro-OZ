@@ -1,0 +1,44 @@
+{
+  "name": "消色差双胶合 FusedSilica/F2 f=900mm F/7.5（解析解）",
+  "object_z_mm": "inf",
+  "cards": [
+    {
+      "name": "crown front",
+      "radius_mm": 377.66618315161435,
+      "thickness_mm": 27,
+      "glass": "FusedSilica",
+      "semi_aperture_mm": 60
+    },
+    {
+      "name": "cemented surface",
+      "radius_mm": -377.66618315161435,
+      "thickness_mm": 10.8,
+      "glass": "F2",
+      "semi_aperture_mm": 60
+    },
+    {
+      "name": "flint rear",
+      "radius_mm": -1911.3602949371646,
+      "thickness_mm": 855,
+      "semi_aperture_mm": 60
+    }
+  ],
+  "stop": 0,
+  "description": "双胶合消色差｜FusedSilica+F2｜f=900mm、F/7.5｜解析构造（薄透镜消色差解 + 厚透镜牛顿修正，未经 DLS 抛光）。预期指标（引擎计算；单位 mm、µrad、deg；libcheck 复核容差：相对 1e-6）：MODE=refract；EFL=900mm；BFL=874.999886mm；FNO=7.5；FC=-0.102593337mm；RMSAX=0.0444213655mm；FIELD=0.5deg；RMSFLD=0.0457644297mm；RAYS=37；FRAYS=37",
+  "category": "achromat",
+  "difficulty": 2,
+  "tags": [
+    "achromat",
+    "doublet",
+    "FusedSilica",
+    "F2",
+    "F/7.5",
+    "efl:900",
+    "visible",
+    "classic",
+    "quality:analytic",
+    "fov0.5deg",
+    "sweep:efl",
+    "mode:refract"
+  ]
+}

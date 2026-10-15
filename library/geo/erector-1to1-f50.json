@@ -1,0 +1,69 @@
+{
+  "name": "1:1 正像中继（转像系统）f=50mm",
+  "object_z_mm": -95,
+  "cards": [
+    {
+      "name": "aperture stop",
+      "radius_mm": 0,
+      "thickness_mm": 3.0191,
+      "semi_aperture_mm": 6.25
+    },
+    {
+      "name": "L1/L2",
+      "radius_mm": 81.4852944,
+      "thickness_mm": 1.5096,
+      "glass": "N-BK7",
+      "semi_aperture_mm": 8.474
+    },
+    {
+      "name": "L1/L2",
+      "radius_mm": -81.4852944,
+      "thickness_mm": 1.5096,
+      "glass": "F2",
+      "semi_aperture_mm": 8.494
+    },
+    {
+      "name": "L1/L2",
+      "radius_mm": -41.8999971,
+      "thickness_mm": 50.3186,
+      "semi_aperture_mm": 8.525
+    },
+    {
+      "name": "L3/L4",
+      "radius_mm": -41.8999971,
+      "thickness_mm": 1.5096,
+      "glass": "F2",
+      "semi_aperture_mm": 4.39
+    },
+    {
+      "name": "L3/L4",
+      "radius_mm": -81.4852944,
+      "thickness_mm": 1.5096,
+      "glass": "N-BK7",
+      "semi_aperture_mm": 4.369
+    },
+    {
+      "name": "L3/L4",
+      "radius_mm": 81.4852944,
+      "thickness_mm": 50.3186,
+      "semi_aperture_mm": 4.34
+    }
+  ],
+  "stop": 0,
+  "description": "转像系统（1:1 正像中继）｜两组胶合 f=50mm，物距 -95mm、像距 -1132.5mm、近轴倍率 23.795｜经典构造：望远镜/潜望镜里的转像镜组，中间像位于两组之间的公共焦面。预期指标（引擎计算；单位 mm、µrad、deg；libcheck 复核容差：相对 1e-6）：MODE=focus；FOCUSZ=59.0595559mm；FOCUSRMS=0.124130992mm；RAYS=21",
+  "category": "instrument",
+  "difficulty": 4,
+  "tags": [
+    "erector",
+    "relay",
+    "1to1",
+    "finite-conjugate",
+    "efl:50",
+    "visible",
+    "classic",
+    "quality:classic",
+    "mag:23.795",
+    "objfield:1.9",
+    "mode:focus"
+  ]
+}

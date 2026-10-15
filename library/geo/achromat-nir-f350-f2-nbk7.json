@@ -1,0 +1,50 @@
+{
+  "name": "近红外消色差双胶合 F2/N-BK7 f=350mm（1064/1550nm）",
+  "object_z_mm": "inf",
+  "cards": [
+    {
+      "name": "aperture stop",
+      "radius_mm": 0,
+      "thickness_mm": 3,
+      "semi_aperture_mm": 35
+    },
+    {
+      "name": "crown front",
+      "radius_mm": 829.1316,
+      "thickness_mm": 10.5,
+      "glass": "F2",
+      "semi_aperture_mm": 44.106
+    },
+    {
+      "name": "cemented",
+      "radius_mm": -829.1316,
+      "thickness_mm": 4.2,
+      "glass": "N-BK7",
+      "semi_aperture_mm": 43.924
+    },
+    {
+      "name": "flint rear",
+      "radius_mm": -249.3958,
+      "thickness_mm": 175,
+      "semi_aperture_mm": 43.861
+    }
+  ],
+  "stop": 0,
+  "description": "近红外消色差双胶合｜F2+N-BK7｜f=350mm、F/5｜经典构造：功率分配用 1064nm/1550nm 之间的阿贝数（同一 Sellmeier 数据）解析求出、再由近轴引擎按 EFL(1064)=目标 定标；d 线指标见下；1064 与 1550nm 的焦距差不在本库复核清单内。预期指标（引擎计算；单位 mm、µrad、deg；libcheck 复核容差：相对 1e-6）：MODE=refract；EFL=341.425831mm；BFL=338.946853mm；FNO=4.87751188；FC=-7.29112462mm；RMSAX=0.661820009mm；FIELD=0.5deg；RMSFLD=0.665218693mm；RAYS=37；FRAYS=37",
+  "category": "achromat",
+  "difficulty": 4,
+  "tags": [
+    "achromat",
+    "doublet",
+    "nir",
+    "F2",
+    "N-BK7",
+    "F/5",
+    "efl:350",
+    "classic",
+    "quality:analytic",
+    "fov0.5deg",
+    "sweep:band",
+    "mode:refract"
+  ]
+}

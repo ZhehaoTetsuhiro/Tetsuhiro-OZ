@@ -1,0 +1,50 @@
+{
+  "name": "近红外消色差双胶合 FusedSilica/N-SF5 f=200mm（1064/1550nm）",
+  "object_z_mm": "inf",
+  "cards": [
+    {
+      "name": "aperture stop",
+      "radius_mm": 0,
+      "thickness_mm": 3,
+      "semi_aperture_mm": 20
+    },
+    {
+      "name": "crown front",
+      "radius_mm": 348.9775,
+      "thickness_mm": 6,
+      "glass": "FusedSilica",
+      "semi_aperture_mm": 25.375
+    },
+    {
+      "name": "cemented",
+      "radius_mm": -348.9775,
+      "thickness_mm": 2.4,
+      "glass": "N-SF5",
+      "semi_aperture_mm": 25.266
+    },
+    {
+      "name": "flint rear",
+      "radius_mm": -150.9012,
+      "thickness_mm": 100,
+      "semi_aperture_mm": 25.248
+    }
+  ],
+  "stop": 0,
+  "description": "近红外消色差双胶合｜FusedSilica+N-SF5｜f=200mm、F/5｜经典构造：功率分配用 1064nm/1550nm 之间的阿贝数（同一 Sellmeier 数据）解析求出、再由近轴引擎按 EFL(1064)=目标 定标；d 线指标见下；1064 与 1550nm 的焦距差不在本库复核清单内。预期指标（引擎计算；单位 mm、µrad、deg；libcheck 复核容差：相对 1e-6）：MODE=refract；EFL=194.837795mm；BFL=193.588212mm；FNO=4.87094487；FC=-4.35723122mm；RMSAX=0.38076385mm；FIELD=0.5deg；RMSFLD=0.382636615mm；RAYS=37；FRAYS=37",
+  "category": "achromat",
+  "difficulty": 4,
+  "tags": [
+    "achromat",
+    "doublet",
+    "nir",
+    "FusedSilica",
+    "N-SF5",
+    "F/5",
+    "efl:200",
+    "classic",
+    "quality:analytic",
+    "fov0.5deg",
+    "sweep:band",
+    "mode:refract"
+  ]
+}

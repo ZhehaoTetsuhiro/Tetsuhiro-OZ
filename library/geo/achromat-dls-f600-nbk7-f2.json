@@ -1,0 +1,44 @@
+{
+  "name": "消色差双胶合 N-BK7/F2 f=600mm F/5（自主设计）",
+  "object_z_mm": "inf",
+  "cards": [
+    {
+      "name": "crown front",
+      "radius_mm": 265.0502758614151,
+      "thickness_mm": 13.747868786438591,
+      "glass": "N-BK7",
+      "semi_aperture_mm": 60
+    },
+    {
+      "name": "cemented surface",
+      "radius_mm": -265.5264871419958,
+      "thickness_mm": 21.832492845985193,
+      "glass": "F2",
+      "semi_aperture_mm": 60
+    },
+    {
+      "name": "flint rear",
+      "radius_mm": -6032.782588247783,
+      "thickness_mm": 570,
+      "semi_aperture_mm": 60
+    }
+  ],
+  "stop": 0,
+  "description": "双胶合消色差｜N-BK7+F2｜f=600mm、F/5，0.5° 视场｜自主设计：薄透镜解→厚透镜牛顿消色差→DLS 抛光｜DLS 抛光：35 次接受迭代／252 次求值，merit=190.1。预期指标（引擎计算；单位 mm、µrad、deg；libcheck 复核容差：相对 1e-6）：MODE=refract；EFL=599.999572mm；BFL=576.718295mm；FNO=4.99999644；FC=0.0801668401mm；RMSAX=0.0255371528mm；FIELD=0.5deg；RMSFLD=0.0451851125mm；RAYS=37；FRAYS=37",
+  "category": "achromat",
+  "difficulty": 2,
+  "tags": [
+    "achromat",
+    "doublet",
+    "N-BK7",
+    "F2",
+    "F/5",
+    "efl:600",
+    "visible",
+    "optimized",
+    "quality:optimized",
+    "fov0.5deg",
+    "sweep:efl",
+    "mode:refract"
+  ]
+}

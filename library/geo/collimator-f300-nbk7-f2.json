@@ -1,0 +1,47 @@
+{
+  "name": "准直镜 N-BK7/F2 f=300mm（点光源置于前焦点）",
+  "object_z_mm": -291.562,
+  "cards": [
+    {
+      "name": "aperture stop",
+      "radius_mm": 0,
+      "thickness_mm": 2.9844,
+      "semi_aperture_mm": 30
+    },
+    {
+      "name": "L1",
+      "radius_mm": 483.2825855,
+      "thickness_mm": 5.9687,
+      "glass": "N-BK7",
+      "semi_aperture_mm": 38.369
+    },
+    {
+      "name": "L1",
+      "radius_mm": -483.2825855,
+      "thickness_mm": 5.9687,
+      "glass": "F2",
+      "semi_aperture_mm": 38.601
+    },
+    {
+      "name": "L1",
+      "radius_mm": -248.5053925,
+      "thickness_mm": 358.1225,
+      "semi_aperture_mm": 38.895
+    }
+  ],
+  "stop": 0,
+  "description": "准直镜｜N-BK7/F2 双胶合 f=300mm、F/5｜经典构造：点光源置于前焦点（物距 -291.56mm），出射光束应为平行光；无实像面，指标取实光线追迹的出射角散布。预期指标（引擎计算；单位 mm、µrad、deg；libcheck 复核容差：相对 1e-6）：MODE=collimate；SLOPERMS=493.877673µrad；SLOPEMEAN=1.63146613e-12µrad；RAYS=21",
+  "category": "instrument",
+  "difficulty": 3,
+  "tags": [
+    "collimator",
+    "point-source",
+    "infinite-image",
+    "efl:300",
+    "F/5",
+    "visible",
+    "classic",
+    "quality:classic",
+    "mode:collimate"
+  ]
+}

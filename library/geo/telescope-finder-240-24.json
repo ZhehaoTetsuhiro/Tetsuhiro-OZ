@@ -1,0 +1,68 @@
+{
+  "name": "寻星镜／瞄准镜（开普勒式，目镜为胶合组） 倍率 10x",
+  "object_z_mm": "inf",
+  "cards": [
+    {
+      "name": "aperture stop",
+      "radius_mm": 0,
+      "thickness_mm": 5,
+      "semi_aperture_mm": 20
+    },
+    {
+      "name": "objective",
+      "radius_mm": 388.65295818392195,
+      "thickness_mm": 3,
+      "glass": "N-BK7",
+      "semi_aperture_mm": 25.375
+    },
+    {
+      "name": "objective",
+      "radius_mm": -388.65295818392195,
+      "thickness_mm": 3,
+      "glass": "F2",
+      "semi_aperture_mm": 25.332
+    },
+    {
+      "name": "objective",
+      "radius_mm": -199.8465408318981,
+      "thickness_mm": 262.728,
+      "semi_aperture_mm": 25.29
+    },
+    {
+      "name": "eye doublet",
+      "radius_mm": 38.86529581839219,
+      "thickness_mm": 1.44,
+      "glass": "N-BK7",
+      "semi_aperture_mm": 3.208
+    },
+    {
+      "name": "eye doublet",
+      "radius_mm": -38.86529581839219,
+      "thickness_mm": 1.44,
+      "glass": "F2",
+      "semi_aperture_mm": 3.266
+    },
+    {
+      "name": "eye doublet",
+      "radius_mm": -19.984654083189813,
+      "thickness_mm": 32,
+      "semi_aperture_mm": 3.329
+    }
+  ],
+  "stop": 0,
+  "description": "寻星镜／瞄准镜（开普勒式，目镜为胶合组）｜物镜 f=240mm、目镜 f=24mm、倍率≈10x｜经典构造：分离量由近轴引擎解出使系统无焦（出射平行光），倍率与出射角散布由实光线追迹实测。预期指标（引擎计算；单位 mm、µrad、deg；libcheck 复核容差：相对 1e-6）：MODE=afocal；SLOPERMS=5428.6668µrad；SLOPEMEAN=-5.61719983e-12µrad；MAG=-0.111304554；RAYS=21",
+  "category": "micro-telescope",
+  "difficulty": 4,
+  "tags": [
+    "telescope",
+    "finder",
+    "afocal",
+    "angmag:10",
+    "visible",
+    "classic",
+    "quality:classic",
+    "fov0.5deg",
+    "front-stop",
+    "mode:afocal"
+  ]
+}

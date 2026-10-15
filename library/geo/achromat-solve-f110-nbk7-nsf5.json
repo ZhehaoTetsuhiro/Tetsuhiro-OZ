@@ -1,0 +1,44 @@
+{
+  "name": "消色差双胶合 N-BK7/N-SF5 f=110mm F/5（解析解）",
+  "object_z_mm": "inf",
+  "cards": [
+    {
+      "name": "crown front",
+      "radius_mm": 55.90694846464285,
+      "thickness_mm": 3.3,
+      "glass": "N-BK7",
+      "semi_aperture_mm": 11
+    },
+    {
+      "name": "cemented surface",
+      "radius_mm": -55.90694846464285,
+      "thickness_mm": 1.32,
+      "glass": "N-SF5",
+      "semi_aperture_mm": 11
+    },
+    {
+      "name": "flint rear",
+      "radius_mm": -254.1969466344723,
+      "thickness_mm": 104.5,
+      "semi_aperture_mm": 11
+    }
+  ],
+  "stop": 0,
+  "description": "双胶合消色差｜N-BK7+N-SF5｜f=110mm、F/5｜解析构造（薄透镜消色差解 + 厚透镜牛顿修正，未经 DLS 抛光）。预期指标（引擎计算；单位 mm、µrad、deg；libcheck 复核容差：相对 1e-6）：MODE=refract；EFL=110mm；BFL=107.222527mm；FNO=5；FC=-0.00879249018mm；RMSAX=0.00880539903mm；FIELD=0.5deg；RMSFLD=0.0101536692mm；RAYS=37；FRAYS=37",
+  "category": "achromat",
+  "difficulty": 2,
+  "tags": [
+    "achromat",
+    "doublet",
+    "N-BK7",
+    "N-SF5",
+    "F/5",
+    "efl:110",
+    "visible",
+    "classic",
+    "quality:analytic",
+    "fov0.5deg",
+    "sweep:efl",
+    "mode:refract"
+  ]
+}

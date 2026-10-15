@@ -1,0 +1,42 @@
+{
+  "name": "平凸（凸面朝物）单透镜 N-BK7 f=125mm F/5",
+  "object_z_mm": "inf",
+  "cards": [
+    {
+      "name": "aperture stop",
+      "radius_mm": 0,
+      "thickness_mm": 2.5,
+      "semi_aperture_mm": 12.5
+    },
+    {
+      "name": "L1",
+      "radius_mm": 64.6000043,
+      "thickness_mm": 6.25,
+      "glass": "N-BK7",
+      "semi_aperture_mm": 16.009
+    },
+    {
+      "name": "L1",
+      "radius_mm": 0,
+      "thickness_mm": 35,
+      "semi_aperture_mm": 15.589
+    }
+  ],
+  "stop": 0,
+  "description": "单透镜（平凸（凸面朝物））｜N-BK7｜设计焦距 125mm，口径 12.5mm，F/5｜凸面朝物为平行光最佳形式（球差最小）。预期指标（引擎计算；单位 mm、µrad、deg；libcheck 复核容差：相对 1e-6）：MODE=refract；EFL=125mm；BFL=120.879483mm；FNO=5；FC=-1.91468629mm；RMSAX=0.100005187mm；FIELD=0.5deg；RMSFLD=0.101016137mm；RAYS=37；FRAYS=37",
+  "category": "singlet",
+  "difficulty": 1,
+  "tags": [
+    "singlet",
+    "pcx",
+    "N-BK7",
+    "F/5",
+    "efl:125",
+    "visible",
+    "classic",
+    "quality:analytic",
+    "fov0.5deg",
+    "sweep:f",
+    "mode:refract"
+  ]
+}

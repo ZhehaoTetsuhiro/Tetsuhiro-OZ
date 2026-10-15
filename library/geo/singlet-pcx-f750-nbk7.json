@@ -1,0 +1,42 @@
+{
+  "name": "平凸（凸面朝物）单透镜 N-BK7 f=750mm F/6.25",
+  "object_z_mm": "inf",
+  "cards": [
+    {
+      "name": "aperture stop",
+      "radius_mm": 0,
+      "thickness_mm": 2.5,
+      "semi_aperture_mm": 60
+    },
+    {
+      "name": "L1",
+      "radius_mm": 387.6000259,
+      "thickness_mm": 20,
+      "glass": "N-BK7",
+      "semi_aperture_mm": 75.325
+    },
+    {
+      "name": "L1",
+      "radius_mm": 0,
+      "thickness_mm": 160,
+      "semi_aperture_mm": 74.305
+    }
+  ],
+  "stop": 0,
+  "description": "单透镜（平凸（凸面朝物））｜N-BK7｜设计焦距 750mm，口径 60mm，F/6.25｜凸面朝物为平行光最佳形式（球差最小）。预期指标（引擎计算；单位 mm、µrad、deg；libcheck 复核容差：相对 1e-6）：MODE=refract；EFL=750mm；BFL=736.814346mm；FNO=6.25；FC=-11.549255mm；RMSAX=0.305343282mm；FIELD=0.5deg；RMSFLD=0.310126968mm；RAYS=37；FRAYS=37",
+  "category": "singlet",
+  "difficulty": 1,
+  "tags": [
+    "singlet",
+    "pcx",
+    "N-BK7",
+    "F/6.25",
+    "efl:750",
+    "visible",
+    "classic",
+    "quality:analytic",
+    "fov0.5deg",
+    "sweep:f",
+    "mode:refract"
+  ]
+}

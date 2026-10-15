@@ -1,0 +1,51 @@
+{
+  "name": "N-BK7/F2 双胶合 1:2 成像",
+  "object_z_mm": -400,
+  "cards": [
+    {
+      "name": "aperture stop",
+      "radius_mm": 0,
+      "thickness_mm": 2.9883,
+      "semi_aperture_mm": 10
+    },
+    {
+      "name": "L1",
+      "radius_mm": 161.269508,
+      "thickness_mm": 1.648,
+      "glass": "N-BK7",
+      "semi_aperture_mm": 12.991
+    },
+    {
+      "name": "L1",
+      "radius_mm": -161.269508,
+      "thickness_mm": 1.4941,
+      "glass": "F2",
+      "semi_aperture_mm": 12.985
+    },
+    {
+      "name": "L1",
+      "radius_mm": -82.9252041,
+      "thickness_mm": 29.8827,
+      "semi_aperture_mm": 12.984
+    }
+  ],
+  "stop": 0,
+  "description": "有限共轭双胶合（N-BK7/F2）｜物距 -400mm（≈1:2 成像）、f=100mm｜经典构造：无限共轭消色差解的有限共轭使用，剩余像差由实测记录。预期指标（引擎计算；单位 mm、µrad、deg；libcheck 复核容差：相对 1e-6）：MODE=refract；EFL=100mm；BFL=99.4151133mm；FNO=5；FC=-1.9609394mm；RMSAX=0.152489444mm；FIELD=12mm；RMSFLD=0.165590007mm；RAYS=37；FRAYS=37",
+  "category": "achromat",
+  "difficulty": 3,
+  "tags": [
+    "achromat",
+    "doublet",
+    "finite-conjugate",
+    "N-BK7",
+    "F2",
+    "efl:100",
+    "visible",
+    "classic",
+    "quality:analytic",
+    "mag:-0.328",
+    "objfield:12",
+    "sweep:conjugate",
+    "mode:refract"
+  ]
+}

@@ -1,0 +1,94 @@
+{
+  "name": "Double Gauss 型 6 片物镜 f=85mm F/2.8",
+  "object_z_mm": "inf",
+  "cards": [
+    {
+      "name": "aperture stop",
+      "radius_mm": 0,
+      "thickness_mm": 6.4233,
+      "semi_aperture_mm": 15.179
+    },
+    {
+      "name": "L1",
+      "radius_mm": 84.6827997,
+      "thickness_mm": 9.0997,
+      "glass": "N-SK16",
+      "semi_aperture_mm": 19.354
+    },
+    {
+      "name": "L1",
+      "radius_mm": 0,
+      "thickness_mm": 3.6399,
+      "semi_aperture_mm": 18.683
+    },
+    {
+      "name": "L2/L3",
+      "radius_mm": 289.566499,
+      "thickness_mm": 6.8247,
+      "glass": "N-SK16",
+      "semi_aperture_mm": 18.121
+    },
+    {
+      "name": "L2/L3",
+      "radius_mm": -289.566499,
+      "thickness_mm": 6.8247,
+      "glass": "F2",
+      "semi_aperture_mm": 17.441
+    },
+    {
+      "name": "L2/L3",
+      "radius_mm": -131.2374995,
+      "thickness_mm": 12.7395,
+      "semi_aperture_mm": 16.723
+    },
+    {
+      "name": "L4/L5",
+      "radius_mm": -131.2374995,
+      "thickness_mm": 6.8247,
+      "glass": "F2",
+      "semi_aperture_mm": 13.304
+    },
+    {
+      "name": "L4/L5",
+      "radius_mm": -289.566499,
+      "thickness_mm": 6.8247,
+      "glass": "N-SK16",
+      "semi_aperture_mm": 12.448
+    },
+    {
+      "name": "L4/L5",
+      "radius_mm": 289.566499,
+      "thickness_mm": 7.2797,
+      "semi_aperture_mm": 11.586
+    },
+    {
+      "name": "L6",
+      "radius_mm": 214.5296992,
+      "thickness_mm": 9.0997,
+      "glass": "N-SK16",
+      "semi_aperture_mm": 10.327
+    },
+    {
+      "name": "L6",
+      "radius_mm": -214.5296992,
+      "thickness_mm": 163.7938,
+      "semi_aperture_mm": 9.231
+    }
+  ],
+  "stop": 0,
+  "description": "Double Gauss 型 6 片物镜｜f=85mm、F/2.8、4° 视场｜经典构造（薄透镜初值 + 近轴标定）。预期指标（引擎计算；单位 mm、µrad、deg；libcheck 复核容差：相对 1e-6）：MODE=refract；EFL=85mm；BFL=40.4090775mm；FNO=2.79992094；FC=-1.21905605mm；RMSAX=0.270868167mm；FIELD=4deg；RMSFLD=0.299982025mm；RAYS=37；FRAYS=31",
+  "category": "multi",
+  "difficulty": 5,
+  "tags": [
+    "double-gauss",
+    "multi-element",
+    "F/2.8",
+    "efl:85",
+    "visible",
+    "quality:classic",
+    "fov4deg",
+    "sweep:efl",
+    "front-stop",
+    "mode:refract"
+  ]
+}

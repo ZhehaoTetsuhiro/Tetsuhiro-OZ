@@ -1,0 +1,42 @@
+{
+  "name": "正弯月单透镜 N-BK7 f=500mm F/5",
+  "object_z_mm": "inf",
+  "cards": [
+    {
+      "name": "aperture stop",
+      "radius_mm": 0,
+      "thickness_mm": 2.6791,
+      "semi_aperture_mm": 50
+    },
+    {
+      "name": "L1",
+      "radius_mm": 124.6085973,
+      "thickness_mm": 21.4325,
+      "glass": "N-BK7",
+      "semi_aperture_mm": 62.838
+    },
+    {
+      "name": "L1",
+      "radius_mm": 226.560995,
+      "thickness_mm": 117.8788,
+      "semi_aperture_mm": 59.91
+    }
+  ],
+  "stop": 0,
+  "description": "单透镜（正弯月）｜N-BK7｜设计焦距 500mm，口径 50mm，F/5。预期指标（引擎计算；单位 mm、µrad、deg；libcheck 复核容差：相对 1e-6）：MODE=refract；EFL=500mm；BFL=470.698556mm；FNO=5；FC=-7.91133792mm；RMSAX=2.87626299mm；FIELD=0.5deg；RMSFLD=2.88288436mm；RAYS=37；FRAYS=37",
+  "category": "singlet",
+  "difficulty": 1,
+  "tags": [
+    "singlet",
+    "menp",
+    "N-BK7",
+    "F/5",
+    "efl:500",
+    "visible",
+    "classic",
+    "quality:analytic",
+    "fov0.5deg",
+    "sweep:f",
+    "mode:refract"
+  ]
+}

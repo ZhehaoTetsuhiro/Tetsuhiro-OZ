@@ -1,0 +1,47 @@
+{
+  "name": "单组胶合有限共轭物镜 显微物镜 10x／150 筒长（物距 -16.52mm）",
+  "object_z_mm": -16.520051379095403,
+  "cards": [
+    {
+      "name": "aperture stop",
+      "radius_mm": 0,
+      "thickness_mm": 0.1987,
+      "semi_aperture_mm": 2.427
+    },
+    {
+      "name": "doublet",
+      "radius_mm": 25.7107271,
+      "thickness_mm": 2.0078,
+      "glass": "N-BK7",
+      "semi_aperture_mm": 3.49
+    },
+    {
+      "name": "doublet",
+      "radius_mm": -35.1992371,
+      "thickness_mm": 2.0078,
+      "glass": "F2",
+      "semi_aperture_mm": 3.629
+    },
+    {
+      "name": "doublet",
+      "radius_mm": -13.0438137,
+      "thickness_mm": 19.0738,
+      "semi_aperture_mm": 3.773
+    }
+  ],
+  "stop": 0,
+  "description": "单组胶合有限共轭物镜｜10x、物方 NA≈0.15、筒长 150mm（像距 117.54mm）｜有限共轭：物距由近轴引擎解出以满足倍率｜DLS 抛光：150 次接受迭代／1009 次求值，merit=1.659e+05。预期指标（引擎计算；单位 mm、µrad、deg；libcheck 复核容差：相对 1e-6）：MODE=refract；EFL=16mm；BFL=15.2323102mm；FNO=3.29625051；FC=-0.317132178mm；RMSAX=0.376359434mm；FIELD=0.35mm；RMSFLD=0.383434747mm；RAYS=37；FRAYS=37",
+  "category": "micro-telescope",
+  "difficulty": 3,
+  "tags": [
+    "microscope",
+    "achr",
+    "finite-conjugate",
+    "mag:-6.1311",
+    "NA:0.15",
+    "visible",
+    "quality:optimized",
+    "objfield:0.35",
+    "mode:refract"
+  ]
+}

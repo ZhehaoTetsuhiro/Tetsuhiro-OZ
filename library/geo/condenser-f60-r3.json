@@ -1,0 +1,54 @@
+{
+  "name": "聚光镜（f=60mm，3:1 成像）",
+  "object_z_mm": -84,
+  "cards": [
+    {
+      "name": "aperture stop",
+      "radius_mm": 0,
+      "thickness_mm": 3.9767,
+      "semi_aperture_mm": 20
+    },
+    {
+      "name": "L1",
+      "radius_mm": 65.7643766,
+      "thickness_mm": 9.544,
+      "glass": "N-BK7",
+      "semi_aperture_mm": 27.664
+    },
+    {
+      "name": "L1",
+      "radius_mm": 0,
+      "thickness_mm": 31.8133,
+      "semi_aperture_mm": 27.858
+    },
+    {
+      "name": "L2",
+      "radius_mm": 41.1027854,
+      "thickness_mm": 13.435,
+      "glass": "N-BK7",
+      "semi_aperture_mm": 29.839
+    },
+    {
+      "name": "L2",
+      "radius_mm": 0,
+      "thickness_mm": 95.4399,
+      "semi_aperture_mm": 29.301
+    }
+  ],
+  "stop": 0,
+  "description": "聚光镜｜两片平凸 f=60mm，物距 -84mm，3:1 成像（近轴倍率 -1.058×）｜经典构造：照明系统常用的两片式聚光镜，第一片承大孔径、第二片收光。预期指标（引擎计算；单位 mm、µrad、deg；libcheck 复核容差：相对 1e-6）：MODE=refract；EFL=60mm；BFL=33.1757397mm；FNO=1.5；FC=-0.728234153mm；RMSAX=5.79916518mm；FIELD=1.68mm；RMSFLD=5.85174339mm；RAYS=37；FRAYS=37",
+  "category": "instrument",
+  "difficulty": 3,
+  "tags": [
+    "condenser",
+    "illumination",
+    "finite-conjugate",
+    "efl:60",
+    "visible",
+    "classic",
+    "quality:classic",
+    "mag:-1.058",
+    "objfield:1.68",
+    "mode:refract"
+  ]
+}

@@ -1,0 +1,42 @@
+{
+  "name": "平凸（凸面朝物）单透镜 FusedSilica f=35mm F/5",
+  "object_z_mm": "inf",
+  "cards": [
+    {
+      "name": "aperture stop",
+      "radius_mm": 0,
+      "thickness_mm": 2.5,
+      "semi_aperture_mm": 3.5
+    },
+    {
+      "name": "L1",
+      "radius_mm": 16.0462291,
+      "thickness_mm": 1.75,
+      "glass": "FusedSilica",
+      "semi_aperture_mm": 4.771
+    },
+    {
+      "name": "L1",
+      "radius_mm": 0,
+      "thickness_mm": 17,
+      "semi_aperture_mm": 4.652
+    }
+  ],
+  "stop": 0,
+  "description": "单透镜（平凸（凸面朝物））｜FusedSilica｜设计焦距 35mm，口径 3.5mm，F/5｜凸面朝物为平行光最佳形式（球差最小）。预期指标（引擎计算；单位 mm、µrad、deg；libcheck 复核容差：相对 1e-6）：MODE=refract；EFL=35.0000001mm；BFL=33.8001073mm；FNO=5.00000001；FC=-0.507661153mm；RMSAX=0.0355988544mm；FIELD=0.5deg；RMSFLD=0.0359177553mm；RAYS=37；FRAYS=37",
+  "category": "singlet",
+  "difficulty": 1,
+  "tags": [
+    "singlet",
+    "pcx",
+    "FusedSilica",
+    "F/5",
+    "efl:35",
+    "visible",
+    "classic",
+    "quality:analytic",
+    "fov0.5deg",
+    "sweep:f",
+    "mode:refract"
+  ]
+}

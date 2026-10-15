@@ -1,0 +1,36 @@
+{
+  "name": "球面反射镜 f=200mm F/8",
+  "object_z_mm": "inf",
+  "cards": [
+    {
+      "name": "aperture stop",
+      "radius_mm": 0,
+      "thickness_mm": 60,
+      "semi_aperture_mm": 12.5
+    },
+    {
+      "name": "primary",
+      "radius_mm": -400,
+      "thickness_mm": 200,
+      "semi_aperture_mm": 12.75,
+      "mirror": true
+    }
+  ],
+  "stop": 0,
+  "description": "球面反射镜｜f=200mm、F/8｜经典构造：与同口径抛物面成对照，纵向球差 ∝ 口径²／f³。预期指标（引擎计算；单位 mm、µrad、deg；libcheck 复核容差：相对 1e-6）：MODE=focus；FOCUSZ=259.028633mm；FOCUSRMS=7.25670141mm；RAYS=21",
+  "category": "mirror",
+  "difficulty": 3,
+  "tags": [
+    "mirror",
+    "sphere",
+    "single-mirror",
+    "F/8",
+    "efl:200",
+    "visible",
+    "classic",
+    "quality:classic",
+    "trace-validated",
+    "sweep:efl",
+    "mode:focus"
+  ]
+}

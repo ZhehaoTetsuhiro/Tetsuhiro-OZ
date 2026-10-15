@@ -1,0 +1,67 @@
+{
+  "name": "三片式 Cooke 型物镜（N-BK7/F2 玻璃对） f=200mm F/5.6",
+  "object_z_mm": "inf",
+  "cards": [
+    {
+      "name": "aperture stop",
+      "radius_mm": 0,
+      "thickness_mm": 2.0239,
+      "semi_aperture_mm": 17.857
+    },
+    {
+      "name": "L1",
+      "radius_mm": 50.2053256,
+      "thickness_mm": 9.4448,
+      "glass": "N-BK7",
+      "semi_aperture_mm": 22.699
+    },
+    {
+      "name": "L1",
+      "radius_mm": 0,
+      "thickness_mm": 16.1911,
+      "semi_aperture_mm": 21.716
+    },
+    {
+      "name": "L2",
+      "radius_mm": -81.6889417,
+      "thickness_mm": 4.0478,
+      "glass": "N-SF5",
+      "semi_aperture_mm": 18.061
+    },
+    {
+      "name": "L2",
+      "radius_mm": 81.6889417,
+      "thickness_mm": 13.4926,
+      "semi_aperture_mm": 17.719
+    },
+    {
+      "name": "L3",
+      "radius_mm": 111.567357,
+      "thickness_mm": 6.7463,
+      "glass": "N-BK7",
+      "semi_aperture_mm": 18.465
+    },
+    {
+      "name": "L3",
+      "radius_mm": -111.567357,
+      "thickness_mm": 161.9107,
+      "semi_aperture_mm": 18.375
+    }
+  ],
+  "stop": 0,
+  "description": "三片式 Cooke 型物镜（N-BK7/F2 玻璃对）｜f=200mm、F/5.6、1° 视场｜经典构造（薄透镜初值 + 近轴标定）。预期指标（引擎计算；单位 mm、µrad、deg；libcheck 复核容差：相对 1e-6）：MODE=refract；EFL=200mm；BFL=156.913859mm；FNO=5.60004479；FC=2.09555439mm；RMSAX=0.0471907918mm；FIELD=1deg；RMSFLD=0.07115424mm；RAYS=37；FRAYS=37",
+  "category": "multi",
+  "difficulty": 3,
+  "tags": [
+    "triplet-cooke-nbk7",
+    "multi-element",
+    "F/5.6",
+    "efl:200",
+    "visible",
+    "quality:classic",
+    "fov1deg",
+    "sweep:efl",
+    "front-stop",
+    "mode:refract"
+  ]
+}

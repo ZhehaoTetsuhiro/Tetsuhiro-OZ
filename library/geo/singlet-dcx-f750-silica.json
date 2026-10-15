@@ -1,0 +1,42 @@
+{
+  "name": "双凸单透镜 FusedSilica f=750mm F/6.25",
+  "object_z_mm": "inf",
+  "cards": [
+    {
+      "name": "aperture stop",
+      "radius_mm": 0,
+      "thickness_mm": 2.4886,
+      "semi_aperture_mm": 60
+    },
+    {
+      "name": "L1",
+      "radius_mm": 684.5520578,
+      "thickness_mm": 19.9086,
+      "glass": "FusedSilica",
+      "semi_aperture_mm": 75.325
+    },
+    {
+      "name": "L1",
+      "radius_mm": -684.5520578,
+      "thickness_mm": 159.2686,
+      "semi_aperture_mm": 74.818
+    }
+  ],
+  "stop": 0,
+  "description": "单透镜（双凸）｜FusedSilica｜设计焦距 750mm，口径 60mm，F/6.25。预期指标（引擎计算；单位 mm、µrad、deg；libcheck 复核容差：相对 1e-6）：MODE=refract；EFL=750mm；BFL=743.143463mm；FNO=6.25；FC=-10.9314448mm；RMSAX=0.501280318mm；FIELD=0.5deg；RMSFLD=0.50672874mm；RAYS=37；FRAYS=37",
+  "category": "singlet",
+  "difficulty": 1,
+  "tags": [
+    "singlet",
+    "dcx",
+    "FusedSilica",
+    "F/6.25",
+    "efl:750",
+    "visible",
+    "classic",
+    "quality:analytic",
+    "fov0.5deg",
+    "sweep:f",
+    "mode:refract"
+  ]
+}

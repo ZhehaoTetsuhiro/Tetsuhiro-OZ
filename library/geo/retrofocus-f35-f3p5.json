@@ -1,0 +1,87 @@
+{
+  "name": "反远摄（广角）5 片 f=35mm F/3.5",
+  "object_z_mm": "inf",
+  "cards": [
+    {
+      "name": "aperture stop",
+      "radius_mm": 0,
+      "thickness_mm": 11.3575,
+      "semi_aperture_mm": 5
+    },
+    {
+      "name": "L1",
+      "radius_mm": -28.0779897,
+      "thickness_mm": 6.6252,
+      "glass": "N-SF5",
+      "semi_aperture_mm": 6.644
+    },
+    {
+      "name": "L1",
+      "radius_mm": -51.0507813,
+      "thickness_mm": 6.6252,
+      "semi_aperture_mm": 7.257
+    },
+    {
+      "name": "L2",
+      "radius_mm": -196.1000283,
+      "thickness_mm": 4.6376,
+      "glass": "N-SF5",
+      "semi_aperture_mm": 7.672
+    },
+    {
+      "name": "L2",
+      "radius_mm": 196.1000283,
+      "thickness_mm": 39.7512,
+      "semi_aperture_mm": 7.918
+    },
+    {
+      "name": "L3/L4",
+      "radius_mm": 144.942247,
+      "thickness_mm": 4.9689,
+      "glass": "N-SK16",
+      "semi_aperture_mm": 12.39
+    },
+    {
+      "name": "L3/L4",
+      "radius_mm": -144.942247,
+      "thickness_mm": 4.9689,
+      "glass": "F2",
+      "semi_aperture_mm": 12.55
+    },
+    {
+      "name": "L3/L4",
+      "radius_mm": -65.690776,
+      "thickness_mm": 10.6003,
+      "semi_aperture_mm": 12.718
+    },
+    {
+      "name": "L5",
+      "radius_mm": 115.0894579,
+      "thickness_mm": 6.6252,
+      "glass": "N-SK16",
+      "semi_aperture_mm": 12.037
+    },
+    {
+      "name": "L5",
+      "radius_mm": -115.0894579,
+      "thickness_mm": 119.2536,
+      "semi_aperture_mm": 11.597
+    }
+  ],
+  "stop": 0,
+  "description": "反远摄（广角）5 片｜f=35mm、F/3.5、4° 视场｜经典构造（薄透镜初值 + 近轴标定）。预期指标（引擎计算；单位 mm、µrad、deg；libcheck 复核容差：相对 1e-6）：MODE=refract；EFL=35mm；BFL=62.3359612mm；FNO=3.5；FC=-1.30227992mm；RMSAX=0.193164695mm；FIELD=4deg；RMSFLD=0.18747306mm；RAYS=37；FRAYS=29",
+  "category": "multi",
+  "difficulty": 5,
+  "tags": [
+    "retrofocus",
+    "multi-element",
+    "F/3.5",
+    "efl:35",
+    "visible",
+    "quality:classic",
+    "fov4deg",
+    "sweep:efl",
+    "front-stop",
+    "mode:refract"
+  ]
+}
