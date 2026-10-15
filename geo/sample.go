@@ -418,6 +418,9 @@ func (s *System) ExitPupil(f Field, lambdaNm float64) (Pupil, error) {
 // PupilPoint): the two agree to first order but the real chief ray defined
 // here is the one whose image height defines the classical distortion.
 func (s *System) ChiefRay(f Field, lambdaNm float64) Ray {
+	if s.hasPose() {
+		return s.chiefRayPosed(f, lambdaNm)
+	}
 	stop := s.StopIndex
 	if stop < 0 || stop >= len(s.Surfaces) {
 		stop = 0
@@ -513,6 +516,10 @@ func (s *System) ChiefRay(f Field, lambdaNm float64) Ray {
 //
 // The plane must lie in the object space (in front of the first surface).
 func (s *System) ChiefOffset(f Field, zPlane float64) (Vec3, error) {
+	if s.hasPose() {
+		return Zero, fmt.Errorf("geo: chief offset: the system has coordinate breaks or posed surfaces; " +
+			"use ChiefCrossing(field, zPlane, wavelength), which needs the wavelength of the trace")
+	}
 	stop := s.StopIndex
 	if stop < 0 || stop >= len(s.Surfaces) {
 		stop = 0

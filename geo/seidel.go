@@ -194,6 +194,9 @@ func (s *System) SeidelCoefficients(lambdaNm float64, f Field, pupilRadius float
 	if err := s.Validate(); err != nil {
 		return nil, err
 	}
+	if err := s.requireCoaxial("Seidel"); err != nil {
+		return nil, err
+	}
 	if !finitePositive(pupilRadius) {
 		return nil, fmt.Errorf("geo: Seidel: pupil radius %g is not positive", pupilRadius)
 	}

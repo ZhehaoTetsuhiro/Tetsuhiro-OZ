@@ -232,8 +232,17 @@ type Paraxial struct {
 // Mirrors are rejected: the first-order treatment of a reflecting surface
 // requires unfolding the system, which is not part of this revision. Use real
 // ray tracing for mirror systems.
+//
+// The first-order engine is defined for coaxial systems only: a surface or a
+// coordinate break with a decentre or a tilt about x or y returns an error (a
+// roll about z does not change the axis and is accepted). Trace the real rays
+// of such a system instead (SpotDiagram, RayFan and OPDGrid take the real chief
+// ray as reference when the system has poses).
 func (s *System) Paraxial(lambdaNm float64, objectZ float64) (*Paraxial, error) {
 	if err := s.Validate(); err != nil {
+		return nil, err
+	}
+	if err := s.requireCoaxial("paraxial analysis"); err != nil {
 		return nil, err
 	}
 	for i, sf := range s.Surfaces {
