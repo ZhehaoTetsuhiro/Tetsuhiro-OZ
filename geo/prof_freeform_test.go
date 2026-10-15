@@ -458,6 +458,7 @@ func TestXYPolynomialZeroDegeneratesToPlane(t *testing.T) {
 		[]float64{7},
 		[]Medium{Air{}, ConstantIndex(1.5), Air{}})
 	n := 0
+	worstPos, worstDir := 0.0, 0.0
 	for _, r := range aspFan(550) {
 		a := pl.Trace(r)
 		b := ffp.Trace(r)
@@ -468,17 +469,20 @@ func TestXYPolynomialZeroDegeneratesToPlane(t *testing.T) {
 			continue
 		}
 		n++
-		if d := a.Final().Sub(b.Final()).Norm(); d > 1e-13 {
-			t.Errorf("final positions differ by %.3g mm", d)
+		if d := a.Final().Sub(b.Final()).Norm(); d > worstPos {
+			worstPos = d
 		}
-		if d := a.Direction().Sub(b.Direction()).Norm(); d > 1e-13 {
-			t.Errorf("final directions differ by %.3g", d)
+		if d := a.Direction().Sub(b.Direction()).Norm(); d > worstDir {
+			worstDir = d
 		}
+	}
+	if worstPos > 1e-13 || worstDir > 1e-13 {
+		t.Errorf("freeform plane differs from Plane by %.3g mm (position) / %.3g (direction)", worstPos, worstDir)
 	}
 	if n < 30 {
 		t.Fatalf("only %d rays traversed the plate", n)
 	}
-	t.Logf("acceptance (c1): freeform plane == Plane on %d traced rays (limit 1e-13 mm)", n)
+	t.Logf("acceptance (c1): freeform plane == Plane on %d traced rays, worst %.3g mm / %.3g (limit 1e-13)", n, worstPos, worstDir)
 }
 
 // TestXYPolynomialBaseConicMatchesConicAndSphere is acceptance (c), part 2:
@@ -499,6 +503,7 @@ func TestXYPolynomialBaseConicMatchesConicAndSphere(t *testing.T) {
 		{math.Inf(-1), 0.7, Plane{}},
 		{0, -0.3, Plane{}},
 	}
+	worstPoint := 0.0
 	for _, tc := range cases {
 		p := ffMustBuild(t, tc.R, tc.K, 0, nil)
 		for _, xy := range ffGrid(20, 8) {
@@ -511,16 +516,21 @@ func TestXYPolynomialBaseConicMatchesConicAndSphere(t *testing.T) {
 				}
 				continue
 			}
-			if d := math.Abs(got - want); d > 1e-13 {
-				t.Errorf("R=%g K=%g: sag at (%g, %g) = %.17g, %v %.17g (|diff| %.3g)", tc.R, tc.K, xy[0], xy[1], got, tc.rad, want, d)
+			if d := math.Abs(got - want); d > worstPoint {
+				worstPoint = d
 			}
 		}
 		if d := math.Abs(p.Curvature() - tc.rad.Curvature()); d != 0 {
 			t.Errorf("R=%g K=%g: curvature %g, %v %g", tc.R, tc.K, p.Curvature(), tc.rad, tc.rad.Curvature())
 		}
 	}
+	if worstPoint > 1e-13 {
+		t.Errorf("base-conic sag differs from Conic/Sphere by %.3g mm", worstPoint)
+	}
+	t.Logf("acceptance (c2): pointwise worst sag difference %.3g mm over %d surfaces x 81 points (limit 1e-13)", worstPoint, len(cases))
 	// End to end: a singlet whose front surface is the freeform base conic
 	// against the same singlet with the bare conic.
+	worstEnd := 0.0
 	for _, tc := range cases[:5] {
 		p := ffMustBuild(t, tc.R, tc.K, 0, nil)
 		sa := aspSinglet(t, p)
@@ -536,8 +546,8 @@ func TestXYPolynomialBaseConicMatchesConicAndSphere(t *testing.T) {
 				continue
 			}
 			n++
-			if d := a.Final().Sub(b.Final()).Norm(); d > 1e-13 {
-				t.Errorf("R=%g K=%g: final positions differ by %.3g mm", tc.R, tc.K, d)
+			if d := a.Final().Sub(b.Final()).Norm(); d > worstEnd {
+				worstEnd = d
 			}
 			if d := a.Direction().Sub(b.Direction()).Norm(); d > 1e-13 {
 				t.Errorf("R=%g K=%g: final directions differ by %.3g", tc.R, tc.K, d)
@@ -547,6 +557,10 @@ func TestXYPolynomialBaseConicMatchesConicAndSphere(t *testing.T) {
 			t.Errorf("R=%g K=%g: only %d rays traversed the singlet", tc.R, tc.K, n)
 		}
 	}
+	if worstEnd > 1e-13 {
+		t.Errorf("end-to-end base-conic difference %.3g mm", worstEnd)
+	}
+	t.Logf("acceptance (c2): end-to-end worst position difference %.3g mm (limit 1e-13)", worstEnd)
 	t.Logf("acceptance (c2): %d base-only surfaces match Conic/Sphere pointwise (limit 1e-13) and end-to-end", len(cases))
 }
 
@@ -606,6 +620,7 @@ func TestXYPolynomialAxisymmetricMatchesRadialProfile(t *testing.T) {
 	sa := aspSinglet(t, sym)
 	sb := aspSinglet(t, rad)
 	n := 0
+	worstRay := 0.0
 	for _, r := range aspFan(550) {
 		a := sa.Trace(r)
 		bb := sb.Trace(r)
@@ -616,17 +631,20 @@ func TestXYPolynomialAxisymmetricMatchesRadialProfile(t *testing.T) {
 			continue
 		}
 		n++
-		if d := a.Final().Sub(bb.Final()).Norm(); d > 1e-12 {
-			t.Errorf("final positions differ by %.3g mm", d)
+		if d := a.Final().Sub(bb.Final()).Norm(); d > worstRay {
+			worstRay = d
 		}
 		if d := a.Direction().Sub(bb.Direction()).Norm(); d > 1e-12 {
 			t.Errorf("final directions differ by %.3g", d)
 		}
 	}
+	if worstRay > 1e-12 {
+		t.Errorf("axisymmetric freeform differs from the radial profile by %.3g mm", worstRay)
+	}
 	if n < 30 {
 		t.Fatalf("only %d rays traversed the singlet", n)
 	}
-	t.Logf("acceptance (d): worst sag difference %.3g mm over 81 points, %d rays traced (limit 1e-12)", worst, n)
+	t.Logf("acceptance (d): worst sag difference %.3g mm over 81 points, worst traced-ray difference %.3g mm over %d rays (limit 1e-12)", worst, worstRay, n)
 
 	// The applicability rule: the first-order engine accepts the symmetric
 	// freeform and rejects the asymmetric one.
