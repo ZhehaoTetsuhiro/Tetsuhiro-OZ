@@ -1306,3 +1306,95 @@ func mustChromatic(t *testing.T, sys *System) float64 {
 	}
 	return fc
 }
+
+// ---------------------------------------------------------------------------
+// 18. ray helpers and the field (chief ray) path with mirrors
+// ---------------------------------------------------------------------------
+
+func TestParaxialMirrorRayHelpersAndField(t *testing.T) {
+	// The converging two-mirror parabola system of test 5, with a small
+	// aperture so that the real chief ray stays in the paraxial regime.
+	const d, b = 300.0, 300.0
+	c2 := (1.0/600 - 1.0/700) / 2
+	sys := mustSystem(t, Air{}, []Surface{
+		{Profile: Plane{}, Aperture: CircleAperture(10)},
+		{Profile: Conic{R: -2000, K: -1}, Mirror: true, Aperture: CircleAperture(10)},
+		{Profile: Conic{R: 1 / c2, K: -1}, Mirror: true, Aperture: CircleAperture(10)},
+	}, []float64{60, -d}, nil)
+	p, err := sys.Paraxial(Wavelengthd, math.Inf(-1))
+	if err != nil {
+		t.Fatalf("Paraxial: %v", err)
+	}
+	// MarginalRay + HeightAt: the axial marginal ray crosses the axis at the
+	// paraxial image plane, whatever the height it started from.
+	for _, r0 := range []float64{1e-4, 1, 6} {
+		m := p.MarginalRay(r0)
+		checkRel(t, "marginal ray height at ImageZ", m.HeightAt(p.ImageZ), 0, 1e-12)
+		checkRel(t, "marginal ray height scales with the radius", m.HeightAt(-500), r0*p.MarginalRay(1).HeightAt(-500), 1e-12)
+	}
+	// SubMatrix over a whole system equals Matrix, and the sub-chain of the two
+	// mirrors alone is the mirror pair without the stop gap.
+	sm, err := p.SubMatrix(0, 2)
+	if err != nil {
+		t.Fatal(err)
+	}
+	checkRel(t, "SubMatrix(0,2).A", sm.A, p.Matrix().A, 1e-15)
+	checkRel(t, "SubMatrix(0,2).B", sm.B, p.Matrix().B, 1e-15)
+	checkRel(t, "SubMatrix(0,2).C", sm.C, p.Matrix().C, 1e-15)
+	checkRel(t, "SubMatrix(0,2).D", sm.D, p.Matrix().D, 1e-15)
+	if _, err := p.SubMatrix(2, 1); err == nil {
+		t.Error("an inverted sub-matrix range must be rejected")
+	}
+	// The Helmholtz-Lagrange invariant of the physical slopes flips sign at the
+	// first mirror (documented in Paraxial.Lagrange) and keeps its magnitude:
+	// the value at the incidence side of the secondary is the value at the
+	// incidence side of the primary with the opposite sign (one reflection in
+	// between).
+	h0 := p.LagrangeAt(0, 1, 0.05)
+	h1 := p.LagrangeAt(1, 1, 0.05)
+	h2 := p.LagrangeAt(2, 1, 0.05)
+	checkRel(t, "H unchanged before the first mirror", h1, h0, 1e-12)
+	checkRel(t, "H flips sign across the first mirror", h2, -h1, 1e-12)
+	// The field: the paraxial image height of a small field angle equals the
+	// landing height of the real chief ray through the stop centre. The residual
+	// is the distortion-like term of the off-axis two-mirror parabola system,
+	// measured at 100·tanY³ mm (1e-10 mm at tanY = 1e-4, so the 1e-6 relative
+	// bound of the paraxial limit is met there).
+	for _, tanY := range []float64{1e-4, 1e-3, -1e-3, 3e-3} {
+		ph, err := sys.ParaxialImageHeight(FieldTan(0, tanY), p.ImageZ, Wavelengthd)
+		if err != nil {
+			t.Fatalf("ParaxialImageHeight: %v", err)
+		}
+		res := sys.Trace(sys.ChiefRay(FieldTan(0, tanY), Wavelengthd))
+		if !res.OK() {
+			t.Fatalf("real chief ray: %v", res.Error())
+		}
+		dd := res.Ray.Dir
+		real := res.Ray.Origin.Y + (p.ImageZ-res.Ray.Origin.Z)*dd.Y/dd.Z
+		if diff := math.Abs(ph - real); diff > 150*math.Abs(tanY*tanY*tanY)+1e-12 {
+			t.Errorf("field tan=%g: paraxial image height %.12g, real chief ray %.12g (Δ = %.3g)",
+				tanY, ph, real, ph-real)
+		}
+		if tanY == 1e-4 && math.Abs(ph-real)/math.Abs(ph) > 1e-6 {
+			t.Errorf("field tan=1e-4: relative difference %.3g exceeds 1e-6", math.Abs(ph-real)/math.Abs(ph))
+		}
+		t.Logf("field tan=%g: paraxial image height %.9f, real chief ray %.9f (Δ = %.3g, budget %.3g)",
+			tanY, ph, real, ph-real, 150*math.Abs(tanY*tanY*tanY))
+	}
+	// An on-axis field has no image height in either model.
+	if ph, err := sys.ParaxialImageHeight(FieldTan(0, 0), p.ImageZ, Wavelengthd); err != nil || math.Abs(ph) > 1e-12 {
+		t.Errorf("on-axis image height = %g (%v), want 0", ph, err)
+	}
+	// A finite object: the field is the object height and the image height is
+	// m times it (same engine, same fold).
+	objectZ := -2000.0
+	pf, err := sys.Paraxial(Wavelengthd, objectZ)
+	if err != nil {
+		t.Fatal(err)
+	}
+	ph, err := sys.ParaxialImageHeight(FieldHeight(objectZ, 0, 1), pf.ImageZ, Wavelengthd)
+	if err != nil {
+		t.Fatal(err)
+	}
+	checkRel(t, "finite field image height = m·h", ph, pf.Magnification, 1e-12)
+}
