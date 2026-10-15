@@ -309,12 +309,27 @@ func fanRays(sys *geo.System, semi, lambda float64, n int, fracLo, fracHi float6
 	return pts, dirs, hs
 }
 
+// crossZ returns the z coordinate of the intersection of the two ray lines
+// p1 + t·d1 and p2 + s·d2 (meridional y–z plane). The parameter t follows from
+// the 2x2 system
+//
+//	t·d1.Y − s·d2.Y = p2.Y − p1.Y
+//	t·d1.Z − s·d2.Z = p2.Z − p1.Z
+//
+// (Cramer), so the crossing is p1.Z + t·d1.Z with
+//
+//	t = (d2.Y·(p2.Z−p1.Z) − d2.Z·(p2.Y−p1.Y)) / (d1.Z·d2.Y − d1.Y·d2.Z).
+//
+// A wrong sign here mirrors every crossing at the hit plane (2·z_hit − z),
+// which put the whole focusScan bracket on the wrong side of the last
+// surface: the historical FOCUSZ values of the mirror examples were such
+// artifacts (fixed 2026-10-15; the library was regenerated).
 func crossZ(p1, d1, p2, d2 geo.Vec3) float64 {
 	den := d1.Z*d2.Y - d1.Y*d2.Z
 	if math.Abs(den) < 1e-15 {
 		return math.NaN()
 	}
-	t := ((p2.Y-p1.Y)*d2.Z - (p2.Z-p1.Z)*d2.Y) / den
+	t := ((p2.Z-p1.Z)*d2.Y - (p2.Y-p1.Y)*d2.Z) / den
 	return p1.Z + t*d1.Z
 }
 

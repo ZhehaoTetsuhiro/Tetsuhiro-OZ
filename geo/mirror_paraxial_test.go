@@ -198,11 +198,13 @@ func unfoldedMatrix(sys *System, lambda float64) (Mat2, float64) {
 	return m, sigma
 }
 
-// pairCrossZ reproduces the ray-pair crossing of tools/libcheck/measure
-// (crossZ) including its sign convention, which measures the parameter along
-// the incident ray instead of against it. For a bundle that converges it
-// therefore reports the point reflected at the hit plane, p1.Z - t·d1.Z,
-// instead of the true crossing p1.Z + t·d1.Z.
+// pairCrossZ replicates the historical ray-pair crossing of
+// tools/libcheck/measure (crossZ before 2026-10-15) including its sign error:
+// it measured the parameter along the incident ray instead of solving the
+// 2x2 system, so for a bundle that converges it reports the point reflected at
+// the hit plane, 2·p1.Z − z_true, instead of the true crossing. The measure
+// tool carries the corrected formula now; this helper is kept so the artifact
+// relation of the historical library numbers stays documented and pinned.
 func pairCrossZ(p1, d1, p2, d2 Vec3) float64 {
 	den := d1.Z*d2.Y - d1.Y*d2.Z
 	if math.Abs(den) < 1e-15 {
@@ -213,7 +215,8 @@ func pairCrossZ(p1, d1, p2, d2 Vec3) float64 {
 }
 
 // pairCrossZTrue is the same crossing with the sign of the ray parameter
-// corrected, i.e. the intersection of the two ray lines.
+// corrected, i.e. the intersection of the two ray lines — the formula
+// tools/libcheck/measure uses since 2026-10-15.
 func pairCrossZTrue(p1, d1, p2, d2 Vec3) float64 {
 	den := d1.Z*d2.Y - d1.Y*d2.Z
 	if math.Abs(den) < 1e-15 {
@@ -400,8 +403,9 @@ func TestParaxialNewtonianUnfolded(t *testing.T) {
 func TestParaxialCassegrainFoldLayout(t *testing.T) {
 	// Layout of library/geo/mirror-cassegrain-f1000-d300-b300.json: stop,
 	// primary R=-2000 at z=60, a negative thickness of -300 mm (the fold) and
-	// the secondary R=-646.1538461538461, every surface in air.
-	const R1, R2 = -2000.0, -646.1538461538461
+	// the secondary R=+8400 (the converging conjugate solve), every surface in
+	// air. The image lands at the back focus, 300 mm behind the primary.
+	const R1, R2 = -2000.0, 8400.0
 	sys := mustSystem(t, Air{}, []Surface{
 		{Profile: Plane{}, Aperture: CircleAperture(150)},
 		{Profile: Sphere{R: R1}, Mirror: true, Aperture: CircleAperture(153)},
@@ -420,15 +424,16 @@ func TestParaxialCassegrainFoldLayout(t *testing.T) {
 	// Analytic two-step derivation of the image: the primary sends the parallel
 	// ray to its focus 1000 mm in front of it, so the ray reaches the secondary
 	// (300 mm down-beam) at height y2 = 1 - 300/1000 = 0.7 with ū = 1e-3; the
-	// secondary reflects it to ū' = -ū - 2 c2 y2 = -1e-3 + 2·0.7/646.1538461…
-	// and the image sits 0.7/ū' = 600 mm down-beam of the secondary.
+	// secondary (R2 = +8400) reflects it to ū' = -ū - 2 c2 y2 = -1.16666…e-3
+	// and the image sits y2/|ū'| = 600 mm down-beam of the secondary, i.e. at
+	// z = +360 — exactly the back focus b = 300 mm behind the primary.
 	u2 := 1e-3
 	y2 := 1.0 - 300*u2
 	uba := -u2 - 2*y2/R2
 	checkRel(t, "secondary incident height y2", y2, 0.7, 1e-12)
-	checkRel(t, "secondary emergent ū", uba, 1.1666666666666667e-3, 1e-12)
+	checkRel(t, "secondary emergent ū", uba, -1.1666666666666667e-3, 1e-12)
 	checkRel(t, "ImageZ = z2 - y2/ū'", p.ImageZ, -240-y2/uba, 1e-15)
-	checkRel(t, "ImageZ = -840 (600 mm down-beam of the secondary)", p.ImageZ, -840, 1e-12)
+	checkRel(t, "ImageZ = +360 (600 mm down-beam of the secondary)", p.ImageZ, 360, 1e-12)
 	// The same system in the unfolded power-sum form: with the parity σ (the
 	// first mirror +1, the second -1) the unfolded powers Φ̂ = -2 n c σ add as
 	// usual over the unfolded separation d̂ = -t, and the physical C entry of
@@ -438,23 +443,22 @@ func TestParaxialCassegrainFoldLayout(t *testing.T) {
 	phi2 := -2 * 1 * c2 * (-1)
 	phiU := phi1 + phi2 - 300*phi1*phi2
 	checkRel(t, "unfolded power Φ̂1", phi1, 1e-3, 1e-12)
-	checkRel(t, "unfolded power Φ̂2", phi2, -2/(646.1538461538461), 1e-12)
+	checkRel(t, "unfolded power Φ̂2", phi2, 2.0/8400, 1e-12)
 	m := p.Matrix()
 	checkRel(t, "C = -Φ̂_total", m.C, -phiU, 1e-12)
 	checkRel(t, "EFL = -n/C", p.EFL, -1/m.C, 1e-15)
 	checkRel(t, "EFL (absolute value)", math.Abs(p.EFL), 857.1428571428571, 1e-12)
-	if !(p.EFL < 0) {
-		t.Errorf("this layout diverges (virtual image at z=%g): EFL = %g must be negative", p.ImageZ, p.EFL)
+	if !(p.EFL > 0) {
+		t.Errorf("this layout converges (real image at z=%g): EFL = %g must be positive", p.ImageZ, p.EFL)
 	}
 	// Real rays: the paraxial image is the crossing of a vanishing-aperture ray,
-	// and the full aperture shows the spherical aberration of the two spheres.
-	checkRel(t, "real ray image", realCrossOfRay(sys, 1e-4, Wavelengthd, -2000), -840, 1e-9)
-	fz, rms := realBestFocusZ(sys, 150, Wavelengthd, -2000, -900, -700, 61)
-	t.Logf("cassegrain layout: paraxial %.6f, real marginal %.6f, best focus %.6f (RMS %.4g), library FOCUSZ 345.328867 (artifact, see TestLibraryMirrorFocusNumbers)",
+	// and the full aperture shows the spherical aberration of the two spheres
+	// (the best-RMS focus sits a few mm in front of the paraxial image).
+	checkRel(t, "real ray image", realCrossOfRay(sys, 1e-4, Wavelengthd, -2000), 360, 1e-9)
+	fz, rms := realBestFocusZ(sys, 150, Wavelengthd, -2000, 352, 362, 61)
+	t.Logf("cassegrain layout: paraxial %.6f, real marginal %.6f, best focus %.6f (RMS %.4g), library FOCUSZ 357.097475 (see TestLibraryMirrorFocusNumbers)",
 		p.ImageZ, realCrossOfRay(sys, 150, Wavelengthd, -2000), fz, rms)
-	if math.Abs(fz+840) > 5 {
-		t.Errorf("best focus of the full aperture %.3f is far from the paraxial image %.3f", fz, p.ImageZ)
-	}
+	checkClose(t, "best focus of the full aperture", fz, 357.097475, 0.5)
 	// Finite conjugate: a point source 1000 mm in front of the primary.
 	pp, err := sys.Paraxial(Wavelengthd, -1060)
 	if err != nil {
@@ -740,7 +744,7 @@ func TestParaxialMirrorMatrixUnfoldedChain(t *testing.T) {
 	cassegrain := mustSystem(t, Air{}, []Surface{
 		{Profile: Plane{}, Aperture: CircleAperture(150)},
 		{Profile: Sphere{R: -2000}, Mirror: true, Aperture: CircleAperture(153)},
-		{Profile: Sphere{R: -646.1538461538461}, Mirror: true, Aperture: CircleAperture(117.5)},
+		{Profile: Sphere{R: 8400}, Mirror: true, Aperture: CircleAperture(117.5)},
 	}, []float64{60, -300}, nil)
 	cat := mustSystem(t, Air{}, []Surface{
 		{Profile: Plane{}, Aperture: CircleAperture(10)},
@@ -803,7 +807,7 @@ func TestParaxialPureMirrorChromaticZero(t *testing.T) {
 	cassegrain := mustSystem(t, Air{}, []Surface{
 		{Profile: Plane{}, Aperture: CircleAperture(150)},
 		{Profile: Sphere{R: -2000}, Mirror: true, Aperture: CircleAperture(153)},
-		{Profile: Sphere{R: -646.1538461538461}, Mirror: true, Aperture: CircleAperture(117.5)},
+		{Profile: Sphere{R: 8400}, Mirror: true, Aperture: CircleAperture(117.5)},
 	}, []float64{60, -300}, nil)
 	for _, tc := range []struct {
 		name string
@@ -1034,7 +1038,7 @@ func TestParaxialMirrorDeterminism(t *testing.T) {
 		mustSystem(t, Air{}, []Surface{
 			{Profile: Plane{}, Aperture: CircleAperture(150)},
 			{Profile: Sphere{R: -2000}, Mirror: true, Aperture: CircleAperture(153)},
-			{Profile: Sphere{R: -646.1538461538461}, Mirror: true, Aperture: CircleAperture(117.5)},
+			{Profile: Sphere{R: 8400}, Mirror: true, Aperture: CircleAperture(117.5)},
 		}, []float64{60, -300}, nil),
 		catadioptricSinglet(t),
 	}
@@ -1138,18 +1142,18 @@ func TestParaxialMirrorErrors(t *testing.T) {
 // ---------------------------------------------------------------------------
 
 func TestLibraryMirrorFocusNumbers(t *testing.T) {
-	// The descriptions of library/geo/mirror-cassegrain-f1000-d300-b300.json and
-	// mirror-newtonian-f1000-f5.json quote FOCUSZ (345.328867 mm and
-	// 1053.04778 mm). Those numbers are the lower edge of the scan bracket of
-	// tools/libcheck/measure.focusScan, whose ray-pair crossing crossZ measures
-	// the parameter along the incident ray with the wrong sign: for a bundle that
-	// converges it returns the point reflected at the hit plane, p1.Z - t·d1.Z,
-	// so the whole scan runs on the wrong side of the last surface and its
-	// minimum is a plane where the bundle is far from focus (the quoted
-	// FOCUSRMS of 60.55 mm / 58.06 mm is not a spot size).
+	// The mirror example descriptions quote FOCUSZ — the best focus of the
+	// parallel fan measured by tools/libcheck/measure.focusScan. Until
+	// 2026-10-15 the ray-pair crossing helper (crossZ) computed the ray
+	// parameter with the wrong sign, so every crossing came back mirrored at
+	// the hit plane (2·z_hit − z) and the scan bracket of every focus-mode
+	// example ran on the wrong side of the last surface: the stored FOCUSZ of
+	// the mirror examples was that artifact (the newtonian quoted 1053.04778
+	// instead of −940, the cassegrain 345.328867 instead of ≈ +357).
 	//
-	// The relation is exact and is pinned here: the reported crossing is
-	// 2·p1.Z - z_true, the true crossing mirrored at the hit plane.
+	// This test documents the corrected relation: with the fixed sign the
+	// crossing of the first fan pair sits on the caustic at the physical
+	// focus, and the old mirrored crossing — the artifact — stays far away.
 	for _, tc := range []struct {
 		name  string
 		gap   float64
@@ -1166,7 +1170,7 @@ func TestLibraryMirrorFocusNumbers(t *testing.T) {
 		}
 		zTrue := realCrossOfRay(sys, 1e-4, Wavelengthd, tc.start)
 		checkRel(t, tc.name+" true focus", zTrue, p.ImageZ, 1e-9)
-		// Two real rays of the first fan pair, crossed with the flawed helper.
+		// Two real rays of the first fan pair, crossed with both helpers.
 		r1 := sys.Trace(NewRay(V(0, tc.semi*(0.02+0.96*0/20.0), tc.start), V(0, 0, 1), Wavelengthd))
 		r2 := sys.Trace(NewRay(V(0, tc.semi*(0.02+0.96*1/20.0), tc.start), V(0, 0, 1), Wavelengthd))
 		if !r1.OK() || !r2.OK() {
@@ -1174,27 +1178,35 @@ func TestLibraryMirrorFocusNumbers(t *testing.T) {
 		}
 		s1 := r1.Steps[len(r1.Steps)-1]
 		s2 := r2.Steps[len(r2.Steps)-1]
-		zArtifact := pairCrossZ(s1.Point, s1.DirOut, s2.Point, s2.DirOut)
 		zPair := pairCrossZTrue(s1.Point, s1.DirOut, s2.Point, s2.DirOut)
+		zArtifact := pairCrossZ(s1.Point, s1.DirOut, s2.Point, s2.DirOut)
+		// The corrected crossing is the physical focus of the bundle; the old
+		// helper is exactly the crossing mirrored at the hit plane.
+		checkRel(t, tc.name+" corrected crossing = true focus", zPair, p.ImageZ, 1e-9)
 		checkRel(t, tc.name+" artifact crossing = 2 z_hit - z_pair", zArtifact, 2*s1.Point.Z-zPair, 1e-9)
-		if math.Abs(zArtifact-p.ImageZ) < 1 {
+		if math.Abs(zArtifact-p.ImageZ) < 100 {
 			t.Errorf("%s: the artifact crossing %g must not coincide with the physical focus %g", tc.name, zArtifact, p.ImageZ)
 		}
-		t.Logf("%s: physical focus %.9f, pair crossing %.9f, artifact crossing %.9f, library FOCUSZ %.6f",
-			tc.name, zTrue, zPair, zArtifact, 1053.04778)
+		t.Logf("%s: physical focus %.9f, corrected crossing %.9f, artifact crossing %.9f (library quotes FOCUSZ -940)",
+			tc.name, zTrue, zPair, zArtifact)
 	}
-	// The cassegrain layout of the library: the same relation, using its own
-	// secondary radius and its 150 mm stop.
+	// The cassegrain layout of the library (the converging secondary R=+8400
+	// of the conjugate solve): the same relation, using its own radius and its
+	// 150 mm stop. The pair crossing of the extreme rays lies on the caustic
+	// of the two spheres a few millimetres in front of the paraxial image 360
+	// (the library quotes the best-RMS focus 357.097475).
 	sys := mustSystem(t, Air{}, []Surface{
 		{Profile: Plane{}, Aperture: CircleAperture(150)},
 		{Profile: Sphere{R: -2000}, Mirror: true, Aperture: CircleAperture(153)},
-		{Profile: Sphere{R: -646.1538461538461}, Mirror: true, Aperture: CircleAperture(117.5)},
+		{Profile: Sphere{R: 8400}, Mirror: true, Aperture: CircleAperture(117.5)},
 	}, []float64{60, -300}, nil)
 	p, err := sys.Paraxial(Wavelengthd, math.Inf(-1))
 	if err != nil {
 		t.Fatal(err)
 	}
 	zTrue := realCrossOfRay(sys, 1e-4, Wavelengthd, -2000)
+	checkRel(t, "cassegrain true focus", zTrue, p.ImageZ, 1e-9)
+	checkRel(t, "cassegrain paraxial image", p.ImageZ, 360, 1e-12)
 	r1 := sys.Trace(NewRay(V(0, 150*(0.02+0.96*0/20.0), -2000), V(0, 0, 1), Wavelengthd))
 	r2 := sys.Trace(NewRay(V(0, 150*(0.02+0.96*1/20.0), -2000), V(0, 0, 1), Wavelengthd))
 	if !r1.OK() || !r2.OK() {
@@ -1202,12 +1214,14 @@ func TestLibraryMirrorFocusNumbers(t *testing.T) {
 	}
 	s1 := r1.Steps[len(r1.Steps)-1]
 	s2 := r2.Steps[len(r2.Steps)-1]
-	zArtifact := pairCrossZ(s1.Point, s1.DirOut, s2.Point, s2.DirOut)
 	zPair := pairCrossZTrue(s1.Point, s1.DirOut, s2.Point, s2.DirOut)
-	checkRel(t, "cassegrain true focus", zTrue, p.ImageZ, 1e-9)
+	zArtifact := pairCrossZ(s1.Point, s1.DirOut, s2.Point, s2.DirOut)
 	checkRel(t, "cassegrain artifact crossing = 2 z_hit - z_pair", zArtifact, 2*s1.Point.Z-zPair, 1e-9)
-	t.Logf("cassegrain layout: physical focus %.9f, pair crossing %.6f, artifact crossing %.6f, library FOCUSZ %.6f",
-		zTrue, zPair, zArtifact, 345.328867)
+	if math.Abs(zPair-360) > 5 {
+		t.Errorf("cassegrain pair crossing %.6f is not near the paraxial image 360", zPair)
+	}
+	t.Logf("cassegrain layout: physical focus %.9f, pair crossing %.6f, artifact crossing %.6f (library quotes FOCUSZ 357.097475)",
+		zTrue, zPair, zArtifact)
 }
 
 // ---------------------------------------------------------------------------

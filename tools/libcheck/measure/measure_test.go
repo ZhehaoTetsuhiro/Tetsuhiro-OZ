@@ -5,6 +5,7 @@ import (
 	"strings"
 	"testing"
 
+	"tetsuhiro-oz/geo"
 	"tetsuhiro-oz/lens"
 )
 
@@ -251,5 +252,49 @@ func TestFingerprintCoversPoseAndAspheres(t *testing.T) {
 		if fp == ref {
 			t.Errorf("%s does not enter the fingerprint", k.name)
 		}
+	}
+}
+
+// ---------- focus scan and the ray-pair crossing ----------
+
+// TestCrossZIntersection: crossZ must return the intersection of the two ray
+// lines. A regression: the parameter t used to carry the wrong sign, which
+// mirrored every crossing at the hit plane (2·z_hit − z) and put the whole
+// focusScan bracket of every focus-mode example on the wrong side of the last
+// surface (the historical FOCUSZ values of the mirror library were artifacts).
+func TestCrossZIntersection(t *testing.T) {
+	// y = z and y = 1 − z cross at (y, z) = (0.5, 0.5).
+	got := crossZ(geo.V(0, 0, 0), geo.V(0, 1, 1), geo.V(0, 1, 0), geo.V(0, -1, 1))
+	if math.Abs(got-0.5) > 1e-12 {
+		t.Errorf("crossZ = %g, want 0.5", got)
+	}
+	// The mirrored value (2·z_hit − z = −0.5) must not be returned.
+	if math.Abs(got+0.5) < 1e-12 {
+		t.Errorf("crossZ returned the mirrored crossing %g", got)
+	}
+}
+
+// TestFocusScanParabolicMirror: a parabolic mirror of R = −2000 focuses a
+// parallel bundle at R/2, i.e. 1000 mm in front of the mirror vertex — for a
+// mirror 60 mm behind the stop the focus is at z = −940 with a vanishing RMS.
+// Before the crossZ fix the scan bracket sat near +1053 (the crossing
+// mirrored at the mirror) and the measured FOCUSZ was that artifact.
+func TestFocusScanParabolicMirror(t *testing.T) {
+	p := &lens.Prescription{ObjectZMM: math.Inf(-1), Stop: 0, Cards: []lens.Card{
+		{Name: "aperture stop", RadiusMM: math.Inf(1), ThicknessMM: 60, SemiAperMM: 100},
+		{Name: "primary", RadiusMM: -2000, ConicK: -1, Mirror: true, ThicknessMM: 200, SemiAperMM: 102},
+	}}
+	m, err := Measure(p)
+	if err != nil {
+		t.Fatal(err)
+	}
+	if m.Mode != ModeFocus {
+		t.Fatalf("mode %q, want %q", m.Mode, ModeFocus)
+	}
+	if math.Abs(m.FocusZMM+940) > 0.01 {
+		t.Errorf("FOCUSZ = %.9g mm, want −940 (R/2 of the parabola)", m.FocusZMM)
+	}
+	if !(m.FocusRMSMM < 1e-3) {
+		t.Errorf("FOCUSRMS = %.9g mm, want ~0 for a perfect parabola", m.FocusRMSMM)
 	}
 }

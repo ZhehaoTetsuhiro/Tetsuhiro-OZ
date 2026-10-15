@@ -109,8 +109,11 @@ func twoMirror(l *lib, key, zh string, F, d, b float64, diff int) {
 		failf("twoMirror %s F=%g d=%g b=%g: only the Cassegrain arrangement (d < F) is built in this batch", key, F, d, b)
 		return
 	}
-	// the secondary is convex as seen from the primary: negative tracer radius
-	R2 := -2 / (1/(F-d) + 1/(b+d))
+	R2, ok := secondaryRadius(F, d, b)
+	if !ok {
+		failf("twoMirror %s F=%g d=%g b=%g: degenerate conjugate F = b+2d (a flat secondary would be required)", key, F, d, b)
+		return
+	}
 	semi := math.Min(150, F/4)
 	secSemi := 1.1*semi*math.Abs(F-d)/F + 2
 	cards := []lens.Card{
@@ -150,20 +153,24 @@ func buildMirrors(l *lib) {
 	}
 	// classical Cassegrains and Gregorians
 	for _, c := range []struct{ F, d, b float64 }{
-		{400, 150, 150}, {600, 200, 200}, {800, 250, 250},
+		{400, 150, 150}, {600, 200, 220}, {800, 250, 250},
 		{1000, 300, 300}, {1500, 400, 400}, {2000, 500, 500},
 	} {
 		twoMirror(l, "cassegrain", "卡塞格林式（球面主镜 + 球面副镜）", c.F, c.d, c.b, 4)
 	}
 	for _, c := range []struct{ F, d, b float64 }{
-		{800, 300, 200}, {1000, 350, 250}, {1200, 400, 300}, {600, 220, 180},
+		{800, 300, 220}, {1000, 350, 250}, {1200, 400, 300}, {600, 220, 180},
 	} {
 		twoMirror(l, "cassegrain-variant", "卡塞格林式（不同遮挡比与后截距）", c.F, c.d, c.b, 4)
 	}
 	// two-mirror Cassegrain with a correcting lens in front of the focus
 	for _, c := range []struct{ F, d, b float64 }{{800, 250, 250}, {1200, 350, 300}} {
 		F, d, b := c.F, c.d, c.b
-		R2 := -2 / (1/(F-d) + 1/(b+d))
+		R2, ok := secondaryRadius(F, d, b)
+		if !ok {
+			failf("cassegrain-corrector F=%g d=%g b=%g: degenerate conjugate F = b+2d", F, d, b)
+			continue
+		}
 		semi := math.Min(150, F/4)
 		secSemi := 1.1*semi*(F-d)/F + 2
 		g := grp{name: "corrector", curv: seedConvPCX("N-BK7", 300), glasses: []string{"N-BK7", ""}, thick: 4, after: 0.2 * b}
@@ -200,4 +207,23 @@ func buildMirrors(l *lib) {
 			fmt.Sprintf("抛物面反射镜 + 场镜｜f=%smm，场镜置于焦点前 %smm 处（弱正透镜，用于把主镜的出射光瞳投向焦点、压平像场）｜经典构造，指标由实光线追迹实测",
 				trimNum(f, 0), trimNum(0.4*f, 0)))
 	}
+}
+
+// secondaryRadius solves the secondary conjugate of a two-mirror telescope in
+// the signed layout of the package: the primary's converging beam would focus
+// at F−d beyond the secondary and the secondary must re-image it to the back
+// focus b+d behind itself, so the mirror equation reads
+//
+//	2/R2 = 1/(b+d) − 1/(F−d),   R2 = 2(F−d)(b+d)/(F−b−2d).
+//
+// The sign of R2 follows from the fold (positive for the classical convex
+// Cassegrain secondary); both signs produce a converging design. The
+// degenerate configuration F = b+2d would require a flat secondary and is
+// reported as not solvable.
+func secondaryRadius(F, d, b float64) (float64, bool) {
+	den := F - b - 2*d
+	if math.Abs(den) < 1e-9*math.Max(1, F) {
+		return 0, false
+	}
+	return 2 * (F - d) * (b + d) / den, true
 }

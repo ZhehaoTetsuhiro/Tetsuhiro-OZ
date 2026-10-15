@@ -251,7 +251,7 @@ type Paraxial struct {
 	Mirrors int
 
 	// EntrancePupilZ / ExitPupilZ are the axial positions of the images of the
-	// aperture stop in the object and image space (mm). The pupil planeses can
+	// aperture stop in the object and image space (mm). The pupil planes can
 	// be virtual (inside the system). EntrancePupilRadius/ExitPupilRadius are
 	// the corresponding semi-diameters (mm).
 	EntrancePupilZ      float64
@@ -263,8 +263,12 @@ type Paraxial struct {
 	FNumber float64 // EFL / (2·EntrancePupilRadius)
 	ImageNA float64 // n'·sin(u') of the marginal ray at the entrance pupil edge
 
-	// PrincipalMag is A of the transfer from the object space to the stop
-	// plane (the entrance pupil magnification).
+	// EntrancePupilMag is the A entry of the transfer from the entrance pupil
+	// plane to the stop plane (y_stop = A·y_entrance pupil), so the entrance
+	// pupil radius is StopRadius/|EntrancePupilMag|. ExitPupilMag is the A
+	// entry of the transfer from the stop plane to the exit pupil plane
+	// (y_exit pupil = A·y_stop), so the exit pupil radius is
+	// |ExitPupilMag|·StopRadius.
 	EntrancePupilMag float64
 	ExitPupilMag     float64
 
@@ -453,20 +457,29 @@ func (s *System) Paraxial(lambdaNm float64, objectZ float64) (*Paraxial, error) 
 		p.EntrancePupilZ = math.Inf(-1)
 	}
 	// Exit pupil: conjugate of the stop plane through the elements after it.
+	// Appending a gap L after the last surface left-multiplies the transfer
+	// from the stop plane by [[1, L/nk],[0,1]], so the conjugate condition
+	// B = 0 reads B + L·D/nk = 0: an appended gap is governed by the D entry
+	// (the entrance pupil, whose gap is prepended, by the A entry). The stop
+	// image sits at z = VertexZ(n−1) + L with semi-diameter
+	// |A + L·C/nk|·StopRadius — the A entry of the conjugated transfer, which
+	// equals |1/D| because the subsystem determinant is ±1.
 	mOut := Identity()
 	for i := stop; i < n; i++ {
 		mOut = els[i].surfaceMatrix().Mul(mOut)
 		mOut = els[i].transferMatrix().Mul(mOut)
 	}
 	nk := p.Index[n]
-	if mOut.A != 0 {
-		L := -mOut.B * nk / mOut.A
+	if mOut.D != 0 {
+		L := -mOut.B * nk / mOut.D
 		p.ExitPupilZ = p.VertexZ[n-1] + L
-		p.ExitPupilMag = mOut.A
+		mag := mOut.A + L*mOut.C/nk
+		p.ExitPupilMag = mag
 		if sr > 0 && !math.IsInf(sr, 1) {
-			p.ExitPupilRadius = sr / math.Abs(mOut.A)
+			p.ExitPupilRadius = sr * math.Abs(mag)
 		}
 	} else {
+		// The stop images at infinity (telecentric image space).
 		p.ExitPupilZ = math.Inf(1)
 	}
 

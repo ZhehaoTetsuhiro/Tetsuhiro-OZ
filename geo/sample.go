@@ -367,11 +367,12 @@ func finite(x float64) bool { return !math.IsNaN(x) && !math.IsInf(x, 0) }
 // the sampling API), in the form of a Pupil plane: its axial position
 // (EntrancePupilZ) and its semi-diameter (EntrancePupilRadius).
 //
-// The entrance pupil is the image of the aperture stop in the object space; it
-// is derived from the first-order model, so the system must be refractive (the
-// first-order engine does not handle mirrors; use an explicit Pupil for mirror
-// systems). Systems whose entrance pupil lies at infinity (telecentric object
-// space) or whose stop has no finite aperture are reported as errors.
+// The entrance pupil is the image of the aperture stop in the object space;
+// it is derived from the first-order model, which covers coaxial systems with
+// mirrors as well as refractive ones (a decentred or tilted layout has no
+// first-order model and is reported as an error). Systems whose entrance pupil
+// lies at infinity (telecentric object space) or whose stop has no finite
+// aperture are reported as errors.
 func (s *System) EntrancePupil(f Field, lambdaNm float64) (Pupil, error) {
 	p, err := s.Paraxial(lambdaNm, f.ObjectPlane())
 	if err != nil {
@@ -551,8 +552,9 @@ func (s *System) ChiefOffset(f Field, zPlane float64) (Vec3, error) {
 // ParaxialImageHeight returns the paraxial image height (mm) of the field at
 // the image plane z = imageZ, evaluated in the meridional (y) direction. For
 // an object at infinity this is EFL·tan θy; for a finite object the transverse
-// magnification times the object height. The system must be refractive (the
-// first-order engine has no mirror support).
+// magnification times the object height. The system must be coaxial (the
+// first-order engine covers coaxial systems, mirrors included; a decentred or
+// tilted layout is not supported).
 func (s *System) ParaxialImageHeight(f Field, imageZ, lambdaNm float64) (float64, error) {
 	p, err := s.Paraxial(lambdaNm, f.ObjectPlane())
 	if err != nil {
