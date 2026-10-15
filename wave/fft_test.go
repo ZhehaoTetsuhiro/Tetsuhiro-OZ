@@ -55,18 +55,24 @@ func maxRelErr(got, want []complex128) float64 {
 // directions. Acceptance: max relative error ≤ 1e-12.
 func TestFFT1DNaiveDFTPowersOfTwo(t *testing.T) {
 	rng := rand.New(rand.NewSource(20261015)) // fixed seed: reproducible input
+	worst := 0.0
 	for n := 8; n <= 1024; n <<= 1 {
 		a := make([]complex128, n)
 		for i := range a {
 			a[i] = complex(2*rng.Float64()-1, 2*rng.Float64()-1)
 		}
-		if e := maxRelErr(FFT1D(a, false), naiveDFT(a, false)); e > 1e-12 {
-			t.Errorf("N=%d forward: max relative error %.3g > 1e-12", n, e)
+		ef := maxRelErr(FFT1D(a, false), naiveDFT(a, false))
+		ei := maxRelErr(FFT1D(a, true), naiveDFT(a, true))
+		t.Logf("N=%4d: max relative error forward %.3e, inverse %.3e", n, ef, ei)
+		if ef > 1e-12 {
+			t.Errorf("N=%d forward: max relative error %.3g > 1e-12", n, ef)
 		}
-		if e := maxRelErr(FFT1D(a, true), naiveDFT(a, true)); e > 1e-12 {
-			t.Errorf("N=%d inverse: max relative error %.3g > 1e-12", n, e)
+		if ei > 1e-12 {
+			t.Errorf("N=%d inverse: max relative error %.3g > 1e-12", n, ei)
 		}
+		worst = math.Max(worst, math.Max(ef, ei))
 	}
+	t.Logf("worst over N = 8…1024: %.3e (threshold 1e-12)", worst)
 }
 
 func TestFFT1DMatchesDFT(t *testing.T) {
