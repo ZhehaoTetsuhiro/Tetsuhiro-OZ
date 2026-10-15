@@ -277,9 +277,28 @@ func TestGhostParaxialRepeatability(t *testing.T) {
 	launches := [][2]float64{{1, 0}, {0.5, 1e-3}, {2, 0.01}, {-1.5, -2e-3}}
 	worstY, worstU := 0.0, 0.0
 	for _, pr := range GhostPairs(sys.NumSurfaces()) {
+		m, err := sys.GhostABCD(pr, p.BackFocalZ, Wavelengthd)
+		if err != nil {
+			t.Fatalf("%s: GhostABCD: %v", pr, err)
+		}
+		// Every elementary matrix of the chain has determinant 1 (transfers
+		// [[1,L/n],[0,1]], refraction and reflection [[1,0],[c,1]]), so the
+		// symplectic invariant det M = 1 checks the composition.
+		if d := math.Abs(m.Det() - 1); d > 1e-12 {
+			t.Errorf("%s: det(reversed ABCD chain) = %.15g, want 1 (|diff| = %.3g)", pr, m.Det(), d)
+		}
+		// The landing reported by the analysis must be the chain applied to the
+		// launch, and the independent y–u recurrence must agree with it.
 		for _, lu := range launches {
+			land, err := sys.ParaxialGhostLanding(pr, GhostParaxial{Y: lu[0], U: lu[1]}, p.BackFocalZ, Wavelengthd)
+			if err != nil {
+				t.Fatal(err)
+			}
+			want, _ := m.Apply(lu[0], n0*lu[1])
+			checkClose(t, "landing from the ABCD chain", land.Y, want, 1e-12)
+
 			y1, u1 := ghostParaxialRecurse(els, zs, pr, lu[0], lu[1], p.BackFocalZ)
-			y2, u2, m := ghostParaxialChain(els, zs, n0, pr, lu[0], lu[1], p.BackFocalZ)
+			y2, u2, _ := ghostParaxialChain(els, zs, n0, pr, lu[0], lu[1], p.BackFocalZ)
 			if d := math.Abs(y1 - y2); d > worstY {
 				worstY = d
 			}
@@ -289,9 +308,6 @@ func TestGhostParaxialRepeatability(t *testing.T) {
 			if d := math.Abs(y1 - y2); d > 1e-12 {
 				t.Errorf("%s launch (%g, %g): recurrence %.15g vs matrices %.15g (|diff| = %.3g > 1e-12)",
 					pr, lu[0], lu[1], y1, y2, d)
-			}
-			if m.Det() == 0 {
-				t.Errorf("%s: the ABCD chain has a singular determinant", pr)
 			}
 		}
 	}

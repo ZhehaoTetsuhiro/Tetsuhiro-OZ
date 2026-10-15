@@ -331,34 +331,62 @@ func ghostParaxialChain(els []paraxialElement, zs []float64, n0 float64, p Ghost
 	return y, uImg, m
 }
 
-// ParaxialGhostLanding traces the paraxial launch state through the ghost path
-// p and returns the landing point on the plane z = imageZ (mm, global frame).
+// GhostABCD returns the reversed ray transfer matrix of the ghost path p from
+// the plane of surface 0 to the plane z = imageZ, in the (y, ū) coordinates of
+// the package (ū = σ n u is the reduced angle of the segment the ray is in,
+// σ = +1 towards +z and −1 towards −z, n the index of that segment). The chain
+// is built from
 //
-// The path must be coaxial (no decentre, no tilt — the first-order engine of
-// the package is defined for coaxial systems only, see requireCoaxial) and may
-// not contain mirrors or coordinate breaks at its nodes (System.GhostPathOf).
-func (s *System) ParaxialGhostLanding(p GhostPair, launch GhostParaxial, imageZ, lambdaNm float64) (Vec3, error) {
+//	transfer    [[1, L/n], [0, 1]]      L = travelled distance, ≥ 0
+//	refraction  [[1, 0], [−σΦ, 1]]      Φ = (n_out − n_in) c
+//	reflection  [[1, 0], [2σn c, 1]]    after which σ flips
+//
+// so the backwards pass enters with positive travelled distances and with the
+// refraction power of the reversed direction, and every elementary matrix has
+// determinant 1: det M = 1 is the symplectic invariant of the chain, checked
+// by the tests. The matrix does not depend on the launch; the reference
+// (y₀, ū₀ = n₀u₀) of GhostParaxial is applied to it by ParaxialGhostLanding.
+func (s *System) GhostABCD(p GhostPair, imageZ, lambdaNm float64) (Mat2, error) {
 	if err := s.Validate(); err != nil {
-		return Vec3{}, err
+		return Mat2{}, err
 	}
 	if err := s.requireCoaxial("paraxial ghost analysis"); err != nil {
-		return Vec3{}, err
+		return Mat2{}, err
 	}
 	if _, err := s.GhostPathOf(p); err != nil {
-		return Vec3{}, err
+		return Mat2{}, err
 	}
 	if !finite(imageZ) {
-		return Vec3{}, fmt.Errorf("geo: paraxial ghost: image plane z is not finite")
+		return Mat2{}, fmt.Errorf("geo: paraxial ghost: image plane z is not finite")
 	}
 	if !finitePositive(lambdaNm) {
-		return Vec3{}, fmt.Errorf("geo: paraxial ghost: wavelength %g is not positive", lambdaNm)
+		return Mat2{}, fmt.Errorf("geo: paraxial ghost: wavelength %g is not positive", lambdaNm)
 	}
 	els := s.paraxialElements(lambdaNm)
 	zs := make([]float64, len(els))
 	for i := range els {
 		zs[i] = s.VertexZ(i)
 	}
-	yImg, _ := ghostParaxialRecurse(els, zs, p, launch.Y, launch.U, imageZ)
-	xImg, _ := ghostParaxialRecurse(els, zs, p, launch.X, launch.V, imageZ)
+	_, _, m := ghostParaxialChain(els, zs, s.Mediums[0].N(lambdaNm), p, 0, 0, imageZ)
+	return m, nil
+}
+
+// ParaxialGhostLanding traces the paraxial launch state through the ghost path
+// p with the reversed ABCD chain (GhostABCD) and returns the landing point on
+// the plane z = imageZ (mm, global frame). The meridional and the sagittal
+// channel use the same matrix because every profile of the package is
+// rotationally symmetric.
+//
+// The path must be coaxial (no decentre, no tilt — the first-order engine of
+// the package is defined for coaxial systems only, see requireCoaxial) and may
+// not contain mirrors or coordinate breaks at its nodes (System.GhostPathOf).
+func (s *System) ParaxialGhostLanding(p GhostPair, launch GhostParaxial, imageZ, lambdaNm float64) (Vec3, error) {
+	m, err := s.GhostABCD(p, imageZ, lambdaNm)
+	if err != nil {
+		return Vec3{}, err
+	}
+	n0 := s.Mediums[0].N(lambdaNm)
+	yImg, _ := m.Apply(launch.Y, n0*launch.U)
+	xImg, _ := m.Apply(launch.X, n0*launch.V)
 	return V(xImg, yImg, imageZ), nil
 }

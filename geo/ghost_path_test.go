@@ -249,4 +249,26 @@ func TestGhostReflectanceAnalytic(t *testing.T) {
 	if _, err := sys.GhostReflectance(7, lam, nil); err == nil {
 		t.Error("GhostReflectance: an out-of-range surface index must be rejected")
 	}
+
+	// The normal-incidence real amplitude is the s and p coefficient of the
+	// package's polarization machinery at cos θ = 1, so the ghost R = r² is the
+	// unpolarized value: the two polarizations agree there and the model needs
+	// no polarization state.
+	for _, pair := range [][2]float64{{1, 1.5}, {1.51680, 1.67271}, {1.7, 1}, {1.33, 2.4}} {
+		n1, n2 := pair[0], pair[1]
+		amps, cosT, err := FresnelAmplitudes(complex(n1, 0), complex(n2, 0), 1)
+		if err != nil {
+			t.Fatalf("FresnelAmplitudes(%g, %g, 1): %v", n1, n2, err)
+		}
+		want := FresnelAmplitude(n1, n2)
+		checkClose(t, "r_s at normal incidence", real(amps.RS), want, 1e-15)
+		checkClose(t, "r_p at normal incidence", real(amps.RP), want, 1e-15)
+		if imag(amps.RS) != 0 || imag(amps.RP) != 0 {
+			t.Errorf("normal incidence must give real Fresnel coefficients, got %v, %v", amps.RS, amps.RP)
+		}
+		checkClose(t, "transmitted cosine at normal incidence", real(cosT), 1, 1e-15)
+		// Unpolarized power reflectance = (R_s + R_p)/2 = R.
+		unpol := (real(amps.RS)*real(amps.RS) + real(amps.RP)*real(amps.RP)) / 2
+		checkClose(t, "unpolarized reflectance", unpol, FresnelReflectance(n1, n2), 1e-15)
+	}
 }

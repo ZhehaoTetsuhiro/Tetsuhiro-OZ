@@ -55,12 +55,21 @@ import (
 // Documented limitations of the model (see also ghost_analysis.go):
 //
 //   - The reflectance is a real normal-incidence Fresnel value (or a
-//     user-supplied R): no coating phase, no angle dependence of the Fresnel
-//     coefficients and no polarization split.
+//     user-supplied R): no coating phase and no thin-film interference (the
+//     coating/ TMM stack is not consulted), and no dependence on the angle of
+//     incidence — a ghost reflection contributes R = ((n₁−n₂)/(n₁+n₂))²
+//     whatever its real incidence angle is.
+//   - Polarization is treated as unpolarized: no Jones vector, Stokes vector or
+//     polarization state is propagated. At normal incidence the s and p Fresnel
+//     coefficients coincide, so R = r² is exactly the unpolarized value; the
+//     polarization-aware machinery of the package (FresnelAmplitudes,
+//     TracePolarized) is not used by the ghost path.
 //   - Exactly two reflections: higher orders (4, 6, … reflections) and any
-//     scattering are out of scope.
+//     multiple scattering (roughness, diffuse surfaces, baffle scattering) are
+//     out of scope — the model follows one deterministic path per pair.
 //   - The reflection sites must be refracting surfaces: mirror surfaces are
-//     rejected (their nominal action is already a reflection).
+//     rejected (their nominal action is already a reflection) and coordinate
+//     break elements carry no profile.
 
 // GhostPair identifies one double-reflection (ghost) path by its two
 // reflecting surfaces. Light travels in +z when it reaches I, reflects there,
@@ -214,6 +223,11 @@ func (s *System) GhostPathOf(p GhostPair) (GhostPath, error) {
 // of the interface between two media of refractive index n1 and n2. The sign
 // of r depends on the direction of travel through the interface; the intensity
 // reflectance (FresnelReflectance) does not.
+//
+// It is the real, normal-incidence special case of FresnelAmplitudes(n1, n2, 1)
+// of this package's polarization machinery, whose s and p coefficients coincide
+// at normal incidence: the ghost model carries no polarization state and its
+// R is therefore the unpolarized value (tested against FresnelAmplitudes).
 func FresnelAmplitude(n1, n2 float64) float64 { return (n1 - n2) / (n1 + n2) }
 
 // FresnelReflectance returns the normal-incidence intensity (power)
