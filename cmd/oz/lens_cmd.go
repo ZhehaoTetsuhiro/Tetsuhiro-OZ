@@ -32,6 +32,32 @@ func cmdLens(args []string) error {
 	return fmt.Errorf("lens: 未知子命令 %q（可用: thermal, sens）", sub)
 }
 
+// parseFlagsAll parses a command line whose positional argument (the
+// prescription path) may sit anywhere among the flags, so all of
+//
+//	oz lens thermal <处方.json> --delta-t 10
+//	oz lens thermal --delta-t 10 <处方.json>
+//	oz lens thermal --delta-t 10 <处方.json> --json out.json
+//
+// work. flag.FlagSet.Parse stops at the first non-flag argument, so the tail
+// behind each positional is parsed again and the positionals are collected in
+// order.
+func parseFlagsAll(fs *flag.FlagSet, args []string) ([]string, error) {
+	var pos []string
+	rest := args
+	for {
+		if err := fs.Parse(rest); err != nil {
+			return nil, err
+		}
+		left := fs.Args()
+		if len(left) == 0 {
+			return pos, nil
+		}
+		pos = append(pos, left[0])
+		rest = left[1:]
+	}
+}
+
 // cmdLensThermal prints the first-order thermal drift of a prescription.
 func cmdLensThermal(args []string) error {
 	fs := flag.NewFlagSet("lens thermal", flag.ExitOnError)
@@ -39,13 +65,15 @@ func cmdLensThermal(args []string) error {
 	lambda := fs.Float64("lambda", dLineNm, "波长 nm")
 	mount := fs.Float64("mount-cte", 0, "隔圈/镜筒的线膨胀系数（1/K，默认刚性镜筒）")
 	jsonOut := fs.String("json", "", "把结果写成 JSON 到该路径")
-	if err := fs.Parse(args); err != nil {
+	pos, err := parseFlagsAll(fs, args)
+	if err != nil {
 		return err
 	}
-	if fs.NArg() != 1 {
+	if len(pos) != 1 {
 		return fmt.Errorf("lens thermal: 需要一个 <处方.json> 参数")
 	}
-	p, err := lens.LoadJSON(fs.Arg(0))
+	rxPath := pos[0]
+	p, err := lens.LoadJSON(rxPath)
 	if err != nil {
 		return err
 	}
@@ -54,7 +82,7 @@ func cmdLensThermal(args []string) error {
 	if err != nil {
 		return err
 	}
-	fmt.Printf("热漂移 ΔT=%+g K（λ=%.4f nm，镜筒 α=%g 1/K）: %s\n", res.DeltaTK, res.LambdaNm, res.MountCTE, fs.Arg(0))
+	fmt.Printf("热漂移 ΔT=%+g K（λ=%.4f nm，镜筒 α=%g 1/K）: %s\n", res.DeltaTK, res.LambdaNm, res.MountCTE, rxPath)
 	fmt.Printf("  EFL  %+.6f mm → %+.6f mm   （%+.4g mm/K）\n", res.EFL0MM, res.EFL1MM, res.EFLPerKMM)
 	fmt.Printf("  BFL  %+.6f mm → %+.6f mm   （%+.4g mm/K）\n", res.BFL0MM, res.BFL1MM, res.BFLPerKMM)
 	fmt.Fprintf(os.Stderr, "（%.2fs）\n", time.Since(t0).Seconds())
@@ -87,12 +115,14 @@ func cmdLensSens(args []string) error {
 	shiftRange := fs.Float64("shift-range", 0, "像面补偿半行程 mm（0 = 1 mm）")
 	compIter := fs.Int("comp-iter", 0, "补偿器 DLS 迭代上限（0 = 100）")
 	jsonOut := fs.String("json", "", "把结果写成 JSON 到该路径")
-	if err := fs.Parse(args); err != nil {
+	pos, err := parseFlagsAll(fs, args)
+	if err != nil {
 		return err
 	}
-	if fs.NArg() != 1 {
+	if len(pos) != 1 {
 		return fmt.Errorf("lens sens: 需要一个 <处方.json> 参数")
 	}
+	rxPath := pos[0]
 	if *inverse && !(*budget > 0) {
 		return fmt.Errorf("lens sens: --inverse 需要 --budget（merit 增量预算 mm）")
 	}
@@ -101,7 +131,7 @@ func cmdLensSens(args []string) error {
 			*metric = metricMerit // --inverse/--compensate 使用 merit 灵敏度（runLensSens 也会校验）
 		}
 	}
-	p, err := lens.LoadJSON(fs.Arg(0))
+	p, err := lens.LoadJSON(rxPath)
 	if err != nil {
 		return err
 	}
@@ -129,7 +159,7 @@ func cmdLensSens(args []string) error {
 	if err != nil {
 		return err
 	}
-	printSensTable(fs.Arg(0), res)
+	printSensTable(rxPath, res)
 	if res.Alloc != nil {
 		printAllocTable(res.Alloc)
 	}

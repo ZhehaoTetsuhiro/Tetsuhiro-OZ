@@ -49,7 +49,7 @@
 - 触控设备（`pointer: coarse`）与几何/膜系标签内的按钮、输入框最小高度 44 px。
 - 光谱画布高度 `clamp(150px, 38vw, 300px)`，宽度跟随容器，按 `devicePixelRatio` 设置后备像素。
 
-验证方法（浏览器开发者工具，或 Chrome DevTools Protocol 的 `Emulation.setDeviceMetricsOverride`）：视口 390×844，检查 `document.documentElement.scrollWidth <= innerWidth`，检查几何/膜系标签内按钮的 `getBoundingClientRect().height >= 44`。2026-10-15 的实测结果见 `/root/autodl-tmp/wt-notes/server-merge.md`。
+验证方法（浏览器开发者工具，或 Chrome DevTools Protocol 的 `Emulation.setDeviceMetricsOverride`）：视口 390×844，检查 `document.documentElement.scrollWidth <= innerWidth`，检查几何/膜系标签内按钮的 `getBoundingClientRect().height >= 44`。2026-10-15 的实测结果见 `/root/autodl-tmp/wt-notes/server-merge.md`；高级分析折叠区的同一检查（390×844 + 触控模拟：`scrollWidth` 390 = `innerWidth`、面板内所有元素无横向溢出、3 个输入框与 2 个按钮均 44 px）见 `/root/autodl-tmp/wt-notes/wiring.md`。
 
 ## 5. 缓存
 

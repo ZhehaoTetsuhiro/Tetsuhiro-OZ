@@ -83,6 +83,41 @@ func TestLensThermalCLI(t *testing.T) {
 	}
 }
 
+// TestAnalysisCLIArgOrder accepts both spellings of the commands: the file in
+// front of the flags (`oz lens thermal rx.json --delta-t 10`, the form used in
+// the docs) and the Go convention with the file last.
+func TestAnalysisCLIArgOrder(t *testing.T) {
+	rx := cliDesign(t)
+	dir := t.TempDir()
+	cases := [][]string{
+		{"lens", "thermal", rx, "--delta-t", "10"},
+		{"lens", "thermal", "--delta-t", "10", rx},
+		{"lens", "sens", rx},
+		{"lens", "sens", "--fixed-step", rx},
+		{"geo", "mtf", rx, "--fields", "0,1"},
+		{"geo", "mtf", "--fields", "0,1", rx},
+		{"geo", "ghost", rx, "--rings", "2"},
+		{"geo", "ghost", "--rings", "2", rx},
+	}
+	for i, args := range cases {
+		jsonOut := filepath.Join(dir, "out"+string(rune('a'+i))+".json")
+		var err error
+		switch args[0] {
+		case "lens":
+			err = cmdLens(append(args[1:], "--json", jsonOut))
+		case "geo":
+			err = cmdGeo(append(args[1:], "--json", jsonOut))
+		}
+		if err != nil {
+			t.Errorf("%v: %v", args, err)
+			continue
+		}
+		if _, err := os.Stat(jsonOut); err != nil {
+			t.Errorf("%v: no JSON written: %v", args, err)
+		}
+	}
+}
+
 // TestLensSensCLI drives `oz lens sens` in its three modes: the EFL table (with
 // a finite-difference cross-check), the inverse allocation and the compensator
 // verification.

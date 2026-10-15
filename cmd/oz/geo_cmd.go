@@ -39,13 +39,15 @@ func cmdGeoGhost(args []string) error {
 	minRel := fs.Float64("min-relative", 0, "相对能量阈值（低于它的路径不列出）")
 	maxPaths := fs.Int("max-paths", 0, "最多列出前 N 条路径（0 = 全部）")
 	jsonOut := fs.String("json", "", "把结果写成 JSON 到该路径")
-	if err := fs.Parse(args); err != nil {
+	pos, err := parseFlagsAll(fs, args)
+	if err != nil {
 		return err
 	}
-	if fs.NArg() != 1 {
+	if len(pos) != 1 {
 		return fmt.Errorf("geo ghost: 需要一个 <处方.json> 参数")
 	}
-	p, err := lens.LoadJSON(fs.Arg(0))
+	rxPath := pos[0]
+	p, err := lens.LoadJSON(rxPath)
 	if err != nil {
 		return err
 	}
@@ -58,7 +60,7 @@ func cmdGeoGhost(args []string) error {
 	if err != nil {
 		return err
 	}
-	printGeoGhost(fs.Arg(0), res)
+	printGeoGhost(rxPath, res)
 	fmt.Fprintf(os.Stderr, "（%.2fs）\n", time.Since(t0).Seconds())
 	return writeJSONFile(*jsonOut, res)
 }
@@ -95,12 +97,14 @@ func cmdGeoMTF(args []string) error {
 	imageZ := fs.Float64("image-z", 0, "像面轴向位置 mm（0 = 近轴像面）")
 	rimFrac := fs.Float64("rim-frac", 0, "场曲/焦点对的入瞳半径比例（0 = 1e-3）")
 	jsonOut := fs.String("json", "", "把结果写成 JSON 到该路径")
-	if err := fs.Parse(args); err != nil {
+	pos, err := parseFlagsAll(fs, args)
+	if err != nil {
 		return err
 	}
-	if fs.NArg() != 1 {
+	if len(pos) != 1 {
 		return fmt.Errorf("geo mtf: 需要一个 <处方.json> 参数")
 	}
+	rxPath := pos[0]
 	fields, err := parseFloatList("--fields", *fieldsStr)
 	if err != nil {
 		return err
@@ -109,7 +113,7 @@ func cmdGeoMTF(args []string) error {
 	if err != nil {
 		return err
 	}
-	p, err := lens.LoadJSON(fs.Arg(0))
+	p, err := lens.LoadJSON(rxPath)
 	if err != nil {
 		return err
 	}
@@ -122,7 +126,7 @@ func cmdGeoMTF(args []string) error {
 	if err != nil {
 		return err
 	}
-	printGeoMTF(fs.Arg(0), res)
+	printGeoMTF(rxPath, res)
 	fmt.Fprintf(os.Stderr, "（%.2fs）\n", time.Since(t0).Seconds())
 	return writeJSONFile(*jsonOut, res)
 }

@@ -71,7 +71,7 @@ func main() {
 func usage() {
 	fmt.Print(`oz — Tetsuhiro-OZ 光学设计命令行 ` + version + `
 
-用法:（Go 惯例：选项在前，文件参数在最后）
+用法:（Go 惯例：选项在前，文件参数在最后；lens/geo 分析子命令的文件放前放后都可以）
   oz design achromat [选项] --out lens.json
       自主设计消色差双胶合（薄透镜解 → 厚透镜牛顿消色差 → DLS 抛光）。
       选项: --efl 焦距mm(必) --crown --flint --semi --field 视场角(度) --iter --no-polish --out
