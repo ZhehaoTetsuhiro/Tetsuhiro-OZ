@@ -1,8 +1,10 @@
 package geo
 
 import (
+	"fmt"
 	"math"
 	"math/rand"
+	"strings"
 	"testing"
 )
 
@@ -644,5 +646,106 @@ func TestXYPolynomialAxisymmetricMatchesRadialProfile(t *testing.T) {
 	}
 	if sAsym.Reversed() != nil {
 		t.Error("Reversed accepted an asymmetric freeform surface")
+	}
+}
+
+// ---------------------------------------------------------------------------
+// Canonical order, validation and the radial (Profile) surrogates
+// ---------------------------------------------------------------------------
+
+// TestXYPolynomialCanonicalValidate covers the structural API: validation
+// errors (order below quadratic, negative exponents, non-finite data, negative
+// normalisation radius), the canonical order (deterministic summation
+// independent of the order the caller supplied the terms in, duplicates
+// merged), and the documented meaning of the Profile surrogates
+// (Sag/Slope = the +y meridian, Curvature = the mean vertex curvature).
+func TestXYPolynomialCanonicalValidate(t *testing.T) {
+	// Validation.
+	bad := []struct {
+		name string
+		p    XYPolynomial
+	}{
+		{"piston", XYPolynomial{Terms: []XYTerm{{0, 0, 1}}}},
+		{"tilt", XYPolynomial{Terms: []XYTerm{{1, 0, 1e-3}}}},
+		{"negative exponent", XYPolynomial{Terms: []XYTerm{{-1, 3, 1e-3}}}},
+		{"NaN coefficient", XYPolynomial{Terms: []XYTerm{{2, 0, math.NaN()}}}},
+		{"Inf coefficient", XYPolynomial{Terms: []XYTerm{{2, 0, math.Inf(1)}}}},
+		{"NaN radius", XYPolynomial{R: math.NaN()}},
+		{"NaN conic constant", XYPolynomial{K: math.NaN()}},
+		{"negative norm radius", XYPolynomial{NormR: -1, Terms: []XYTerm{{2, 0, 1e-3}}}},
+	}
+	for _, tc := range bad {
+		if err := tc.p.Validate(); err == nil {
+			t.Errorf("%s: Validate accepted an invalid surface %+v", tc.name, tc.p)
+		}
+		if _, err := NewXYPolynomial(tc.p.R, tc.p.K, tc.p.NormR, tc.p.Terms); err == nil {
+			t.Errorf("%s: NewXYPolynomial accepted an invalid surface", tc.name)
+		}
+	}
+	if _, err := NewXYPolynomial(-200, -1, 25, []XYTerm{{2, 0, -1e-3}, {0, 2, -1e-3}}); err != nil {
+		t.Errorf("NewXYPolynomial rejected a valid surface: %v", err)
+	}
+
+	// Canonical order: same terms, different input order, duplicate entries.
+	base := []XYTerm{{4, 0, 1e-6}, {2, 0, -2e-3}, {0, 2, -2e-3}, {1, 1, 3e-5}, {0, 4, 1e-6}, {2, 2, 2e-6}}
+	shuffled := []XYTerm{{2, 2, 2e-6}, {0, 4, 1e-6}, {2, 0, -1e-3}, {1, 1, 3e-5}, {4, 0, 1e-6}, {0, 2, -2e-3}, {2, 0, -1e-3}}
+	a := ffMustBuild(t, 0, 0, 0, base)
+	b := ffMustBuild(t, 0, 0, 0, shuffled)
+	if len(a.Terms) != 6 || len(b.Terms) != 6 {
+		t.Fatalf("canonicalisation kept %d and %d terms, want 6 (duplicates merged)", len(a.Terms), len(b.Terms))
+	}
+	if got := a.Canonical(); fmt.Sprint(got.Terms) != fmt.Sprint(b.Terms) {
+		t.Errorf("canonical orders differ: %v vs %v", got.Terms, b.Terms)
+	}
+	for _, xy := range ffGrid(12, 5) {
+		za, zb := a.SagXY(xy[0], xy[1]), b.SagXY(xy[0], xy[1])
+		if math.Float64bits(za) != math.Float64bits(zb) {
+			t.Errorf("sag at (%g,%g) depends on the input term order: %.17g vs %.17g", xy[0], xy[1], za, zb)
+		}
+	}
+
+	// Normalisation radius: Σ a_ij (x/N)^i (y/N)^j equals the unnormalised
+	// surface with b_ij = a_ij/N^(i+j).
+	const N = 15.0
+	norm := ffMustBuild(t, 0, 0, N, []XYTerm{{2, 0, -3e-2}, {0, 2, -3e-2}, {1, 1, 5e-3}, {4, 0, 2e-3}})
+	raw := ffMustBuild(t, 0, 0, 0, []XYTerm{{2, 0, -3e-2 / (N * N)}, {0, 2, -3e-2 / (N * N)}, {1, 1, 5e-3 / (N * N)}, {4, 0, 2e-3 / (N * N * N * N)}})
+	for _, xy := range ffGrid(12, 5) {
+		checkRel(t, "normalised vs scaled raw sag", norm.SagXY(xy[0], xy[1]), raw.SagXY(xy[0], xy[1]), 1e-14)
+	}
+
+	// The Profile surrogates: Sag/Slope are the +y meridian, Curvature the
+	// mean of the two vertex curvatures.
+	p := ffMustBuild(t, 0, 0, 0, []XYTerm{{2, 0, -2.5e-3}, {0, 2, -1.5e-3}, {1, 1, 4e-4}})
+	checkClose(t, "Sag(r) = SagXY(0, r)", p.Sag(6), p.SagXY(0, 6), 0)
+	_, zy := p.GradXY(0, 6)
+	checkClose(t, "Slope(r) = dz/dy(0, r)", p.Slope(6), zy, 0)
+	const h = 1e-4
+	kxx := (p.SagXY(h, 0) - 2*p.SagXY(0, 0) + p.SagXY(-h, 0)) / (h * h)
+	kyy := (p.SagXY(0, h) - 2*p.SagXY(0, 0) + p.SagXY(0, -h)) / (h * h)
+	checkRel(t, "Curvature = mean vertex curvature", p.Curvature(), 0.5*(kxx+kyy), 1e-9)
+	// ZRange through the Surface dispatch samples the two-dimensional sag.
+	s := Surface{Profile: p, Aperture: CircleAperture(8)}
+	lo, hi := s.ZRange(0)
+	zmin, zmax := 0.0, 0.0
+	for _, xy := range ffGrid(8, 32) {
+		if math.Hypot(xy[0], xy[1]) > 8+1e-12 {
+			continue
+		}
+		z := p.SagXY(xy[0], xy[1])
+		if z < zmin {
+			zmin = z
+		}
+		if z > zmax {
+			zmax = z
+		}
+	}
+	if lo > zmin+1e-12 || hi < zmax-1e-12 {
+		t.Errorf("ZRange [%g, %g] does not contain the sampled range [%g, %g]", lo, hi, zmin, zmax)
+	}
+	if _, _, ok := s.Intersect(V(2, -1, -20), V(0, 0, 1), tMinDefault); !ok {
+		t.Error("Surface.Intersect failed on an axial ray")
+	}
+	if p.String() == "" || !strings.Contains(p.String(), "xy polynomial") {
+		t.Errorf("String() = %q", p.String())
 	}
 }
