@@ -14,11 +14,19 @@ import (
 //
 //	transfer over the axial distance t in index n:  [[1, t/n], [0, 1]]
 //	refraction at a surface of power Φ = (n'-n)c:   [[1, 0], [-Φ, 1]]
+//	reflection at a mirror of curvature c:          [[1, 0], [-2·n·c, -1]]
 //
 // and the imaging condition between two conjugate planes is B = 0, with
 // transverse magnification A. The effective focal length of a system is
 // EFL = -n'/C (n' = image-side index), and the matrix of a thin lens in air of
 // focal length f is [[1,0],[-1/f,1]].
+//
+// The mirror matrix has determinant -1: the reflection reverses the direction
+// of propagation, so ū → -ū. The unfolding of a mirror system (System.Paraxial)
+// is the equivalent formulation in which the index of every medium behind the
+// mirror is negated (n → -n) and the reflection keeps the refraction form
+// [[1,0],[-Φ,1]]; both descriptions produce the same heights and the same
+// physical slopes.
 type Mat2 struct {
 	A, B, C, D float64
 }
@@ -55,14 +63,39 @@ func (m Mat2) String() string {
 // curvature c = 1/R, indices before/after and the axial distance to the next
 // surface. Higher-order shape terms (conic constant, aspheric coefficients) do
 // not enter first-order optics.
+//
+// mirror marks a reflecting surface. Its two media are equal (a mirror is an
+// interaction inside one medium, see System.Paraxial) and its thickness may be
+// negative: the axial position of every following surface is the running sum of
+// the signed thicknesses, so a fold is written exactly as the real trace reads
+// it (e.g. library/geo/mirror-cassegrain-*.json has a thickness of -300 mm
+// behind the primary).
 type paraxialElement struct {
 	c      float64 // curvature 1/mm
 	nB, nA float64 // refractive index before/after
-	t      float64 // distance to the next surface, mm
+	t      float64 // distance to the next surface, mm (signed, negative after a fold)
+	mirror bool    // true: reflect instead of refract
 }
 
-// refractMatrix returns the refraction matrix [[1,0],[-Φ,1]] in (y, ū).
-func (e paraxialElement) refractMatrix() Mat2 {
+// surfaceMatrix returns the matrix of the interaction at the surface:
+//
+//	refraction: [[1,0],[-Φ,1]],  Φ = (nA - nB)·c
+//	mirror:     [[1,0],[-2·nB·c,-1]]
+//
+// The mirror entry follows from the paraxial reflection law in the y-u frame of
+// the package: at a surface of sag z = c·r²/2 the reflected slope of the ray
+// line is u' = -u - 2·c·y, so with ū = n·u and nA = nB = n,
+//
+//	ū' = n·(-u - 2cy) = -ū - 2·n·c·y.
+//
+// The determinant is -1 because the reflected ray travels back along -z;
+// unfolding (negating the index of the medium behind the mirror, n → -n) turns
+// the same map into an ordinary refraction with Φ = -2·n·c and determinant +1,
+// which is how the systems of this package are laid out (see System.Paraxial).
+func (e paraxialElement) surfaceMatrix() Mat2 {
+	if e.mirror {
+		return Mat2{A: 1, C: -2 * e.nB * e.c, D: -1}
+	}
 	phi := (e.nA - e.nB) * e.c
 	return Mat2{A: 1, C: -phi, D: 1}
 }
@@ -93,22 +126,31 @@ func (s *System) paraxialElements(lambdaNm float64) []paraxialElement {
 			t = s.Thickness[i]
 		}
 		els[i] = paraxialElement{
-			c:  curvatureOf(s.Surfaces[i].Profile),
-			nB: s.Mediums[i].N(lambdaNm),
-			nA: s.Mediums[i+1].N(lambdaNm),
-			t:  t,
+			c:      curvatureOf(s.Surfaces[i].Profile),
+			nB:     s.Mediums[i].N(lambdaNm),
+			nA:     s.Mediums[i+1].N(lambdaNm),
+			t:      t,
+			mirror: s.Surfaces[i].Mirror,
 		}
 	}
 	return els
 }
 
-// reverseElements returns the element list of the time-reversed system.
+// reverseElements returns the element list of the time-reversed system. The
+// transformation is the reflection z → -z combined with the reversal of the
+// direction of travel: the surfaces are listed backwards, the sign of every
+// curvature flips (a surface seen from the other side has -c), the media swap
+// and the mirror flags are kept. A mirror is its own time reverse
+// (u' = -u - 2cy is an involution), so the construction covers reflecting
+// surfaces without further changes; a gap keeps its physical value, which is
+// what makes the reversed chain of a folded layout come out with the signs of
+// the reversed travel.
 func reverseElements(els []paraxialElement) []paraxialElement {
 	n := len(els)
 	out := make([]paraxialElement, n)
 	for j := 0; j < n; j++ {
 		e := els[n-1-j]
-		out[j] = paraxialElement{c: -e.c, nB: e.nA, nA: e.nB}
+		out[j] = paraxialElement{c: -e.c, nB: e.nA, nA: e.nB, mirror: e.mirror}
 	}
 	for j := 0; j < n-1; j++ {
 		out[j].t = els[n-2-j].t
@@ -121,11 +163,15 @@ func reverseElements(els []paraxialElement) []paraxialElement {
 //
 //	refraction: n' u' = n u - y Φ ,   Φ = (n'-n) c   (the refraction invariant
 //	            A = n(yc + u) = n·i is preserved),
-//	transfer:   y' = y + t u' .
+//	reflection: u' = -u - 2 c y      (the mirror is a refraction into an
+//	            equivalent medium of index -n, see paraxialElement.surfaceMatrix),
+//	transfer:   y' = y + t u' .       (t is the signed thickness)
 //
 // It returns the heights and slopes at the incidence side of every surface
-// (ys, us, with us the real slope u = dy/dz) and the real slopes after each
-// surface (usAfter).
+// (ys, us, with us the real slope u = dy/dz in the physical z frame, so after an
+// odd number of mirrors the ray travels towards -z and its slope keeps the sign
+// of the ray line, not of the direction of travel) and the real slopes after
+// each surface (usAfter).
 func traceParaxial(els []paraxialElement, y, u float64) (ys, us, usAfter []float64) {
 	n := len(els)
 	ys = make([]float64, n)
@@ -133,8 +179,8 @@ func traceParaxial(els []paraxialElement, y, u float64) (ys, us, usAfter []float
 	usAfter = make([]float64, n)
 	for i := range els {
 		ys[i], us[i] = y, u
-		phi := (els[i].nA - els[i].nB) * els[i].c
-		u2 := (els[i].nB*u - y*phi) / els[i].nA
+		_, ubar := els[i].surfaceMatrix().Apply(y, els[i].nB*u)
+		u2 := ubar / els[i].nA
 		usAfter[i] = u2
 		y = y + els[i].t*u2
 		u = u2
@@ -198,6 +244,12 @@ type Paraxial struct {
 
 	StopIndex int // aperture stop surface index
 
+	// Mirrors is the number of reflecting surfaces in the chain. The
+	// propagation direction of the emergent beam is Paraxial.Parity() times the
+	// incident one, and the determinant of the ray transfer matrix is
+	// (-1)^Mirrors·n0/nk.
+	Mirrors int
+
 	// EntrancePupilZ / ExitPupilZ are the axial positions of the images of the
 	// aperture stop in the object and image space (mm). The pupil planeses can
 	// be virtual (inside the system). EntrancePupilRadius/ExitPupilRadius are
@@ -229,15 +281,57 @@ type Paraxial struct {
 //	marginal ray: y = 1 mm at surface 0, u = 0 (parallel input),
 //	chief ray:    passes through the centre of the aperture stop.
 //
-// Mirrors are rejected: the first-order treatment of a reflecting surface
-// requires unfolding the system, which is not part of this revision. Use real
-// ray tracing for mirror systems.
+// # Mirrors and unfolding
 //
-// The first-order engine is defined for coaxial systems only: a surface or a
-// coordinate break with a decentre or a tilt about x or y returns an error (a
-// roll about z does not change the axis and is accepted). Trace the real rays
-// of such a system instead (SpotDiagram, RayFan and OPDGrid take the real chief
-// ray as reference when the system has poses).
+// Coaxial systems with reflecting surfaces are supported. Values are reported in
+// the physical frame of the package: the vertex of surface i sits at
+// VertexZ(i) = OriginZ + Σ Thickness[0..i-1] and the thicknesses keep their
+// signs, so a fold is written exactly as the real ray trace reads it (a
+// negative thickness behind a mirror, e.g. the −300 mm of
+// library/geo/mirror-cassegrain-*.json). ImageZ, VertexZ and Magnification are
+// therefore positions and ratios in one single z axis and can be compared
+// directly with a real ray trace.
+//
+// The reflecting surface is handled by unfolding. With the surface sag written
+// as z = c·r²/2 (c = 1/R, positive sag towards +z) the paraxial reflection law
+// for the slope of the ray line is
+//
+//	u' = -u - 2·c·y ,
+//
+// so with ū = n·u  the interaction reads ū' = -ū - 2·n·c·y (the matrix
+// [[1,0],[-2nc,-1]] of Mat2), while the gap behind the mirror is simply the
+// signed thickness. The classical unfolding is the same statement in the frame
+// of the propagating beam: negate the index of every medium behind the mirror
+// (n → -n) and travel along -z; the reflection then becomes an ordinary
+// refraction of power Φ = (n' - n)·c = -2·n·c with ū conserved (determinant +1),
+// the curvature seen by the beam is ĉ = -c and the gap is t̂ = -t, all of which
+// the signed-thickness layout and the medium list already carry. Every derived
+// quantity (EFL, focal points, ImageZ, Magnification, pupils) is the standard
+// linear extrapolation of the traced rays, so the first-order formulas of a
+// refracting system hold verbatim for the unfolded chain — with two caveats for
+// mirror systems, both of which follow from the direction reversal:
+//
+//   - the effective focal length keeps the sign of the surface radius
+//     (a concave mirror seen from the object side has R < 0 and EFL = R/2 < 0,
+//     its back focal point lies at -f in front of the vertex);
+//   - the Helmholtz–Lagrange invariant n(ȳu − yū) of the physical slopes
+//     changes sign at every mirror; the invariant that is conserved, and the one
+//     behind the relation m·γ = n/n' used by AngularMagnification, is the one
+//     built from the slopes measured along the direction of propagation.
+//
+// A mirror is an interaction inside one medium: the media on its two sides must
+// have the same index at the wavelength (otherwise the system is rejected; the
+// real ray trace is more permissive and simply reflects). Everything else is
+// unchanged: the first-order engine is defined for coaxial systems only, so a
+// surface or a coordinate break with a decentre or a tilt about x or y still
+// returns an error (a roll about z does not change the axis and is accepted);
+// trace the real rays of such a system instead (SpotDiagram, RayFan and OPDGrid
+// take the real chief ray as reference when the system has poses).
+//
+// Paraxial.Parity() converts the signed EFL into the customary focal length of
+// the mirror convention (positive for a converging system): for a single
+// concave mirror of R < 0 the engine reports EFL = R/2 < 0 while
+// Parity()·EFL = |R|/2 is the usual f = R/2.
 func (s *System) Paraxial(lambdaNm float64, objectZ float64) (*Paraxial, error) {
 	if err := s.Validate(); err != nil {
 		return nil, err
@@ -245,10 +339,17 @@ func (s *System) Paraxial(lambdaNm float64, objectZ float64) (*Paraxial, error) 
 	if err := s.requireCoaxial("paraxial analysis"); err != nil {
 		return nil, err
 	}
+	mirrors := 0
 	for i, sf := range s.Surfaces {
+		nB := s.Mediums[i].N(lambdaNm)
 		if sf.Mirror {
-			return nil, fmt.Errorf("geo: paraxial analysis: surface %d is a mirror; "+
-				"the paraxial engine only handles refraction (trace real rays instead)", i)
+			nA := s.Mediums[i+1].N(lambdaNm)
+			if nA != nB {
+				return nil, fmt.Errorf("geo: paraxial analysis: surface %d is a mirror between "+
+					"different media (%s, %s); a mirror reflects inside one medium, so the "+
+					"media on both of its sides must be equal", i, s.Mediums[i].Name(), s.Mediums[i+1].Name())
+			}
+			mirrors++
 		}
 	}
 	infinite := math.IsInf(objectZ, -1) || objectZ < -1e15
@@ -256,7 +357,7 @@ func (s *System) Paraxial(lambdaNm float64, objectZ float64) (*Paraxial, error) 
 		return nil, fmt.Errorf("geo: object at z=%g is not in front of surface 0 (z=%g)", objectZ, s.VertexZ(0))
 	}
 	els := s.paraxialElements(lambdaNm)
-	p := &Paraxial{Lambda: lambdaNm, ObjectZ: objectZ, Infinite: infinite, els: els}
+	p := &Paraxial{Lambda: lambdaNm, ObjectZ: objectZ, Infinite: infinite, els: els, Mirrors: mirrors}
 	n := len(els)
 	p.Index = make([]float64, n+1)
 	p.VertexZ = make([]float64, n)
@@ -330,7 +431,7 @@ func (s *System) Paraxial(lambdaNm float64, objectZ float64) (*Paraxial, error) 
 	// the stop, evaluated in the object space.
 	mIn := Identity()
 	for i := 0; i < stop; i++ {
-		mIn = els[i].refractMatrix().Mul(mIn)
+		mIn = els[i].surfaceMatrix().Mul(mIn)
 		mIn = els[i].transferMatrix().Mul(mIn)
 	}
 	n0 := els[0].nB
@@ -348,7 +449,7 @@ func (s *System) Paraxial(lambdaNm float64, objectZ float64) (*Paraxial, error) 
 	// Exit pupil: conjugate of the stop plane through the elements after it.
 	mOut := Identity()
 	for i := stop; i < n; i++ {
-		mOut = els[i].refractMatrix().Mul(mOut)
+		mOut = els[i].surfaceMatrix().Mul(mOut)
 		mOut = els[i].transferMatrix().Mul(mOut)
 	}
 	nk := p.Index[n]
@@ -421,9 +522,15 @@ func (p *Paraxial) rayFrom(y0, u0 float64) *ParaxialRay {
 //	H = n (ȳ u - y ū)
 //
 // of the ray pair (marginal ray at height y0 = radius at surface 0, chief ray
-// of field tangent tanY). H is constant across all surfaces of an optical
-// system; the invariant is used by the aberration routines and is checked by
-// the test suite.
+// of field tangent tanY), with u the real slope dy/dz of the meridional ray.
+// H is constant across all surfaces of an optical system; the invariant is used
+// by the aberration routines and is checked by the test suite.
+//
+// For a system with mirrors the evaluation uses the physical slopes, and H then
+// changes sign at every reflection (the ray comes back along -z). The conserved
+// quantity of a folded chain is the one built from the slopes measured along the
+// direction of propagation, w = Parity()·u, and it is that invariant that gives
+// the imaging relation m·γ = n/n' behind AngularMagnification.
 func (p *Paraxial) Lagrange(radius, tanY float64) float64 {
 	m := p.MarginalRay(radius)
 	c := p.ChiefRay(tanY)
@@ -444,11 +551,12 @@ func (p *Paraxial) LagrangeAt(i int, radius, tanY float64) float64 {
 }
 
 // Matrix returns the ray transfer matrix of the whole system in (y, ū) form,
-// from the plane of surface 0 to the plane of the last surface.
+// from the plane of surface 0 to the plane of the last surface. Its determinant
+// is (-1)^(number of mirrors) · n0/nk.
 func (p *Paraxial) Matrix() Mat2 {
 	m := Identity()
 	for i := range p.els {
-		m = p.els[i].refractMatrix().Mul(m)
+		m = p.els[i].surfaceMatrix().Mul(m)
 		m = p.els[i].transferMatrix().Mul(m)
 	}
 	return m
@@ -462,14 +570,113 @@ func (p *Paraxial) SubMatrix(from, to int) (Mat2, error) {
 	}
 	m := Identity()
 	for i := from; i <= to; i++ {
-		m = p.els[i].refractMatrix().Mul(m)
+		m = p.els[i].surfaceMatrix().Mul(m)
 		m = p.els[i].transferMatrix().Mul(m)
 	}
 	return m, nil
 }
 
+// Parity returns the sign of the propagation direction of the emergent beam
+// relative to the incident one: +1 when the light leaves the system travelling
+// the way it entered (no mirror or an even number of them), -1 after an odd
+// number of reflections. It is the factor that converts a real slope u = dy/dz
+// of the emergent ray into a slope measured along the direction of propagation,
+// w = Parity()·u (see AngularMagnification); profiles and step positions are
+// unaffected by it.
+func (p *Paraxial) Parity() float64 {
+	if p.Mirrors%2 != 0 {
+		return -1
+	}
+	return 1
+}
+
+// afocalTol is the residual power (1/mm) below which a system counts as
+// afocal: |C| <= afocalTol, i.e. an effective focal length beyond 1e12 mm.
+// The composition of the elementary matrices of a telescope leaves a rounding
+// residue of the order of 1e-17/mm, so the test must not demand an exact zero.
+const afocalTol = 1e-12
+
+// Afocal reports whether the system has no first-order power: a beam entering
+// parallel to the axis leaves parallel to the axis (C of the ray transfer
+// matrix vanishes, |C| <= 1e-12 /mm). An afocal system has an infinite EFL; its
+// finite first-order quantity is the angular magnification
+// (System.AngularMagnification).
+func (p *Paraxial) Afocal() bool {
+	return math.Abs(p.Matrix().C) <= afocalTol
+}
+
+// AngularMagnification returns the first-order angular magnification of the
+// paraxial system:
+//
+//   - afocal system (C = 0): Γ = w'/w, the ratio of the slope of the emergent
+//     ray to the slope of the incident ray of the field whose tangent is
+//     fieldTan, both slopes measured along the direction of propagation
+//     (w = dy/dz in the frame that travels with the beam, see Paraxial.Parity).
+//     The chief ray is used: for an object at infinity the parallel ray at angle
+//     fieldTan that passes through the centre of the aperture stop, for a finite
+//     object the ray from the object point at height fieldTan through the stop
+//     centre. When C = 0 the system maps ū ↦ D·ū for every ray, so
+//     Γ = Parity()·D·n0/nk does not depend on the chosen ray; a telescope is the
+//     standard example (Kepler f1 = 100, f2 = 20, d = 120 gives Γ = -5).
+//   - imaging system (C ≠ 0): γ = n0/(nk·m), the ratio w'/w of the axial ray,
+//     where m is the transverse magnification (System.Paraxial returns it in
+//     Magnification) and n0, nk the object- and image-side indices. This is the
+//     Lagrange-invariant relation m·γ = n0/nk written for the ray that leaves
+//     the axial object point; it is defined for a finite object only and is
+//     independent of fieldTan.
+//
+// The sign convention of the propagation-frame slopes makes a plane fold mirror
+// transparent to angles (Γ = +1) and gives the classical negative Γ for an
+// inverting Kepler telescope, so the sign of the magnification is the sign of
+// the image.
+func (p *Paraxial) AngularMagnification(fieldTan float64) (float64, error) {
+	n := len(p.els)
+	if n == 0 {
+		return 0, fmt.Errorf("geo: angular magnification: empty system")
+	}
+	if p.Afocal() {
+		c := p.ChiefRay(fieldTan)
+		if c.U0 == 0 {
+			return 0, fmt.Errorf("geo: angular magnification: the reference ray of the field "+
+				"sits on the axis (field tangent %g) and has no angle to compare", fieldTan)
+		}
+		return p.Parity() * c.UAfter[n-1] / c.U0, nil
+	}
+	if p.Infinite {
+		return 0, fmt.Errorf("geo: angular magnification: a system with power (EFL=%g) has no "+
+			"angular magnification for an object at infinity; use a finite object or an afocal system", p.EFL)
+	}
+	if p.Magnification == 0 {
+		return 0, fmt.Errorf("geo: angular magnification: transverse magnification is zero")
+	}
+	n0 := p.Index[0]
+	nk := p.Index[len(p.Index)-1]
+	return n0 / (nk * p.Magnification), nil
+}
+
+// AngularMagnification returns the first-order angular magnification of the
+// system at wavelength lambdaNm for an object at axial position objectZ, with
+// the reference field tangent fieldTan (mm of object height for a finite object,
+// tangent of the field angle for an object at infinity — the same convention as
+// ChiefRay). See Paraxial.AngularMagnification for the definition: it is the
+// ratio of the emergent to the incident slope of the chief ray for an afocal
+// system, and the axial-ray ratio γ = n/(n'·m) for an imaging system.
+//
+// Examples: a Kepler telescope of f1 = 100 mm, f2 = 20 mm and d = f1 + f2
+// returns -5 (inverted), the Galilean counterpart +5 (erect), and a single
+// plane fold mirror +1.
+func (s *System) AngularMagnification(objectZ, fieldTan, lambdaNm float64) (float64, error) {
+	p, err := s.Paraxial(lambdaNm, objectZ)
+	if err != nil {
+		return 0, err
+	}
+	return p.AngularMagnification(fieldTan)
+}
+
 // ReciprocalFocus returns the axial position at which a point source placed at
-// axial position zObject (mm) is imaged, for the same wavelength.
+// axial position zObject (mm) is imaged, for the same wavelength. The system may
+// contain mirrors (see System.Paraxial); a folded chain simply extrapolates the
+// emergent ray line back to the axis in the physical z frame.
 func (p *Paraxial) Conjugate(zObject float64) float64 {
 	n := len(p.els)
 	if n == 0 {
