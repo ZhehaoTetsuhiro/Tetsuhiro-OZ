@@ -34,6 +34,7 @@ const (
 	ModeFocus     = "focus"     // real-ray best focus of a parallel bundle (mirrors, virtual images)
 	ModeAfocal    = "afocal"    // exit-angle spread of a parallel bundle (telescopes, expanders)
 	ModeCollimate = "collimate" // exit-angle spread of a point source on the front focal plane
+	ModePosed     = "posed"     // real-ray best focus of a decentred or tilted system
 )
 
 // The description clause is compared with a fresh measurement with the
@@ -80,6 +81,12 @@ func Measure(p *lens.Prescription) (*Metrics, error) {
 		return nil, fmt.Errorf("no usable stop aperture (F-number undefined)")
 	}
 	m := &Metrics{StopSemiMM: semi, Field: fieldOf(p), FieldUnit: fieldUnit(p)}
+	if posed(p) {
+		// A decentred or tilted surface makes the first-order engine refuse the
+		// system (geo: first- and third-order optics are coaxial only), so the
+		// example is measured on the real tracer alone.
+		return posedMetrics(m, sys, semi)
+	}
 	if HasMirror(p) {
 		// the paraxial engine rejects reflecting surfaces: real-ray focus
 		return focusMetrics(m, sys, semi)
@@ -112,6 +119,22 @@ func focusMetrics(m *Metrics, sys *geo.System, semi float64) (*Metrics, error) {
 		return nil, err
 	}
 	m.Mode = ModeFocus
+	m.FocusZMM, m.FocusRMSMM, m.Rays = z, rms, n
+	m.clearParaxial()
+	return m, nil
+}
+
+// posedMetrics measures a system whose first-order engine is unavailable
+// because a surface is decentred or tilted (geo's paraxial engine is defined
+// for coaxial systems only). The measurement is real-ray only: the best-focus
+// plane of a parallel on-axis bundle in the plane perpendicular to the mean
+// exit direction (see posedScan).
+func posedMetrics(m *Metrics, sys *geo.System, semi float64) (*Metrics, error) {
+	z, rms, n, err := posedScan(sys, semi, geo.Wavelengthd)
+	if err != nil {
+		return nil, err
+	}
+	m.Mode = ModePosed
 	m.FocusZMM, m.FocusRMSMM, m.Rays = z, rms, n
 	m.clearParaxial()
 	return m, nil
@@ -222,6 +245,19 @@ func StopAperture(p *lens.Prescription) float64 {
 func HasMirror(p *lens.Prescription) bool {
 	for _, c := range p.Cards {
 		if c.Mirror {
+			return true
+		}
+	}
+	return false
+}
+
+// posed reports whether any card of p is decentred or tilted (the
+// coordinate-break fields of lens.Card). Such a system has no first-order
+// optics: geo's paraxial engine refuses it, so it is measured on the real
+// tracer alone (ModePosed).
+func posed(p *lens.Prescription) bool {
+	for _, c := range p.Cards {
+		if c.DecenterXMM != 0 || c.DecenterYMM != 0 || c.TiltXDeg != 0 || c.TiltYDeg != 0 || c.TiltZDeg != 0 {
 			return true
 		}
 	}
@@ -356,6 +392,130 @@ func focusScan(sys *geo.System, semi, lambda float64) (z, rms float64, n int, er
 	return best, bestRMS, len(pts), nil
 }
 
+// posedScan locates the real-ray best focus of a parallel on-axis bundle
+// through a system the first-order engine refuses (decentred or tilted
+// surfaces). The traced exit rays are projected onto planes perpendicular to
+// their mean exit direction, and the plane of least transverse RMS about its
+// centroid is searched. The search window is bracketed by the crossings of
+// adjacent traced ray pairs projected on the mean direction, so an oblique
+// exit beam does not move the focus out of the window. The returned z is the
+// z coordinate of the centroid of the rays on that plane (mm).
+func posedScan(sys *geo.System, semi, lambda float64) (focusZ, rms float64, n int, err error) {
+	pts, dirs, _ := fanRays(sys, semi, lambda, 21, 0.02, 0.98)
+	if len(pts) < 3 {
+		return 0, 0, len(pts), fmt.Errorf("only %d of 21 rays reach the last surface", len(pts))
+	}
+	var sum geo.Vec3
+	for _, d := range dirs {
+		sum = sum.Add(d)
+	}
+	axis, ok := sum.Unit()
+	if !ok {
+		return 0, 0, len(pts), fmt.Errorf("the exit bundle has no mean direction")
+	}
+	ref := pts[0]
+	// at returns the point of ray i on the plane {axis·(x − ref) = u}.
+	at := func(i int, u float64) (geo.Vec3, bool) {
+		den := axis.Dot(dirs[i])
+		if math.Abs(den) < 1e-9 {
+			return geo.Zero, false
+		}
+		t := (u - axis.Dot(pts[i].Sub(ref))) / den
+		return pts[i].Add(dirs[i].Mul(t)), true
+	}
+	// rmsPlane is the transverse RMS of the ray points on that plane.
+	rmsPlane := func(u float64) (float64, bool) {
+		var cx, cy, cz float64
+		xs := make([]geo.Vec3, 0, len(pts))
+		for i := range pts {
+			p, ok := at(i, u)
+			if !ok {
+				continue
+			}
+			xs = append(xs, p)
+			cx, cy, cz = cx+p.X, cy+p.Y, cz+p.Z
+		}
+		if len(xs) < 3 {
+			return 0, false
+		}
+		k := float64(len(xs))
+		cx, cy, cz = cx/k, cy/k, cz/k
+		var s float64
+		for _, p := range xs {
+			s += (p.X-cx)*(p.X-cx) + (p.Y-cy)*(p.Y-cy) + (p.Z-cz)*(p.Z-cz)
+		}
+		return math.Sqrt(s / k), true
+	}
+	var us []float64
+	for i := 0; i+1 < len(pts); i++ {
+		if u, ok := pairCrossU(pts[i], dirs[i], pts[i+1], dirs[i+1], axis, ref); ok {
+			us = append(us, u)
+		}
+	}
+	if len(us) < 2 {
+		return 0, 0, len(pts), fmt.Errorf("no ray-pair crossing brackets the focus")
+	}
+	sort.Float64s(us)
+	lo, hi := us[0], us[len(us)-1]
+	span := hi - lo
+	if span < 1e-9 {
+		span = math.Max(1e-3, math.Abs(lo)*2e-3)
+	}
+	lo -= 0.5*span + 1
+	hi += 0.5*span + 1
+	best, bestRMS := math.NaN(), math.Inf(1)
+	const steps = 2000
+	for k := 0; k <= steps; k++ {
+		u := lo + (hi-lo)*float64(k)/float64(steps)
+		if r, ok := rmsPlane(u); ok && r < bestRMS {
+			bestRMS, best = r, u
+		}
+	}
+	if math.IsNaN(best) {
+		return 0, 0, len(pts), fmt.Errorf("no usable focus plane on [%g,%g]", lo, hi)
+	}
+	du := (hi - lo) / float64(steps)
+	for pass := 0; pass < 3; pass++ {
+		for _, u := range []float64{best - du, best + du} {
+			if r, ok := rmsPlane(u); ok && r < bestRMS {
+				bestRMS, best = r, u
+			}
+		}
+		du *= 0.3
+	}
+	var cz float64
+	cnt := 0
+	for i := range pts {
+		if p, ok := at(i, best); ok {
+			cz += p.Z
+			cnt++
+		}
+	}
+	if cnt == 0 {
+		return 0, 0, len(pts), fmt.Errorf("no ray lands on the best-focus plane")
+	}
+	return cz / float64(cnt), bestRMS, len(pts), nil
+}
+
+// pairCrossU returns the mean-direction coordinate of the midpoint of the
+// shortest segment between two traced rays, or ok = false for an (almost)
+// parallel pair, whose crossing is not defined.
+func pairCrossU(p1, d1, p2, d2, axis, ref geo.Vec3) (float64, bool) {
+	f := d1.Dot(p2.Sub(p1))
+	g := d2.Dot(p2.Sub(p1))
+	b := d1.Dot(d2)
+	den := 1 - b*b
+	if math.Abs(den) < 1e-12 {
+		return 0, false
+	}
+	s := (f - b*g) / den
+	u := (b*f - g) / den
+	m1 := p1.Add(d1.Mul(s))
+	m2 := p2.Add(d2.Mul(u))
+	mid := geo.V(m1.X+0.5*(m2.X-m1.X), m1.Y+0.5*(m2.Y-m1.Y), m1.Z+0.5*(m2.Z-m1.Z))
+	return axis.Dot(mid.Sub(ref)), true
+}
+
 // afocalScan characterises a parallel-in, parallel-out system: the RMS
 // (about the mean) of the exit slopes in µrad, the mean exit slope in µrad,
 // and the linear beam expansion (exit height per input height) fitted over
@@ -487,6 +647,16 @@ func Check(p *lens.Prescription, m *Metrics) []string {
 				fail("measured magnification %.4g differs from the tagged %.4g by %.1f%%", m.Mag, want, rel*100)
 			}
 		}
+	case ModePosed:
+		if !finite(m.FocusZMM) || math.Abs(m.FocusZMM) > 1e6 {
+			fail("focus z = %v is not a usable finite position", m.FocusZMM)
+		}
+		if !(m.FocusRMSMM > 0) || !finite(m.FocusRMSMM) {
+			fail("focus RMS = %v is not positive and finite", m.FocusRMSMM)
+		}
+		if m.FocusRMSMM > m.StopSemiMM {
+			fail("focus RMS %.6gmm exceeds the aperture %.6gmm", m.FocusRMSMM, m.StopSemiMM)
+		}
 	case ModeCollimate:
 		if !(m.SlopeRMSUrad > 0) || !finite(m.SlopeRMSUrad) {
 			fail("exit-angle RMS = %v µrad is not positive and finite", m.SlopeRMSUrad)
@@ -555,6 +725,8 @@ func fields(m *Metrics) []field {
 			{"RMSFLD", m.RMSFieldMM, "mm"}, {"RAYS", float64(m.Rays), ""}, {"FRAYS", float64(m.FieldRays), ""},
 		}
 	case ModeFocus:
+		fs = []field{{"FOCUSZ", m.FocusZMM, "mm"}, {"FOCUSRMS", m.FocusRMSMM, "mm"}, {"RAYS", float64(m.Rays), ""}}
+	case ModePosed:
 		fs = []field{{"FOCUSZ", m.FocusZMM, "mm"}, {"FOCUSRMS", m.FocusRMSMM, "mm"}, {"RAYS", float64(m.Rays), ""}}
 	case ModeAfocal:
 		fs = []field{{"SLOPERMS", m.SlopeRMSUrad, "µrad"}, {"SLOPEMEAN", m.SlopeMeanUrad, "µrad"},
@@ -666,6 +838,18 @@ type fpCard struct {
 	Glass       string    `json:"glass"`
 	SemiAperMM  float64   `json:"semi_aperture_mm"`
 	Mirror      bool      `json:"mirror"`
+	// The aspheric descriptions and the coordinate break of the card are part
+	// of the design: two examples that differ only in their polynomial terms,
+	// their Forbes coefficients or their decentre/tilt are different optics.
+	// Every field is omitempty so that prescriptions written before they
+	// existed keep their fingerprints byte for byte.
+	PolyTerms   []lens.PolyTermCard `json:"poly_terms,omitempty"`
+	QAsphere    *lens.QCard         `json:"q_asphere,omitempty"`
+	DecenterXMM float64             `json:"decenter_x_mm,omitempty"`
+	DecenterYMM float64             `json:"decenter_y_mm,omitempty"`
+	TiltXDeg    float64             `json:"tilt_x_deg,omitempty"`
+	TiltYDeg    float64             `json:"tilt_y_deg,omitempty"`
+	TiltZDeg    float64             `json:"tilt_z_deg,omitempty"`
 }
 
 type fpDoc struct {
@@ -676,7 +860,8 @@ type fpDoc struct {
 
 // Fingerprint is the parameter fingerprint of a prescription: a SHA-256 of
 // its canonical parameter list (object position, stop, and per card the
-// radius, conic, coefficients, thickness, glass, aperture and mirror flag).
+// radius, conic, coefficients, thickness, glass, aperture, mirror flag, the
+// polynomial or Forbes aspheric description and the decentre/tilt).
 // Names, categories, tags and descriptions are excluded, so two entries
 // with the same fingerprint are the same optical design.
 func Fingerprint(p *lens.Prescription) (string, error) {
@@ -692,7 +877,10 @@ func Fingerprint(p *lens.Prescription) (string, error) {
 			r = 0
 		}
 		d.Cards = append(d.Cards, fpCard{RadiusMM: r, ConicK: c.ConicK, Coeffs: c.Coeffs,
-			ThicknessMM: c.ThicknessMM, Glass: c.Glass, SemiAperMM: c.SemiAperMM, Mirror: c.Mirror})
+			ThicknessMM: c.ThicknessMM, Glass: c.Glass, SemiAperMM: c.SemiAperMM, Mirror: c.Mirror,
+			PolyTerms: c.PolyTerms, QAsphere: c.QAsphere,
+			DecenterXMM: c.DecenterXMM, DecenterYMM: c.DecenterYMM,
+			TiltXDeg: c.TiltXDeg, TiltYDeg: c.TiltYDeg, TiltZDeg: c.TiltZDeg})
 	}
 	buf, err := json.Marshal(d)
 	if err != nil {

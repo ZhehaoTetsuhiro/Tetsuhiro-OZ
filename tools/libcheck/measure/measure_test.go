@@ -109,3 +109,147 @@ func TestFingerprintIdentity(t *testing.T) {
 		t.Error("flat surface written as 0 and as +Inf gives different fingerprints")
 	}
 }
+
+// ---------- posed systems (decentred / tilted) ----------
+
+// posedLens builds a plano-convex singlet with an optional decentre of its
+// two surfaces; posedLens(0, 0) is the coaxial reference.
+func posedLens(decenterY float64) *lens.Prescription {
+	p := &lens.Prescription{ObjectZMM: math.Inf(-1), Stop: 0, Cards: []lens.Card{
+		{Name: "aperture stop", RadiusMM: math.Inf(1), ThicknessMM: 2.5, SemiAperMM: 12.5},
+		{Name: "L1", RadiusMM: 51.68, ThicknessMM: 5, Glass: "N-BK7", SemiAperMM: 16, DecenterYMM: decenterY},
+		{Name: "rear", RadiusMM: math.Inf(1), ThicknessMM: 30, SemiAperMM: 15, DecenterYMM: decenterY},
+	}}
+	return p
+}
+
+// TestPosedMeasurementUsesRealRays: a decentred prescription has no
+// first-order solution (geo refuses it), so Measure must classify it as
+// ModePosed and locate a focus with the real tracer; the focus must stay in
+// the neighbourhood of the coaxial image and the RMS must pass Check.
+func TestPosedMeasurementUsesRealRays(t *testing.T) {
+	ref, err := Measure(posedLens(0))
+	if err != nil {
+		t.Fatal(err)
+	}
+	if _, perr := posedLens(0).Paraxial(500); perr != nil {
+		t.Fatalf("the coaxial reference must have a paraxial solution: %v", perr)
+	}
+	if ref.Mode != ModeRefract {
+		t.Fatalf("the coaxial reference must measure as %q, got %q", ModeRefract, ref.Mode)
+	}
+	p := posedLens(0.5)
+	if _, perr := p.Paraxial(500); perr == nil {
+		t.Fatal("a decentred prescription must be refused by the paraxial engine")
+	}
+	m, err := Measure(p)
+	if err != nil {
+		t.Fatal(err)
+	}
+	if m.Mode != ModePosed {
+		t.Fatalf("mode %q, want %q", m.Mode, ModePosed)
+	}
+	if m.Rays < 16 {
+		t.Errorf("only %d of 21 rays reach the last surface", m.Rays)
+	}
+	if !(m.FocusRMSMM > 0) || m.FocusRMSMM > 0.05 {
+		t.Errorf("focus RMS %gmm is not a sane real-ray focus", m.FocusRMSMM)
+	}
+	if m.FocusZMM < 90 || m.FocusZMM > 115 {
+		t.Errorf("focus z %gmm is far from the ~100 mm image of the design", m.FocusZMM)
+	}
+	if probs := Check(p, m); len(probs) > 0 {
+		t.Errorf("posed measurement failed the library assertions: %v", probs)
+	}
+}
+
+// TestPosedScanFindsTiltedMirrorFocus: a spherical mirror of radius R tilted
+// by θ about x focuses the parallel bundle at R/2 along the reflected axis
+// (0, sin2θ, −cos2θ) from its vertex — the closed form of the mirror focus.
+// The posed scan must find that plane to a few percent.
+func TestPosedScanFindsTiltedMirrorFocus(t *testing.T) {
+	const R, tiltDeg, zMirror = -400.0, 10.0, 60.0
+	p := &lens.Prescription{ObjectZMM: math.Inf(-1), Stop: 0, Cards: []lens.Card{
+		{Name: "aperture stop", RadiusMM: math.Inf(1), ThicknessMM: zMirror, SemiAperMM: 25},
+		{Name: "primary", RadiusMM: R, Mirror: true, ThicknessMM: 200, SemiAperMM: 25.5, TiltXDeg: tiltDeg},
+	}}
+	m, err := Measure(p)
+	if err != nil {
+		t.Fatal(err)
+	}
+	if m.Mode != ModePosed {
+		t.Fatalf("mode %q, want %q", m.Mode, ModePosed)
+	}
+	th := 2 * tiltDeg * math.Pi / 180
+	wantZ := zMirror - math.Abs(R)/2*math.Cos(th)
+	if rel := math.Abs(m.FocusZMM-wantZ) / math.Abs(wantZ); !(rel <= 0.02) {
+		t.Errorf("focus z %.6g, want %.6g (relative %.3g)", m.FocusZMM, wantZ, rel)
+	}
+	// the axial focus of the untilted mirror is at z = R/2; for the tilted one
+	// the spot is dominated by its astigmatism, but it stays small against the
+	// aperture
+	if !(m.FocusRMSMM > 0) || m.FocusRMSMM > 0.5 {
+		t.Errorf("focus RMS %gmm is not a sane tilted-mirror focus", m.FocusRMSMM)
+	}
+}
+
+// TestPosedParallelOutputHasNoFocus: a 45° plane mirror folds the parallel
+// bundle but does not focus it; the posed scan must report that instead of a
+// fabricated focus.
+func TestPosedParallelOutputHasNoFocus(t *testing.T) {
+	p := &lens.Prescription{ObjectZMM: math.Inf(-1), Stop: 0, Cards: []lens.Card{
+		{Name: "aperture stop", RadiusMM: math.Inf(1), ThicknessMM: 60, SemiAperMM: 12},
+		{Name: "fold", RadiusMM: 0, Mirror: true, ThicknessMM: 50, SemiAperMM: 15, TiltXDeg: 45},
+	}}
+	if _, err := Measure(p); err == nil {
+		t.Fatal("a plane-mirror fold has no focus; Measure must say so")
+	}
+}
+
+// TestFingerprintCoversPoseAndAspheres: the pose fields and the two aspheric
+// descriptions are part of the design identity, and a prescription without
+// them keeps the historical fingerprint byte for byte.
+func TestFingerprintCoversPoseAndAspheres(t *testing.T) {
+	base := func() *lens.Prescription {
+		return &lens.Prescription{ObjectZMM: math.Inf(-1), Stop: 0, Cards: []lens.Card{
+			{Name: "stop", RadiusMM: math.Inf(1), ThicknessMM: 5, SemiAperMM: 5},
+			{Name: "front", RadiusMM: 50, ThicknessMM: 3, Glass: "N-BK7", SemiAperMM: 5},
+			{Name: "rear", RadiusMM: -50, ThicknessMM: 10, SemiAperMM: 5},
+		}}
+	}
+	ref, err := Fingerprint(base())
+	if err != nil {
+		t.Fatal(err)
+	}
+	// the golden value documents the fingerprint format of the library as it
+	// was before the pose and asphere fields existed; the new fields are
+	// omitempty, so a legacy prescription keeps this exact hash
+	const golden = "79149bce07bfe0411a7466eb0435ec35b6e0ebce3c882b57aa15efcb7a4e8743"
+	if ref != golden {
+		t.Errorf("legacy fingerprint changed: %s, want %s", ref, golden)
+	}
+	kinds := []struct {
+		name string
+		mut  func(p *lens.Prescription)
+	}{
+		{"decentre", func(p *lens.Prescription) { p.Cards[1].DecenterYMM = 0.1 }},
+		{"tilt", func(p *lens.Prescription) { p.Cards[2].TiltXDeg = 0.05 }},
+		{"poly terms", func(p *lens.Prescription) {
+			p.Cards[1].PolyTerms = []lens.PolyTermCard{{Power: 4, Coeff: -1e-6}}
+		}},
+		{"q asphere", func(p *lens.Prescription) {
+			p.Cards[1].QAsphere = &lens.QCard{Form: "qcon", NormRadiusMM: 5, Coeffs: []float64{1e-3}}
+		}},
+	}
+	for _, k := range kinds {
+		q := base()
+		k.mut(q)
+		fp, err := Fingerprint(q)
+		if err != nil {
+			t.Fatalf("%s: %v", k.name, err)
+		}
+		if fp == ref {
+			t.Errorf("%s does not enter the fingerprint", k.name)
+		}
+	}
+}
