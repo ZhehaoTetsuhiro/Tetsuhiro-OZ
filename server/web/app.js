@@ -2077,6 +2077,7 @@ document.addEventListener("keydown", (e) => {
   if (S.mode === "quantum") {
     if (e.key === " ") { e.preventDefault(); qRun(); }
     else if (e.key === "m") { setMode(MODE_NEXT.quantum); }
+    else if (e.key === "?" || e.key === "F1") { openHelp(); e.preventDefault(); }
     return;
   }
   switch (e.key) {
