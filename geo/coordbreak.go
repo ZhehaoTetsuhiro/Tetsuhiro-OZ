@@ -27,21 +27,23 @@ import (
 // The break maps local coordinates p_new of the new frame into the coordinates
 // p_old of the enclosing frame:
 //
-//	p_old = d + Q · p_new ,        d = (Dx, Dy, 0) .
+//	p_old = d + Q · p_new ,        d = (Dx, Dy, Dz) .
 //
-// Read as a sequence of operations: first the origin is moved by the decentre
-// (Dx, Dy) measured in the enclosing frame, then the axes are tilted about the
-// decentred origin: first about the x axis by TiltX, then about the tilted y
-// axis by TiltY, then about the tilted z axis by TiltZ (intrinsic order). The
-// tilts are the angles of the Q matrix above; a positive angle is a
-// right-handed (counter-clockwise, seen from the positive axis) rotation.
+// Read as a sequence of operations: first the origin is moved by the
+// displacement d measured in the enclosing frame (the decentre (Dx, Dy) and an
+// axial shift Dz), then the axes are tilted about the displaced origin: first
+// about the x axis by TiltX, then about the tilted y axis by TiltY, then about
+// the tilted z axis by TiltZ (intrinsic order). The tilts are the angles of the
+// Q matrix above; a positive angle is a right-handed (counter-clockwise, seen
+// from the positive axis) rotation. Dz is zero for an ordinary decentre; the
+// return break of a tilted break has a non-zero Dz in general (see Inverse).
 //
 // A surface placed by a break has its vertex at the new origin and its local
 // optical axis along the new z axis, Q·(0,0,1) in the enclosing frame. For a
 // surface carrying no break the local axis is the global +z.
 //
 // Return semantics. A break followed by its return break (Inverse) at zero axial
-// spacing is the identity transform: the return has decentre d' = -Qᵀ d and
+// spacing is the identity transform: the return has displacement d' = -Qᵀ d and
 // rotation Q' = Qᵀ, which is again written as Rx(a)·Ry(b)·Rz(c) (the angles a, b,
 // c are obtained by a Cardan decomposition of Qᵀ). Placed after a break with
 // nothing in between, the return restores the optical axis of the enclosing
@@ -53,6 +55,7 @@ import (
 // inverse decomposition; the forward transform is well-defined there.
 type CoordBreak struct {
 	Dx, Dy       float64 // decentre (mm) in the enclosing frame, applied first
+	Dz           float64 // axial displacement (mm) in the enclosing frame, applied with the decentre
 	TiltX, TiltY float64 // tilts about x, then about the tilted y axis (rad)
 	TiltZ        float64 // roll about the tilted z axis (rad), applied last
 }
@@ -60,20 +63,20 @@ type CoordBreak struct {
 // IsIdentity reports whether the break leaves the frame unchanged (all
 // parameters exactly zero).
 func (cb CoordBreak) IsIdentity() bool {
-	return cb.Dx == 0 && cb.Dy == 0 && cb.TiltX == 0 && cb.TiltY == 0 && cb.TiltZ == 0
+	return cb.Dx == 0 && cb.Dy == 0 && cb.Dz == 0 && cb.TiltX == 0 && cb.TiltY == 0 && cb.TiltZ == 0
 }
 
 // decentredOrTilted reports whether the break moves the optical axis, i.e.
-// whether it has a decentre or a tilt about x or y. A roll about z alone leaves
-// the axis (and the first-order optics of rotationally symmetric surfaces)
-// unchanged.
+// whether it has a decentre, an axial shift or a tilt about x or y. A roll about
+// z alone leaves the axis (and the first-order optics of rotationally symmetric
+// surfaces) unchanged.
 func (cb CoordBreak) decentredOrTilted() bool {
-	return cb.Dx != 0 || cb.Dy != 0 || cb.TiltX != 0 || cb.TiltY != 0
+	return cb.Dx != 0 || cb.Dy != 0 || cb.Dz != 0 || cb.TiltX != 0 || cb.TiltY != 0
 }
 
 // finite reports whether every parameter is a finite number.
 func (cb CoordBreak) finite() bool {
-	for _, v := range [...]float64{cb.Dx, cb.Dy, cb.TiltX, cb.TiltY, cb.TiltZ} {
+	for _, v := range [...]float64{cb.Dx, cb.Dy, cb.Dz, cb.TiltX, cb.TiltY, cb.TiltZ} {
 		if math.IsNaN(v) || math.IsInf(v, 0) {
 			return false
 		}
@@ -84,18 +87,22 @@ func (cb CoordBreak) finite() bool {
 // Apply maps a point in the local coordinates of the break into the enclosing
 // frame: p_old = d + Q·p_new.
 func (cb CoordBreak) Apply(p Vec3) Vec3 {
-	return Vec3{cb.Dx, cb.Dy, 0}.Add(cb.rotation().mulVec(p))
+	return cb.displacement().Add(cb.rotation().mulVec(p))
 }
+
+// displacement returns the decentre vector d = (Dx, Dy, Dz).
+func (cb CoordBreak) displacement() Vec3 { return Vec3{cb.Dx, cb.Dy, cb.Dz} }
 
 // Inverse returns the return break of cb: the break whose composition with cb
 // (cb first, then the return, zero spacing) is the identity. With Q the rotation
-// of cb and d its decentre, the return has decentre d' = -Qᵀ d and the rotation
-// Qᵀ written as Rx(a)·Ry(b)·Rz(c). Inverse(Inverse(cb)) equals cb up to round-off.
+// of cb and d its displacement, the return has displacement d' = -Qᵀ d (in
+// general with a non-zero Dz, even when cb has none) and the rotation Qᵀ written
+// as Rx(a)·Ry(b)·Rz(c). Inverse(Inverse(cb)) equals cb up to round-off.
 func (cb CoordBreak) Inverse() CoordBreak {
 	qt := cb.rotation().transpose()
-	dn := qt.mulVec(Vec3{cb.Dx, cb.Dy, 0}).Neg()
+	dn := qt.mulVec(cb.displacement()).Neg()
 	a, b, c := eulerXYZ(qt)
-	return CoordBreak{Dx: dn.X, Dy: dn.Y, TiltX: a, TiltY: b, TiltZ: c}
+	return CoordBreak{Dx: dn.X, Dy: dn.Y, Dz: dn.Z, TiltX: a, TiltY: b, TiltZ: c}
 }
 
 // rotation returns Q = Rx(TiltX)·Ry(TiltY)·Rz(TiltZ).
@@ -221,10 +228,10 @@ func (f frame) dirToLocal(d Vec3) Vec3 {
 }
 
 // apply returns the frame obtained by the coordinate break cb applied to f:
-// origin o + r·d, axes r·Q.
+// origin o + r·d, axes r·Q (d = (Dx, Dy, Dz)).
 func (f frame) apply(cb CoordBreak) frame {
 	return frame{
-		o: f.o.Add(f.r.mulVec(Vec3{cb.Dx, cb.Dy, 0})),
+		o: f.o.Add(f.r.mulVec(cb.displacement())),
 		r: f.r.mul(cb.rotation()),
 	}
 }

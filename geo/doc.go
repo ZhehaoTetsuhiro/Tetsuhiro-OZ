@@ -38,13 +38,13 @@
 // # Decentre and tilt (coordinate breaks)
 //
 // Surfaces may be decentred and tilted with a CoordBreak, the convention of
-// Zemax's COORDBRK surface: the origin is first moved by (Dx, Dy) in the
+// Zemax's COORDBRK surface: the origin is first moved by (Dx, Dy, Dz) in the
 // enclosing frame, then the axes are tilted about x, about the tilted y, and
 // about the tilted z (roll). The rotation is Q = Rx(TiltX)·Ry(TiltY)·Rz(TiltZ)
 // with right-handed active rotations, and a point of the new frame is mapped to
 // the enclosing frame by
 //
-//	p_old = d + Q·p_new ,   d = (Dx, Dy, 0) .
+//	p_old = d + Q·p_new ,   d = (Dx, Dy, Dz) .
 //
 // Two ways of using a break are provided:
 //
