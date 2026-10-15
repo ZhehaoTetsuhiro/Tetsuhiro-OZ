@@ -20,7 +20,7 @@ import (
 // cmdLens dispatches the lens analysis subcommands.
 func cmdLens(args []string) error {
 	if len(args) < 1 {
-		return fmt.Errorf("lens: 需要子命令 thermal | sens")
+		return fmt.Errorf("lens: 需要子命令 thermal | sens | group | parax")
 	}
 	sub, rest := args[0], args[1:]
 	switch sub {
@@ -28,8 +28,12 @@ func cmdLens(args []string) error {
 		return cmdLensThermal(rest)
 	case "sens":
 		return cmdLensSens(rest)
+	case "group":
+		return cmdLensGroup(rest)
+	case "parax":
+		return cmdLensParax(rest)
 	}
-	return fmt.Errorf("lens: 未知子命令 %q（可用: thermal, sens）", sub)
+	return fmt.Errorf("lens: 未知子命令 %q（可用: thermal, sens, group, parax）", sub)
 }
 
 // parseFlagsAll parses a command line whose positional argument (the
