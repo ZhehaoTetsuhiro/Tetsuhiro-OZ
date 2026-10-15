@@ -65,8 +65,38 @@ type seidelSurface struct {
 }
 
 // asphereParams returns the conic constant K and the r⁴ coefficient A4 of a
-// profile. Profiles that do not expose them (a custom Profile implementation)
-// are treated as spheres (K = 0, A4 = 0).
+// profile for the third-order sums. Profiles that do not expose them (a
+// custom Profile implementation) are treated as spheres (K = 0, A4 = 0).
+//
+// The pair describes the profile through the invariant of the S1 formula
+// above: writing the paraxial vertex curvature of the profile as c (that is
+// Profile.Curvature, which sees the r² term of the sag) and the r⁴
+// coefficient of its sag as E (z = c·r²/2 + E·r⁴ + O(r⁶)), the third-order
+// aspheric contribution of the surface is exactly
+//
+//	S1 += (n'−n)·(8E − c³)·y⁴ ,
+//
+// because the classical (A²yΔ(u/n)) term already contains the aberration of
+// the osculating sphere of curvature c and only the sag deviation from that
+// sphere, (E − c³/8)·r⁴, is left over. The returned pair (K, A4) reproduces
+// that contribution with the formula used in SeidelCoefficients,
+// (n'−n)·(K·c³ + 8·A4)·y⁴, so it satisfies
+//
+//	K·c³ + 8·A4 = 8E − c³ .
+//
+// For a Conic or an EvenAsphere this is automatic (K is the conic constant of
+// the base and A4 the leading polynomial coefficient) and for the general
+// polynomial and Q-type aspheres the sag's r⁴ coefficient is projected onto
+// that form below, with the derivations given at polyAsphereParams and
+// qAsphereParams.
+//
+// Higher-order terms do not enter the third-order sums: the classical theory
+// expands the sag to r⁴, so polynomial terms in r⁶, r⁸, … only affect the
+// fifth and higher orders, and the odd powers (r, r³, …) that PolyAsphere
+// also accepts are outside its scope altogether — its derivation assumes a
+// sag that is a power series in r², so odd powers cannot be represented by a
+// third-order K/A4 pair and are ignored here (first-order optics ignores them
+// as well, cf. PolyAsphere).
 func asphereParams(p Profile) (K, A4 float64) {
 	switch v := p.(type) {
 	case Conic:
@@ -89,6 +119,113 @@ func asphereParams(p Profile) (K, A4 float64) {
 			}
 			return v.K, A4
 		}
+	case PolyAsphere:
+		return polyAsphereParams(v)
+	case *PolyAsphere:
+		if v != nil {
+			return polyAsphereParams(*v)
+		}
+	case QAsphere:
+		return qAsphereParams(v)
+	case *QAsphere:
+		if v != nil {
+			return qAsphereParams(*v)
+		}
+	}
+	return 0, 0
+}
+
+// polyAsphereParams maps a PolyAsphere onto the (K, A4) pair of the
+// third-order sums (see asphereParams for the invariant).
+//
+// The sag is z = conic(R, K) + Σ a_i r^i. With the base curvature c₀ = 1/R
+// (0 for a flat base) and the vertex curvature c = c₀ + 2·a₂, which the r²
+// term shifts (cf. PolyAsphere.Curvature), its r⁴ coefficient is
+//
+//	E = (1+K)·c₀³/8 + a₄ ,        a₄ = Σ_{i=4} a_i
+//
+// (the terms of equal power add; the first term is the r⁴ coefficient of the
+// base conicoid, (1+K)c₀³/8). The invariant K·c³ + 8·A4 = 8E − c³ gives
+//
+//	K = K (the base conic constant),
+//	A4 = a₄ + (1+K)·(c₀³ − c³)/8 .
+//
+// Without an r² term (c = c₀, the usual case) A4 is exactly the polynomial r⁴
+// coefficient; with one, the correction term re-expresses the base conicoid
+// around the shifted osculating sphere, so the pair stays exact. Note that a
+// power-2 term is not a "polynomial aspherisation" of the same conic: it
+// changes the paraxial curvature, and it is that shifted curvature that the
+// sums use throughout.
+func polyAsphereParams(p PolyAsphere) (K, A4 float64) {
+	K = p.K
+	var a4 float64
+	for _, t := range p.Terms {
+		if t.Power == 4 {
+			a4 += t.Coeff
+		}
+	}
+	c0 := baseCurvature(p.R)
+	c := p.Curvature()
+	return K, a4 + (1+K)*(c0*c0*c0-c*c*c)/8
+}
+
+// qAsphereParams maps a QAsphere onto the (K, A4) pair of the third-order
+// sums (see asphereParams for the invariant). The base conic constant is
+// returned unchanged: K for QCon, 0 for the QBfs best-fit sphere.
+//
+// QCon (Forbes 2010, OE 18(13) 13851, Eq. (5.1)) has the sag
+//
+//	z = conic(R, K) + u⁴·S(x),   u = r/ρ, x = u², S(x) = Σ s_m Q_m^con(x),
+//
+// with ρ = NormR. Since u⁴ = (r/ρ)⁴ and S(x) = S(0) + O(r²), the departure
+// contributes (S(0)/ρ⁴)·r⁴ + O(r⁶): it has no r² term, so the vertex
+// curvature is the base curvature c₀ and
+//
+//	A4 = E − (1+K)·c₀³/8 = S(0)/ρ⁴ ,   S(0) = Σ s_m Q_m^con(0).
+//
+// This is Forbes' own conversion of Eq. (5.6)–(5.7): the departure is
+// Σ A_{2m+4}ρ^{2m+4} with A_{2m+4} = t_m/ρ^{2m+4} and t_m the coefficients of
+// S in powers of x, so A4 = t₀/ρ⁴ = S(0)/ρ⁴. The basis values at the axis are
+// Q_m^con(0) = P_m^(0,4)(−1) = (−1)^m·C(m+4, 4) (the standard value of a
+// Jacobi polynomial at the lower end point; checked against the recurrence of
+// qconBasis in seidel_asphere_test.go).
+//
+// QBfs (Forbes 2010, OE 18(19) 19700, Eq. (2.1)) has the sag
+//
+//	z = z_sphere(R) + u²(1−u²)·S(x)/ψ,   ψ = sqrt(1 − c₀²r²),
+//
+// again with S(x) = Σ a_m Q_m(x), S(x) = S(0) + S'(0)·x + O(x²). Expanding
+// 1/ψ = 1 + c₀²r²/2 + O(r⁴), x = (r/ρ)² and x² = (r/ρ)⁴ to order r⁴,
+//
+//	z = c·r²/2 + E·r⁴ + O(r⁶) ,
+//	c = c₀ + 2·S(0)/ρ² ,                       (the paraxial curvature)
+//	E = c₀³/8 + [S'(0) − S(0)]/ρ⁴ + c₀²·S(0)/(2ρ²) ,
+//
+// where the three bracketed terms come from (r/ρ)⁴, −(r/ρ)⁴ and
+// (r/ρ)²·(c₀²r²/2) in u²(1−u²)/ψ. With K = 0 the invariant gives
+//
+//	A4 = E − c³/8 .
+//
+// (The S(0) terms of c and E are the reason a QBfs surface with a non-zero
+// a₀ is not the sphere of its base radius: both its curvature and its r⁴
+// coefficient differ from the base sphere's.)
+func qAsphereParams(p QAsphere) (K, A4 float64) {
+	K = p.baseK()
+	if !p.active() || !(p.NormR > 0) {
+		// The bare base: a conic for QCon, a sphere for QBfs.
+		return K, 0
+	}
+	rho2 := p.NormR * p.NormR
+	switch p.Form {
+	case QCon:
+		s0, _ := qconSum(p.Coeffs, 0)
+		return K, s0 / (rho2 * rho2)
+	case QBfs:
+		c0 := baseCurvature(p.R)
+		s0, ds0 := qbfsSum(p.Coeffs, 0)
+		c := c0 + 2*s0/rho2
+		e := c0*c0*c0/8 + (ds0-s0)/(rho2*rho2) + c0*c0*s0/(2*rho2)
+		return K, e - c*c*c/8
 	}
 	return 0, 0
 }
