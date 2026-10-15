@@ -21,10 +21,11 @@ import (
 // Why Fraunhofer and not the lens element + ASM: the lens phase
 // exp(−ik r²/2f) has local spatial frequency r/(λf); at the pupil edge
 // (r = 10 mm, f = 100 mm) that is 170 cycles/mm, against a Nyquist limit of
-// 6.4 cycles/mm for this 256-pixel pupil (pixel 0.078 mm). Propagating over
-// the full pupil with the lens element would therefore alias; the Fraunhofer
-// kernel is the exact lens-focused field, the quadratic phase having been
-// absorbed by the lens.
+// 6.4 cycles/mm for this 256-pixel pupil (pixel 0.078 mm). On this grid the
+// lens phase would alias, so the lens is represented by the Fraunhofer kernel,
+// which is the exact focal-plane field of an ideal lens of focal length zM: the
+// lens's quadratic phase cancels the Fresnel kernel's quadratic phase over that
+// distance, leaving the Fourier transform of the pupil.
 func TestE1StrehlGeoVsWave(t *testing.T) {
 	sys, par, pup := achromatDesign(t)
 	zB, rmsB := bestFocusZ(t, sys, pup, par.ImageZ)

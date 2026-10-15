@@ -229,10 +229,10 @@ func (l lattice) points() []geo.PupilPoint {
 // fraunhofer returns the focal-plane field of the lattice pupil. opdM holds the
 // wavefront in metres at each lattice pixel (nil = unaberrated; NaN = blocked
 // ray, which carries no amplitude). The field is propagated by the kernel's
-// Fraunhofer method over zM metres. For a pupil in front of an ideal lens of
-// focal length zM this is the focal-plane field: the lens's quadratic phase is
-// the one the Fraunhofer kernel absorbs (see the E1 test for the reasoning and
-// for why the lens element with a propagation over the full pupil is not used).
+// Fraunhofer method over zM metres: this is the focal-plane field of an ideal
+// lens of focal length zM (the lens's quadratic phase cancels the Fresnel
+// kernel's quadratic phase over that distance). See TestE1StrehlGeoVsWave for
+// why the lens element with an ASM propagation is not used on this grid.
 func (l lattice) fraunhofer(lamM, dxM, zM float64, opdM []float64) *optics.Field {
 	f := optics.NewField(l.N, dxM, false)
 	k := 2 * math.Pi / lamM
