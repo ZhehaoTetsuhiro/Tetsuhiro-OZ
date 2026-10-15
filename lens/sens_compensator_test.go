@@ -120,3 +120,44 @@ func TestCompensateRejectsBadSpec(t *testing.T) {
 		t.Error("range list of the wrong length accepted")
 	}
 }
+
+// TestCompensateAirSpacing uses an air spacing as the compensator: two
+// biconvex N-BK7 singlets with a 20 mm air gap (card 1 is the air gap, its
+// thickness is the spacing). A tolerance draw on the four radii moves the
+// focus; the spacing alone is re-optimised. The acceptance is the same
+// monotonicity as before, plus a non-trivial spacing change.
+func TestCompensateAirSpacing(t *testing.T) {
+	p := &Prescription{
+		ObjectZMM: math.Inf(-1),
+		Cards: []Card{
+			{RadiusMM: 60, ThicknessMM: 4, Glass: "N-BK7", SemiAperMM: 4},
+			{RadiusMM: -60, ThicknessMM: 20, Glass: "", SemiAperMM: 4},
+			{RadiusMM: 60, ThicknessMM: 4, Glass: "N-BK7", SemiAperMM: 4},
+			{RadiusMM: -60, Glass: "", SemiAperMM: 4},
+		},
+	}
+	m, err := MeritSpec{Kind: MeritSpotRMS}.Fixed(p)
+	if err != nil {
+		t.Fatal(err)
+	}
+	pert := Perturbation{
+		Params:  []Param{{Kind: ParamCurvature, Card: 0}, {Kind: ParamCurvature, Card: 2}},
+		Offsets: []float64{3e-5, -3e-5},
+	}
+	res, err := Compensate(p, pert, m, CompensatorSpec{Vars: []VarSpec{{Card: 1, Kind: VarThickness}}})
+	if err != nil {
+		t.Fatal(err)
+	}
+	t.Logf("air spacing: nominal %.6e mm (compensated %.6e), perturbed %.6e mm, compensated %.6e mm, spacing %.4f -> %.4f mm, recovery %.4f (converged %v)",
+		res.Nominal, res.CompensatedNominal, res.Perturbed, res.Compensated,
+		p.Cards[1].ThicknessMM, res.Prescription.Cards[1].ThicknessMM, res.Recovery, res.Opt.Converged)
+	if res.Compensated > res.Perturbed {
+		t.Errorf("compensated merit %.9g exceeds perturbed merit %.9g", res.Compensated, res.Perturbed)
+	}
+	if res.Prescription.Cards[1].ThicknessMM == p.Cards[1].ThicknessMM {
+		t.Error("the air spacing did not move")
+	}
+	if res.Prescription.Cards[1].Glass != "" {
+		t.Error("the spacing compensator altered the glass of card 1")
+	}
+}
