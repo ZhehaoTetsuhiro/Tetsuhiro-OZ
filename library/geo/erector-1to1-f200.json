@@ -1,0 +1,69 @@
+{
+  "name": "1:1 正像中继（转像系统）f=200mm",
+  "object_z_mm": -380,
+  "cards": [
+    {
+      "name": "aperture stop",
+      "radius_mm": 0,
+      "thickness_mm": 3.0191,
+      "semi_aperture_mm": 25
+    },
+    {
+      "name": "L1/L2",
+      "radius_mm": 325.9410697,
+      "thickness_mm": 6.0382,
+      "glass": "N-BK7",
+      "semi_aperture_mm": 31.947
+    },
+    {
+      "name": "L1/L2",
+      "radius_mm": -325.9410697,
+      "thickness_mm": 6.0382,
+      "glass": "F2",
+      "semi_aperture_mm": 32.032
+    },
+    {
+      "name": "L1/L2",
+      "radius_mm": -167.5999844,
+      "thickness_mm": 201.2744,
+      "semi_aperture_mm": 32.163
+    },
+    {
+      "name": "L3/L4",
+      "radius_mm": -167.5999844,
+      "thickness_mm": 6.0382,
+      "glass": "F2",
+      "semi_aperture_mm": 16.416
+    },
+    {
+      "name": "L3/L4",
+      "radius_mm": -325.9410697,
+      "thickness_mm": 6.0382,
+      "glass": "N-BK7",
+      "semi_aperture_mm": 16.346
+    },
+    {
+      "name": "L3/L4",
+      "radius_mm": 325.9410697,
+      "thickness_mm": 201.2744,
+      "semi_aperture_mm": 16.247
+    }
+  ],
+  "stop": 0,
+  "description": "转像系统（1:1 正像中继）｜两组胶合 f=200mm，物距 -380mm、像距 -2070.5mm、近轴倍率 11.453｜经典构造：望远镜/潜望镜里的转像镜组，中间像位于两组之间的公共焦面。预期指标（引擎计算；单位 mm、µrad、deg；libcheck 复核容差：相对 1e-6）：MODE=focus；FOCUSZ=227.179858mm；FOCUSRMS=0.496504922mm；RAYS=21",
+  "category": "instrument",
+  "difficulty": 4,
+  "tags": [
+    "erector",
+    "relay",
+    "1to1",
+    "finite-conjugate",
+    "efl:200",
+    "visible",
+    "classic",
+    "quality:classic",
+    "mag:11.453",
+    "objfield:7.6",
+    "mode:focus"
+  ]
+}

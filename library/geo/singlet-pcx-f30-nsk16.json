@@ -1,0 +1,42 @@
+{
+  "name": "平凸（凸面朝物）单透镜 N-SK16 f=30mm F/5",
+  "object_z_mm": "inf",
+  "cards": [
+    {
+      "name": "aperture stop",
+      "radius_mm": 0,
+      "thickness_mm": 2.5,
+      "semi_aperture_mm": 3
+    },
+    {
+      "name": "L1",
+      "radius_mm": 18.612299,
+      "thickness_mm": 1.5,
+      "glass": "N-SK16",
+      "semi_aperture_mm": 4.146
+    },
+    {
+      "name": "L1",
+      "radius_mm": 0,
+      "thickness_mm": 16,
+      "semi_aperture_mm": 4.048
+    }
+  ],
+  "stop": 0,
+  "description": "单透镜（平凸（凸面朝物））｜N-SK16｜设计焦距 30mm，口径 3mm，F/5｜凸面朝物为平行光最佳形式（球差最小）。预期指标（引擎计算；单位 mm、µrad、deg；libcheck 复核容差：相对 1e-6）：MODE=refract；EFL=30.0000001mm；BFL=29.0743084mm；FNO=5.00000001；FC=-0.488292884mm；RMSAX=0.017441061mm；FIELD=0.5deg；RMSFLD=0.0176753305mm；RAYS=37；FRAYS=37",
+  "category": "singlet",
+  "difficulty": 1,
+  "tags": [
+    "singlet",
+    "pcx",
+    "N-SK16",
+    "F/5",
+    "efl:30",
+    "visible",
+    "classic",
+    "quality:analytic",
+    "fov0.5deg",
+    "sweep:f",
+    "mode:refract"
+  ]
+}

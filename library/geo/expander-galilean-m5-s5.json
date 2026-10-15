@@ -1,0 +1,53 @@
+{
+  "name": "伽利略扩束器 5x（入射光束半径 5mm）",
+  "object_z_mm": "inf",
+  "cards": [
+    {
+      "name": "aperture stop",
+      "radius_mm": 0,
+      "thickness_mm": 4,
+      "semi_aperture_mm": 5
+    },
+    {
+      "name": "L1",
+      "radius_mm": -41.344,
+      "thickness_mm": 2.4,
+      "glass": "N-BK7",
+      "semi_aperture_mm": 6.644
+    },
+    {
+      "name": "L1",
+      "radius_mm": 41.344,
+      "thickness_mm": 159.608,
+      "semi_aperture_mm": 6.8
+    },
+    {
+      "name": "L2",
+      "radius_mm": 103.36,
+      "thickness_mm": 12,
+      "glass": "N-BK7",
+      "semi_aperture_mm": 33.061
+    },
+    {
+      "name": "L2",
+      "radius_mm": 0,
+      "thickness_mm": 120,
+      "semi_aperture_mm": 32.996
+    }
+  ],
+  "stop": 0,
+  "description": "伽利略扩束器｜扩展比 5x、入射光束半径 5mm｜经典构造：两片 N-BK7 单透镜按 f1 = 40mm、f2 = 200mm 布置，间隔由近轴引擎解出使系统无焦；出射角散布与扩展比由实光线追迹实测。预期指标（引擎计算；单位 mm、µrad、deg；libcheck 复核容差：相对 1e-6）：MODE=afocal；SLOPERMS=3629.07293µrad；SLOPEMEAN=-3.22162931e-12µrad；MAG=5.15529515；RAYS=21",
+  "category": "instrument",
+  "difficulty": 3,
+  "tags": [
+    "beam-expander",
+    "galilean",
+    "afocal",
+    "mag:5",
+    "fov0.5deg",
+    "visible",
+    "classic",
+    "quality:classic",
+    "mode:afocal"
+  ]
+}

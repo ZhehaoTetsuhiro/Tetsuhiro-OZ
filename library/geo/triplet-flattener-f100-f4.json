@@ -1,0 +1,80 @@
+{
+  "name": "三片式 + 场镜（4 片） f=100mm F/4（DLS 抛光）",
+  "object_z_mm": "inf",
+  "cards": [
+    {
+      "name": "aperture stop",
+      "radius_mm": 0,
+      "thickness_mm": 1.2185,
+      "semi_aperture_mm": 12.5
+    },
+    {
+      "name": "L1",
+      "radius_mm": 22.6041983,
+      "thickness_mm": 11.0406,
+      "glass": "N-SK16",
+      "semi_aperture_mm": 16.009
+    },
+    {
+      "name": "L1",
+      "radius_mm": 0,
+      "thickness_mm": 7.8536,
+      "semi_aperture_mm": 15.595
+    },
+    {
+      "name": "L2",
+      "radius_mm": -29.1386689,
+      "thickness_mm": 0.4,
+      "glass": "F2",
+      "semi_aperture_mm": 14.136
+    },
+    {
+      "name": "L2",
+      "radius_mm": 27.3748769,
+      "thickness_mm": 4.0619,
+      "semi_aperture_mm": 13.693
+    },
+    {
+      "name": "L3",
+      "radius_mm": 53.2905603,
+      "thickness_mm": 5.5752,
+      "glass": "N-SK16",
+      "semi_aperture_mm": 14.553
+    },
+    {
+      "name": "L3",
+      "radius_mm": -52.478764,
+      "thickness_mm": 7.3113,
+      "semi_aperture_mm": 14.605
+    },
+    {
+      "name": "L4",
+      "radius_mm": -118.8542654,
+      "thickness_mm": 1.0154,
+      "glass": "F2",
+      "semi_aperture_mm": 13.265
+    },
+    {
+      "name": "L4",
+      "radius_mm": 114.8107836,
+      "thickness_mm": 40.6183,
+      "semi_aperture_mm": 13.156
+    }
+  ],
+  "stop": 0,
+  "description": "三片式 + 场镜（4 片）｜f=100mm、F/4、2° 视场｜经典构造（薄透镜初值 + 近轴标定）｜DLS 抛光：150 次接受迭代／1756 次求值，merit=293.9。预期指标（引擎计算；单位 mm、µrad、deg；libcheck 复核容差：相对 1e-6）：MODE=refract；EFL=99.9999995mm；BFL=44.4871818mm；FNO=3.99999998；FC=-0.619284409mm；RMSAX=0.0586880619mm；FIELD=2deg；RMSFLD=0.0878016573mm；RAYS=37；FRAYS=37",
+  "category": "multi",
+  "difficulty": 4,
+  "tags": [
+    "triplet-flattener",
+    "multi-element",
+    "F/4",
+    "efl:100",
+    "visible",
+    "quality:optimized",
+    "fov2deg",
+    "sweep:efl",
+    "front-stop",
+    "mode:refract"
+  ]
+}

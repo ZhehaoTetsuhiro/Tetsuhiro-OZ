@@ -1,0 +1,74 @@
+{
+  "name": "Tessar 型 4 片物镜 f=300mm F/2.8",
+  "object_z_mm": "inf",
+  "cards": [
+    {
+      "name": "aperture stop",
+      "radius_mm": 0,
+      "thickness_mm": 4.1838,
+      "semi_aperture_mm": 53.571
+    },
+    {
+      "name": "L1",
+      "radius_mm": 220.634323,
+      "thickness_mm": 25.1031,
+      "glass": "N-SK16",
+      "semi_aperture_mm": 67.297
+    },
+    {
+      "name": "L1",
+      "radius_mm": 0,
+      "thickness_mm": 41.8384,
+      "semi_aperture_mm": 65.098
+    },
+    {
+      "name": "L2/L3",
+      "radius_mm": 717.0212749,
+      "thickness_mm": 14.6434,
+      "glass": "N-SK16",
+      "semi_aperture_mm": 56.71
+    },
+    {
+      "name": "L2/L3",
+      "radius_mm": -717.0212749,
+      "thickness_mm": 14.6434,
+      "glass": "N-SF5",
+      "semi_aperture_mm": 54.931
+    },
+    {
+      "name": "L2/L3",
+      "radius_mm": -361.0114377,
+      "thickness_mm": 54.39,
+      "semi_aperture_mm": 53.01
+    },
+    {
+      "name": "L4",
+      "radius_mm": -93.3894098,
+      "thickness_mm": 20.9192,
+      "glass": "F2",
+      "semi_aperture_mm": 34.409
+    },
+    {
+      "name": "L4",
+      "radius_mm": -169.7989177,
+      "thickness_mm": 460.2227,
+      "semi_aperture_mm": 33.143
+    }
+  ],
+  "stop": 0,
+  "description": "Tessar 型 4 片物镜｜f=300mm、F/2.8、3° 视场｜经典构造（薄透镜初值 + 近轴标定）。预期指标（引擎计算；单位 mm、µrad、deg；libcheck 复核容差：相对 1e-6）：MODE=refract；EFL=300mm；BFL=146.536603mm；FNO=2.8000224；FC=-4.96986381mm；RMSAX=0.36322166mm；FIELD=3deg；RMSFLD=0.595919175mm；RAYS=37；FRAYS=33",
+  "category": "multi",
+  "difficulty": 4,
+  "tags": [
+    "tessar",
+    "multi-element",
+    "F/2.8",
+    "efl:300",
+    "visible",
+    "quality:classic",
+    "fov3deg",
+    "sweep:efl",
+    "front-stop",
+    "mode:refract"
+  ]
+}

@@ -1,0 +1,67 @@
+{
+  "name": "f-θ 扫描镜头 f=100mm",
+  "object_z_mm": "inf",
+  "cards": [
+    {
+      "name": "aperture stop",
+      "radius_mm": 0,
+      "thickness_mm": 2.5931,
+      "semi_aperture_mm": 8.333
+    },
+    {
+      "name": "L1",
+      "radius_mm": 67.0066247,
+      "thickness_mm": 4.3219,
+      "glass": "N-BK7",
+      "semi_aperture_mm": 10.806
+    },
+    {
+      "name": "L1",
+      "radius_mm": 0,
+      "thickness_mm": 25.9313,
+      "semi_aperture_mm": 10.604
+    },
+    {
+      "name": "L2",
+      "radius_mm": -128.6277475,
+      "thickness_mm": 2.5931,
+      "glass": "F2",
+      "semi_aperture_mm": 8.521
+    },
+    {
+      "name": "L2",
+      "radius_mm": 128.6277475,
+      "thickness_mm": 21.6094,
+      "semi_aperture_mm": 8.446
+    },
+    {
+      "name": "L3",
+      "radius_mm": 80.4078297,
+      "thickness_mm": 4.3219,
+      "glass": "N-BK7",
+      "semi_aperture_mm": 8.391
+    },
+    {
+      "name": "L3",
+      "radius_mm": -80.4078297,
+      "thickness_mm": 69.1502,
+      "semi_aperture_mm": 8.255
+    }
+  ],
+  "stop": 0,
+  "description": "f-θ 扫描镜头（激光打标/扫描用）｜f=100mm、F/12、三片式（正-负-正）｜经典构造：负片压平像场，使像高近似 ∝ 扫描角（fθ 条件）；像质由实测记录。预期指标（引擎计算；单位 mm、µrad、deg；libcheck 复核容差：相对 1e-6）：MODE=refract；EFL=100mm；BFL=75.1716355mm；FNO=6.00024001；FC=-0.748764237mm；RMSAX=0.0501644375mm；FIELD=2deg；RMSFLD=0.0528684458mm；RAYS=37；FRAYS=33",
+  "category": "instrument",
+  "difficulty": 4,
+  "tags": [
+    "scan-lens",
+    "f-theta",
+    "flat-field",
+    "efl:100",
+    "visible",
+    "classic",
+    "quality:classic",
+    "fov2deg",
+    "front-stop",
+    "mode:refract"
+  ]
+}

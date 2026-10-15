@@ -1,0 +1,53 @@
+{
+  "name": "开普勒缩束器 0.25x（入射光束半径 8mm）",
+  "object_z_mm": "inf",
+  "cards": [
+    {
+      "name": "aperture stop",
+      "radius_mm": 0,
+      "thickness_mm": 4,
+      "semi_aperture_mm": 8
+    },
+    {
+      "name": "L1",
+      "radius_mm": 51.68,
+      "thickness_mm": 6,
+      "glass": "N-BK7",
+      "semi_aperture_mm": 10.39
+    },
+    {
+      "name": "L1",
+      "radius_mm": 0,
+      "thickness_mm": 121.044,
+      "semi_aperture_mm": 10.032
+    },
+    {
+      "name": "L2",
+      "radius_mm": 12.92,
+      "thickness_mm": 3,
+      "glass": "N-BK7",
+      "semi_aperture_mm": 3.013
+    },
+    {
+      "name": "L2",
+      "radius_mm": 0,
+      "thickness_mm": 60,
+      "semi_aperture_mm": 3.002
+    }
+  ],
+  "stop": 0,
+  "description": "开普勒缩束器｜缩小比 0.25x、入射光束半径 8mm｜经典构造：扩束器的反向使用，间隔由近轴引擎解出使系统无焦。预期指标（引擎计算；单位 mm、µrad、deg；libcheck 复核容差：相对 1e-6）：MODE=afocal；SLOPERMS=1909.1034µrad；SLOPEMEAN=-7.02149978e-13µrad；MAG=-0.256588198；RAYS=21",
+  "category": "instrument",
+  "difficulty": 3,
+  "tags": [
+    "beam-reducer",
+    "kepler",
+    "afocal",
+    "mag:0.25",
+    "fov0.5deg",
+    "visible",
+    "classic",
+    "quality:classic",
+    "mode:afocal"
+  ]
+}

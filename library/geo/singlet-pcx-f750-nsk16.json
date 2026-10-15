@@ -1,0 +1,42 @@
+{
+  "name": "平凸（凸面朝物）单透镜 N-SK16 f=750mm F/6.25",
+  "object_z_mm": "inf",
+  "cards": [
+    {
+      "name": "aperture stop",
+      "radius_mm": 0,
+      "thickness_mm": 2.5,
+      "semi_aperture_mm": 60
+    },
+    {
+      "name": "L1",
+      "radius_mm": 465.3074738,
+      "thickness_mm": 20,
+      "glass": "N-SK16",
+      "semi_aperture_mm": 75.325
+    },
+    {
+      "name": "L1",
+      "radius_mm": 0,
+      "thickness_mm": 160,
+      "semi_aperture_mm": 74.325
+    }
+  ],
+  "stop": 0,
+  "description": "单透镜（平凸（凸面朝物））｜N-SK16｜设计焦距 750mm，口径 60mm，F/6.25｜凸面朝物为平行光最佳形式（球差最小）。预期指标（引擎计算；单位 mm、µrad、deg；libcheck 复核容差：相对 1e-6）：MODE=refract；EFL=750mm；BFL=737.657444mm；FNO=6.25；FC=-12.2756991mm；RMSAX=0.222735874mm；FIELD=0.5deg；RMSFLD=0.227353804mm；RAYS=37；FRAYS=37",
+  "category": "singlet",
+  "difficulty": 1,
+  "tags": [
+    "singlet",
+    "pcx",
+    "N-SK16",
+    "F/6.25",
+    "efl:750",
+    "visible",
+    "classic",
+    "quality:analytic",
+    "fov0.5deg",
+    "sweep:f",
+    "mode:refract"
+  ]
+}

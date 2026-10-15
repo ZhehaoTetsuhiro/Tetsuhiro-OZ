@@ -1,0 +1,42 @@
+{
+  "name": "平凸（平面朝物）单透镜 N-BK7 f=200mm F/5",
+  "object_z_mm": "inf",
+  "cards": [
+    {
+      "name": "aperture stop",
+      "radius_mm": 0,
+      "thickness_mm": 2.5,
+      "semi_aperture_mm": 20
+    },
+    {
+      "name": "L1",
+      "radius_mm": 0,
+      "thickness_mm": 10,
+      "glass": "N-BK7",
+      "semi_aperture_mm": 25.375
+    },
+    {
+      "name": "L1",
+      "radius_mm": -103.3600069,
+      "thickness_mm": 50,
+      "semi_aperture_mm": 25.375
+    }
+  ],
+  "stop": 0,
+  "description": "单透镜（平凸（平面朝物））｜N-BK7｜设计焦距 200mm，口径 20mm，F/5｜平面朝物：球差约为最佳形式的 4 倍，作为对照。预期指标（引擎计算；单位 mm、µrad、deg；libcheck 复核容差：相对 1e-6）：MODE=refract；EFL=200mm；BFL=200mm；FNO=5；FC=-3.09843366mm；RMSAX=0.648249637mm；FIELD=0.5deg；RMSFLD=0.650180821mm；RAYS=37；FRAYS=37",
+  "category": "singlet",
+  "difficulty": 1,
+  "tags": [
+    "singlet",
+    "pcxflat",
+    "N-BK7",
+    "F/5",
+    "efl:200",
+    "visible",
+    "classic",
+    "quality:analytic",
+    "fov0.5deg",
+    "sweep:f",
+    "mode:refract"
+  ]
+}

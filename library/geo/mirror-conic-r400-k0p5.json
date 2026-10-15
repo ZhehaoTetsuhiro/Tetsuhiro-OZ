@@ -1,0 +1,37 @@
+{
+  "name": "圆锥曲面反射镜 R=-400mm K=0.5",
+  "object_z_mm": "inf",
+  "cards": [
+    {
+      "name": "aperture stop",
+      "radius_mm": 0,
+      "thickness_mm": 60,
+      "semi_aperture_mm": 33.333
+    },
+    {
+      "name": "primary",
+      "radius_mm": -400,
+      "conic_k": 0.5,
+      "thickness_mm": 200,
+      "semi_aperture_mm": 34,
+      "mirror": true
+    }
+  ],
+  "stop": 0,
+  "description": "圆锥常数扫描｜R=-400mm、K=0.5、F/6｜经典构造：K=-1 为抛物面（球差=0），K=0 为球面，K\u003c-1 为双曲面（球差过校正），K\u003e0 为扁球面。预期指标（引擎计算；单位 mm、µrad、deg；libcheck 复核容差：相对 1e-6）：MODE=focus；FOCUSZ=251.584853mm；FOCUSRMS=19.1336643mm；RAYS=21",
+  "category": "mirror",
+  "difficulty": 3,
+  "tags": [
+    "mirror",
+    "conic",
+    "single-mirror",
+    "K:0.5",
+    "F/6",
+    "visible",
+    "classic",
+    "quality:classic",
+    "sweep:conic",
+    "trace-validated",
+    "mode:focus"
+  ]
+}

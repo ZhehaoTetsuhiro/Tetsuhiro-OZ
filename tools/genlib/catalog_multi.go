@@ -127,7 +127,7 @@ func multiElement(l *lib, a archetype, f, wantFnum float64, polishIt bool) {
 	p, err := buildLayout(fmt.Sprintf("%s f=%smm F/%s", a.zh, trimNum(f, 0), trimNum(fnum, 2)),
 		a.layout(f), 3, f, semi, math.Inf(-1))
 	if err != nil {
-		fmt.Printf("  ! %s f=%g: %v\n", a.key, f, err)
+		failf("%s f=%g: %v\n", a.key, f, err)
 		return
 	}
 	quality := "classic"
@@ -159,9 +159,7 @@ func buildMulti(l *lib) {
 	flattener := archetype{"triplet-flattener", "三片式 + 场镜（4 片）", func(f float64) []grp { return layoutCookeFlattener(f, "N-SK16", "F2") }, 2, 4}
 	airTri := archetype{"triplet-airspaced", "三片分离式（空气间隔三片）", func(f float64) []grp { return layoutAirSpacedTriplet(f, "N-BK7", "F2") }, 1, 3}
 	tessar := archetype{"tessar", "Tessar 型 4 片物镜", layoutTessar, 3, 4}
-	dgauss := archetype{"dga型", "Double Gauss 型 6 片物镜", layoutDGauss, 4, 5}
-	dgauss.key = "double-gauss"
-	dgauss.zh = "Double Gauss 型 6 片物镜"
+	dgauss := archetype{"double-gauss", "Double Gauss 型 6 片物镜", layoutDGauss, 4, 5}
 	sonnar := archetype{"sonnar", "Sonnar 型 5 片物镜", layoutSonnar, 3, 4}
 	petzval := archetype{"petzval", "Petzval 型 4 片（两组分离）", layoutPetzval, 2, 4}
 	symm := archetype{"symmetric", "对称式 4 片（双胶合对置）", layoutSymmetric, 3, 4}

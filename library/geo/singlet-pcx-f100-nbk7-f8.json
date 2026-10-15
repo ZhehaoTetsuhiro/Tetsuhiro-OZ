@@ -1,0 +1,42 @@
+{
+  "name": "平凸单透镜 N-BK7 f=100mm F/8（口径扫描）",
+  "object_z_mm": "inf",
+  "cards": [
+    {
+      "name": "aperture stop",
+      "radius_mm": 0,
+      "thickness_mm": 2.5,
+      "semi_aperture_mm": 6.25
+    },
+    {
+      "name": "L1",
+      "radius_mm": 51.6800035,
+      "thickness_mm": 5,
+      "glass": "N-BK7",
+      "semi_aperture_mm": 8.205
+    },
+    {
+      "name": "L1",
+      "radius_mm": 0,
+      "thickness_mm": 30,
+      "semi_aperture_mm": 7.966
+    }
+  ],
+  "stop": 0,
+  "description": "平凸单透镜｜N-BK7｜f=100mm 固定，口径随 F/8 变化：观察球差随口径的三次方增长。预期指标（引擎计算；单位 mm、µrad、deg；libcheck 复核容差：相对 1e-6）：MODE=refract；EFL=100mm；BFL=96.7035867mm；FNO=8.00000001；FC=-1.53174903mm；RMSAX=0.0192008875mm；FIELD=0.5deg；RMSFLD=0.0197022892mm；RAYS=37；FRAYS=37",
+  "category": "singlet",
+  "difficulty": 1,
+  "tags": [
+    "singlet",
+    "pcx",
+    "N-BK7",
+    "F/8",
+    "efl:100",
+    "visible",
+    "classic",
+    "quality:analytic",
+    "fov0.5deg",
+    "sweep:Fnum",
+    "mode:refract"
+  ]
+}

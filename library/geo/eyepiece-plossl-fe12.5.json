@@ -1,0 +1,67 @@
+{
+  "name": "普洛塞尔（Plössl）四片式 目镜 f_e=12mm",
+  "object_z_mm": "inf",
+  "cards": [
+    {
+      "name": "aperture stop",
+      "radius_mm": 0,
+      "thickness_mm": 17.6831,
+      "semi_aperture_mm": 2
+    },
+    {
+      "name": "eye doublet",
+      "radius_mm": 18.493896,
+      "thickness_mm": 1.4736,
+      "glass": "N-BK7",
+      "semi_aperture_mm": 2.898
+    },
+    {
+      "name": "eye doublet",
+      "radius_mm": -18.493896,
+      "thickness_mm": 1.4736,
+      "glass": "F2",
+      "semi_aperture_mm": 2.839
+    },
+    {
+      "name": "eye doublet",
+      "radius_mm": -9.5096979,
+      "thickness_mm": 10.131,
+      "semi_aperture_mm": 2.791
+    },
+    {
+      "name": "field doublet",
+      "radius_mm": -9.5096979,
+      "thickness_mm": 1.4736,
+      "glass": "F2",
+      "semi_aperture_mm": 0.491
+    },
+    {
+      "name": "field doublet",
+      "radius_mm": -18.493896,
+      "thickness_mm": 1.4736,
+      "glass": "N-BK7",
+      "semi_aperture_mm": 0.504
+    },
+    {
+      "name": "field doublet",
+      "radius_mm": 18.493896,
+      "thickness_mm": 34.9978,
+      "semi_aperture_mm": 0.712
+    }
+  ],
+  "stop": 0,
+  "description": "普洛塞尔（Plössl）四片式｜f_e=12.5mm（眼端反向追迹：物体在无限远、孔径光阑＝眼瞳直径 4mm）｜经典构造；指标在 d 线实测。预期指标（引擎计算；单位 mm、µrad、deg；libcheck 复核容差：相对 1e-6）：MODE=focus；FOCUSZ=33.3315415mm；FOCUSRMS=0.0508673521mm；RAYS=21",
+  "category": "eyepiece",
+  "difficulty": 3,
+  "tags": [
+    "eyepiece",
+    "plossl",
+    "reverse-traced",
+    "f_e:12.5",
+    "fov5deg",
+    "visible",
+    "quality:classic",
+    "eye-pupil-stop",
+    "mode:focus"
+  ]
+}

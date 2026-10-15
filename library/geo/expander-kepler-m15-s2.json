@@ -1,0 +1,53 @@
+{
+  "name": "开普勒扩束器 15x（入射光束半径 2mm）",
+  "object_z_mm": "inf",
+  "cards": [
+    {
+      "name": "aperture stop",
+      "radius_mm": 0,
+      "thickness_mm": 4,
+      "semi_aperture_mm": 2
+    },
+    {
+      "name": "L1",
+      "radius_mm": 12.92,
+      "thickness_mm": 1.5,
+      "glass": "N-BK7",
+      "semi_aperture_mm": 2.898
+    },
+    {
+      "name": "L1",
+      "radius_mm": 0,
+      "thickness_mm": 399.011,
+      "semi_aperture_mm": 2.808
+    },
+    {
+      "name": "L2",
+      "radius_mm": 193.8,
+      "thickness_mm": 22.499999999999996,
+      "glass": "N-BK7",
+      "semi_aperture_mm": 38.547
+    },
+    {
+      "name": "L2",
+      "radius_mm": 0,
+      "thickness_mm": 207.5,
+      "semi_aperture_mm": 38.507
+    }
+  ],
+  "stop": 0,
+  "description": "开普勒扩束器｜扩展比 15x、入射光束半径 2mm｜经典构造：两片 N-BK7 单透镜按 f1 = 25mm、f2 = 375mm 布置，间隔由近轴引擎解出使系统无焦；出射角散布与扩展比由实光线追迹实测。预期指标（引擎计算；单位 mm、µrad、deg；libcheck 复核容差：相对 1e-6）：MODE=afocal；SLOPERMS=959.866119µrad；SLOPEMEAN=7.22801448e-13µrad；MAG=-15.1620473；RAYS=21",
+  "category": "instrument",
+  "difficulty": 3,
+  "tags": [
+    "beam-expander",
+    "kepler",
+    "afocal",
+    "mag:15",
+    "fov0.5deg",
+    "visible",
+    "classic",
+    "quality:classic",
+    "mode:afocal"
+  ]
+}

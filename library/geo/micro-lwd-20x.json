@@ -1,0 +1,47 @@
+{
+  "name": "长工作距离物镜（LWD） 显微物镜 20x／150 筒长（物距 -7.43mm）",
+  "object_z_mm": -7.425757183170722,
+  "cards": [
+    {
+      "name": "aperture stop",
+      "radius_mm": 0,
+      "thickness_mm": 0.1979,
+      "semi_aperture_mm": 1.214
+    },
+    {
+      "name": "front doublet",
+      "radius_mm": 12.5908021,
+      "thickness_mm": 0.904,
+      "glass": "N-BK7",
+      "semi_aperture_mm": 1.969
+    },
+    {
+      "name": "front doublet",
+      "radius_mm": -12.5908021,
+      "thickness_mm": 0.755,
+      "glass": "F2",
+      "semi_aperture_mm": 2.038
+    },
+    {
+      "name": "front doublet",
+      "radius_mm": -6.4741926,
+      "thickness_mm": 12.6664,
+      "semi_aperture_mm": 2.101
+    }
+  ],
+  "stop": 0,
+  "description": "长工作距离物镜（LWD）｜20x、物方 NA≈0.15、筒长 150mm（像距 169.54mm）｜有限共轭：物距由近轴引擎解出以满足倍率。预期指标（引擎计算；单位 mm、µrad、deg；libcheck 复核容差：相对 1e-6）：MODE=refract；EFL=8.00000001mm；BFL=7.68108782mm；FNO=3.29489292；FC=-0.150939875mm；RMSAX=0.607013547mm；FIELD=0.35mm；RMSFLD=0.663462337mm；RAYS=37；FRAYS=37",
+  "category": "micro-telescope",
+  "difficulty": 4,
+  "tags": [
+    "microscope",
+    "lwd",
+    "finite-conjugate",
+    "mag:-20",
+    "NA:0.15",
+    "visible",
+    "quality:classic",
+    "objfield:0.35",
+    "mode:refract"
+  ]
+}

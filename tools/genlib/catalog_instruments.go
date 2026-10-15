@@ -56,7 +56,7 @@ func expander(l *lib, kepler bool, mag, semiIn, baseF float64, diff int) {
 	}
 	p, err := buildAfocal(fmt.Sprintf("%s %.4gx（入射光束半径 %.3gmm）", zh, mag, semiIn), gs, 4, semiIn, 2, baseF*(mag-1)*0.6, baseF*(mag+1)*1.4)
 	if err != nil {
-		fmt.Printf("  ! expander %s %gx s=%g: %v\n", key, mag, semiIn, err)
+		failf("expander %s %gx s=%g: %v\n", key, mag, semiIn, err)
 		return
 	}
 	p.Name = fmt.Sprintf("%s %.4gx（入射光束半径 %.3gmm）", zh, mag, semiIn)
@@ -85,7 +85,7 @@ func beamReducer(l *lib, kepler bool, mag, semiIn float64) {
 	}
 	p, err := buildAfocal(fmt.Sprintf("%s %.3gx（入射光束半径 %.4gmm）", zh, mag, semiIn), gs, 4, semiIn, 2, 100*(mag-1)*0.6, 100*(mag+1)*1.4)
 	if err != nil {
-		fmt.Printf("  ! reducer %s %gx: %v\n", key, mag, err)
+		failf("reducer %s %gx: %v\n", key, mag, err)
 		return
 	}
 	l.add(fmt.Sprintf("reducer-%s-m%s-s%s.json", key, numCode(mag), numCode(semiIn)), p, "instrument", 3,
@@ -110,7 +110,7 @@ func relay1to1(l *lib, f, fieldF float64, withField bool) {
 	semi := math.Min(maxSemi, f/6)
 	p, err := buildLayout(fmt.Sprintf("1:1 转像中继 f=%smm", trimNum(f, 0)), gs, 3, f, semi, -2.05*f)
 	if err != nil {
-		fmt.Printf("  ! relay1to1 f=%g: %v\n", f, err)
+		failf("relay1to1 f=%g: %v\n", f, err)
 		return
 	}
 	par, _ := p.Paraxial(geo.Wavelengthd)
@@ -137,7 +137,7 @@ func relay4f(l *lib, f1, f2 float64) {
 	semi := math.Min(maxSemi, f1/8)
 	p, err := buildLayout(fmt.Sprintf("4f 中继（f1=%smm, f2=%smm）", trimNum(f1, 0), trimNum(f2, 0)), gs, 3, f1, semi, -f1)
 	if err != nil {
-		fmt.Printf("  ! relay4f %g/%g: %v\n", f1, f2, err)
+		failf("relay4f %g/%g: %v\n", f1, f2, err)
 		return
 	}
 	par, _ := p.Paraxial(geo.Wavelengthd)
@@ -159,7 +159,7 @@ func condenser(l *lib, f float64, ratio float64) {
 	objZ := -(1 + 1/ratio) * f * 1.05
 	p, err := buildLayout(fmt.Sprintf("聚光镜（f=%smm，%s:1 成像）", trimNum(f, 0), trimNum(ratio, 2)), gs, 3, f, semi, objZ)
 	if err != nil {
-		fmt.Printf("  ! condenser %g: %v\n", f, err)
+		failf("condenser %g: %v\n", f, err)
 		return
 	}
 	par, _ := p.Paraxial(geo.Wavelengthd)
@@ -179,17 +179,17 @@ func collimator(l *lib, crown, flint string, f, fnum float64) {
 	semi := math.Min(maxSemi, f/(2*fnum))
 	p, err := buildLayout(fmt.Sprintf("准直镜 %s/%s f=%smm", crown, flint, trimNum(f, 0)), gs, 3, f, semi, math.Inf(-1))
 	if err != nil {
-		fmt.Printf("  ! collimator %g: %v\n", f, err)
+		failf("collimator %g: %v\n", f, err)
 		return
 	}
 	par, err := p.Paraxial(geo.Wavelengthd)
 	if err != nil {
-		fmt.Printf("  ! collimator paraxial %g: %v\n", f, err)
+		failf("collimator paraxial %g: %v\n", f, err)
 		return
 	}
 	p.ObjectZMM = r3(par.FrontFocalZ)
 	if err := autoApertures(p, semi); err != nil {
-		fmt.Printf("  ! collimator apertures %g: %v\n", f, err)
+		failf("collimator apertures %g: %v\n", f, err)
 		return
 	}
 	p.Name = fmt.Sprintf("准直镜 %s/%s f=%smm（点光源置于前焦点）", crown, flint, trimNum(f, 0))
@@ -211,7 +211,7 @@ func telephoto(l *lib, f, telephotoRatio float64) {
 	semi := math.Min(maxSemi, f/8)
 	p, err := buildLayout(fmt.Sprintf("远摄物镜 f=%smm（物理长度比 %s）", trimNum(f, 0), trimNum(telephotoRatio, 2)), gs, 3, f, semi, math.Inf(-1))
 	if err != nil {
-		fmt.Printf("  ! telephoto %g: %v\n", f, err)
+		failf("telephoto %g: %v\n", f, err)
 		return
 	}
 	par, _ := p.Paraxial(geo.Wavelengthd)
@@ -232,7 +232,7 @@ func scanLens(l *lib, f float64) {
 	semi := math.Min(maxSemi, f/12)
 	p, err := buildLayout(fmt.Sprintf("f-θ 扫描镜头 f=%smm", trimNum(f, 0)), gs, 3, f, semi, math.Inf(-1))
 	if err != nil {
-		fmt.Printf("  ! scan lens %g: %v\n", f, err)
+		failf("scan lens %g: %v\n", f, err)
 		return
 	}
 	l.add(fmt.Sprintf("scanlens-f%s.json", trimNum(f, 0)), p, "instrument", 4,
@@ -252,7 +252,7 @@ func erector(l *lib, f float64) {
 	semi := math.Min(maxSemi, f/8)
 	p, err := buildLayout(fmt.Sprintf("1:1 正像中继（转像系统）f=%smm", trimNum(f, 0)), gs, 3, f, semi, -1.9*f)
 	if err != nil {
-		fmt.Printf("  ! erector %g: %v\n", f, err)
+		failf("erector %g: %v\n", f, err)
 		return
 	}
 	par, _ := p.Paraxial(geo.Wavelengthd)

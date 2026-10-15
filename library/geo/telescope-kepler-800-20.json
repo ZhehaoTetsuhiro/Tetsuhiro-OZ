@@ -1,0 +1,61 @@
+{
+  "name": "开普勒式（Keplerian）望远镜 倍率 40x",
+  "object_z_mm": "inf",
+  "cards": [
+    {
+      "name": "aperture stop",
+      "radius_mm": 0,
+      "thickness_mm": 5,
+      "semi_aperture_mm": 60
+    },
+    {
+      "name": "objective",
+      "radius_mm": 1295.509860613073,
+      "thickness_mm": 10,
+      "glass": "N-BK7",
+      "semi_aperture_mm": 75.325
+    },
+    {
+      "name": "objective",
+      "radius_mm": -1295.509860613073,
+      "thickness_mm": 10,
+      "glass": "F2",
+      "semi_aperture_mm": 75.182
+    },
+    {
+      "name": "objective",
+      "radius_mm": -666.155136106327,
+      "thickness_mm": 818.922,
+      "semi_aperture_mm": 75.054
+    },
+    {
+      "name": "eye lens",
+      "radius_mm": 10.33600069001177,
+      "thickness_mm": 2,
+      "glass": "N-BK7",
+      "semi_aperture_mm": 3.23
+    },
+    {
+      "name": "eye lens",
+      "radius_mm": 0,
+      "thickness_mm": 30,
+      "semi_aperture_mm": 3.171
+    }
+  ],
+  "stop": 0,
+  "description": "开普勒式（Keplerian）望远镜｜物镜 f=800mm、目镜 f=20mm、倍率≈40x｜经典构造：分离量由近轴引擎解出使系统无焦（出射平行光），倍率与出射角散布由实光线追迹实测。预期指标（引擎计算；单位 mm、µrad、deg；libcheck 复核容差：相对 1e-6）：MODE=afocal；SLOPERMS=16640.1188µrad；SLOPEMEAN=-4.55984457e-11µrad；MAG=-0.0324769659；RAYS=21",
+  "category": "micro-telescope",
+  "difficulty": 4,
+  "tags": [
+    "telescope",
+    "kepler",
+    "afocal",
+    "angmag:40",
+    "visible",
+    "classic",
+    "quality:classic",
+    "fov0.5deg",
+    "front-stop",
+    "mode:afocal"
+  ]
+}

@@ -1,0 +1,44 @@
+{
+  "name": "消色差双胶合 FusedSilica/F2 f=450mm F/5（解析解）",
+  "object_z_mm": "inf",
+  "cards": [
+    {
+      "name": "crown front",
+      "radius_mm": 188.8330915758407,
+      "thickness_mm": 13.5,
+      "glass": "FusedSilica",
+      "semi_aperture_mm": 45
+    },
+    {
+      "name": "cemented surface",
+      "radius_mm": -188.8330915758407,
+      "thickness_mm": 5.4,
+      "glass": "F2",
+      "semi_aperture_mm": 45
+    },
+    {
+      "name": "flint rear",
+      "radius_mm": -955.6801474681662,
+      "thickness_mm": 427.5,
+      "semi_aperture_mm": 45
+    }
+  ],
+  "stop": 0,
+  "description": "双胶合消色差｜FusedSilica+F2｜f=450mm、F/5｜解析构造（薄透镜消色差解 + 厚透镜牛顿修正，未经 DLS 抛光）。预期指标（引擎计算；单位 mm、µrad、deg；libcheck 复核容差：相对 1e-6）：MODE=refract；EFL=450mm；BFL=437.499943mm；FNO=5；FC=-0.0512966683mm；RMSAX=0.107318364mm；FIELD=0.5deg；RMSFLD=0.10760247mm；RAYS=37；FRAYS=35",
+  "category": "achromat",
+  "difficulty": 2,
+  "tags": [
+    "achromat",
+    "doublet",
+    "FusedSilica",
+    "F2",
+    "F/5",
+    "efl:450",
+    "visible",
+    "classic",
+    "quality:analytic",
+    "fov0.5deg",
+    "sweep:efl",
+    "mode:refract"
+  ]
+}

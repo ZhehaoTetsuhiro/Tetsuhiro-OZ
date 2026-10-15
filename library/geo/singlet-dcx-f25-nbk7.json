@@ -1,0 +1,42 @@
+{
+  "name": "双凸单透镜 N-BK7 f=25mm F/5",
+  "object_z_mm": "inf",
+  "cards": [
+    {
+      "name": "aperture stop",
+      "radius_mm": 0,
+      "thickness_mm": 2.4794,
+      "semi_aperture_mm": 2.5
+    },
+    {
+      "name": "L1",
+      "radius_mm": 25.6270532,
+      "thickness_mm": 1.2397,
+      "glass": "N-BK7",
+      "semi_aperture_mm": 3.522
+    },
+    {
+      "name": "L1",
+      "radius_mm": -25.6270532,
+      "thickness_mm": 14.8764,
+      "semi_aperture_mm": 3.48
+    }
+  ],
+  "stop": 0,
+  "description": "单透镜（双凸）｜N-BK7｜设计焦距 25mm，口径 2.5mm，F/5。预期指标（引擎计算；单位 mm、µrad、deg；libcheck 复核容差：相对 1e-6）：MODE=refract；EFL=25mm；BFL=24.5879479mm；FNO=5；FC=-0.383038197mm；RMSAX=0.0290337628mm；FIELD=0.5deg；RMSFLD=0.0292105131mm；RAYS=37；FRAYS=37",
+  "category": "singlet",
+  "difficulty": 1,
+  "tags": [
+    "singlet",
+    "dcx",
+    "N-BK7",
+    "F/5",
+    "efl:25",
+    "visible",
+    "classic",
+    "quality:analytic",
+    "fov0.5deg",
+    "sweep:f",
+    "mode:refract"
+  ]
+}

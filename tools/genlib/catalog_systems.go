@@ -89,7 +89,7 @@ func layoutWideField(fe float64) []grp {
 func eyepiece(l *lib, key, zh string, layout func(float64) []grp, fe, eyePupilMM, fieldDeg float64, diff int, polishIt bool) {
 	p, err := buildLayout(fmt.Sprintf("%s f_e=%smm", zh, trimNum(fe, 0)), layout(fe), 12, fe, eyePupilMM/2, math.Inf(-1))
 	if err != nil {
-		fmt.Printf("  ! eyepiece %s fe=%g: %v\n", key, fe, err)
+		failf("eyepiece %s fe=%g: %v\n", key, fe, err)
 		return
 	}
 	quality := "classic"
@@ -177,42 +177,25 @@ func microObjective(l *lib, key, zh string, layout func(float64) []grp, efl, mag
 		semi = maxSemi
 	}
 	objZ0 := -math.Abs(f) * (1 + 1/mag) * 1.3
-	p, err := buildLayout(fmt.Sprintf("%s %gx", zh, mag), layout(f), 2.5, f, semi, objZ0)
+	// The stop sits only 0.2 mm in front of the first lens surface: the object
+	// lies about FFD+f/|m| (≈2 mm) in front of the front vertex, so a longer lead
+	// would put the solved object behind the stop plane (surface 0).
+	p, err := buildLayout(fmt.Sprintf("%s %gx", zh, mag), layout(f), 0.2, f, semi, objZ0)
 	if err != nil {
-		fmt.Printf("  ! micro %s %gx: %v\n", key, mag, err)
+		failf("micro %s %gx: %v\n", key, mag, err)
 		return
 	}
-	// solve the object distance for the quoted magnification; the object
-	// must sit outside the front focal point for a real image, so the
-	// bracket spans from just inside the focal point out to a few focal
-	// lengths.
-	target := -math.Abs(mag)
-	fmag := func(z float64) float64 {
-		p.ObjectZMM = z
-		par, err := p.Paraxial(geo.Wavelengthd)
-		if err != nil {
-			return math.NaN()
-		}
-		return par.Magnification - target
-	}
-	ffl := math.NaN()
-	if par0, err := p.Paraxial(geo.Wavelengthd); err == nil {
-		ffl = par0.FrontFocalZ
-	}
-	if math.IsNaN(ffl) || math.IsInf(ffl, 0) {
-		ffl = -math.Abs(f)
-	}
-	// Newton's form: the object sits f/mag in front of the front focal point.
-	u := math.Abs(f) / math.Abs(mag)
-	z, err := solve1D(fmag, ffl-5*u, ffl-u/5, 400, 100)
+	// The object distance is solved for the quoted magnification inside the
+	// region in front of the first surface (solveObjectDistance); an
+	// unsolvable or out-of-range target is recorded and the example skipped.
+	z, err := solveObjectDistance(p, -math.Abs(mag), math.Abs(f))
 	if err != nil {
-		fmt.Printf("  ! micro %s %gx objective-distance solve: %v\n", key, mag, err)
-		p.ObjectZMM = r3(ffl - u)
-	} else {
-		p.ObjectZMM = r3(z)
+		failf("micro %s %gx objective-distance solve: %v", key, mag, err)
+		return
 	}
+	p.ObjectZMM = z
 	if err := autoApertures(p, semi); err != nil {
-		fmt.Printf("  ! micro apertures %s %gx: %v\n", key, mag, err)
+		failf("micro apertures %s %gx: %v\n", key, mag, err)
 	}
 	quality := "classic"
 	stats := ""
@@ -227,7 +210,7 @@ func microObjective(l *lib, key, zh string, layout func(float64) []grp, efl, mag
 	}
 	par, err := p.Paraxial(geo.Wavelengthd)
 	if err != nil {
-		fmt.Printf("  ! micro %s %gx paraxial: %v\n", key, mag, err)
+		failf("micro %s %gx paraxial: %v\n", key, mag, err)
 		return
 	}
 	p.Name = fmt.Sprintf("%s 显微物镜 %gx／%g 筒长（物距 %smm）", zh, mag, 150.0, trimNum(p.ObjectZMM, 2))
@@ -293,18 +276,18 @@ func telescope(l *lib, key, zh string, gs []grp, sepCard int, fobj, feye, fieldD
 	semi := math.Min(maxSemi, fobj/12)
 	p.Cards[0].SemiAperMM = r3(semi)
 	if err := solveAfocal(p, sepCard, (fobj+feye)*0.5, (fobj+feye)*1.5); err != nil {
-		fmt.Printf("  ! telescope %s: %v\n", key, err)
+		failf("telescope %s: %v\n", key, err)
 		return
 	}
 	p.Cards[sepCard].ThicknessMM = r3(p.Cards[sepCard].ThicknessMM)
 	if err := autoApertures(p, semi); err != nil {
-		fmt.Printf("  ! telescope apertures %s: %v\n", key, err)
+		failf("telescope apertures %s: %v\n", key, err)
 		return
 	}
 	mag := fobj / math.Abs(feye)
 	p.Name = fmt.Sprintf("%s 倍率 %.3gx", zh, mag)
 	l.add(fmt.Sprintf("telescope-%s-%s-%s.json", key, trimNum(fobj, 0), trimNum(math.Abs(feye), 0)), p, "micro-telescope", diff,
-		[]string{"telescope", key, "afocal", "mag:" + trimNum(mag, 3), "visible", "classic",
+		[]string{"telescope", key, "afocal", "angmag:" + trimNum(mag, 3), "visible", "classic",
 			"quality:classic", fmt.Sprintf("fov%gdeg", fieldDeg), "front-stop"},
 		fmt.Sprintf("%s｜物镜 f=%smm、目镜 f=%smm、倍率≈%.3gx｜经典构造：分离量由近轴引擎解出使系统无焦（出射平行光），倍率与出射角散布由实光线追迹实测",
 			zh, trimNum(fobj, 0), trimNum(feye, 0), mag))
@@ -353,18 +336,18 @@ func buildTelescopes(l *lib) {
 		p, err := buildLayout(fmt.Sprintf("无限远矫正显微物镜组 %gx（物镜 %smm + 镜筒透镜 %smm）", c.mag, trimNum(f, 0), trimNum(c.ftube, 0)),
 			gs, 2.5, c.ftube, 4, -1.35*f)
 		if err != nil {
-			fmt.Printf("  ! compound micro %gx: %v\n", c.mag, err)
+			failf("compound micro %gx: %v\n", c.mag, err)
 			continue
 		}
 		// distance from the objective to the tube lens = the parfocal length
 		p.Cards[4].ThicknessMM = r3(0.55 * c.ftube)
 		if err := fillInfRun(p, 4); err != nil {
-			fmt.Printf("  ! compound micro fill %gx: %v\n", c.mag, err)
+			failf("compound micro fill %gx: %v\n", c.mag, err)
 			continue
 		}
 		par, perr := p.Paraxial(geo.Wavelengthd)
 		if perr != nil {
-			fmt.Printf("  ! compound micro paraxial %gx: %v\n", c.mag, perr)
+			failf("compound micro paraxial %gx: %v\n", c.mag, perr)
 			continue
 		}
 		l.add(fmt.Sprintf("micro-compound-%gx.json", c.mag), p, "micro-telescope", 5,

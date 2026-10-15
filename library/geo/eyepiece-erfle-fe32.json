@@ -1,0 +1,80 @@
+{
+  "name": "埃尔弗（Erfle）五片广角 目镜 f_e=32mm",
+  "object_z_mm": "inf",
+  "cards": [
+    {
+      "name": "aperture stop",
+      "radius_mm": 0,
+      "thickness_mm": 23.5047,
+      "semi_aperture_mm": 2.5
+    },
+    {
+      "name": "eye doublet",
+      "radius_mm": 91.3517338,
+      "thickness_mm": 5.0143,
+      "glass": "N-BK7",
+      "semi_aperture_mm": 3.522
+    },
+    {
+      "name": "eye doublet",
+      "radius_mm": -91.3517338,
+      "thickness_mm": 5.0143,
+      "glass": "F2",
+      "semi_aperture_mm": 3.464
+    },
+    {
+      "name": "eye doublet",
+      "radius_mm": -46.9733174,
+      "thickness_mm": 18.8038,
+      "semi_aperture_mm": 3.421
+    },
+    {
+      "name": "center lens",
+      "radius_mm": 48.588918,
+      "thickness_mm": 6.2679,
+      "glass": "N-BK7",
+      "semi_aperture_mm": 2.396
+    },
+    {
+      "name": "center lens",
+      "radius_mm": -48.588918,
+      "thickness_mm": 18.8038,
+      "semi_aperture_mm": 2.086
+    },
+    {
+      "name": "field doublet",
+      "radius_mm": -46.9733174,
+      "thickness_mm": 5.0143,
+      "glass": "F2",
+      "semi_aperture_mm": 0.477
+    },
+    {
+      "name": "field doublet",
+      "radius_mm": -91.3517338,
+      "thickness_mm": 5.0143,
+      "glass": "N-BK7",
+      "semi_aperture_mm": 0.769
+    },
+    {
+      "name": "field doublet",
+      "radius_mm": 91.3517338,
+      "thickness_mm": 57.9782,
+      "semi_aperture_mm": 1.081
+    }
+  ],
+  "stop": 0,
+  "description": "埃尔弗（Erfle）五片广角｜f_e=32mm（眼端反向追迹：物体在无限远、孔径光阑＝眼瞳直径 5mm）｜经典构造；指标在 d 线实测。预期指标（引擎计算；单位 mm、µrad、deg；libcheck 复核容差：相对 1e-6）：MODE=focus；FOCUSZ=94.0745369mm；FOCUSRMS=0.309618302mm；RAYS=21",
+  "category": "eyepiece",
+  "difficulty": 4,
+  "tags": [
+    "eyepiece",
+    "erfle",
+    "reverse-traced",
+    "f_e:32",
+    "fov8deg",
+    "visible",
+    "quality:classic",
+    "eye-pupil-stop",
+    "mode:focus"
+  ]
+}

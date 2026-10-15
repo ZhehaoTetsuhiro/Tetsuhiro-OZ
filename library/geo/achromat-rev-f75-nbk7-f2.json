@@ -1,0 +1,45 @@
+{
+  "name": "反向消色差双胶合 N-BK7/F2 f=75mm（F2 在前）",
+  "object_z_mm": "inf",
+  "cards": [
+    {
+      "name": "flint rear",
+      "radius_mm": 770.8537262,
+      "thickness_mm": 0.9,
+      "glass": "F2",
+      "semi_aperture_mm": 7.5
+    },
+    {
+      "name": "cemented surface",
+      "radius_mm": 33.2148054,
+      "thickness_mm": 3.534,
+      "glass": "N-BK7",
+      "semi_aperture_mm": 9.758
+    },
+    {
+      "name": "crown front",
+      "radius_mm": -33.2148054,
+      "thickness_mm": 2.25,
+      "semi_aperture_mm": 9.784
+    }
+  ],
+  "stop": 0,
+  "description": "反向双胶合（火石在前）｜F2/N-BK7｜f=75mm、F/5｜经典构造：把 N-BK7/F2 消色差对调方向（处方按 z 镜像反排、半径变号），焦距与一阶色差不变、高级像差改变。预期指标（引擎计算；单位 mm、µrad、deg；libcheck 复核容差：相对 1e-6）：MODE=refract；EFL=74.9999999mm；BFL=75.3688334mm；FNO=4.99999999；FC=0.0203782829mm；RMSAX=0.290681277mm；FIELD=0.5deg；RMSFLD=0.29154201mm；RAYS=37；FRAYS=37",
+  "category": "achromat",
+  "difficulty": 3,
+  "tags": [
+    "achromat",
+    "doublet",
+    "reversed",
+    "F2",
+    "N-BK7",
+    "F/5",
+    "efl:75",
+    "visible",
+    "classic",
+    "quality:classic",
+    "fov0.5deg",
+    "sweep:orientation",
+    "mode:refract"
+  ]
+}

@@ -1,0 +1,60 @@
+{
+  "name": "凯尔纳（Kellner）三片式 目镜 f_e=25mm",
+  "object_z_mm": "inf",
+  "cards": [
+    {
+      "name": "aperture stop",
+      "radius_mm": 0,
+      "thickness_mm": 16.2699,
+      "semi_aperture_mm": 1.5
+    },
+    {
+      "name": "eye doublet",
+      "radius_mm": 41.1674376,
+      "thickness_mm": 2.3727,
+      "glass": "N-BK7",
+      "semi_aperture_mm": 2.273
+    },
+    {
+      "name": "eye doublet",
+      "radius_mm": -41.1674376,
+      "thickness_mm": 2.3727,
+      "glass": "F2",
+      "semi_aperture_mm": 2.237
+    },
+    {
+      "name": "eye doublet",
+      "radius_mm": -21.1684165,
+      "thickness_mm": 23.727,
+      "semi_aperture_mm": 2.21
+    },
+    {
+      "name": "field lens",
+      "radius_mm": 17.5172309,
+      "thickness_mm": 3.3896,
+      "glass": "N-BK7",
+      "semi_aperture_mm": 0.491
+    },
+    {
+      "name": "field lens",
+      "radius_mm": 0,
+      "thickness_mm": 37.2852,
+      "semi_aperture_mm": 0.477
+    }
+  ],
+  "stop": 0,
+  "description": "凯尔纳（Kellner）三片式｜f_e=25mm（眼端反向追迹：物体在无限远、孔径光阑＝眼瞳直径 3mm）｜经典构造；指标在 d 线实测。预期指标（引擎计算；单位 mm、µrad、deg；libcheck 复核容差：相对 1e-6）：MODE=focus；FOCUSZ=48.7210902mm；FOCUSRMS=0.0279007974mm；RAYS=21",
+  "category": "eyepiece",
+  "difficulty": 3,
+  "tags": [
+    "eyepiece",
+    "kellner",
+    "reverse-traced",
+    "f_e:25",
+    "fov5deg",
+    "visible",
+    "quality:classic",
+    "eye-pupil-stop",
+    "mode:focus"
+  ]
+}

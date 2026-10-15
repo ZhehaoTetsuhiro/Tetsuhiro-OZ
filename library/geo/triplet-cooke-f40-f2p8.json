@@ -1,0 +1,67 @@
+{
+  "name": "三片式 Cooke 型物镜（正-负-正） f=40mm F/2.8",
+  "object_z_mm": "inf",
+  "cards": [
+    {
+      "name": "aperture stop",
+      "radius_mm": 0,
+      "thickness_mm": 2.0162,
+      "semi_aperture_mm": 7.143
+    },
+    {
+      "name": "L1",
+      "radius_mm": 12.9376684,
+      "thickness_mm": 4.889,
+      "glass": "N-SK16",
+      "semi_aperture_mm": 9.32
+    },
+    {
+      "name": "L1",
+      "radius_mm": 0,
+      "thickness_mm": 3.596,
+      "semi_aperture_mm": 9.104
+    },
+    {
+      "name": "L2",
+      "radius_mm": -16.1624605,
+      "thickness_mm": 0.8065,
+      "glass": "F2",
+      "semi_aperture_mm": 8.011
+    },
+    {
+      "name": "L2",
+      "radius_mm": 16.1624605,
+      "thickness_mm": 2.6883,
+      "semi_aperture_mm": 7.755
+    },
+    {
+      "name": "L3",
+      "radius_mm": 28.7504297,
+      "thickness_mm": 3.129,
+      "glass": "N-SK16",
+      "semi_aperture_mm": 8.208
+    },
+    {
+      "name": "L3",
+      "radius_mm": -28.7504297,
+      "thickness_mm": 32.2596,
+      "semi_aperture_mm": 8.217
+    }
+  ],
+  "stop": 0,
+  "description": "三片式 Cooke 型物镜（正-负-正）｜f=40mm、F/2.8、1° 视场｜经典构造（薄透镜初值 + 近轴标定）。预期指标（引擎计算；单位 mm、µrad、deg；libcheck 复核容差：相对 1e-6）：MODE=refract；EFL=40.0000001mm；BFL=26.4872868mm；FNO=2.79994401；FC=-0.166482549mm；RMSAX=0.528289022mm；FIELD=1deg；RMSFLD=0.526115391mm；RAYS=37；FRAYS=37",
+  "category": "multi",
+  "difficulty": 3,
+  "tags": [
+    "triplet-cooke",
+    "multi-element",
+    "F/2.8",
+    "efl:40",
+    "visible",
+    "quality:classic",
+    "fov1deg",
+    "sweep:efl",
+    "front-stop",
+    "mode:refract"
+  ]
+}

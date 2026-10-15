@@ -1,0 +1,74 @@
+{
+  "name": "Tessar 型 4 片物镜 f=85mm F/2.8（DLS 抛光）",
+  "object_z_mm": "inf",
+  "cards": [
+    {
+      "name": "aperture stop",
+      "radius_mm": 0,
+      "thickness_mm": 4.184,
+      "semi_aperture_mm": 15.179
+    },
+    {
+      "name": "L1",
+      "radius_mm": 62.4677936,
+      "thickness_mm": 10.2005,
+      "glass": "N-SK16",
+      "semi_aperture_mm": 19.355
+    },
+    {
+      "name": "L1",
+      "radius_mm": 0,
+      "thickness_mm": 10.2005,
+      "semi_aperture_mm": 18.731
+    },
+    {
+      "name": "L2/L3",
+      "radius_mm": 202.7498791,
+      "thickness_mm": 5.2473,
+      "glass": "N-SK16",
+      "semi_aperture_mm": 16.354
+    },
+    {
+      "name": "L2/L3",
+      "radius_mm": -158.0739837,
+      "thickness_mm": 4.1492,
+      "glass": "N-SF5",
+      "semi_aperture_mm": 15.851
+    },
+    {
+      "name": "L2/L3",
+      "radius_mm": -102.3574895,
+      "thickness_mm": 15.4113,
+      "semi_aperture_mm": 15.306
+    },
+    {
+      "name": "L4",
+      "radius_mm": -26.5081973,
+      "thickness_mm": 5.9274,
+      "glass": "F2",
+      "semi_aperture_mm": 10.036
+    },
+    {
+      "name": "L4",
+      "radius_mm": -47.9887951,
+      "thickness_mm": 130.4034,
+      "semi_aperture_mm": 9.677
+    }
+  ],
+  "stop": 0,
+  "description": "Tessar 型 4 片物镜｜f=85mm、F/2.8、3° 视场｜经典构造（薄透镜初值 + 近轴标定）｜DLS 抛光：150 次接受迭代／1613 次求值，merit=2800。预期指标（引擎计算；单位 mm、µrad、deg；libcheck 复核容差：相对 1e-6）：MODE=refract；EFL=85mm；BFL=40.718232mm；FNO=2.79992094；FC=-1.33129168mm；RMSAX=0.075642028mm；FIELD=3deg；RMSFLD=0.183730952mm；RAYS=37；FRAYS=35",
+  "category": "multi",
+  "difficulty": 4,
+  "tags": [
+    "tessar",
+    "multi-element",
+    "F/2.8",
+    "efl:85",
+    "visible",
+    "quality:optimized",
+    "fov3deg",
+    "sweep:efl",
+    "front-stop",
+    "mode:refract"
+  ]
+}

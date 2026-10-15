@@ -1,0 +1,42 @@
+{
+  "name": "双凸单透镜 FusedSilica f=500mm F/5",
+  "object_z_mm": "inf",
+  "cards": [
+    {
+      "name": "aperture stop",
+      "radius_mm": 0,
+      "thickness_mm": 2.4829,
+      "semi_aperture_mm": 50
+    },
+    {
+      "name": "L1",
+      "radius_mm": 455.3202125,
+      "thickness_mm": 19.8629,
+      "glass": "FusedSilica",
+      "semi_aperture_mm": 62.838
+    },
+    {
+      "name": "L1",
+      "radius_mm": -455.3202125,
+      "thickness_mm": 109.2458,
+      "semi_aperture_mm": 62.213
+    }
+  ],
+  "stop": 0,
+  "description": "单透镜（双凸）｜FusedSilica｜设计焦距 500mm，口径 50mm，F/5。预期指标（引擎计算；单位 mm、µrad、deg；libcheck 复核容差：相对 1e-6）：MODE=refract；EFL=500mm；BFL=493.143459mm；FNO=5；FC=-7.26571873mm；RMSAX=0.655848177mm；FIELD=0.5deg；RMSFLD=0.660346964mm；RAYS=37；FRAYS=37",
+  "category": "singlet",
+  "difficulty": 1,
+  "tags": [
+    "singlet",
+    "dcx",
+    "FusedSilica",
+    "F/5",
+    "efl:500",
+    "visible",
+    "classic",
+    "quality:analytic",
+    "fov0.5deg",
+    "sweep:f",
+    "mode:refract"
+  ]
+}

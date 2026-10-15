@@ -1,0 +1,61 @@
+{
+  "name": "伽利略式（Galilean）望远镜（目镜为负透镜） 倍率 48x",
+  "object_z_mm": "inf",
+  "cards": [
+    {
+      "name": "aperture stop",
+      "radius_mm": 0,
+      "thickness_mm": 5,
+      "semi_aperture_mm": 60
+    },
+    {
+      "name": "objective",
+      "radius_mm": 1943.2647909196094,
+      "thickness_mm": 15,
+      "glass": "N-BK7",
+      "semi_aperture_mm": 75.325
+    },
+    {
+      "name": "objective",
+      "radius_mm": -1943.2647909196094,
+      "thickness_mm": 15,
+      "glass": "F2",
+      "semi_aperture_mm": 75.152
+    },
+    {
+      "name": "objective",
+      "radius_mm": -999.2327041594905,
+      "thickness_mm": 1172.978,
+      "semi_aperture_mm": 75.013
+    },
+    {
+      "name": "eye lens",
+      "radius_mm": -25.840001725029428,
+      "thickness_mm": 2.5,
+      "glass": "N-BK7",
+      "semi_aperture_mm": 1.584
+    },
+    {
+      "name": "eye lens",
+      "radius_mm": 25.840001725029428,
+      "thickness_mm": 32.5,
+      "semi_aperture_mm": 1.519
+    }
+  ],
+  "stop": 0,
+  "description": "伽利略式（Galilean）望远镜（目镜为负透镜）｜物镜 f=1200mm、目镜 f=-25mm、倍率≈48x｜经典构造：分离量由近轴引擎解出使系统无焦（出射平行光），倍率与出射角散布由实光线追迹实测。预期指标（引擎计算；单位 mm、µrad、deg；libcheck 复核容差：相对 1e-6）：MODE=afocal；SLOPERMS=5335.4161µrad；SLOPEMEAN=-1.46212407e-11µrad；MAG=0.0169576856；RAYS=21",
+  "category": "micro-telescope",
+  "difficulty": 4,
+  "tags": [
+    "telescope",
+    "galilei",
+    "afocal",
+    "angmag:48",
+    "visible",
+    "classic",
+    "quality:classic",
+    "fov0.5deg",
+    "front-stop",
+    "mode:afocal"
+  ]
+}

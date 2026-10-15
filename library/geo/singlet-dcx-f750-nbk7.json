@@ -1,0 +1,42 @@
+{
+  "name": "双凸单透镜 N-BK7 f=750mm F/6.25",
+  "object_z_mm": "inf",
+  "cards": [
+    {
+      "name": "aperture stop",
+      "radius_mm": 0,
+      "thickness_mm": 2.489,
+      "semi_aperture_mm": 60
+    },
+    {
+      "name": "L1",
+      "radius_mm": 771.7928779,
+      "thickness_mm": 19.9121,
+      "glass": "N-BK7",
+      "semi_aperture_mm": 75.325
+    },
+    {
+      "name": "L1",
+      "radius_mm": -771.7928779,
+      "thickness_mm": 159.2968,
+      "semi_aperture_mm": 74.818
+    }
+  ],
+  "stop": 0,
+  "description": "单透镜（双凸）｜N-BK7｜设计焦距 750mm，口径 60mm，F/6.25。预期指标（引擎计算；单位 mm、µrad、deg；libcheck 复核容差：相对 1e-6）：MODE=refract；EFL=750mm；BFL=743.407172mm；FNO=6.25；FC=-11.5507387mm；RMSAX=0.446487776mm；FIELD=0.5deg；RMSFLD=0.4519757mm；RAYS=37；FRAYS=37",
+  "category": "singlet",
+  "difficulty": 1,
+  "tags": [
+    "singlet",
+    "dcx",
+    "N-BK7",
+    "F/6.25",
+    "efl:750",
+    "visible",
+    "classic",
+    "quality:analytic",
+    "fov0.5deg",
+    "sweep:f",
+    "mode:refract"
+  ]
+}

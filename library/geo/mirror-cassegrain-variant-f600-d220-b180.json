@@ -1,0 +1,42 @@
+{
+  "name": "卡塞格林式（不同遮挡比与后截距） F1=600mm d=220mm b=180mm",
+  "object_z_mm": "inf",
+  "cards": [
+    {
+      "name": "aperture stop",
+      "radius_mm": 0,
+      "thickness_mm": 60,
+      "semi_aperture_mm": 150
+    },
+    {
+      "name": "primary",
+      "radius_mm": -1200,
+      "thickness_mm": -220,
+      "semi_aperture_mm": 153,
+      "mirror": true
+    },
+    {
+      "name": "secondary",
+      "radius_mm": -389.7435897435897,
+      "thickness_mm": 400,
+      "semi_aperture_mm": 106.5,
+      "mirror": true
+    }
+  ],
+  "stop": 0,
+  "description": "卡塞格林式（不同遮挡比与后截距）｜主镜 f=600mm（球面）、主副镜间距 220mm、后截距 180mm｜经典构造：两镜均为球面，副镜半径由共轭（薄镜）公式解出，不做圆锥求解，像质由实光线追迹实测；副镜中心遮挡未建模。预期指标（引擎计算；单位 mm、µrad、deg；libcheck 复核容差：相对 1e-6）：MODE=focus；FOCUSZ=232.537706mm；FOCUSRMS=54.8372128mm；RAYS=21",
+  "category": "mirror",
+  "difficulty": 4,
+  "tags": [
+    "mirror",
+    "cassegrain-variant",
+    "two-mirror",
+    "efl:600",
+    "visible",
+    "classic",
+    "quality:classic",
+    "trace-validated",
+    "spherical",
+    "mode:focus"
+  ]
+}

@@ -1,0 +1,60 @@
+{
+  "name": "凯尔纳（大视场版） 目镜 f_e=24mm",
+  "object_z_mm": "inf",
+  "cards": [
+    {
+      "name": "aperture stop",
+      "radius_mm": 0,
+      "thickness_mm": 16.2699,
+      "semi_aperture_mm": 1.75
+    },
+    {
+      "name": "eye doublet",
+      "radius_mm": 39.5207537,
+      "thickness_mm": 2.2778,
+      "glass": "N-BK7",
+      "semi_aperture_mm": 2.585
+    },
+    {
+      "name": "eye doublet",
+      "radius_mm": -39.5207537,
+      "thickness_mm": 2.2778,
+      "glass": "F2",
+      "semi_aperture_mm": 2.544
+    },
+    {
+      "name": "eye doublet",
+      "radius_mm": -20.3217248,
+      "thickness_mm": 22.7779,
+      "semi_aperture_mm": 2.512
+    },
+    {
+      "name": "field lens",
+      "radius_mm": 16.8165378,
+      "thickness_mm": 3.254,
+      "glass": "N-BK7",
+      "semi_aperture_mm": 0.499
+    },
+    {
+      "name": "field lens",
+      "radius_mm": 0,
+      "thickness_mm": 36.8785,
+      "semi_aperture_mm": 0.497
+    }
+  ],
+  "stop": 0,
+  "description": "凯尔纳（大视场版）｜f_e=24mm（眼端反向追迹：物体在无限远、孔径光阑＝眼瞳直径 3.5mm）｜经典构造；指标在 d 线实测。预期指标（引擎计算；单位 mm、µrad、deg；libcheck 复核容差：相对 1e-6）：MODE=focus；FOCUSZ=47.2965859mm；FOCUSRMS=0.0313688564mm；RAYS=21",
+  "category": "eyepiece",
+  "difficulty": 3,
+  "tags": [
+    "eyepiece",
+    "kellner-wide",
+    "reverse-traced",
+    "f_e:24",
+    "fov8deg",
+    "visible",
+    "quality:classic",
+    "eye-pupil-stop",
+    "mode:focus"
+  ]
+}

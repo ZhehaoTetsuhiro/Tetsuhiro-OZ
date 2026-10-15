@@ -1,0 +1,42 @@
+{
+  "name": "正弯月单透镜 N-SK16 f=500mm F/5",
+  "object_z_mm": "inf",
+  "cards": [
+    {
+      "name": "aperture stop",
+      "radius_mm": 0,
+      "thickness_mm": 2.6676,
+      "semi_aperture_mm": 50
+    },
+    {
+      "name": "L1",
+      "radius_mm": 148.9513634,
+      "thickness_mm": 21.3409,
+      "glass": "N-SK16",
+      "semi_aperture_mm": 62.838
+    },
+    {
+      "name": "L1",
+      "radius_mm": 270.8207152,
+      "thickness_mm": 117.3751,
+      "semi_aperture_mm": 59.993
+    }
+  ],
+  "stop": 0,
+  "description": "单透镜（正弯月）｜N-SK16｜设计焦距 500mm，口径 50mm，F/5。预期指标（引擎计算；单位 mm、µrad、deg；libcheck 复核容差：相对 1e-6）：MODE=refract；EFL=500mm；BFL=472.572128mm；FNO=5；FC=-8.36320001mm；RMSAX=1.72362821mm；FIELD=0.5deg；RMSFLD=1.72950997mm；RAYS=37；FRAYS=37",
+  "category": "singlet",
+  "difficulty": 1,
+  "tags": [
+    "singlet",
+    "menp",
+    "N-SK16",
+    "F/5",
+    "efl:500",
+    "visible",
+    "classic",
+    "quality:analytic",
+    "fov0.5deg",
+    "sweep:f",
+    "mode:refract"
+  ]
+}

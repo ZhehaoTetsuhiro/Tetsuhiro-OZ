@@ -1,0 +1,44 @@
+{
+  "name": "消色差双胶合 N-SK16/N-SF5 f=100mm F/5（自主设计）",
+  "object_z_mm": "inf",
+  "cards": [
+    {
+      "name": "crown front",
+      "radius_mm": 57.68806343372834,
+      "thickness_mm": 1.8103456945879408,
+      "glass": "N-SK16",
+      "semi_aperture_mm": 10
+    },
+    {
+      "name": "cemented surface",
+      "radius_mm": -53.77859229509052,
+      "thickness_mm": 8,
+      "glass": "N-SF5",
+      "semi_aperture_mm": 10
+    },
+    {
+      "name": "flint rear",
+      "radius_mm": -3000,
+      "thickness_mm": 95,
+      "semi_aperture_mm": 10
+    }
+  ],
+  "stop": 0,
+  "description": "双胶合消色差｜N-SK16+N-SF5｜f=100mm、F/5，0.5° 视场｜自主设计：薄透镜解→厚透镜牛顿消色差→DLS 抛光｜DLS 抛光：38 次接受迭代／275 次求值，merit=3274。预期指标（引擎计算；单位 mm、µrad、deg；libcheck 复核容差：相对 1e-6）：MODE=refract；EFL=99.9516757mm；BFL=94.0689579mm；FNO=4.99758379；FC=0.139787653mm；RMSAX=0.0319128275mm；FIELD=0.5deg；RMSFLD=0.0327109972mm；RAYS=37；FRAYS=37",
+  "category": "achromat",
+  "difficulty": 2,
+  "tags": [
+    "achromat",
+    "doublet",
+    "N-SK16",
+    "N-SF5",
+    "F/5",
+    "efl:100",
+    "visible",
+    "optimized",
+    "quality:optimized",
+    "fov0.5deg",
+    "sweep:efl",
+    "mode:refract"
+  ]
+}
