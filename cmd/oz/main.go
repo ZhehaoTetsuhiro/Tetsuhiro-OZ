@@ -8,6 +8,8 @@
 //	oz eval lens.json
 //	oz tol lens.json --radius 0.05 --thickness 0.05 --index 0.0005 --runs 2000 \
 //	    --max-rms-on 0.02 --max-focal 0.1 --target-efl 100
+//	oz coating design|spectrum ...
+//	oz serve [-addr :1130] [WOS options]   the one HTTP service: API + GUI (docs/API.md)
 //	oz version
 package main
 
