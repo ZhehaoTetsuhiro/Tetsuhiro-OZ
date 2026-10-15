@@ -65,10 +65,106 @@ type Card struct {
 	Glass       string    `json:"glass,omitempty"`
 	SemiAperMM  float64   `json:"semi_aperture_mm,omitempty"`
 	Mirror      bool      `json:"mirror,omitempty"`
+
+	// PolyTerms, when non-empty, makes the surface the general polynomial
+	// asphere Σ coeff·r^power on the conic base (RadiusMM, ConicK). Powers are
+	// positive integers and odd powers are allowed. QAsphere, when non-nil,
+	// makes the surface a Forbes Q-type asphere (see QCard). Coeffs, PolyTerms
+	// and QAsphere are mutually exclusive; an absent field keeps its legacy
+	// meaning, so existing prescriptions load and save unchanged.
+	PolyTerms []PolyTermCard `json:"poly_terms,omitempty"`
+	QAsphere  *QCard         `json:"q_asphere,omitempty"`
+}
+
+// PolyTermCard is the JSON form of one polynomial asphere term Coeff·r^Power.
+type PolyTermCard struct {
+	Power int     `json:"power"`
+	Coeff float64 `json:"coeff"`
+}
+
+// QCard is the JSON form of a Forbes Q-type asphere. Form is "qcon" (conic base
+// RadiusMM/ConicK, departure along the axis) or "qbfs" (best-fit sphere
+// RadiusMM, ConicK must be 0, departure along the sphere normal). NormRadiusMM
+// is the normalisation radius ρ_max (mm). Coeffs are the Forbes coefficients
+// s_m (qcon) or a_m (qbfs), m = 0, 1, ...
+type QCard struct {
+	Form         string    `json:"form"`
+	NormRadiusMM float64   `json:"norm_radius_mm"`
+	Coeffs       []float64 `json:"coeffs,omitempty"`
+}
+
+// asphereKinds counts the aspheric descriptions set on the card (Coeffs,
+// PolyTerms, QAsphere). A plain conic or sphere counts zero.
+func (c Card) asphereKinds() int {
+	n := 0
+	if len(c.Coeffs) > 0 {
+		n++
+	}
+	if len(c.PolyTerms) > 0 {
+		n++
+	}
+	if c.QAsphere != nil {
+		n++
+	}
+	return n
+}
+
+// validateAsphere checks the aspheric description of card i: the descriptions
+// are mutually exclusive, and the new ones must build a valid geo profile.
+func (c Card) validateAsphere(i int) error {
+	if c.asphereKinds() > 1 {
+		return fmt.Errorf("lens: card %d: coeffs, poly_terms and q_asphere are mutually exclusive", i)
+	}
+	if len(c.PolyTerms) > 0 || c.QAsphere != nil {
+		if _, err := c.profile(); err != nil {
+			return fmt.Errorf("lens: card %d: %w", i, err)
+		}
+	}
+	return nil
+}
+
+// qFormOf maps the JSON form name of a Q-type asphere to the geo form. The
+// name is required: there is no silent default.
+func qFormOf(name string) (geo.QForm, error) {
+	switch name {
+	case "qcon":
+		return geo.QCon, nil
+	case "qbfs":
+		return geo.QBfs, nil
+	}
+	return 0, fmt.Errorf("q_asphere.form %q must be \"qcon\" or \"qbfs\"", name)
 }
 
 // profile converts the card into a geo surface profile.
 func (c Card) profile() (geo.Profile, error) {
+	if c.asphereKinds() > 1 {
+		return nil, fmt.Errorf("coeffs, poly_terms and q_asphere are mutually exclusive")
+	}
+	if len(c.PolyTerms) > 0 {
+		terms := make([]geo.PolyTerm, len(c.PolyTerms))
+		for j, t := range c.PolyTerms {
+			terms[j] = geo.PolyTerm{Power: t.Power, Coeff: t.Coeff}
+		}
+		p := geo.PolyAsphere{R: c.RadiusMM, K: c.ConicK, Terms: terms}
+		if err := p.Validate(); err != nil {
+			return nil, err
+		}
+		return p, nil
+	}
+	if c.QAsphere != nil {
+		form, err := qFormOf(c.QAsphere.Form)
+		if err != nil {
+			return nil, err
+		}
+		q := geo.QAsphere{
+			Form: form, R: c.RadiusMM, K: c.ConicK, NormR: c.QAsphere.NormRadiusMM,
+			Coeffs: append([]float64(nil), c.QAsphere.Coeffs...),
+		}
+		if err := q.Validate(); err != nil {
+			return nil, err
+		}
+		return q, nil
+	}
 	if math.IsInf(c.RadiusMM, 0) || c.RadiusMM == 0 {
 		if len(c.Coeffs) > 0 {
 			// Pure polynomial asphere on a flat base.
@@ -160,6 +256,9 @@ func (p *Prescription) Validate() error {
 			if math.IsNaN(a) || math.IsInf(a, 0) {
 				return fmt.Errorf("lens: card %d coefficient A%d is not finite", i, 2*j+4)
 			}
+		}
+		if err := c.validateAsphere(i); err != nil {
+			return err
 		}
 	}
 	return nil
@@ -312,6 +411,14 @@ func (p *Prescription) Clone() *Prescription {
 		if p.Cards[i].Coeffs != nil {
 			out.Cards[i].Coeffs = append([]float64(nil), p.Cards[i].Coeffs...)
 		}
+		if p.Cards[i].PolyTerms != nil {
+			out.Cards[i].PolyTerms = append([]PolyTermCard(nil), p.Cards[i].PolyTerms...)
+		}
+		if p.Cards[i].QAsphere != nil {
+			q := *p.Cards[i].QAsphere
+			q.Coeffs = append([]float64(nil), q.Coeffs...)
+			out.Cards[i].QAsphere = &q
+		}
 	}
 	if p.Tags != nil {
 		out.Tags = append([]string(nil), p.Tags...)
@@ -438,6 +545,12 @@ func (p *Prescription) String() string {
 		asp := ""
 		if len(c.Coeffs) > 0 {
 			asp = fmt.Sprintf(" %d asphere coeffs", len(c.Coeffs))
+		}
+		if len(c.PolyTerms) > 0 {
+			asp = fmt.Sprintf(" %d poly terms", len(c.PolyTerms))
+		}
+		if c.QAsphere != nil {
+			asp = fmt.Sprintf(" q-asphere %s (%d coeffs)", c.QAsphere.Form, len(c.QAsphere.Coeffs))
 		}
 		mir := ""
 		if c.Mirror {
