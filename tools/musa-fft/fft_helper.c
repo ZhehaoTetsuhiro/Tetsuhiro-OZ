@@ -30,9 +30,12 @@
 //   wos-musa-fft [--socket PATH] [--idle-exit SECONDS] [--verbose]
 //   wos-musa-fft --check        # one-shot device self test, exit 0/1
 //
-// The daemon serves one client connection at a time (the WOS kernel
-// serializes GPU calls anyway). It exits after --idle-exit seconds without
-// a connection (0 = run until killed). Socket file is removed on exit.
+// Clients are served concurrently: one detached thread per connection. Only
+// the GPU section of a request (staging buffer, plan cache, device buffer,
+// muFFT/MUSA calls) is serialized by g_gpu_mu, so a connection that stays
+// open but idle never blocks other clients. The daemon exits after
+// --idle-exit seconds with no active connection (0 = run until killed).
+// The socket file is removed on exit.
 
 #define _GNU_SOURCE
 #include <mufft.h>
@@ -40,6 +43,7 @@
 
 #include <errno.h>
 #include <poll.h>
+#include <pthread.h>
 #include <signal.h>
 #include <stdint.h>
 #include <stdio.h>
@@ -65,6 +69,16 @@ static int g_verbose = 0;
 static volatile sig_atomic_t g_stop = 0;
 static char g_dev_name[256] = "MUSA device";
 static uint64_t g_max_bytes = MAX_BYTES_DEFAULT;
+
+/* Concurrency: every client connection is served by its own detached thread.
+   g_gpu_mu serializes only the GPU section of each request (staging buffer,
+   plan cache, device buffer, muFFT/MUSA calls) — never the socket wait, so an
+   idle client cannot starve the others. g_act_mu guards the live-client count
+   and the last-activity timestamp used by the idle-exit check. */
+static pthread_mutex_t g_gpu_mu = PTHREAD_MUTEX_INITIALIZER;
+static pthread_mutex_t g_act_mu = PTHREAD_MUTEX_INITIALIZER;
+static int g_active = 0;
+static uint64_t g_last_ms = 0;
 
 /* ------------------------------------------------------------------ */
 /* muFFT plan cache                                                    */
@@ -178,6 +192,8 @@ static uint64_t now_ms(void) {
 /* Request handling                                                    */
 /* ------------------------------------------------------------------ */
 
+static int serve_gpu(int fd, uint32_t op, uint32_t dir, uint32_t n, uint64_t bytes, uint64_t need);
+
 static int serve_one(int fd) {
     uint8_t req[24];
     if (read_full(fd, req, sizeof(req)) != (ssize_t)sizeof(req)) return -1;
@@ -223,6 +239,18 @@ static int serve_one(int fd) {
                 op, n, (unsigned long long)bytes, (unsigned long long)need);
         return -1;
     }
+
+    pthread_mutex_lock(&g_gpu_mu);
+    int rc = serve_gpu(fd, op, dir, n, bytes, need);
+    pthread_mutex_unlock(&g_gpu_mu);
+    return rc;
+}
+
+/* GPU section of one request. The caller must hold g_gpu_mu. */
+static int serve_gpu(int fd, uint32_t op, uint32_t dir, uint32_t n, uint64_t bytes, uint64_t need) {
+    uint8_t rep[16];
+    memset(rep, 0, sizeof(rep));
+    (void)musaSetDevice(0);
 
     /* Grow-only staging buffer: reusing it avoids re-faulting up to
        hundreds of MB of fresh anonymous pages on every request. */
@@ -296,6 +324,25 @@ static void handle_client(int cfd) {
         if (rc != 0) break; /* EOF or error: drop client */
     }
     close(cfd);
+}
+
+static void touch_activity(void) {
+    pthread_mutex_lock(&g_act_mu);
+    g_last_ms = now_ms();
+    pthread_mutex_unlock(&g_act_mu);
+}
+
+static void *client_thread(void *arg) {
+    int cfd = (int)(intptr_t)arg;
+    pthread_mutex_lock(&g_act_mu);
+    g_active++;
+    pthread_mutex_unlock(&g_act_mu);
+    handle_client(cfd);
+    pthread_mutex_lock(&g_act_mu);
+    g_active--;
+    g_last_ms = now_ms();
+    pthread_mutex_unlock(&g_act_mu);
+    return NULL;
 }
 
 /* ------------------------------------------------------------------ */
@@ -435,13 +482,13 @@ int main(int argc, char **argv) {
         perror("bind");
         return 1;
     }
-    if (listen(lfd, 1) != 0) {
+    if (listen(lfd, 64) != 0) {
         perror("listen");
         return 1;
     }
     fprintf(stderr, "wos-musa-fft: ready (device=%s, socket=%s)\n", name, g_sock_path);
 
-    uint64_t last = now_ms();
+    touch_activity();
     while (!g_stop) {
         struct pollfd pfd = {lfd, POLLIN, 0};
         int pr = poll(&pfd, 1, 1000);
@@ -450,7 +497,12 @@ int main(int argc, char **argv) {
             break;
         }
         if (pr == 0) {
-            if (g_idle_exit > 0 && now_ms() - last > (uint64_t)g_idle_exit * 1000ull) {
+            int idle = 0;
+            pthread_mutex_lock(&g_act_mu);
+            idle = g_active == 0 && g_idle_exit > 0 &&
+                   now_ms() - g_last_ms > (uint64_t)g_idle_exit * 1000ull;
+            pthread_mutex_unlock(&g_act_mu);
+            if (idle) {
                 fprintf(stderr, "wos-musa-fft: idle exit\n");
                 break;
             }
@@ -463,9 +515,16 @@ int main(int argc, char **argv) {
             perror("accept");
             break;
         }
-        last = now_ms();
-        handle_client(cfd);
-        last = now_ms();
+        touch_activity();
+        pthread_attr_t attr;
+        pthread_attr_init(&attr);
+        pthread_attr_setdetachstate(&attr, PTHREAD_CREATE_DETACHED);
+        pthread_t tid;
+        if (pthread_create(&tid, &attr, client_thread, (void *)(intptr_t)cfd) != 0) {
+            perror("pthread_create");
+            close(cfd);
+        }
+        pthread_attr_destroy(&attr);
     }
 
     close(lfd);
