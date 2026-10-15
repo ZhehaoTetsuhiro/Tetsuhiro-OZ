@@ -206,3 +206,129 @@ func TestCandidateFailureIsRecordedNotWritten(t *testing.T) {
 		t.Errorf("failure text lacks its parameters: %q", buildFails[len(buildFails)-1])
 	}
 }
+
+// ---------- asphere and posed machinery ----------
+
+// TestSupDigits: the description helper must render r⁴, r⁶, r⁸ with real
+// Unicode superscripts (indexing the superscript alphabet by byte produced
+// mojibake for every digit above ¹).
+func TestSupDigits(t *testing.T) {
+	cases := map[int]string{4: "⁴", 6: "⁶", 8: "⁸", 3: "³", 5: "⁵", 10: "¹⁰", 12: "¹²"}
+	for n, want := range cases {
+		if got := supDigits(n); got != want {
+			t.Errorf("supDigits(%d) = %q, want %q", n, got, want)
+		}
+	}
+	if got := termsZh([]int{4, 6, 8}); got != "r⁴+r⁶+r⁸" {
+		t.Errorf("termsZh([4 6 8]) = %q", got)
+	}
+	if got := termsZh([]int{3, 5}); got != "r³+r⁵" {
+		t.Errorf("termsZh([3 5]) = %q", got)
+	}
+}
+
+// TestSig6 rounds to six significant digits and passes zero through.
+func TestSig6(t *testing.T) {
+	cases := []struct{ in, want float64 }{
+		{-5.6139687e-07, -5.61397e-07}, {0.01288934, 0.0128893}, {0, 0}, {1, 1}, {1234567, 1234570},
+	}
+	for _, c := range cases {
+		if got := sig6(c.in); got != c.want {
+			t.Errorf("sig6(%g) = %g, want %g", c.in, got, c.want)
+		}
+	}
+}
+
+// TestSolveCoeffsReducesSingletSpot: the fitted polynomial asphere must cut
+// the on-axis spot RMS of the spherical singlet by at least the family
+// threshold, and two runs must agree bit for bit (deterministic search).
+func TestSolveCoeffsReducesSingletSpot(t *testing.T) {
+	p1, r0, r1, mh, err := solvedAsphereSinglet("N-BK7", 100, 4, []int{4}, 1)
+	if err != nil {
+		t.Fatal(err)
+	}
+	if !(r0 > 0) || !(r1 > 0) {
+		t.Fatalf("RMS values %g, %g are not both positive", r0, r1)
+	}
+	if r1 > 0.5*r0 {
+		t.Errorf("a4 fit: RMS %g does not halve the spherical %g", r1, r0)
+	}
+	if mh <= 0 {
+		t.Errorf("marginal height %g", mh)
+	}
+	c1 := p1.Cards[1].PolyTerms[0].Coeff
+	if c1 >= 0 {
+		t.Errorf("the fitted a4 %g should be negative for a positive singlet", c1)
+	}
+	p2, r0b, r1b, _, err := solvedAsphereSinglet("N-BK7", 100, 4, []int{4}, 1)
+	if err != nil {
+		t.Fatal(err)
+	}
+	if c2 := p2.Cards[1].PolyTerms[0].Coeff; c2 != c1 || r0b != r0 || r1b != r1 {
+		t.Errorf("the coefficient search is not deterministic: %g vs %g (%g/%g vs %g/%g)", c2, c1, r0b, r1b, r0, r1)
+	}
+}
+
+// TestQbfsRadiusKeepsCurvature: the Qbfs base radius derived from the
+// coefficient set must reproduce the spherical base's vertex curvature
+// exactly (the engine's own geo.QAsphere.Curvature is the judge).
+func TestQbfsRadiusKeepsCurvature(t *testing.T) {
+	const c0 = 1.0 / 51.68
+	qc := &lens.QCard{Form: "qbfs", NormRadiusMM: 12.4875, Coeffs: []float64{0.0128893, -1.90867e-05}}
+	R := qbfsRadius(qc, c0)
+	p := geo.QAsphere{Form: geo.QBfs, R: R, NormR: qc.NormRadiusMM, Coeffs: qc.Coeffs}
+	if rel := math.Abs(p.Curvature()-c0) / c0; !(rel <= 1e-12) {
+		t.Errorf("qbfs curvature %.17g, want %.17g (relative %.3g)", p.Curvature(), c0, rel)
+	}
+}
+
+// TestFoldPlacementClosedForm: the folded-arm builder places a plane fold
+// mirror and the lens of the folded arm so that the traced fold at the mirror
+// equals the closed form 180° − 2θ, and the measurement is a posed real-ray
+// focus.
+func TestFoldPlacementClosedForm(t *testing.T) {
+	for _, tilt := range []float64{20, 30, 45} {
+		resetRecords()
+		l := newLib()
+		tiltedFlatMirrorAndLens(l, "N-BK7", 100, 4, tilt)
+		if len(l.items) != 1 {
+			t.Fatalf("tilt %g: %d items, want 1 (failures: %v)", tilt, len(l.items), buildFails)
+		}
+		p := l.items[0].p
+		fold, err := foldAtCardDeg(p, 1)
+		if err != nil {
+			t.Fatalf("tilt %g: %v", tilt, err)
+		}
+		if want := 180 - 2*tilt; math.Abs(fold-want) > 1e-9 {
+			t.Errorf("tilt %g: traced fold %.12g°, want %.12g°", tilt, fold, want)
+		}
+		m, err := measureOf(p)
+		if err != nil {
+			t.Fatalf("tilt %g: %v", tilt, err)
+		}
+		if m.Mode != "posed" {
+			t.Errorf("tilt %g: mode %q, want posed", tilt, m.Mode)
+		}
+		if !(m.FocusRMSMM > 0) || m.FocusRMSMM > 0.1*m.StopSemiMM {
+			t.Errorf("tilt %g: focus RMS %g against aperture %g", tilt, m.FocusRMSMM, m.StopSemiMM)
+		}
+	}
+}
+
+// TestPosedCheckRecordsFailure: a pose family candidate whose bundle is
+// parallel (no focus) is recorded as a construction failure and not
+// registered.
+func TestPosedCheckRecordsFailure(t *testing.T) {
+	resetRecords()
+	before := len(buildFails)
+	p := &lens.Prescription{ObjectZMM: math.Inf(-1), Stop: 0, Cards: []lens.Card{
+		{Name: "aperture stop", RadiusMM: math.Inf(1), ThicknessMM: 60, SemiAperMM: 12},
+		{Name: "fold", RadiusMM: 0, Mirror: true, ThicknessMM: 50, SemiAperMM: 15, TiltXDeg: 45},
+	}}
+	if _, ok := posedCheck("plane-fold.json", p, 0.1); ok {
+		t.Fatal("a plane-mirror fold has no focus; posedCheck must reject it")
+	}
+	if len(buildFails) != before+1 {
+		t.Errorf("failure not recorded once: %d -> %d", before, len(buildFails))
+	}
+}
