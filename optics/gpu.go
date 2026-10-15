@@ -8,7 +8,7 @@
 //
 // Build:
 //
-//	go build -tags cuda ./cmd/wos
+//    go build -tags cuda ./cmd/oz
 //
 // Runtime: the backend is off by default; enable it with the environment
 // variable WOS_GPU=1 or by calling SetGPU(true). If no CUDA device is present,

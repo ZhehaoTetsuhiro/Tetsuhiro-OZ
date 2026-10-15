@@ -36,8 +36,8 @@ WAVE_DIR = os.path.join(ROOT, "library", "wave")
 INDEX = os.path.join(WAVE_DIR, "index.json")
 REPORT = os.path.join(WAVE_DIR, "REPORT.md")
 
-DEFAULT_BASE = "http://127.0.0.1:6010"      # WOS CPU 实例（备用：6008 MUSA 实例）
-FALLBACK_BASES = ("http://127.0.0.1:6008", "http://127.0.0.1:1120")
+DEFAULT_BASE = "http://127.0.0.1:6006"      # OZ 统一服务（CPU 实例；备用：6008 MUSA、1130 默认端口）
+FALLBACK_BASES = ("http://127.0.0.1:6008", "http://127.0.0.1:1130")
 
 # 各类别的最低数量要求（硬指标）
 MIN_BY_CATEGORY = {
