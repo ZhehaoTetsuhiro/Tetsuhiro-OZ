@@ -332,3 +332,24 @@ func TestPosedCheckRecordsFailure(t *testing.T) {
 		t.Errorf("failure not recorded once: %d -> %d", before, len(buildFails))
 	}
 }
+
+// TestSameBundlePlate: the neutrality check behind the decentred-plate
+// examples accepts a pure decentre of a plane-parallel plate (identical exit
+// rays) and rejects a tilt (which moves them).
+func TestSameBundlePlate(t *testing.T) {
+	demo := func(tilt, dx float64) *lens.Prescription {
+		return &lens.Prescription{ObjectZMM: math.Inf(-1), Stop: 0, Cards: []lens.Card{
+			{Name: "aperture stop", RadiusMM: math.Inf(1), ThicknessMM: 2.5, SemiAperMM: 12.5},
+			{Name: "plate front", RadiusMM: math.Inf(1), ThicknessMM: 3, Glass: "N-BK7", SemiAperMM: 15, TiltXDeg: tilt, DecenterXMM: dx},
+			{Name: "plate rear", RadiusMM: math.Inf(1), ThicknessMM: 5, SemiAperMM: 15, TiltXDeg: tilt, DecenterXMM: dx},
+			{Name: "L1", RadiusMM: 51.68, ThicknessMM: 5, Glass: "N-BK7", SemiAperMM: 16},
+			{Name: "rear", RadiusMM: math.Inf(1), ThicknessMM: 30, SemiAperMM: 15},
+		}}
+	}
+	if err := sameBundle(demo(0, 1), demo(0, 0), 1e-9); err != nil {
+		t.Errorf("a decentred plate must be optically neutral: %v", err)
+	}
+	if err := sameBundle(demo(10, 0), demo(0, 0), 1e-9); err == nil {
+		t.Error("a tilted plate changes the rays; sameBundle must say so")
+	}
+}
