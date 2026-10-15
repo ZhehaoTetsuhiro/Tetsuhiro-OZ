@@ -6,3 +6,7 @@
 *.out
 
 # 注意：docs/**/*.svg 是文档资产，需入库
+
+# Python 缓存（wavegen 工具）
+__pycache__/
+*.pyc
