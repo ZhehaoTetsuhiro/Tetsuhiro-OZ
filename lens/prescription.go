@@ -17,20 +17,41 @@ const (
 	VarRadius VarKind = iota
 	VarThickness
 	VarConic
-	VarCoeff // Coeffs[Order], see VarSpec.Order
+	VarCoeff    // Coeffs[Order], see VarSpec.Order
+	VarPolyTerm // PolyTerms[Order].Coeff
+	VarQCoef    // QAsphere.Coeffs[Order]
 )
 
 // VarSpec points at one optimizable quantity inside a prescription: the
-// radius, thickness, conic constant or one aspheric coefficient of card i.
+// radius, thickness, conic constant, one even-asphere coefficient, one
+// polynomial-asphere term coefficient or one Forbes Q coefficient of card i.
 // It is the bridge between the prescription text and the optimizer's flat
 // variable vectors.
+//
+// The index conventions are fixed (deterministic; no searching by name or by
+// value, so a variable keeps pointing at the same quantity when the surface is
+// edited):
+//
+//   - VarRadius, VarThickness, VarConic: Order is unused and must be 0.
+//   - VarCoeff: Order is the index into Card.Coeffs (0 = A4, 1 = A6, …).
+//   - VarPolyTerm: Order is the index into Card.PolyTerms as stored. The
+//     terms form an ordered list whose powers need not be unique (equal
+//     powers add), so the index — not the power — identifies the term.
+//   - VarQCoef: Order is the index m into Card.QAsphere.Coeffs (the s_m of
+//     qcon or the a_m of qbfs).
+//
+// The referenced quantity must exist: GetVar/SetVar report an out-of-range
+// spec instead of inventing a coefficient. A prescription built for a
+// q-asphere variable therefore carries the QCard (with its coefficient list)
+// up front, exactly as an even-asphere variable requires its Coeffs list.
 type VarSpec struct {
 	Card  int
 	Kind  VarKind
-	Order int // Coeffs index for VarCoeff (0 = A4)
+	Order int // index into the coefficient list of the kind (see above)
 }
 
-// String labels the variable for reports, e.g. "s2.R" or "s1.thk".
+// String labels the variable for reports, e.g. "s2.R", "s1.thk", "s0.A4",
+// "s1.poly0" or "s1.q1".
 func (v VarSpec) String() string {
 	switch v.Kind {
 	case VarRadius:
@@ -41,6 +62,10 @@ func (v VarSpec) String() string {
 		return fmt.Sprintf("s%d.K", v.Card)
 	case VarCoeff:
 		return fmt.Sprintf("s%d.A%d", v.Card, 2*v.Order+4)
+	case VarPolyTerm:
+		return fmt.Sprintf("s%d.poly%d", v.Card, v.Order)
+	case VarQCoef:
+		return fmt.Sprintf("s%d.q%d", v.Card, v.Order)
 	}
 	return fmt.Sprintf("s%d.?", v.Card)
 }
@@ -388,6 +413,19 @@ func (p *Prescription) GetVar(s VarSpec) (float64, error) {
 			return 0, fmt.Errorf("lens: variable %s: coefficient out of range", s)
 		}
 		return c.Coeffs[s.Order], nil
+	case VarPolyTerm:
+		if s.Order < 0 || s.Order >= len(c.PolyTerms) {
+			return 0, fmt.Errorf("lens: variable %s: polynomial term out of range", s)
+		}
+		return c.PolyTerms[s.Order].Coeff, nil
+	case VarQCoef:
+		if c.QAsphere == nil {
+			return 0, fmt.Errorf("lens: variable %s: card %d has no q_asphere", s, s.Card)
+		}
+		if s.Order < 0 || s.Order >= len(c.QAsphere.Coeffs) {
+			return 0, fmt.Errorf("lens: variable %s: q coefficient out of range", s)
+		}
+		return c.QAsphere.Coeffs[s.Order], nil
 	}
 	return 0, fmt.Errorf("lens: variable %s: unknown kind", s)
 }
@@ -410,6 +448,19 @@ func (p *Prescription) SetVar(s VarSpec, v float64) error {
 			return fmt.Errorf("lens: variable %s: coefficient out of range", s)
 		}
 		c.Coeffs[s.Order] = v
+	case VarPolyTerm:
+		if s.Order < 0 || s.Order >= len(c.PolyTerms) {
+			return fmt.Errorf("lens: variable %s: polynomial term out of range", s)
+		}
+		c.PolyTerms[s.Order].Coeff = v
+	case VarQCoef:
+		if c.QAsphere == nil {
+			return fmt.Errorf("lens: variable %s: card %d has no q_asphere", s, s.Card)
+		}
+		if s.Order < 0 || s.Order >= len(c.QAsphere.Coeffs) {
+			return fmt.Errorf("lens: variable %s: q coefficient out of range", s)
+		}
+		c.QAsphere.Coeffs[s.Order] = v
 	default:
 		return fmt.Errorf("lens: variable %s: unknown kind", s)
 	}

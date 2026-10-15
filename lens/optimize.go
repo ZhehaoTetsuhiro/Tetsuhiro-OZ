@@ -95,6 +95,62 @@ type Result struct {
 	History   []float64 // merit after each accepted iteration (incl. start)
 }
 
+// PrescriptionProblem builds a least-squares Problem over design variables of
+// a prescription. specs names the quantities to vary — any VarKind, including
+// the polynomial-asphere term coefficients (VarPolyTerm) and the Forbes Q
+// coefficients (VarQCoef) — and bounds returns the [lo, hi] of each variable
+// from its spec and current value (a deterministic, kind-aware rule belongs to
+// the caller: radii, thicknesses and coefficients have different natural
+// ranges). merit is the residual function of a *prescription* clone, e.g.
+//
+//	func(q *lens.Prescription) ([]float64, error) {
+//		return lens.SpotResiduals(q, geo.Wavelengthd, fields, samples, 0.01)
+//	}
+//
+// The residual wrapper clones the prescription for every evaluation, so a run
+// never mutates p and the residuals are a pure function of the variable
+// vector: the same x always gives the same value, and Minimize is therefore
+// bit-for-bit reproducible. All specs are validated (via Vars) before the
+// optimizer starts, so a mis-specified variable is an error instead of a
+// silently constant residual.
+//
+// The variable vector follows specs order, and Variable.Name is the VarSpec
+// label ("s1.poly0", "s1.q1", …), so traces and reports identify the asphere
+// coefficients.
+func PrescriptionProblem(p *Prescription, specs []VarSpec, bounds func(VarSpec, float64) (lo, hi float64), merit func(*Prescription) ([]float64, error)) (Problem, error) {
+	if p == nil {
+		return Problem{}, fmt.Errorf("lens: nil prescription")
+	}
+	if len(specs) == 0 {
+		return Problem{}, fmt.Errorf("lens: no variables")
+	}
+	if merit == nil {
+		return Problem{}, fmt.Errorf("lens: nil merit function")
+	}
+	cur, err := p.Vars(specs)
+	if err != nil {
+		return Problem{}, err
+	}
+	vars := make([]Variable, len(specs))
+	for i, s := range specs {
+		lo, hi := bounds(s, cur[i])
+		if lo > hi {
+			return Problem{}, fmt.Errorf("lens: variable %s: empty bounds [%g, %g]", s, lo, hi)
+		}
+		vars[i] = Variable{Name: s.String(), Value: cur[i], Lo: lo, Hi: hi}
+	}
+	return Problem{
+		Variables: vars,
+		Residual: func(x []float64) ([]float64, error) {
+			q := p.Clone()
+			if err := q.SetVars(specs, x); err != nil {
+				return nil, err
+			}
+			return merit(q)
+		},
+	}, nil
+}
+
 // Minimize solves p by damped least squares (Levenberg–Marquardt with
 // Marquardt's diagonal scaling). It is deterministic: identical inputs give
 // bit-identical outputs (no randomness, fixed tie-breaks).

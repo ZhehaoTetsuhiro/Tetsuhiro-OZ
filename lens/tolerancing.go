@@ -18,6 +18,15 @@ import (
 // one Monte-Carlo run (one melt per batch — physically the right model and
 // a determinism requirement, since the medium hook must render the same
 // index for every evaluation of that run).
+//
+// CoefAbs is the absolute ± half-range applied to *every* aspheric
+// coefficient of a card, whatever its order and units: the even-asphere list
+// Coeffs (A4, A6, …), the polynomial-asphere terms PolyTerms and the Forbes Q
+// coefficients QAsphere.Coeffs. Coefficients are perturbed in stored order
+// (Coeffs, then PolyTerms, then QAsphere.Coeffs), which keeps the random
+// draw stream of a coefficient list independent of what else the card
+// carries and leaves the stream of an existing even-asphere prescription
+// unchanged.
 type ToleranceSpec struct {
 	RadiusMM    float64 `json:"radius_mm"`
 	ThicknessMM float64 `json:"thickness_mm"`
@@ -318,6 +327,19 @@ func perturbPrescription(p *Prescription, spec ToleranceSpec, rng *rand.Rand) (*
 		if spec.CoefAbs > 0 {
 			for j := range c.Coeffs {
 				c.Coeffs[j] += u(spec.CoefAbs)
+			}
+			// The polynomial-asphere terms and the Forbes Q coefficients
+			// follow, in stored order. The three descriptions of a card are
+			// mutually exclusive, so at most one loop draws; keeping them in
+			// this fixed order makes the whole run deterministic and leaves
+			// the draw stream of a plain even-asphere card untouched.
+			for j := range c.PolyTerms {
+				c.PolyTerms[j].Coeff += u(spec.CoefAbs)
+			}
+			if c.QAsphere != nil {
+				for j := range c.QAsphere.Coeffs {
+					c.QAsphere.Coeffs[j] += u(spec.CoefAbs)
+				}
 			}
 		}
 	}
