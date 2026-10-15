@@ -6,8 +6,9 @@
 // Scalar model. A thin, lossless, phase-only element multiplies the incident
 // field by t(x, y) = a(x, y)·exp(i φ_q(x, y)), where a is the amplitude
 // (unity for a uniform beam) and φ_q the quantised phase. The field at a
-// distance z is obtained with the band-limited angular spectrum method (ASM,
-// Matsushima & Shimobaba 2009) computed with a 2-D FFT:
+// distance z is obtained with the band-limited angular spectrum method (ASM;
+// K. Matsushima and T. Shimobaba, Opt. Express 17(22), 19662–19673 (2009),
+// doi:10.1364/OE.17.019662) computed with a 2-D FFT:
 //
 //	U(fx, fy; z) = U0(fx, fy)·H(fx, fy; z),
 //	H = exp(i 2π z sqrt(1/λ² − fx² − fy²))   for |fx| < f_lim, |fy| < f_lim,
@@ -43,4 +44,12 @@
 // slowly over the aperture; the other orders m = 1 + jN carry the energy
 // η_N/(1 + jN)² and focus elsewhere (they are defocused at the design focus).
 // The sum over all orders equals 1 (Parseval), which the tests check.
+//
+// Literature. The derivation above is the Fourier series of the N-level
+// staircase and is self-contained. Continuous (sawtooth) kinoform efficiencies
+// of the form sinc²(·) are discussed in the applied-optics literature (e.g.
+// "Optical performance of holographic kinoforms", Applied Optics 28, 976 —
+// URL https://www.apollooptical.com/hubfs/articles/ao28_976.pdf, read for this
+// revision); the N-level formula itself was not found in a retrieved source and
+// is 待核对 against a primary reference.
 package doe
