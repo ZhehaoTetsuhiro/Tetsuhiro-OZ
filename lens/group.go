@@ -294,14 +294,6 @@ func (e Element) folds() bool {
 	return e.Kind == ElementMirror && (e.TiltXDeg != 0 || e.TiltYDeg != 0)
 }
 
-// surfaces returns the number of surfaces of the element.
-func (e Element) surfaces() int {
-	if e.Rear != nil {
-		return 2
-	}
-	return 1
-}
-
 // label names a face of the element for reports and errors.
 func (e Element) label(i int, f Face) string {
 	if e.Name != "" {

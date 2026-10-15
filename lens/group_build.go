@@ -67,6 +67,23 @@ func (f gframe) dirToGlobal(d geo.Vec3) geo.Vec3 {
 	return f.ex.Mul(d.X).Add(f.ey.Mul(d.Y)).Add(f.ez.Mul(d.Z))
 }
 
+// localOf returns the direction v (given in the coordinates of the frame that
+// encloses cb) in the coordinates of the frame cb opens.
+func localOf(cb geo.CoordBreak, v geo.Vec3) geo.Vec3 {
+	d := cb.Apply(geo.Vec3{})
+	return cb.Apply(v).Sub(d)
+}
+
+// surfaceBeam returns the beam direction behind a surface, in the local
+// coordinates of its frame: the reflected direction for a mirror (the normal is
+// the local +z there), the frame axis for a refracting surface.
+func surfaceBeam(in geo.Vec3, mirror bool) geo.Vec3 {
+	if mirror {
+		return geo.Reflect(in, geo.V(0, 0, 1))
+	}
+	return geo.V(0, 0, 1)
+}
+
 // breakWithAxis returns the coordinate break (zero displacement, zero roll)
 // whose rotation maps the local z axis onto the unit direction w:
 // Q = Rx(alpha)·Ry(beta) with beta = asin(w.X) and alpha = atan2(-w.Y, w.Z).
@@ -125,7 +142,12 @@ type plan struct {
 	normal []geo.Vec3
 	folds  []int // number of chain folds in front of the surface
 
-	exit gframe // beam frame after the last element (its origin and axis)
+	exit gframe // frame of the last surface after the last element
+	// beam is the outgoing beam direction expressed in the frame exit (the
+	// surface axis for a refracting last surface, the reflected direction for a
+	// mirror: the chain axis and the beam differ after a mirror that returns
+	// the beam along -z, as in a Cassegrain).
+	beam geo.Vec3
 }
 
 // emit appends one entry with the medium that follows it and the gap to the
@@ -155,6 +177,10 @@ func (g *Group) plan() (*plan, error) {
 	pl := &plan{mediums: []geo.Medium{geo.Air{}}}
 	c := startFrame(g.OriginZ)
 	nfold := 0
+	// The direction of the beam in the local coordinates of the current frame:
+	// the frame axis for a refracting surface, the reflection of the incoming
+	// beam for a mirror.
+	beamLocal := geo.V(0, 0, 1)
 	for i := range g.Elements {
 		e := &g.Elements[i]
 		before, err := resolveGlass(g.glassBefore(i))
@@ -172,6 +198,8 @@ func (g *Group) plan() (*plan, error) {
 		if pose != nil {
 			pl.emit(planSurface{brk: true, pose: pose, element: i, name: fmt.Sprintf("element %d frame", i)}, before, 0)
 			c = ef
+			inv := pose.Inverse()
+			beamLocal = localOf(inv, beamLocal)
 		}
 		// Front surface.
 		prof, err := e.Front.profile()
@@ -201,6 +229,7 @@ func (g *Group) plan() (*plan, error) {
 			name: e.label(i, Front), element: i, face: Front,
 		}, medAfter, gapFront)
 		pl.record(k, ef, prof, nfold)
+		beamLocal = surfaceBeam(beamLocal, e.Kind == ElementMirror)
 		frameAfter := ef
 		// Rear surface.
 		if e.Rear != nil {
@@ -225,6 +254,7 @@ func (g *Group) plan() (*plan, error) {
 			pl.record(k2, rf, profR, nfold)
 			frameAfter = rf
 			medAfter = medRear
+			beamLocal = geo.V(0, 0, 1)
 		}
 		// Close the element: the return break of its pose, or the fold break of
 		// a mirror that tilts the beam.
@@ -239,10 +269,10 @@ func (g *Group) plan() (*plan, error) {
 			}
 			after := frameAfter.apply(closeCB)
 			pl.emit(planSurface{brk: true, pose: &closeCB, element: i, name: name}, medAfter, e.GapMM)
-			pl.exit = after
+			pl.exit, pl.beam = after, geo.V(0, 0, 1)
 			c = after.shift(e.GapMM)
 		default:
-			pl.exit = frameAfter
+			pl.exit, pl.beam = frameAfter, beamLocal
 			c = frameAfter.shift(e.GapMM)
 		}
 	}
@@ -355,15 +385,16 @@ func (g *Group) Layout() ([]LayoutSurface, error) {
 }
 
 // ExitFrame returns the beam frame after the last element: the vertex of the
-// last surface and the unit direction of the outgoing beam (the folded axis
-// for a folding mirror). It is the frame along which ImagePosition searches for
-// the best focus.
+// last surface and the unit direction of the outgoing beam — the folded axis
+// for a folding mirror, the reflected direction for a mirror that returns the
+// beam, the surface axis for a refracting surface. It is the frame along which
+// ImagePosition searches for the best focus.
 func (g *Group) ExitFrame() (vertex, axis geo.Vec3, err error) {
 	pl, err := g.plan()
 	if err != nil {
 		return geo.Vec3{}, geo.Vec3{}, err
 	}
-	return pl.exit.o, pl.exit.ez, nil
+	return pl.exit.o, pl.exit.dirToGlobal(pl.beam), nil
 }
 
 // ---------------------------------------------------------------------------

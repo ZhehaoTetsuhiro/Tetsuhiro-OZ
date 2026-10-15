@@ -69,8 +69,11 @@ type ImageResult struct {
 	// focus plane, in the global frame (mm).
 	Point geo.Vec3
 	// ChiefHit is the point where the chief ray (the centre sample of the
-	// sampling) crosses the best focus plane (mm, global frame).
+	// sampling) crosses the best focus plane (mm, global frame) and ChiefDir
+	// its exit direction (unit, global frame): together they are the traced
+	// chief ray, so a caller can evaluate the image height on any plane.
 	ChiefHit geo.Vec3
+	ChiefDir geo.Vec3
 	// RMS is the RMS radius of the traced rays about Point in the plane (mm);
 	// GeoRadius is the largest radius.
 	RMS, GeoRadius float64
@@ -139,6 +142,10 @@ func (g *Group) prepare(b Bundle) (*prepared, error) {
 			zmin = pl.vertex[0].Z
 		}
 		pupil = geo.Pupil{Z: zmin - 1, Radius: e.Front.SemiAperMM}
+		// The outermost ring of the sampling would graze the rim of the stop
+		// surface and be lost to round-off (the pupilInset convention of this
+		// package), so the automatic pupil insets the sampling by 0.1%.
+		samples = insetSamples(samples, 1-pupilInset)
 	}
 	if !lensFinite(pupil.Z) || !(pupil.Radius > 0) || !lensFinite(pupil.Radius) {
 		return nil, fmt.Errorf("lens: group %q: unusable pupil (z=%v, radius=%v)", g.Name, pupil.Z, pupil.Radius)
@@ -154,6 +161,15 @@ func (g *Group) prepare(b Bundle) (*prepared, error) {
 		}
 	}
 	return &prepared{pl: pl, sys: sys, pupil: pupil, samples: samples, lambda: lam}, nil
+}
+
+// insetSamples scales a sampling towards the pupil centre.
+func insetSamples(pts []geo.PupilPoint, f float64) []geo.PupilPoint {
+	out := make([]geo.PupilPoint, len(pts))
+	for i, p := range pts {
+		out[i] = geo.PupilPoint{PX: p.PX * f, PY: p.PY * f}
+	}
+	return out
 }
 
 // exitRays traces the whole sampling of a field and returns the exit rays and
@@ -382,7 +398,7 @@ func (g *Group) ImagePosition(b Bundle, opt ImageOptions) (*ImageResult, error) 
 		return nil, fmt.Errorf("lens: group %q: no ray of the sampling reached the last surface (%d failed)", g.Name, failed)
 	}
 	anchor := p.pl.exit.o
-	axis := p.pl.exit.ez
+	axis := p.pl.exit.dirToGlobal(p.pl.beam)
 	t0, ok := focusEstimate(rays, anchor, axis)
 	if !ok || !lensFinite(t0) || math.Abs(t0) > 1e8 {
 		return nil, fmt.Errorf("lens: group %q: the exit bundle has no focus along the exit axis (an afocal or divergent system)", g.Name)
@@ -402,13 +418,14 @@ func (g *Group) ImagePosition(b Bundle, opt ImageOptions) (*ImageResult, error) 
 	if chief, err := p.traceOne(b.Object, p.samples[0]); err == nil {
 		plane := anchor.Add(axis.Mul(t))
 		den := chief.d.Dot(axis)
+		res.ChiefDir = chief.d
 		if den != 0 {
 			res.ChiefHit = chief.o.Add(chief.d.Mul(plane.Sub(chief.o).Dot(axis) / den))
 		} else {
 			res.ChiefHit = plane
 		}
 	} else {
-		res.ChiefHit = res.Point
+		res.ChiefHit, res.ChiefDir = res.Point, axis
 	}
 	return res, nil
 }
@@ -470,7 +487,7 @@ func (g *Group) AngularMagnification(b Bundle) (*AngularResult, error) {
 	if err != nil {
 		return nil, err
 	}
-	axisOut := p.pl.exit.ez
+	axisOut := p.pl.exit.dirToGlobal(p.pl.beam)
 	ex := p.pl.exit.ex
 	slope := func(d geo.Vec3) (float64, error) {
 		den := d.Dot(axisOut)
