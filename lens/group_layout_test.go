@@ -716,3 +716,143 @@ func TestGroupJSONByteStable(t *testing.T) {
 		t.Error("a nonsense object position must be refused")
 	}
 }
+
+// TestGroupPosedElementIsRigidAndLeavesTheChain checks the two claims the
+// element model makes about a posed element: it is rigid (its surfaces move
+// together, the thickness is measured along the element's own axis) and it does
+// not move the following elements (the chain frame is restored, origin
+// included, as the auto-return of a posed Card does). A lens tilted by 10
+// degrees about y therefore has its rear vertex at t·(sin 10°, 0, cos 10°) —
+// the hand-computed rigid displacement — while the stop behind it stays on the
+// axis at the nominal gap. Threshold 1e-12 mm.
+func TestGroupPosedElementIsRigidAndLeavesTheChain(t *testing.T) {
+	const (
+		thk = 5.0
+		gap = 20.0
+		ty  = 10.0
+		dx  = 2.0
+	)
+	th := ty * math.Pi / 180
+	lens := LensElement(103.361, -103.361, thk, "N-BK7", 12)
+	lens.TiltYDeg = ty
+	lens.DecenterXMM = dx
+	lens.GapMM = gap
+	g := gWantGroup(t, &Group{
+		Name: "posed", ObjectZMM: math.Inf(-1),
+		Elements: []Element{lens, StopElement(5)},
+	})
+	lay, err := g.Layout()
+	if err != nil {
+		t.Fatal(err)
+	}
+	if len(lay) != 3 {
+		t.Fatalf("layout has %d surfaces, want 3", len(lay))
+	}
+	// Front: the decentre only (the tilt rotates about the decentred vertex).
+	gVecClose(t, "posed front vertex", lay[0].Vertex, geo.V(dx, 0, 0), 1e-12)
+	wantAxis := geo.V(math.Sin(th), 0, math.Cos(th))
+	gVecClose(t, "posed front axis", lay[0].Axis, wantAxis, 1e-12)
+	// Rear: the rigid translation along the element's own axis.
+	gVecClose(t, "posed rear vertex", lay[1].Vertex, geo.V(dx, 0, 0).Add(wantAxis.Mul(thk)), 1e-12)
+	gVecClose(t, "posed rear axis", lay[1].Axis, wantAxis, 1e-12)
+	// The following element is back on the chain axis at the nominal gap.
+	gVecClose(t, "the following element is not moved", lay[2].Vertex, geo.V(0, 0, gap), 1e-12)
+	gVecClose(t, "the following element keeps the chain axis", lay[2].Axis, geo.V(0, 0, 1), 1e-12)
+	if n := lay[2].Folds; n != 0 {
+		t.Errorf("a tilted lens must not fold the chain: %d folds", n)
+	}
+	// PositionMM agrees with the layout for posed and unposed elements alike
+	// (a posed element does not advance the chain by its thickness).
+	z, err := g.PositionMM(1)
+	if err != nil {
+		t.Fatal(err)
+	}
+	gClose(t, "chain position of the following element", z, gap, 1e-12)
+	unposed := g.Clone()
+	if err := unposed.SetPose(0, 0, 0, 0, 0, 0); err != nil {
+		t.Fatal(err)
+	}
+	z, err = unposed.PositionMM(1)
+	if err != nil {
+		t.Fatal(err)
+	}
+	gClose(t, "chain position with an unposed element", z, gap+thk, 1e-12)
+	// The traced system follows the same layout: the ray hits the lens at the
+	// decentred vertex and the stop on the axis.
+	sys, err := g.System()
+	if err != nil {
+		t.Fatal(err)
+	}
+	res := sys.Trace(geo.NewRay(geo.V(dx, 0, -20), geo.V(0, 0, 1), geo.Wavelengthd))
+	if !res.OK() || len(res.Steps) != 3 {
+		t.Fatalf("trace %v with %d steps", res.Status, len(res.Steps))
+	}
+	gVecClose(t, "traced front hit", res.Steps[0].Point, geo.V(dx, 0, 0), 1e-12)
+	if z := res.Steps[2].Point.Z; math.Abs(z-gap) > 1e-9 {
+		t.Errorf("the ray hits the stop at z = %g, want %g", z, gap)
+	}
+}
+
+// TestGroupFoldOffKeepsTheChain checks the FoldMode switch: with FoldOff a
+// tilted mirror steers the beam out of the sequence (the chain keeps the
+// incoming axis, so the following elements stay on it and the deflected beam
+// misses them), while FoldAuto lays them along the reflected beam. The test
+// pins the layout of both variants and the trace status of each.
+func TestGroupFoldOffKeepsTheChain(t *testing.T) {
+	mk := func(fold FoldMode) *Group {
+		m := MirrorElement(0, 0, 20)
+		m.TiltXDeg = 45
+		m.Fold = fold
+		m.GapMM = 30
+		return gWantGroup(t, &Group{
+			Name: "fold mode", ObjectZMM: math.Inf(-1),
+			Elements: []Element{
+				func() Element { e := StopElement(6); e.GapMM = 15; return e }(),
+				m,
+				planoElement(t, 100, 5, 8, "N-BK7"),
+			},
+		})
+	}
+	off := mk(FoldOff)
+	layOff, err := off.Layout()
+	if err != nil {
+		t.Fatal(err)
+	}
+	gVecClose(t, "FoldOff: the lens stays on the incoming axis", layOff[2].Vertex, geo.V(0, 0, 45), 1e-12)
+	gVecClose(t, "FoldOff: the lens keeps the incoming axis", layOff[2].Axis, geo.V(0, 0, 1), 1e-12)
+	if n := layOff[2].Folds; n != 0 {
+		t.Errorf("FoldOff: %d folds, want 0", n)
+	}
+	// The exit frame is the frame of the last surface of the group. With
+	// FoldOff the beam leaves the sequence at the mirror and never reaches that
+	// surface, so the frame describes the unused path: the lens axis, +z.
+	if _, ax, err := off.ExitFrame(); err != nil {
+		t.Fatal(err)
+	} else {
+		gVecClose(t, "FoldOff: the exit frame is the axis of the last element", ax, geo.V(0, 0, 1), 1e-12)
+	}
+	sys, err := off.System()
+	if err != nil {
+		t.Fatal(err)
+	}
+	if r := sys.Trace(geo.NewRay(geo.V(0, 0, -20), geo.V(0, 0, 1), geo.Wavelengthd)); r.OK() {
+		t.Errorf("FoldOff: the deflected beam must miss the lens behind it, got %v", r.Status)
+	}
+	on := mk(FoldAuto)
+	layOn, err := on.Layout()
+	if err != nil {
+		t.Fatal(err)
+	}
+	gVecClose(t, "FoldAuto: the lens follows the folded axis", layOn[2].Vertex, geo.V(0, 30, 15), 1e-12)
+	gVecClose(t, "FoldAuto: the folded axis is +y", layOn[2].Axis, geo.V(0, 1, 0), 1e-12)
+	if n := layOn[2].Folds; n != 1 {
+		t.Errorf("FoldAuto: %d folds, want 1", n)
+	}
+	sysOn, err := on.System()
+	if err != nil {
+		t.Fatal(err)
+	}
+	if r := sysOn.Trace(geo.NewRay(geo.V(0, 0, -20), geo.V(0, 0, 1), geo.Wavelengthd)); !r.OK() {
+		t.Errorf("FoldAuto: the beam must traverse the folded sequence, got %v", r.Status)
+	}
+}

@@ -2,6 +2,7 @@ package lens
 
 import (
 	"math"
+	"strings"
 	"testing"
 
 	"tetsuhiro-oz/geo"
@@ -618,5 +619,113 @@ func TestGroupMeasurementsDeterministic(t *testing.T) {
 		if lay1[i].Vertex != lay2[i].Vertex || lay1[i].Axis != lay2[i].Axis {
 			t.Errorf("layout entry %d differs between runs", i)
 		}
+	}
+}
+
+// TestGroupImagePositionRejectsAfocalAndBadPupil checks the error paths and the
+// defaults of the measurement API: an afocal group has no focus plane (the exit
+// bundle is parallel, the least-squares common point does not exist), a group
+// without a stop aperture needs an explicit pupil, an empty sampling is
+// refused, and an unset wavelength and sampling fall back to the d line and the
+// hexagonal sampling.
+func TestGroupImagePositionRejectsAfocalAndBadPupil(t *testing.T) {
+	m, _ := geo.Glass("N-BK7")
+	n := m.N(geo.Wavelengthd)
+	const d = 2.0
+	kepler := gWantGroup(t, &Group{
+		Name: "kepler", ObjectZMM: math.Inf(-1),
+		Elements: []Element{
+			{Kind: ElementStop, Front: SurfaceSpec{SemiAperMM: 6}},
+			func() Element { e := planoElement(t, 100, d, 20, "N-BK7"); e.GapMM = 200 - d/n; return e }(),
+			planoElement(t, 100, d, 20, "N-BK7"),
+		},
+	})
+	// An afocal group has no image plane: the search reports the plane where the
+	// (nearly parallel) bundle is most nearly concurrent, which is thousands of
+	// millimetres away with a residual of the order of the beam. That is the
+	// documented behaviour; AngularMagnification is the analysis for it.
+	if res, err := kepler.ImagePosition(gBundle(), ImageOptions{}); err != nil {
+		t.Errorf("the afocal case must be reported, not refused: %v", err)
+	} else {
+		t.Logf("afocal group: image %v, RMS %.3g mm, focus %.6g mm", res.Point, res.RMS, res.FocusMM)
+		if math.Abs(res.FocusMM) < 1e3 {
+			t.Errorf("the reported plane of an afocal group must be far away: %g mm", res.FocusMM)
+		}
+		if res.RMS < 1e-3 {
+			t.Errorf("an afocal group must not focus the beam: RMS %.3g mm", res.RMS)
+		}
+	}
+	// The same group is a perfectly good afocal system for Γ.
+	if _, err := kepler.AngularMagnification(Bundle{Object: geo.FieldTan(0, 0), Samples: geo.Hexapolar(2)}); err != nil {
+		t.Errorf("the same group must have an angular magnification: %v", err)
+	}
+	// A finite object has a focus: the same telescope with the object at its
+	// front focal plane is the classical 4f relay, an image of the object plane
+	// at unit magnification and inverted (m = −f2/f1 = −1). The object point is
+	// 1 mm off axis, so the image must be at −1 mm, on the paraxial image plane
+	// of the finite conjugate (geo's Paraxial on the same system, tolerance
+	// 1 mm: the best-RMS focus of a singlet pair, measured value printed).
+	relay := gWantGroup(t, &Group{
+		Name: "4f relay", ObjectZMM: -100,
+		Elements: []Element{
+			{Kind: ElementStop, Front: SurfaceSpec{SemiAperMM: 6}},
+			func() Element { e := planoElement(t, 100, d, 20, "N-BK7"); e.GapMM = 200 - d/n; return e }(),
+			planoElement(t, 100, d, 20, "N-BK7"),
+		},
+	})
+	res, err := relay.ImagePosition(Bundle{Object: geo.FieldHeight(-100, 1, 0)}, ImageOptions{})
+	if err != nil {
+		t.Fatalf("the 4f relay must image a finite object: %v", err)
+	}
+	relaySys, err := relay.System()
+	if err != nil {
+		t.Fatal(err)
+	}
+	rpar, err := relaySys.Paraxial(geo.Wavelengthd, -100)
+	if err != nil {
+		t.Fatal(err)
+	}
+	t.Logf("4f relay: image %v (RMS %.3g mm, rays %d), paraxial image z %.12g, magnification %.6g",
+		res.Point, res.RMS, res.Rays, rpar.ImageZ, rpar.Magnification)
+	gClose(t, "4f transverse magnification is −1", res.Point.X, -1, 0.05)
+	gClose(t, "4f image plane vs the paraxial conjugate", res.Point.Z, rpar.ImageZ, 1)
+	gClose(t, "4f paraxial magnification", rpar.Magnification, -1, 1e-6)
+	// The automatic pupil needs a clear aperture in the stop element.
+	noAperture := gWantGroup(t, &Group{
+		Name: "no aperture", ObjectZMM: math.Inf(-1),
+		Elements: []Element{planoElement(t, 100, 5, 0, "N-BK7")},
+	})
+	if _, err := noAperture.ImagePosition(gBundle(), ImageOptions{}); err == nil {
+		t.Error("a group without a stop aperture must ask for an explicit pupil")
+	} else if !strings.Contains(err.Error(), "clear aperture") {
+		t.Errorf("the error must mention the clear aperture: %v", err)
+	}
+	// An explicit pupil and a degenerate sampling.
+	withPupil := Bundle{Object: geo.FieldTan(0, 0), Pupil: geo.Pupil{Z: -10, Radius: 5}, Samples: []geo.PupilPoint{}}
+	if _, err := noAperture.ImagePosition(withPupil, ImageOptions{}); err == nil {
+		t.Error("an empty sampling must be refused")
+	}
+	// The defaults: no wavelength (the d line) and no sampling (Hexapolar(3)).
+	defaults := Bundle{Object: geo.FieldTan(0, 0), Pupil: geo.Pupil{Z: -10, Radius: 5}}
+	res, err = noAperture.ImagePosition(defaults, ImageOptions{})
+	if err != nil {
+		t.Fatalf("the default bundle must work: %v", err)
+	}
+	if res.Rays != 37 || res.Failed != 0 {
+		t.Errorf("default sampling: %d rays, %d failed, want 37 and 0", res.Rays, res.Failed)
+	}
+	if math.IsNaN(res.FocusMM) || res.FocusMM <= 0 {
+		t.Errorf("focus %g mm", res.FocusMM)
+	}
+	// A bundle whose rays all fail is reported, not silently answered.
+	blocked := gWantGroup(t, &Group{
+		Name: "blocked", ObjectZMM: math.Inf(-1),
+		Elements: []Element{
+			{Kind: ElementStop, Front: SurfaceSpec{SemiAperMM: 1}},
+			func() Element { e := planoElement(t, 100, 5, 0.5, "N-BK7"); return e }(),
+		},
+	})
+	if _, err := blocked.ImagePosition(Bundle{Object: geo.FieldTan(0, 0), Pupil: geo.Pupil{Z: -10, Radius: 5}}, ImageOptions{}); err == nil {
+		t.Error("a bundle that is entirely vignetted must be reported")
 	}
 }

@@ -266,6 +266,17 @@ func (g *Group) plan() (*plan, error) {
 				closeCB = foldBreak(frameAfter, in.ez)
 				name = fmt.Sprintf("element %d fold", i)
 				nfold++
+			} else {
+				// Return the chain to the frame the element started in, origin
+				// included: the return break is placed in the frame of the last
+				// surface, so its displacement is re-derived from the offset of
+				// that vertex (geo's auto-return restores the frame, and the
+				// following elements are not affected by the pose of a rigid
+				// element — the same rule as the auto-return of a Card pose).
+				v := in.o.Sub(frameAfter.o)
+				closeCB.Dx = v.Dot(frameAfter.ex)
+				closeCB.Dy = v.Dot(frameAfter.ey)
+				closeCB.Dz = v.Dot(frameAfter.ez)
 			}
 			after := frameAfter.apply(closeCB)
 			pl.emit(planSurface{brk: true, pose: &closeCB, element: i, name: name}, medAfter, e.GapMM)

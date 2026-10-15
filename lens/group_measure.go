@@ -154,9 +154,12 @@ func (g *Group) prepare(b Bundle) (*prepared, error) {
 		// Centre the sampling on the real chief ray. For a coaxial system this
 		// is the (on-axis) chief anyway; for a decentred, tilted or folded one
 		// it is what makes the centre sample the chief ray. When the chief
-		// search fails the sampling stays on the axis (the result is then
-		// referred to the chief sample of the sampling, as geo does).
-		if off, err := sys.ChiefCrossing(b.Object, pupil.Z, lam); err == nil {
+		// search is not usable (it fails, or it returns a non-finite crossing —
+		// which happens for a system whose front surface has no clear aperture,
+		// where the launch plane of the chief search degenerates) the sampling
+		// stays on the axis; the result is then referred to the centre sample of
+		// the sampling, as package geo does.
+		if off, err := sys.ChiefCrossing(b.Object, pupil.Z, lam); err == nil && lensFinite(off.X) && lensFinite(off.Y) {
 			pupil.Offset = off
 		}
 	}
@@ -387,6 +390,11 @@ func searchFocus(rays []exitRay, o, axis geo.Vec3, lo, hi float64, scan int, tol
 // rays in the least-squares sense (their common focus) and is ImageOptions
 // wide. The traced rays are independent of the plane, so only the intersection
 // moves during the search.
+//
+// An afocal group (a telescope) has no image: its exit bundle is collimated, so
+// the "best focus" is a plane very far away whose residual is of the order of
+// the beam. That is reported as it is computed (the focal plane of a collimated
+// bundle is not defined); use AngularMagnification for such a group.
 func (g *Group) ImagePosition(b Bundle, opt ImageOptions) (*ImageResult, error) {
 	o := opt.defaults()
 	p, err := g.prepare(b)
