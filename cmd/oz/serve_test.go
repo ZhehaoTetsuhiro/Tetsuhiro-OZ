@@ -83,6 +83,7 @@ func TestServeEndpoints(t *testing.T) {
 	for _, want := range []string{
 		"devicePixelRatio", `addEventListener("resize"`, "orientationchange",
 		"/api/lens/design", "/api/lens/eval", "/api/lens/tol",
+		"/api/lens/thermal", "/api/lens/sens",
 		"/api/coating/design", "/api/coating/spectrum", "/api/version",
 	} {
 		if !strings.Contains(js, want) {

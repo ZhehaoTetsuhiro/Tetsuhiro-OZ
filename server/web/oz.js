@@ -57,6 +57,77 @@
     el.classList.toggle("err", !!isErr);
   }
 
+  /* --- 高级分析（热漂移 / 灵敏度）：折叠区由本文件构建，index.html 不感知 ---
+   * 面板复用页面已有的 ozGrid/ozField/ozActions/ozDetails/ozOut 类，所以手机断点与
+   * 触控目标规则（style.css 的 @media 规则）对它同样生效。 */
+
+  function buildAdvanced() {
+    const host = $("ozEditor");
+    if (!host || $("ozAdv")) return;
+    const det = document.createElement("details");
+    det.className = "ozDetails";
+    det.id = "ozAdv";
+    det.innerHTML =
+      '<summary>高级分析（热漂移 · 灵敏度 · 逆灵敏度）</summary>' +
+      '<div class="ozGrid">' +
+      '<label class="ozField"><span>温度变化 ΔT（K）</span>' +
+      '<input type="number" id="ozAdvDT" value="10" step="1" inputmode="decimal"></label>' +
+      '<label class="ozField"><span>镜筒线膨胀 α（1/K）</span>' +
+      '<input type="number" id="ozAdvCTE" value="0" step="0.000001" min="0" inputmode="decimal"></label>' +
+      '<label class="ozField"><span>merit 预算 ΔM（mm）</span>' +
+      '<input type="number" id="ozAdvBudget" value="0.005" step="0.001" min="0" inputmode="decimal"></label>' +
+      '</div>' +
+      '<div class="ozActions">' +
+      '<button id="ozAdvThermalBtn" type="button" class="secondary" disabled>热漂移</button>' +
+      '<button id="ozAdvSensBtn" type="button" class="secondary" disabled>灵敏度与公差分配</button>' +
+      '</div>' +
+      '<pre class="ozOut" id="ozAdvOut" aria-live="polite">完成一次设计后可用。</pre>';
+    host.appendChild(det);
+  }
+
+  function setAdvanced(enabled) {
+    for (const id of ["ozAdvThermalBtn", "ozAdvSensBtn"]) {
+      if ($(id)) $(id).disabled = !enabled;
+    }
+  }
+
+  async function thermal() {
+    if (!prescription) { show("ozAdvOut", "请先完成一次设计。", true); return; }
+    const d = await api("/api/lens/thermal", {
+      prescription: prescription,
+      delta_t_k: num("ozAdvDT"),
+      mount_cte_per_k: num("ozAdvCTE"),
+    });
+    show("ozAdvOut", [
+      "λ = " + d.lambda_nm.toFixed(4) + " nm · ΔT = " + d.delta_t_k + " K · α = " + d.mount_cte_per_k + " 1/K",
+      "EFL  " + d.efl0_mm.toFixed(6) + " → " + d.efl1_mm.toFixed(6) + " mm  (" + d.efl_per_k_mm.toExponential(3) + " mm/K)",
+      "BFL  " + d.bfl0_mm.toFixed(6) + " → " + d.bfl1_mm.toFixed(6) + " mm  (" + d.bfl_per_k_mm.toExponential(3) + " mm/K)",
+    ].join("\n"), false);
+  }
+
+  async function sensitivity() {
+    if (!prescription) { show("ozAdvOut", "请先完成一次设计。", true); return; }
+    const d = await api("/api/lens/sens", {
+      prescription: prescription,
+      metric: "merit",
+      inverse: true,
+      budget_mm: num("ozAdvBudget"),
+    });
+    const lines = ["标量 = " + d.metric + " · 名义 " + d.nominal.toPrecision(6) + " mm · " + d.evals + " 次求值"];
+    for (const r of d.rows) {
+      lines.push(r.param + "  ∂ = " + r.deriv.toPrecision(6) + (r.converged ? "" : "（未收敛）"));
+    }
+    if (d.allocation) {
+      const a = d.allocation;
+      lines.push("", "逆灵敏度分配（" + a.mode + "，预算 " + a.budget_mm + " mm，预测 " +
+        a.predicted_mm.toPrecision(6) + " mm，相对误差 " + a.rel_err.toExponential(2) + "）");
+      for (const r of a.rows) {
+        lines.push(r.param + "  公差 ±" + r.tol.toPrecision(4) + (r.capped ? "（封顶）" : ""));
+      }
+    }
+    show("ozAdvOut", lines.join("\n"), false);
+  }
+
   async function design() {
     const d = await api("/api/lens/design", {
       efl_mm: num("ozEfl"),
@@ -69,6 +140,7 @@
     designEFL = num("ozEfl");
     $("ozEvalBtn").disabled = !prescription;
     $("ozTolBtn").disabled = !prescription;
+    setAdvanced(!!prescription);
     const opt = d.optimizer || {};
     setStatus("设计完成 · 迭代 " + (opt.iterations ?? "—") + " 次 · merit " +
       (typeof opt.merit === "number" ? opt.merit.toPrecision(4) : "—"), false);
@@ -214,9 +286,12 @@
   }
 
   function init() {
+    buildAdvanced();
     guard("ozDesignBtn", "ozLensOut", design);
     guard("ozEvalBtn", "ozLensOut", evaluate);
     guard("ozTolBtn", "ozTolOut", tolerance);
+    guard("ozAdvThermalBtn", "ozAdvOut", thermal);
+    guard("ozAdvSensBtn", "ozAdvOut", sensitivity);
     guard("ozCoatBtn", "ozCoatOut", designCoating);
     guard("ozSpecBtn", "ozCoatOut", spectrum);
     window.addEventListener("resize", drawPlot);
