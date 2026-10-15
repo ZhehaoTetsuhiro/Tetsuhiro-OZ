@@ -28,10 +28,19 @@ import (
 // The classical achromat condition follows from these definitions: a cemented
 // doublet satisfies Δf = 0 between F and C when φ₁/V₁ + φ₂/V₂ = 0, and its
 // remaining chromatic focus shift is the secondary spectrum.
+//
+// Systems with mirrors are handled like any other coaxial system: a reflecting
+// surface has no dispersion of its own (its power Φ = -2·n·c only follows the
+// index of the medium it sits in, and Air is non-dispersive), so a pure mirror
+// system has exactly zero axial colour and a catadioptric one shows the
+// chromaticity of its lenses only, evaluated in the unfolded chain (see
+// System.Paraxial for the unfolding of mirrors).
 
 // FocusAt returns the paraxial axial image position (mm in the system frame)
 // of an object at axial position objectZ (mm, math.Inf(-1) for infinity) at
-// wavelength lambdaNm. The system must be refractive (no mirrors).
+// wavelength lambdaNm. Coaxial systems with mirrors are supported; at a mirror
+// system the wavelength dependence comes from the media of the lens elements
+// only.
 func (s *System) FocusAt(objectZ, lambdaNm float64) (float64, error) {
 	p, err := s.Paraxial(lambdaNm, objectZ)
 	if err != nil {
@@ -47,7 +56,10 @@ func (s *System) FocusAt(objectZ, lambdaNm float64) (float64, error) {
 //
 // With lambdaA = F (486 nm, blue) and lambdaB = C (656 nm, red) the result is
 // the classical F−C focus shift; it is negative when the blue focus lies in
-// front of the red one (positive singlet).
+// front of the red one (positive singlet). A pure mirror system returns exactly
+// zero (mirror power is wavelength independent in a non-dispersive medium),
+// while a catadioptric system returns the contribution of its refracting
+// elements.
 func (s *System) AxialChromatic(objectZ, lambdaA, lambdaB float64) (float64, error) {
 	zA, err := s.FocusAt(objectZ, lambdaA)
 	if err != nil {

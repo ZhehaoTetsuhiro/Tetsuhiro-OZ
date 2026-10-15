@@ -194,15 +194,60 @@ func TestPrescriptionVarsPlumbing(t *testing.T) {
 	}
 }
 
-func TestPrescriptionMirrorRejectedByParaxial(t *testing.T) {
+// TestPrescriptionParaxialMirror is the specification change of the mirror
+// support: a reflecting card is no longer rejected *because it reflects* — the
+// first-order engine unfolds coaxial mirror systems — so the only remaining
+// first-order rejection is a mirror that separates two different media, which
+// no physical mirror does.
+func TestPrescriptionParaxialMirror(t *testing.T) {
+	// The rear card of this cemented doublet reflects. The system must still
+	// build for real-ray tracing ...
 	p := biconvexBK7()
 	p.Cards[1].Mirror = true
-	if _, err := p.Paraxial(geo.Wavelengthd); err == nil {
-		t.Fatal("paraxial analysis accepted a mirror system")
-	}
-	// The system itself must still build for real-ray tracing.
 	if _, err := p.System(); err != nil {
 		t.Fatalf("System() must build mirror systems: %v", err)
+	}
+	// ... and the first-order engine must now report the *interface* (glass on
+	// one side, air on the other), not the mirror itself.
+	if _, err := p.Paraxial(geo.Wavelengthd); err == nil {
+		t.Fatal("a mirror between glass and air must be rejected by the first-order engine")
+	}
+	// A reflecting surface inside one medium is analysed: a single mirror card
+	// of R = -2000 mm gives the paraxial image of an object at infinity at
+	// R/2 = -1000 mm in front of the vertex.
+	q := &Prescription{
+		Name:      "single mirror",
+		ObjectZMM: math.Inf(-1),
+		Cards: []Card{
+			{Name: "primary", RadiusMM: -2000, ThicknessMM: 0, Glass: "", SemiAperMM: 100, Mirror: true},
+		},
+		Stop: 0,
+	}
+	par, err := q.Paraxial(geo.Wavelengthd)
+	if err != nil {
+		t.Fatalf("Paraxial on a mirror prescription: %v", err)
+	}
+	if par.Mirrors != 1 {
+		t.Fatalf("Mirrors = %d, want 1", par.Mirrors)
+	}
+	checkRelPrescription(t, "mirror prescription focus", par.ImageZ, -1000, 1e-12)
+	// A finite object distance is accepted as well (the mirror equation).
+	par2, err := func() (*geo.Paraxial, error) {
+		q.ObjectZMM = -3000
+		return q.Paraxial(geo.Wavelengthd)
+	}()
+	if err != nil {
+		t.Fatalf("Paraxial with a finite object: %v", err)
+	}
+	checkRelPrescription(t, "mirror prescription finite conjugate", par2.ImageZ, -1500, 1e-12)
+}
+
+// checkRelPrescription is the relative comparison of the lens package's tests.
+func checkRelPrescription(t *testing.T, name string, got, want, tol float64) {
+	t.Helper()
+	scale := math.Max(1, math.Abs(want))
+	if math.Abs(got-want) > tol*scale {
+		t.Errorf("%s: got %.15g, want %.15g", name, got, want)
 	}
 }
 

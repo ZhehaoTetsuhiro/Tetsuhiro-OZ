@@ -271,19 +271,38 @@ func TestLateralChromatic(t *testing.T) {
 	}
 }
 
-// TestChromaticErrors checks the error paths of the chromatic helpers.
+// TestChromaticErrors checks the error paths of the chromatic helpers. The
+// former "every mirror is rejected" block became the mirror *support* check
+// when the paraxial engine learned to unfold reflecting systems: a coaxial
+// mirror system is now evaluated like any other first-order system, and only a
+// mirror that separates two different media (which no physical mirror does) is
+// rejected.
 func TestChromaticErrors(t *testing.T) {
 	mirror := mustSystem(t, Air{},
 		[]Surface{{Profile: Sphere{R: -200}, Mirror: true, Aperture: CircleAperture(50)}},
 		nil, nil)
-	if _, err := mirror.FocusAt(math.Inf(-1), Wavelengthd); err == nil {
-		t.Error("FocusAt must reject mirror systems (no paraxial engine)")
+	z, err := mirror.FocusAt(math.Inf(-1), Wavelengthd)
+	if err != nil {
+		t.Fatalf("FocusAt on a mirror system: %v", err)
 	}
-	if _, err := mirror.AxialChromatic(math.Inf(-1), WavelengthF, WavelengthC); err == nil {
-		t.Error("AxialChromatic must reject mirror systems")
+	checkRel(t, "mirror FocusAt = R/2", z, -100, 1e-12)
+	if fc, err := mirror.AxialChromatic(math.Inf(-1), WavelengthF, WavelengthC); err != nil {
+		t.Errorf("AxialChromatic on a mirror system: %v", err)
+	} else if math.Abs(fc) > 1e-12 {
+		t.Errorf("pure mirror F-C = %g, want exactly 0 (no refracting element)", fc)
 	}
-	if _, err := mirror.LateralChromatic(FieldTan(0, 0.05), -100, WavelengthF, WavelengthC); err == nil {
-		t.Error("LateralChromatic must reject mirror systems")
+	if dh, err := mirror.LateralChromatic(FieldTan(0, 0.05), -100, WavelengthF, WavelengthC); err != nil {
+		t.Errorf("LateralChromatic on a mirror system: %v", err)
+	} else if math.Abs(dh) > 1e-12 {
+		t.Errorf("pure mirror lateral colour = %g, want exactly 0", dh)
+	}
+	// A mirror reflects inside one medium: a reflecting surface that separates
+	// glass from air is not physical and is rejected.
+	bad := mustSystem(t, Air{},
+		[]Surface{{Profile: Sphere{R: -200}, Mirror: true, Aperture: CircleAperture(50)}},
+		nil, []Medium{Air{}, N_BK7})
+	if _, err := bad.FocusAt(math.Inf(-1), Wavelengthd); err == nil {
+		t.Error("a mirror between two different media must be rejected")
 	}
 	sys := testSinglet(t)
 	if _, err := sys.ChromaticFocalShift(math.Inf(-1), nil); err == nil {
