@@ -8,8 +8,10 @@ package main
 import (
 	"fmt"
 	"math"
+	"strings"
 
 	"tetsuhiro-oz/lens"
+	"tetsuhiro-oz/tools/libcheck/measure"
 )
 
 // posedMinRays is the smallest number of the 21 traced fan rays that must
@@ -38,6 +40,40 @@ func posedCheck(file string, p *lens.Prescription, maxRMSSemi float64) (float64,
 		return 0, false
 	}
 	return m.FocusRMSMM, true
+}
+
+// sameBundle reports whether two prescriptions trace the same 21-ray fan:
+// the exit points and directions of every surviving ray must agree to the
+// given relative tolerance. It is the check behind the "a decentred
+// plane-parallel plate changes nothing" examples.
+func sameBundle(a, b *lens.Prescription, rel float64) error {
+	sa, err := a.System()
+	if err != nil {
+		return err
+	}
+	sb, err := b.System()
+	if err != nil {
+		return err
+	}
+	pa, da, _ := fanOf(sa, measure.StopAperture(a))
+	pb, db, _ := fanOf(sb, measure.StopAperture(b))
+	if len(pa) != len(pb) || len(pa) < 16 {
+		return fmt.Errorf("traced %d vs %d rays", len(pa), len(pb))
+	}
+	for i := range pa {
+		for _, c := range []struct {
+			what string
+			x, y float64
+		}{
+			{"point x", pa[i].X, pb[i].X}, {"point y", pa[i].Y, pb[i].Y}, {"point z", pa[i].Z, pb[i].Z},
+			{"dir x", da[i].X, db[i].X}, {"dir y", da[i].Y, db[i].Y}, {"dir z", da[i].Z, db[i].Z},
+		} {
+			if math.Abs(c.x-c.y) > rel*(1+math.Abs(c.x)) {
+				return fmt.Errorf("ray %d: %s %.12g vs %.12g", i, c.what, c.x, c.y)
+			}
+		}
+	}
+	return nil
 }
 
 // tiltedMirror builds one mirror folded by a tilt about x (the meridional
@@ -258,6 +294,22 @@ func posedPlate(l *lib, glass string, fl, wantFnum, tiltDeg, decenter float64, p
 	if !ok {
 		return
 	}
+	// A plane-parallel plate that is only decentred has no optical effect at
+	// all (only the glass path length changes): the traced bundle must
+	// coincide with the bundle of the same system without the pose.
+	nullEffect := tiltDeg == 0
+	if nullEffect {
+		ref := q.Clone()
+		for i := range ref.Cards {
+			if strings.HasPrefix(ref.Cards[i].Name, "plate") {
+				ref.Cards[i].DecenterXMM, ref.Cards[i].DecenterYMM = 0, 0
+			}
+		}
+		if err := sameBundle(q, ref, 1e-9); err != nil {
+			failf("posed plate %s: the decentred plate is not optically neutral: %v", file, err)
+			return
+		}
+	}
 	m, err := measureOf(q)
 	if err != nil {
 		failf("posed plate %s: %v", file, err)
@@ -267,14 +319,28 @@ func posedPlate(l *lib, glass string, fl, wantFnum, tiltDeg, decenter float64, p
 	if pos == "conv" {
 		zhn = "会聚光中"
 	}
-	q.Name = fmt.Sprintf("倾斜平板（%s）+ 单透镜 %s f=%.4gmm F/%s（tilt %s°）", zhn, glass, efl, trimNum(fnum, 2), trimNum(tiltDeg, 2))
-	note := fmt.Sprintf("倾斜平板 + 球面单透镜｜%s｜f=%smm、F/%s｜%s毫米厚平板置于%s（tilt_x_deg=%s、decenter_x_mm=%s，坐标断点；平板两面同 pose）｜平板使光束平移（会聚光中另引入像散）：实测最佳焦面 z=%smm、RMS=%smm｜一阶引擎对 pose 系统报错，指标全部来自实光线追迹",
-		glass, trimNum(efl, 0), trimNum(fnum, 2), trimNum(3, 0), zhn, trimNum(tiltDeg, 2), trimNum(decenter, 3),
-		trimNum(m.FocusZMM, 5), trimNum(rms, 4))
-	l.add(file, q, "tilt", 3, []string{
-		"posed", "tilt", "plate", "singlet", glass, fnumTag(fnum), eflTag(efl), "visible",
-		"trace-validated", "quality:classic", "sweep:tilt", "plane-parallel",
-	}, note)
+	var note string
+	if nullEffect {
+		q.Name = fmt.Sprintf("偏心平板（对照，%s）+ 单透镜 %s f=%.4gmm F/%s", zhn, glass, efl, trimNum(fnum, 2))
+		note = fmt.Sprintf("偏心平板（对照例）｜%s｜f=%smm、F/%s｜%s毫米厚平行平板置于%s并整体偏心 x=%smm（decenter_x_mm，坐标断点；平板两面同 pose）｜平行平板的横移不改变光线路径：生成器比对证明其出射光线与无 pose 的同一系统一致（≤1e-9），实测最佳焦面 z=%smm、RMS=%smm（与未偏心时相同）｜一阶引擎对 pose 系统报错，指标全部来自实光线追迹",
+			glass, trimNum(efl, 0), trimNum(fnum, 2), trimNum(3, 0), zhn, trimNum(decenter, 3),
+			trimNum(m.FocusZMM, 5), trimNum(rms, 4))
+	} else {
+		q.Name = fmt.Sprintf("倾斜平板（%s）+ 单透镜 %s f=%.4gmm F/%s（tilt %s°）", zhn, glass, efl, trimNum(fnum, 2), trimNum(tiltDeg, 2))
+		note = fmt.Sprintf("倾斜平板 + 球面单透镜｜%s｜f=%smm、F/%s｜%s毫米厚平板置于%s（tilt_x_deg=%s、decenter_x_mm=%s，坐标断点；平板两面同 pose）｜平板使光束平移（会聚光中另引入像散）：实测最佳焦面 z=%smm、RMS=%smm｜一阶引擎对 pose 系统报错，指标全部来自实光线追迹",
+			glass, trimNum(efl, 0), trimNum(fnum, 2), trimNum(3, 0), zhn, trimNum(tiltDeg, 2), trimNum(decenter, 3),
+			trimNum(m.FocusZMM, 5), trimNum(rms, 4))
+	}
+	tg := []string{
+		"posed", "plate", "singlet", glass, fnumTag(fnum), eflTag(efl), "visible",
+		"trace-validated", "quality:classic", "plane-parallel",
+	}
+	if nullEffect {
+		tg = append(tg, "decenter", "null-effect", "sweep:decenter")
+	} else {
+		tg = append(tg, "tilt", "sweep:tilt")
+	}
+	l.add(file, q, "tilt", 3, tg, note)
 }
 
 // tiltedFlatMirrorAndLens folds a collimated beam by 45° with a plane mirror

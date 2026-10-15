@@ -12324,13 +12324,12 @@
     },
     {
       "file": "posed-plate-conv-tilt0-dcx1-f100-f4-nbk7.json",
-      "name": "倾斜平板（会聚光中）+ 单透镜 N-BK7 f=100mm F/4（tilt 0°）",
+      "name": "偏心平板（对照，会聚光中）+ 单透镜 N-BK7 f=100mm F/4",
       "category": "tilt",
       "difficulty": 3,
-      "description": "倾斜平板 + 球面单透镜｜N-BK7｜f=100mm、F/4｜3毫米厚平板置于会聚光中（tilt_x_deg=0、decenter_x_mm=1，坐标断点；平板两面同 pose）｜平板使光束平移（会聚光中另引入像散）：实测最佳焦面 z=103.68047mm、RMS=0.0249mm｜一阶引擎对 pose 系统报错，指标全部来自实光线追迹。预期指标（引擎计算；单位 mm、µrad、deg；libcheck 复核容差：相对 1e-6）：MODE=posed；FOCUSZ=103.680466mm；FOCUSRMS=0.0248873405mm；RAYS=21",
+      "description": "偏心平板（对照例）｜N-BK7｜f=100mm、F/4｜3毫米厚平行平板置于会聚光中并整体偏心 x=1mm（decenter_x_mm，坐标断点；平板两面同 pose）｜平行平板的横移不改变光线路径：生成器比对证明其出射光线与无 pose 的同一系统一致（≤1e-9），实测最佳焦面 z=103.68047mm、RMS=0.0249mm（与未偏心时相同）｜一阶引擎对 pose 系统报错，指标全部来自实光线追迹。预期指标（引擎计算；单位 mm、µrad、deg；libcheck 复核容差：相对 1e-6）：MODE=posed；FOCUSZ=103.680466mm；FOCUSRMS=0.0248873405mm；RAYS=21",
       "tags": [
         "posed",
-        "tilt",
         "plate",
         "singlet",
         "N-BK7",
@@ -12339,8 +12338,10 @@
         "visible",
         "trace-validated",
         "quality:classic",
-        "sweep:tilt",
         "plane-parallel",
+        "decenter",
+        "null-effect",
+        "sweep:decenter",
         "mode:posed"
       ],
       "quality": "classic",
@@ -12365,7 +12366,6 @@
       "description": "倾斜平板 + 球面单透镜｜N-BK7｜f=100mm、F/4｜3毫米厚平板置于会聚光中（tilt_x_deg=10、decenter_x_mm=0，坐标断点；平板两面同 pose）｜平板使光束平移（会聚光中另引入像散）：实测最佳焦面 z=103.6639mm、RMS=0.0252mm｜一阶引擎对 pose 系统报错，指标全部来自实光线追迹。预期指标（引擎计算；单位 mm、µrad、deg；libcheck 复核容差：相对 1e-6）：MODE=posed；FOCUSZ=103.6639mm；FOCUSRMS=0.0252412052mm；RAYS=21",
       "tags": [
         "posed",
-        "tilt",
         "plate",
         "singlet",
         "N-BK7",
@@ -12374,8 +12374,9 @@
         "visible",
         "trace-validated",
         "quality:classic",
-        "sweep:tilt",
         "plane-parallel",
+        "tilt",
+        "sweep:tilt",
         "mode:posed"
       ],
       "quality": "classic",
@@ -12400,7 +12401,6 @@
       "description": "倾斜平板 + 球面单透镜｜FusedSilica｜f=200mm、F/5.6｜3毫米厚平板置于会聚光中（tilt_x_deg=10、decenter_x_mm=0，坐标断点；平板两面同 pose）｜平板使光束平移（会聚光中另引入像散）：实测最佳焦面 z=204.59387mm、RMS=0.0229mm｜一阶引擎对 pose 系统报错，指标全部来自实光线追迹。预期指标（引擎计算；单位 mm、µrad、deg；libcheck 复核容差：相对 1e-6）：MODE=posed；FOCUSZ=204.593872mm；FOCUSRMS=0.0229207961mm；RAYS=21",
       "tags": [
         "posed",
-        "tilt",
         "plate",
         "singlet",
         "FusedSilica",
@@ -12409,8 +12409,9 @@
         "visible",
         "trace-validated",
         "quality:classic",
-        "sweep:tilt",
         "plane-parallel",
+        "tilt",
+        "sweep:tilt",
         "mode:posed"
       ],
       "quality": "classic",
@@ -12435,7 +12436,6 @@
       "description": "倾斜平板 + 球面单透镜｜N-BK7｜f=100mm、F/4｜3毫米厚平板置于会聚光中（tilt_x_deg=20、decenter_x_mm=0，坐标断点；平板两面同 pose）｜平板使光束平移（会聚光中另引入像散）：实测最佳焦面 z=103.68276mm、RMS=0.0256mm｜一阶引擎对 pose 系统报错，指标全部来自实光线追迹。预期指标（引擎计算；单位 mm、µrad、deg；libcheck 复核容差：相对 1e-6）：MODE=posed；FOCUSZ=103.682758mm；FOCUSRMS=0.0255824629mm；RAYS=21",
       "tags": [
         "posed",
-        "tilt",
         "plate",
         "singlet",
         "N-BK7",
@@ -12444,8 +12444,9 @@
         "visible",
         "trace-validated",
         "quality:classic",
-        "sweep:tilt",
         "plane-parallel",
+        "tilt",
+        "sweep:tilt",
         "mode:posed"
       ],
       "quality": "classic",
@@ -12470,7 +12471,6 @@
       "description": "倾斜平板 + 球面单透镜｜FusedSilica｜f=200mm、F/5.6｜3毫米厚平板置于会聚光中（tilt_x_deg=20、decenter_x_mm=0，坐标断点；平板两面同 pose）｜平板使光束平移（会聚光中另引入像散）：实测最佳焦面 z=204.62801mm、RMS=0.0231mm｜一阶引擎对 pose 系统报错，指标全部来自实光线追迹。预期指标（引擎计算；单位 mm、µrad、deg；libcheck 复核容差：相对 1e-6）：MODE=posed；FOCUSZ=204.628014mm；FOCUSRMS=0.0230905886mm；RAYS=21",
       "tags": [
         "posed",
-        "tilt",
         "plate",
         "singlet",
         "FusedSilica",
@@ -12479,8 +12479,9 @@
         "visible",
         "trace-validated",
         "quality:classic",
-        "sweep:tilt",
         "plane-parallel",
+        "tilt",
+        "sweep:tilt",
         "mode:posed"
       ],
       "quality": "classic",
@@ -12505,7 +12506,6 @@
       "description": "倾斜平板 + 球面单透镜｜N-BK7｜f=100mm、F/4｜3毫米厚平板置于会聚光中（tilt_x_deg=30、decenter_x_mm=0，坐标断点；平板两面同 pose）｜平板使光束平移（会聚光中另引入像散）：实测最佳焦面 z=103.72988mm、RMS=0.0259mm｜一阶引擎对 pose 系统报错，指标全部来自实光线追迹。预期指标（引擎计算；单位 mm、µrad、deg；libcheck 复核容差：相对 1e-6）：MODE=posed；FOCUSZ=103.729875mm；FOCUSRMS=0.0258959409mm；RAYS=21",
       "tags": [
         "posed",
-        "tilt",
         "plate",
         "singlet",
         "N-BK7",
@@ -12514,8 +12514,9 @@
         "visible",
         "trace-validated",
         "quality:classic",
-        "sweep:tilt",
         "plane-parallel",
+        "tilt",
+        "sweep:tilt",
         "mode:posed"
       ],
       "quality": "classic",
@@ -12540,7 +12541,6 @@
       "description": "倾斜平板 + 球面单透镜｜N-BK7｜f=100mm、F/4｜3毫米厚平板置于会聚光中（tilt_x_deg=45、decenter_x_mm=0，坐标断点；平板两面同 pose）｜平板使光束平移（会聚光中另引入像散）：实测最佳焦面 z=103.79914mm、RMS=0.0262mm｜一阶引擎对 pose 系统报错，指标全部来自实光线追迹。预期指标（引擎计算；单位 mm、µrad、deg；libcheck 复核容差：相对 1e-6）：MODE=posed；FOCUSZ=103.799135mm；FOCUSRMS=0.0262272721mm；RAYS=21",
       "tags": [
         "posed",
-        "tilt",
         "plate",
         "singlet",
         "N-BK7",
@@ -12549,8 +12549,9 @@
         "visible",
         "trace-validated",
         "quality:classic",
-        "sweep:tilt",
         "plane-parallel",
+        "tilt",
+        "sweep:tilt",
         "mode:posed"
       ],
       "quality": "classic",
@@ -12575,7 +12576,6 @@
       "description": "倾斜平板 + 球面单透镜｜N-BK7｜f=100mm、F/4｜3毫米厚平板置于会聚光中（tilt_x_deg=5、decenter_x_mm=0，坐标断点；平板两面同 pose）｜平板使光束平移（会聚光中另引入像散）：实测最佳焦面 z=103.66698mm、RMS=0.0251mm｜一阶引擎对 pose 系统报错，指标全部来自实光线追迹。预期指标（引擎计算；单位 mm、µrad、deg；libcheck 复核容差：相对 1e-6）：MODE=posed；FOCUSZ=103.666977mm；FOCUSRMS=0.0250653571mm；RAYS=21",
       "tags": [
         "posed",
-        "tilt",
         "plate",
         "singlet",
         "N-BK7",
@@ -12584,8 +12584,9 @@
         "visible",
         "trace-validated",
         "quality:classic",
-        "sweep:tilt",
         "plane-parallel",
+        "tilt",
+        "sweep:tilt",
         "mode:posed"
       ],
       "quality": "classic",
@@ -12604,13 +12605,12 @@
     },
     {
       "file": "posed-plate-front-tilt0-dcx0p5-f100-f4-nbk7.json",
-      "name": "倾斜平板（平行光中）+ 单透镜 N-BK7 f=100mm F/4（tilt 0°）",
+      "name": "偏心平板（对照，平行光中）+ 单透镜 N-BK7 f=100mm F/4",
       "category": "tilt",
       "difficulty": 3,
-      "description": "倾斜平板 + 球面单透镜｜N-BK7｜f=100mm、F/4｜3毫米厚平板置于平行光中（tilt_x_deg=0、decenter_x_mm=0.5，坐标断点；平板两面同 pose）｜平板使光束平移（会聚光中另引入像散）：实测最佳焦面 z=110.65038mm、RMS=0.025mm｜一阶引擎对 pose 系统报错，指标全部来自实光线追迹。预期指标（引擎计算；单位 mm、µrad、deg；libcheck 复核容差：相对 1e-6）：MODE=posed；FOCUSZ=110.650377mm；FOCUSRMS=0.0250210673mm；RAYS=21",
+      "description": "偏心平板（对照例）｜N-BK7｜f=100mm、F/4｜3毫米厚平行平板置于平行光中并整体偏心 x=0.5mm（decenter_x_mm，坐标断点；平板两面同 pose）｜平行平板的横移不改变光线路径：生成器比对证明其出射光线与无 pose 的同一系统一致（≤1e-9），实测最佳焦面 z=110.65038mm、RMS=0.025mm（与未偏心时相同）｜一阶引擎对 pose 系统报错，指标全部来自实光线追迹。预期指标（引擎计算；单位 mm、µrad、deg；libcheck 复核容差：相对 1e-6）：MODE=posed；FOCUSZ=110.650377mm；FOCUSRMS=0.0250210673mm；RAYS=21",
       "tags": [
         "posed",
-        "tilt",
         "plate",
         "singlet",
         "N-BK7",
@@ -12619,8 +12619,10 @@
         "visible",
         "trace-validated",
         "quality:classic",
-        "sweep:tilt",
         "plane-parallel",
+        "decenter",
+        "null-effect",
+        "sweep:decenter",
         "mode:posed"
       ],
       "quality": "classic",
@@ -12639,13 +12641,12 @@
     },
     {
       "file": "posed-plate-front-tilt0-dcx1-f100-f4-nbk7.json",
-      "name": "倾斜平板（平行光中）+ 单透镜 N-BK7 f=100mm F/4（tilt 0°）（变体2）",
+      "name": "偏心平板（对照，平行光中）+ 单透镜 N-BK7 f=100mm F/4（变体2）",
       "category": "tilt",
       "difficulty": 3,
-      "description": "倾斜平板 + 球面单透镜｜N-BK7｜f=100mm、F/4｜3毫米厚平板置于平行光中（tilt_x_deg=0、decenter_x_mm=1，坐标断点；平板两面同 pose）｜平板使光束平移（会聚光中另引入像散）：实测最佳焦面 z=110.65038mm、RMS=0.025mm｜一阶引擎对 pose 系统报错，指标全部来自实光线追迹。预期指标（引擎计算；单位 mm、µrad、deg；libcheck 复核容差：相对 1e-6）：MODE=posed；FOCUSZ=110.650377mm；FOCUSRMS=0.0250210673mm；RAYS=21",
+      "description": "偏心平板（对照例）｜N-BK7｜f=100mm、F/4｜3毫米厚平行平板置于平行光中并整体偏心 x=1mm（decenter_x_mm，坐标断点；平板两面同 pose）｜平行平板的横移不改变光线路径：生成器比对证明其出射光线与无 pose 的同一系统一致（≤1e-9），实测最佳焦面 z=110.65038mm、RMS=0.025mm（与未偏心时相同）｜一阶引擎对 pose 系统报错，指标全部来自实光线追迹。预期指标（引擎计算；单位 mm、µrad、deg；libcheck 复核容差：相对 1e-6）：MODE=posed；FOCUSZ=110.650377mm；FOCUSRMS=0.0250210673mm；RAYS=21",
       "tags": [
         "posed",
-        "tilt",
         "plate",
         "singlet",
         "N-BK7",
@@ -12654,8 +12655,10 @@
         "visible",
         "trace-validated",
         "quality:classic",
-        "sweep:tilt",
         "plane-parallel",
+        "decenter",
+        "null-effect",
+        "sweep:decenter",
         "mode:posed"
       ],
       "quality": "classic",
@@ -12674,13 +12677,12 @@
     },
     {
       "file": "posed-plate-front-tilt0-dcx2-f100-f4-nbk7.json",
-      "name": "倾斜平板（平行光中）+ 单透镜 N-BK7 f=100mm F/4（tilt 0°）（变体3）",
+      "name": "偏心平板（对照，平行光中）+ 单透镜 N-BK7 f=100mm F/4（变体3）",
       "category": "tilt",
       "difficulty": 3,
-      "description": "倾斜平板 + 球面单透镜｜N-BK7｜f=100mm、F/4｜3毫米厚平板置于平行光中（tilt_x_deg=0、decenter_x_mm=2，坐标断点；平板两面同 pose）｜平板使光束平移（会聚光中另引入像散）：实测最佳焦面 z=110.65038mm、RMS=0.025mm｜一阶引擎对 pose 系统报错，指标全部来自实光线追迹。预期指标（引擎计算；单位 mm、µrad、deg；libcheck 复核容差：相对 1e-6）：MODE=posed；FOCUSZ=110.650377mm；FOCUSRMS=0.0250210673mm；RAYS=21",
+      "description": "偏心平板（对照例）｜N-BK7｜f=100mm、F/4｜3毫米厚平行平板置于平行光中并整体偏心 x=2mm（decenter_x_mm，坐标断点；平板两面同 pose）｜平行平板的横移不改变光线路径：生成器比对证明其出射光线与无 pose 的同一系统一致（≤1e-9），实测最佳焦面 z=110.65038mm、RMS=0.025mm（与未偏心时相同）｜一阶引擎对 pose 系统报错，指标全部来自实光线追迹。预期指标（引擎计算；单位 mm、µrad、deg；libcheck 复核容差：相对 1e-6）：MODE=posed；FOCUSZ=110.650377mm；FOCUSRMS=0.0250210673mm；RAYS=21",
       "tags": [
         "posed",
-        "tilt",
         "plate",
         "singlet",
         "N-BK7",
@@ -12689,8 +12691,10 @@
         "visible",
         "trace-validated",
         "quality:classic",
-        "sweep:tilt",
         "plane-parallel",
+        "decenter",
+        "null-effect",
+        "sweep:decenter",
         "mode:posed"
       ],
       "quality": "classic",
@@ -12715,7 +12719,6 @@
       "description": "倾斜平板 + 球面单透镜｜N-BK7｜f=100mm、F/4｜3毫米厚平板置于平行光中（tilt_x_deg=10、decenter_x_mm=0，坐标断点；平板两面同 pose）｜平板使光束平移（会聚光中另引入像散）：实测最佳焦面 z=110.72314mm、RMS=0.0243mm｜一阶引擎对 pose 系统报错，指标全部来自实光线追迹。预期指标（引擎计算；单位 mm、µrad、deg；libcheck 复核容差：相对 1e-6）：MODE=posed；FOCUSZ=110.723142mm；FOCUSRMS=0.0243083697mm；RAYS=21",
       "tags": [
         "posed",
-        "tilt",
         "plate",
         "singlet",
         "N-BK7",
@@ -12724,8 +12727,9 @@
         "visible",
         "trace-validated",
         "quality:classic",
-        "sweep:tilt",
         "plane-parallel",
+        "tilt",
+        "sweep:tilt",
         "mode:posed"
       ],
       "quality": "classic",
@@ -12750,7 +12754,6 @@
       "description": "倾斜平板 + 球面单透镜｜N-SK16｜f=100mm、F/4｜3毫米厚平板置于平行光中（tilt_x_deg=10、decenter_x_mm=0，坐标断点；平板两面同 pose）｜平板使光束平移（会聚光中另引入像散）：实测最佳焦面 z=111.34107mm、RMS=0.0176mm｜一阶引擎对 pose 系统报错，指标全部来自实光线追迹。预期指标（引擎计算；单位 mm、µrad、deg；libcheck 复核容差：相对 1e-6）：MODE=posed；FOCUSZ=111.341068mm；FOCUSRMS=0.0176075493mm；RAYS=21",
       "tags": [
         "posed",
-        "tilt",
         "plate",
         "singlet",
         "N-SK16",
@@ -12759,8 +12762,9 @@
         "visible",
         "trace-validated",
         "quality:classic",
-        "sweep:tilt",
         "plane-parallel",
+        "tilt",
+        "sweep:tilt",
         "mode:posed"
       ],
       "quality": "classic",
@@ -12785,7 +12789,6 @@
       "description": "倾斜平板 + 球面单透镜｜N-BK7｜f=100mm、F/4｜3毫米厚平板置于平行光中（tilt_x_deg=10、decenter_x_mm=0.5，坐标断点；平板两面同 pose）｜平板使光束平移（会聚光中另引入像散）：实测最佳焦面 z=110.72314mm、RMS=0.0243mm｜一阶引擎对 pose 系统报错，指标全部来自实光线追迹。预期指标（引擎计算；单位 mm、µrad、deg；libcheck 复核容差：相对 1e-6）：MODE=posed；FOCUSZ=110.723142mm；FOCUSRMS=0.0243083697mm；RAYS=21",
       "tags": [
         "posed",
-        "tilt",
         "plate",
         "singlet",
         "N-BK7",
@@ -12794,8 +12797,9 @@
         "visible",
         "trace-validated",
         "quality:classic",
-        "sweep:tilt",
         "plane-parallel",
+        "tilt",
+        "sweep:tilt",
         "mode:posed"
       ],
       "quality": "classic",
@@ -12820,7 +12824,6 @@
       "description": "倾斜平板 + 球面单透镜｜N-BK7｜f=100mm、F/4｜3毫米厚平板置于平行光中（tilt_x_deg=2、decenter_x_mm=0，坐标断点；平板两面同 pose）｜平板使光束平移（会聚光中另引入像散）：实测最佳焦面 z=110.66508mm、RMS=0.0249mm｜一阶引擎对 pose 系统报错，指标全部来自实光线追迹。预期指标（引擎计算；单位 mm、µrad、deg；libcheck 复核容差：相对 1e-6）：MODE=posed；FOCUSZ=110.665084mm；FOCUSRMS=0.0248778203mm；RAYS=21",
       "tags": [
         "posed",
-        "tilt",
         "plate",
         "singlet",
         "N-BK7",
@@ -12829,8 +12832,9 @@
         "visible",
         "trace-validated",
         "quality:classic",
-        "sweep:tilt",
         "plane-parallel",
+        "tilt",
+        "sweep:tilt",
         "mode:posed"
       ],
       "quality": "classic",
@@ -12855,7 +12859,6 @@
       "description": "倾斜平板 + 球面单透镜｜N-BK7｜f=100mm、F/4｜3毫米厚平板置于平行光中（tilt_x_deg=20、decenter_x_mm=0，坐标断点；平板两面同 pose）｜平板使光束平移（会聚光中另引入像散）：实测最佳焦面 z=110.79101mm、RMS=0.0236mm｜一阶引擎对 pose 系统报错，指标全部来自实光线追迹。预期指标（引擎计算；单位 mm、µrad、deg；libcheck 复核容差：相对 1e-6）：MODE=posed；FOCUSZ=110.791012mm；FOCUSRMS=0.0236156566mm；RAYS=21",
       "tags": [
         "posed",
-        "tilt",
         "plate",
         "singlet",
         "N-BK7",
@@ -12864,8 +12867,9 @@
         "visible",
         "trace-validated",
         "quality:classic",
-        "sweep:tilt",
         "plane-parallel",
+        "tilt",
+        "sweep:tilt",
         "mode:posed"
       ],
       "quality": "classic",
@@ -12890,7 +12894,6 @@
       "description": "倾斜平板 + 球面单透镜｜N-BK7｜f=100mm、F/4｜3毫米厚平板置于平行光中（tilt_x_deg=20、decenter_x_mm=1，坐标断点；平板两面同 pose）｜平板使光束平移（会聚光中另引入像散）：实测最佳焦面 z=110.79101mm、RMS=0.0236mm｜一阶引擎对 pose 系统报错，指标全部来自实光线追迹。预期指标（引擎计算；单位 mm、µrad、deg；libcheck 复核容差：相对 1e-6）：MODE=posed；FOCUSZ=110.791012mm；FOCUSRMS=0.0236156566mm；RAYS=21",
       "tags": [
         "posed",
-        "tilt",
         "plate",
         "singlet",
         "N-BK7",
@@ -12899,8 +12902,9 @@
         "visible",
         "trace-validated",
         "quality:classic",
-        "sweep:tilt",
         "plane-parallel",
+        "tilt",
+        "sweep:tilt",
         "mode:posed"
       ],
       "quality": "classic",
@@ -12925,7 +12929,6 @@
       "description": "倾斜平板 + 球面单透镜｜N-BK7｜f=100mm、F/4｜3毫米厚平板置于平行光中（tilt_x_deg=30、decenter_x_mm=0，坐标断点；平板两面同 pose）｜平板使光束平移（会聚光中另引入像散）：实测最佳焦面 z=111.12026mm、RMS=0.0167mm｜一阶引擎对 pose 系统报错，指标全部来自实光线追迹。预期指标（引擎计算；单位 mm、µrad、deg；libcheck 复核容差：相对 1e-6）：MODE=posed；FOCUSZ=111.120262mm；FOCUSRMS=0.0167340289mm；RAYS=19",
       "tags": [
         "posed",
-        "tilt",
         "plate",
         "singlet",
         "N-BK7",
@@ -12934,8 +12937,9 @@
         "visible",
         "trace-validated",
         "quality:classic",
-        "sweep:tilt",
         "plane-parallel",
+        "tilt",
+        "sweep:tilt",
         "mode:posed"
       ],
       "quality": "classic",
@@ -12960,7 +12964,6 @@
       "description": "倾斜平板 + 球面单透镜｜N-BK7｜f=100mm、F/4｜3毫米厚平板置于平行光中（tilt_x_deg=5、decenter_x_mm=0，坐标断点；平板两面同 pose）｜平板使光束平移（会聚光中另引入像散）：实测最佳焦面 z=110.68712mm、RMS=0.0247mm｜一阶引擎对 pose 系统报错，指标全部来自实光线追迹。预期指标（引擎计算；单位 mm、µrad、deg；libcheck 复核容差：相对 1e-6）：MODE=posed；FOCUSZ=110.687124mm；FOCUSRMS=0.024663408mm；RAYS=21",
       "tags": [
         "posed",
-        "tilt",
         "plate",
         "singlet",
         "N-BK7",
@@ -12969,8 +12972,9 @@
         "visible",
         "trace-validated",
         "quality:classic",
-        "sweep:tilt",
         "plane-parallel",
+        "tilt",
+        "sweep:tilt",
         "mode:posed"
       ],
       "quality": "classic",

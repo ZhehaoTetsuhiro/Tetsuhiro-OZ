@@ -45,7 +45,6 @@
   "difficulty": 3,
   "tags": [
     "posed",
-    "tilt",
     "plate",
     "singlet",
     "N-BK7",
@@ -54,8 +53,9 @@
     "visible",
     "trace-validated",
     "quality:classic",
-    "sweep:tilt",
     "plane-parallel",
+    "tilt",
+    "sweep:tilt",
     "mode:posed"
   ]
 }
