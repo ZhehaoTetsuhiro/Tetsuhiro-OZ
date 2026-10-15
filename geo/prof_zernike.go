@@ -155,7 +155,7 @@ func ZernikeNollNorm(j int) float64 {
 	return math.Sqrt(float64(n + 1))
 }
 
-// ZernikeNoll returns the value Y_j(ρ, θ) of the j-th Zernike polynomial in
+// ZernikeNoll returns the value Z_j(ρ, θ) of the j-th Zernike polynomial in
 // Noll's ordering (the polynomial form, without Noll's orthonormal factor; see
 // the file comment). j < 1 returns 0.
 func ZernikeNoll(j int, rho, theta float64) float64 {
@@ -449,9 +449,10 @@ func (p ZernikeSurface) NormalXY(x, y float64) Vec3 {
 	return n
 }
 
-// Sag implements Profile with the θ = 0 cut, Sag(r) = SagXY(r, 0). It is the
-// exact sag of a surface built from the rotationally symmetric members alone
-// (see Symmetric) and the θ = 0 meridian otherwise.
+// Sag implements Profile with the θ = 0 cut, Sag(r) = SagXY(r, 0) (r >= 0 by
+// the package convention). It is the exact sag of a surface built from the
+// rotationally symmetric members alone (see Symmetric) and the θ = 0 meridian
+// otherwise.
 func (p ZernikeSurface) Sag(r float64) float64 { return p.SagXY(r, 0) }
 
 // Slope implements Profile with the θ = 0 cut, Slope(r) = ∂z/∂x at (r, 0),

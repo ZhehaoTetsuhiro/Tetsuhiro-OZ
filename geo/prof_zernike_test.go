@@ -482,6 +482,7 @@ func TestZernikeZeroCoeffsReduceToBase(t *testing.T) {
 			if worst > 1e-13 {
 				t.Errorf("%s/%s: degenerate surface deviates from the base by %.3g > 1e-13", b.name, coeffs.name, worst)
 			}
+			t.Logf("%s/%s: worst deviation from the base %.3g", b.name, coeffs.name, worst)
 			// Intersection must agree with the base solver to 1e-12 mm.
 			if !math.IsInf(b.R, 0) && b.R != 0 {
 				o := V(3, -2, -40.0)
