@@ -122,7 +122,11 @@ func (f Field) String() string { return "field[" + f.Label() + "]" }
 //
 // in the normalized pupil coordinates of the unit disc. It is normally the
 // paraxial entrance pupil (see System.EntrancePupil), whose centre lies on the
-// optical axis (Offset = 0), but any reference plane works — mirror systems,
+// optical axis (Offset = 0), but any reference plane works. For a system with
+// coordinate breaks or posed surfaces there is no paraxial pupil: pass the
+// plane and Offset = System.ChiefCrossing(field, z, λ) so that the sampling is
+// centred on the real chief ray (the chief reference of the analysis routines
+// is the real chief ray in any case) — mirror systems,
 // for which the paraxial engine is not available, simply pass a plane in front
 // of the first surface with the clear semi-diameter as Radius and the chief
 // offset of System.ChiefOffset as Offset, which puts the pupil centre on the

@@ -45,7 +45,7 @@ func (s *System) chiefRayPosed(f Field, lambdaNm float64) Ray {
 	}
 	stopFrame := s.elementFrame(stop)
 	centre := stopFrame.o
-	zmin, _ := s.BoundsZ(0)
+	zmin := s.launchPlaneZ()
 
 	var launch func(x, y float64) Ray
 	var x0, y0 float64
@@ -123,6 +123,17 @@ func (s *System) chiefRayPosed(f Field, lambdaNm float64) Ray {
 	return ray
 }
 
+// launchPlaneZ returns the axial position of the plane in front of every
+// surface that the chief-ray search launches from: the lowest z over the clear
+// apertures, or over a 10 mm radius for surfaces with unlimited apertures.
+func (s *System) launchPlaneZ() float64 {
+	zmin, _ := s.BoundsZ(0)
+	if math.IsInf(zmin, 0) || math.IsNaN(zmin) {
+		zmin, _ = s.BoundsZ(10)
+	}
+	return zmin
+}
+
 // ChiefCrossing returns the transverse position (x, y, zPlane) at which the real
 // chief ray of the field crosses the plane z = zPlane, which must lie in the
 // object space in front of the system. It is the pupil offset that centres a
@@ -136,7 +147,7 @@ func (s *System) ChiefCrossing(f Field, zPlane, lambdaNm float64) (Vec3, error) 
 	if !finite(zPlane) {
 		return Zero, fmt.Errorf("geo: chief crossing: plane z is not finite")
 	}
-	zmin, _ := s.BoundsZ(0)
+	zmin := s.launchPlaneZ()
 	if !(zPlane < zmin) {
 		return Zero, fmt.Errorf("geo: chief crossing: plane z=%g is not in front of the system (z=%g)", zPlane, zmin)
 	}

@@ -60,9 +60,11 @@
 // Analysis under poses: the trace, spot, ray fan and OPD routines are exact in
 // the global frame. Their chief reference is the real chief ray (the ray through
 // the centre of the aperture stop, System.ChiefRay) whenever the system has a
-// break or a pose; the paraxial engine, the Seidel sums, the chromatic routines
-// and the sub-system/reversed helpers return an error for such systems. See the
-// documentation of those functions.
+// break or a pose; the paraxial engine, the Seidel sums and the chromatic
+// routines return an error for a decentred or tilted layout, Sub returns an
+// error and Reversed returns nil. For such layouts set Pupil.Offset to the
+// crossing of the real chief ray (System.ChiefCrossing) to centre the sampling
+// on it.
 //
 // # Surfaces and sign conventions
 //
