@@ -327,3 +327,54 @@ html[data-theme="dark"] .splashTitle { text-shadow: 0 0 42px rgba(77, 184, 255, 
 
 @media (max-width: 1100px) { aside { width: 230px; } }
 @media (max-width: 700px) { #helpTable { column-count: 1; } }
+
+
+/* ---- 几何 / 膜系标签（OZ）：左侧表单、右侧结果（与波动、量子标签共用布局） ---- */
+#ozEditor, #ozOutput { display: flex; flex-direction: column; gap: 8px; min-width: 0; }
+#ozOutput { flex: 1; min-height: 0; overflow-y: auto; }
+#ozEditor h2.ozSub { margin-top: 12px; }
+.ozGrid { display: grid; grid-template-columns: 1fr 1fr; gap: 8px; }
+.ozField { display: flex; flex-direction: column; gap: 3px; min-width: 0; font-size: 12px; color: var(--label); }
+.ozField input, .ozField select { width: 100%; min-width: 0; min-height: 44px; }
+.ozActions { display: flex; flex-wrap: wrap; gap: 8px; margin: 8px 0 2px; }
+.ozActions button { flex: 1 1 130px; min-height: 44px; }
+.ozCard { background: var(--panel); border: 1px solid var(--border); border-radius: 10px; padding: 10px 12px;
+  backdrop-filter: blur(14px) saturate(150%); -webkit-backdrop-filter: blur(14px) saturate(150%); }
+.ozCard h2 { display: flex; flex-wrap: wrap; align-items: baseline; gap: 4px 10px; }
+.ozStatus { font-size: 12px; color: var(--muted); font-weight: 400; letter-spacing: 0; }
+.ozStatus.err { color: var(--err); }
+.ozOut { background: var(--panel2); border: 1px solid var(--border); border-radius: 8px; padding: 8px 10px; margin: 6px 0 0;
+  color: var(--ink); font: 12px/1.5 ui-monospace, SFMono-Regular, Menlo, Consolas, monospace;
+  white-space: pre-wrap; word-break: break-word; overflow: auto; max-height: 22rem; }
+.ozOut.err { color: var(--err); background: var(--err-bg); }
+.ozDetails summary { cursor: pointer; color: var(--accent); font-size: 12px; padding: 6px 0; min-height: 32px; }
+#ozPlot { display: block; width: 100%; height: clamp(150px, 38vw, 300px); background: var(--canvas-bg);
+  border: 1px solid var(--border); border-radius: 8px; margin: 4px 0 6px; }
+
+/* ---- 触控设备：按钮与输入框的点击目标不小于 44px ---- */
+@media (pointer: coarse) {
+  button, select, input { min-height: 44px; }
+  .themeToggle { min-height: 44px; }
+}
+
+/* ---- 移动端（视口 ≤ 700px）：页面整体滚动，面板单列堆叠 ---- */
+@media (max-width: 700px) {
+  html, body { height: auto; }
+  body { overflow: auto; min-height: 100%; }
+  header { flex-wrap: wrap; gap: 8px; padding: 8px 10px; }
+  header h1 { flex: 1 1 100%; }
+  header .status { flex: 1 1 100%; order: 20; }
+  header button, header select { min-height: 44px; }
+  .modeSwitch { flex-wrap: wrap; }
+  .themeToggle { margin-left: 0; }
+  main { flex-direction: column; overflow: visible; padding: 6px; }
+  aside { width: 100%; min-width: 0; max-height: none; overflow: visible; }
+  #center { overflow: visible; }
+  #waveOutput, #quantumOutput, #ozOutput { overflow: visible; }
+  #sceneList, #sourceList { max-height: 40vh; }
+  #canvasWrap { min-height: 0; }
+  #channelBar select, #viewTabs button { min-height: 44px; }
+  .ozGrid { grid-template-columns: 1fr; }
+  .ozActions button { flex: 1 1 100%; }
+  footer { font-size: 12px; line-height: 1.6; }
+}

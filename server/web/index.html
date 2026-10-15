@@ -3,7 +3,7 @@
 <head>
 <meta charset="utf-8">
 <meta name="viewport" content="width=device-width, initial-scale=1">
-<title>Tetsuhiro WOS 波动光学模拟器</title>
+<title>Tetsuhiro OZ 光学模拟器</title>
 <link rel="icon" type="image/svg+xml" href="/favicon.svg">
 <link rel="stylesheet" href="style.css">
 </head>
@@ -11,8 +11,8 @@
 <div id="splash" class="splash" aria-label="启动画面">
   <div class="splashInner">
     <div class="splashMast">
-      <p class="splashSub">波动光学模拟器 · Wave Optics Simulator</p>
-      <h1 class="splashTitle">Tetsuhiro WOS</h1>
+      <p class="splashSub">光学模拟器 · Optics Zero（几何 · 膜系 · 波动 · 量子）</p>
+      <h1 class="splashTitle">Tetsuhiro OZ</h1>
     </div>
     <div class="splashRule" aria-hidden="true"></div>
     <div class="splashFoot">
@@ -21,7 +21,7 @@
   </div>
 </div>
 <header>
-  <h1>Tetsuhiro WOS <span class="version">v1.4.0</span></h1>
+  <h1>Tetsuhiro OZ <span class="version" id="ozVersion">…</span></h1>
   <div class="status" id="status" role="status" aria-live="polite">加载中…</div>
   <button id="newBtn" title="新建空白光路 (n)">新建 (n)</button>
   <button id="openBtn" title="打开 JSON 配置文件 (o)">打开 (o)</button>
@@ -30,6 +30,7 @@
   <span class="modeSwitch" role="group" aria-label="模拟模式">
     <button id="waveModeBtn" class="active" title="波动光学模式">波动光学</button>
     <button id="quantumModeBtn" title="量子光学模式">量子光学</button>
+    <button id="ozModeBtn" title="几何光学（消色差设计、公差）与膜系设计（m 键循环切换）">几何/膜系</button>
   </span>
   <button id="runBtn" title="运行模拟 (空格)">▶ 运行</button>
   <button id="helpBtn" title="快捷键帮助 (?)">? 帮助</button>
@@ -78,6 +79,71 @@
         </div>
         <p class="hint">Fock 基线性光学：Fock/相干/压缩/热态光子数分布、g²(0)、正交分量与联合分布。</p>
       </div>
+    </section>
+    <section id="ozEditor" aria-label="几何与膜系设计参数" hidden>
+      <h2>几何设计 · 消色差双胶合</h2>
+      <div class="ozGrid">
+        <label class="ozField"><span>焦距 EFL（mm）</span>
+          <input type="number" id="ozEfl" value="100" min="1" step="1" inputmode="decimal"></label>
+        <label class="ozField"><span>半口径（mm，0 = EFL/10）</span>
+          <input type="number" id="ozSemi" value="10" min="0" step="0.5" inputmode="decimal"></label>
+        <label class="ozField"><span>视场角（°）</span>
+          <input type="number" id="ozField" value="0.5" min="0" step="0.1" inputmode="decimal"></label>
+        <label class="ozField"><span>冕玻璃</span>
+          <input type="text" id="ozCrown" value="N-BK7" spellcheck="false" autocapitalize="off"></label>
+        <label class="ozField"><span>火石玻璃</span>
+          <input type="text" id="ozFlint" value="F2" spellcheck="false" autocapitalize="off"></label>
+      </div>
+      <div class="ozActions">
+        <button id="ozDesignBtn" type="button">设计</button>
+        <button id="ozEvalBtn" type="button" class="secondary" disabled>评估当前设计</button>
+      </div>
+      <h2 class="ozSub">公差分析（Monte-Carlo，确定性）</h2>
+      <div class="ozGrid">
+        <label class="ozField"><span>半径 ±mm</span>
+          <input type="number" id="ozTolR" value="0.05" min="0" step="0.01" inputmode="decimal"></label>
+        <label class="ozField"><span>厚度 ±mm</span>
+          <input type="number" id="ozTolT" value="0.05" min="0" step="0.01" inputmode="decimal"></label>
+        <label class="ozField"><span>折射率 Δn（整批）</span>
+          <input type="number" id="ozTolN" value="0.0005" min="0" step="0.0001" inputmode="decimal"></label>
+        <label class="ozField"><span>运行次数</span>
+          <input type="number" id="ozTolRuns" value="200" min="1" max="20000" step="1" inputmode="numeric"></label>
+      </div>
+      <div class="ozActions">
+        <button id="ozTolBtn" type="button" class="secondary" disabled>运行公差</button>
+      </div>
+      <h2 class="ozSub">膜系设计</h2>
+      <div class="ozGrid">
+        <label class="ozField"><span>模板</span>
+          <select id="ozTemplate">
+            <option value="broadband-ar">宽带增透 broadband-ar</option>
+            <option value="single-ar">单层增透 single-ar</option>
+            <option value="vcoat">V 型镀膜 vcoat</option>
+            <option value="hr">高反膜 hr</option>
+            <option value="splitter">50:50 分束 splitter</option>
+            <option value="lwp">长波通 lwp</option>
+            <option value="swp">短波通 swp</option>
+          </select></label>
+        <label class="ozField"><span>设计波长（nm）</span>
+          <input type="number" id="ozLambda" value="550" min="100" step="1" inputmode="decimal"></label>
+        <label class="ozField"><span>宽带起（nm）</span>
+          <input type="number" id="ozFrom" value="420" min="100" step="1" inputmode="decimal"></label>
+        <label class="ozField"><span>宽带止（nm）</span>
+          <input type="number" id="ozTo" value="680" min="100" step="1" inputmode="decimal"></label>
+        <label class="ozField"><span>高反堆对数</span>
+          <input type="number" id="ozPairs" value="12" min="1" step="1" inputmode="numeric"></label>
+        <label class="ozField"><span>截止波长（nm，长/短通）</span>
+          <input type="number" id="ozCutoff" value="550" min="100" step="1" inputmode="decimal"></label>
+        <label class="ozField"><span>入射介质</span>
+          <input type="text" id="ozInc" value="Air" spellcheck="false" autocapitalize="off"></label>
+        <label class="ozField"><span>衬底</span>
+          <input type="text" id="ozSub" value="BK7" spellcheck="false" autocapitalize="off"></label>
+      </div>
+      <div class="ozActions">
+        <button id="ozCoatBtn" type="button">设计膜系</button>
+        <button id="ozSpecBtn" type="button" class="secondary">设计并画光谱</button>
+      </div>
+      <p class="hint">几何与膜系计算由服务端 /api/lens/* 与 /api/coating/* 完成，结果显示在右侧。</p>
     </section>
     <section id="waveGlobals">
       <h2>光源（可多个）</h2>
@@ -138,6 +204,23 @@
     <div id="quantumOutput" hidden>
       <div id="qResults"></div>
     </div>
+    <section id="ozOutput" aria-label="几何与膜系结果" hidden>
+      <article class="ozCard">
+        <h2>几何设计结果 <span class="ozStatus" id="ozLensStatus"></span></h2>
+        <pre class="ozOut" id="ozLensOut" aria-live="polite">点「设计」生成消色差双胶合，结果显示在这里。</pre>
+        <details class="ozDetails"><summary>处方 JSON（可复制）</summary>
+          <pre class="ozOut" id="ozPrescOut"></pre></details>
+      </article>
+      <article class="ozCard">
+        <h2>公差分析结果</h2>
+        <pre class="ozOut" id="ozTolOut">先完成设计，再点「运行公差」。</pre>
+      </article>
+      <article class="ozCard">
+        <h2>膜系与光谱</h2>
+        <canvas id="ozPlot" aria-label="反射率光谱图"></canvas>
+        <pre class="ozOut" id="ozCoatOut">选择模板后点「设计膜系」；「设计并画光谱」同时绘制 400–750 nm 反射率。</pre>
+      </article>
+    </section>
   </section>
 </main>
 
@@ -175,5 +258,6 @@
 </div>
 
 <script src="app.js"></script>
+<script src="oz.js"></script>
 </body>
 </html>

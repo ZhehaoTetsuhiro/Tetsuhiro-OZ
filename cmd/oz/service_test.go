@@ -10,6 +10,7 @@ import (
 	"net/http"
 	"net/http/httptest"
 	"os"
+	"os/exec"
 	"path/filepath"
 	"strings"
 	"testing"
@@ -54,7 +55,11 @@ func doHTTP(t *testing.T, base, method, path, body string) (int, http.Header, []
 	if body != "" {
 		req.Header.Set("Content-Type", "application/json")
 	}
-	res, err := http.DefaultClient.Do(req)
+	// Redirects are answers in their own right here: report the 3xx itself.
+	noFollow := &http.Client{CheckRedirect: func(*http.Request, []*http.Request) error {
+		return http.ErrUseLastResponse
+	}}
+	res, err := noFollow.Do(req)
 	if err != nil {
 		t.Fatal(err)
 	}
@@ -105,9 +110,9 @@ func TestServiceMountsEveryEndpoint(t *testing.T) {
 		{http.MethodGet, "/api/version", "", http.StatusOK},
 		{http.MethodPost, "/api/lens/design", `{"efl_mm":60,"semi_aperture_mm":6}`, http.StatusOK},
 		{http.MethodPost, "/api/coating/design", `{"template":"single-ar","lambda_nm":550}`, http.StatusOK},
-		// GUI and legacy page.
+		// GUI and the pre-merge address.
 		{http.MethodGet, "/", "", http.StatusOK},
-		{http.MethodGet, "/oz/", "", http.StatusOK},
+		{http.MethodGet, "/oz/", "", http.StatusMovedPermanently},
 		{http.MethodGet, "/app.js", "", http.StatusOK},
 		{http.MethodGet, "/style.css", "", http.StatusOK},
 		{http.MethodGet, "/favicon.svg", "", http.StatusOK},
@@ -277,6 +282,7 @@ func TestGUIServedAtRoot(t *testing.T) {
 	}
 	for path, ctype := range map[string]string{
 		"/app.js":                   "javascript",
+		"/oz.js":                    "javascript",
 		"/style.css":                "text/css",
 		"/favicon.svg":              "image/svg+xml",
 		"/fonts/rajdhani-700.woff2": "font/woff2",
@@ -382,6 +388,37 @@ func TestRunGenGoWritesNativeElement(t *testing.T) {
 	for _, want := range []string{"package optics", "metalens_native"} {
 		if !strings.Contains(string(src), want) {
 			t.Errorf("generated source lacks %q", want)
+		}
+	}
+}
+
+// TestOZRedirectsToGUITab checks that the pre-merge /oz/ address lands on the
+// geometry/coating tab of the GUI.
+func TestOZRedirectsToGUITab(t *testing.T) {
+	ts := httptest.NewServer(ozMux())
+	defer ts.Close()
+	code, hdr, _ := doHTTP(t, ts.URL, http.MethodGet, "/oz/", "")
+	if code != http.StatusMovedPermanently || hdr.Get("Location") != "/#oz" {
+		t.Errorf("GET /oz/ = %d Location %q, want 301 /#oz", code, hdr.Get("Location"))
+	}
+}
+
+// TestGUIScriptsParse runs `node --check` on the two GUI scripts. The binary is
+// taken from $OZ_NODE, else from PATH; without node the test is skipped and the
+// check has to be run by hand.
+func TestGUIScriptsParse(t *testing.T) {
+	node := os.Getenv("OZ_NODE")
+	if node == "" {
+		found, err := exec.LookPath("node")
+		if err != nil {
+			t.Skip("node not installed (set OZ_NODE); syntax check skipped")
+		}
+		node = found
+	}
+	for _, f := range []string{"app.js", "oz.js"} {
+		out, err := exec.Command(node, "--check", filepath.Join("..", "..", "server", "web", f)).CombinedOutput()
+		if err != nil {
+			t.Errorf("node --check %s: %v\n%s", f, err, out)
 		}
 	}
 }

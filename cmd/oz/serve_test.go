@@ -50,27 +50,43 @@ func TestServeEndpoints(t *testing.T) {
 		return out
 	}
 
-	// Version + index page.
+	// Version, then the GUI. The geometry/coating tab is part of the one page
+	// at /; the page, its stylesheet and its script must stay mobile-ready and
+	// must reach every OZ endpoint.
 	if !strings.Contains(get("/api/version"), "0.1.0-Preview") {
 		t.Fatal("version endpoint missing version")
 	}
-	page := get("/oz/")
-	if !strings.Contains(page, "Tetsuhiro-OZ") {
-		t.Fatal("index page missing")
+	page := get("/")
+	if !strings.Contains(page, "Tetsuhiro OZ") {
+		t.Fatal("GUI page missing")
 	}
-	// The page must stay mobile-ready: viewport meta, responsive canvas
-	// sizing, retina handling, and every API route it advertises.
 	for _, want := range []string{
 		`<meta name="viewport" content="width=device-width, initial-scale=1">`,
-		`height:clamp(`,    // canvas height follows viewport width with a cap
-		`devicePixelRatio`, // backing store scaled for hi-dpi screens
-		`addEventListener('resize'`,
-		`orientationchange`,
-		`/api/lens/design`, `/api/lens/eval`,
-		`/api/coating/design`, `/api/coating/spectrum`, `/api/version`,
+		`id="ozModeBtn"`, `id="ozEditor"`, `id="ozOutput"`, `id="ozPlot"`,
+		`<script src="oz.js"></script>`,
 	} {
 		if !strings.Contains(page, want) {
-			t.Errorf("index page missing %q", want)
+			t.Errorf("GUI page missing %q", want)
+		}
+	}
+	css := get("/style.css")
+	for _, want := range []string{
+		"height: clamp(",            // plot height follows the viewport width, capped
+		"@media (max-width: 700px)", // single-column layout on phones
+		"@media (pointer: coarse)",  // touch targets on touch screens
+	} {
+		if !strings.Contains(css, want) {
+			t.Errorf("style.css missing %q", want)
+		}
+	}
+	js := get("/oz.js")
+	for _, want := range []string{
+		"devicePixelRatio", `addEventListener("resize"`, "orientationchange",
+		"/api/lens/design", "/api/lens/eval", "/api/lens/tol",
+		"/api/coating/design", "/api/coating/spectrum", "/api/version",
+	} {
+		if !strings.Contains(js, want) {
+			t.Errorf("oz.js missing %q", want)
 		}
 	}
 

@@ -36,45 +36,75 @@ const defaultMaxRunMB = 512
 // enables the GPU backend, WOS_MUSA_HELPER and WOS_MUSA_SOCKET locate the MUSA
 // helper process.
 func cmdServe(args []string) error {
-	fs := flag.NewFlagSet("serve", flag.ExitOnError)
-	addr := fs.String("addr", defaultServeAddr, "监听地址")
-	maxMB := fs.Int64("max-run-mb", defaultMaxRunMB, "仿真结果在内存中的保留上限（MB，WOS 同名参数）")
-	extraDirs := fs.String("elements", "", "额外的元件定义目录（逗号分隔，优先级高于默认目录）")
-	check := fs.Bool("check-elements", false, "只校验元件定义文件，打印结果后退出")
-	gpu := fs.Bool("gpu", false, "启用 GPU（CUDA/cuFFT 或 MUSA/muFFT helper）加速（需以 -tags cuda 或 -tags musa 构建；等价于环境变量 WOS_GPU=1）")
-	genGo := fs.String("gen-go", "", "把元件定义文件导出为 Go 原生元件源码（打印到 stdout）")
-	genName := fs.String("gen-name", "", "导出元件的类型名（默认使用定义文件里的 name）")
-	noWatch := fs.Bool("no-elements-watch", false, "关闭元件定义文件的自动重载（默认每 2 秒检查一次）")
-	if err := fs.Parse(args); err != nil {
+	o, err := parseServeFlags(args)
+	if errors.Is(err, flag.ErrHelp) {
+		return nil
+	}
+	if err != nil {
 		return err
 	}
 
-	announceBackend(*gpu)
-	if *genGo != "" {
-		if err := runGenGo(*genGo, *genName); err != nil {
+	announceBackend(o.GPU)
+	if o.GenGo != "" {
+		if err := runGenGo(o.GenGo, o.GenName); err != nil {
 			return fmt.Errorf("生成失败: %w", err)
 		}
 		return nil
 	}
-	setElementDirs(*extraDirs)
+	setElementDirs(o.ExtraDirs)
 	report := reloadElements()
-	if *check {
+	if o.Check {
 		if len(report.Errors) > 0 {
 			return fmt.Errorf("%d 个元件定义有错误", len(report.Errors))
 		}
 		return nil
 	}
-	if !*noWatch {
+	if !o.NoWatch {
 		go watchElements()
 	}
 
-	srv := server.New(*maxMB << 20)
+	srv := server.New(o.MaxRunMB << 20)
 	// 后台监视 GPU：启用但持续回退 CPU 时限频打印警告（同样的状态也会出现在
 	// /api/health 的 gpu 字段里）。
 	srv.WatchGPU(0)
-	log.Printf("Tetsuhiro-OZ 服务 oz %s http://localhost%s", version, *addr)
+	log.Printf("Tetsuhiro-OZ 服务 oz %s http://localhost%s", version, o.Addr)
 	log.Printf("  几何/膜系 API: /api/lens/*, /api/coating/*   波动/量子 API: /api/simulate, /api/quantum, ...   GUI: /")
-	return http.ListenAndServe(*addr, newServiceMux(srv))
+	return http.ListenAndServe(o.Addr, newServiceMux(srv))
+}
+
+// serveOptions is the parsed `oz serve` command line. The names and defaults
+// are the ones the retired `wos` binary used.
+type serveOptions struct {
+	Addr      string
+	MaxRunMB  int64
+	ExtraDirs string
+	Check     bool
+	GPU       bool
+	GenGo     string
+	GenName   string
+	NoWatch   bool
+}
+
+// parseServeFlags parses the serve flags without exiting the process, so the
+// accepted set can be tested.
+func parseServeFlags(args []string) (serveOptions, error) {
+	var o serveOptions
+	fs := flag.NewFlagSet("serve", flag.ContinueOnError)
+	fs.StringVar(&o.Addr, "addr", defaultServeAddr, "监听地址")
+	fs.Int64Var(&o.MaxRunMB, "max-run-mb", defaultMaxRunMB, "仿真结果在内存中的保留上限（MB，WOS 同名参数）")
+	fs.StringVar(&o.ExtraDirs, "elements", "", "额外的元件定义目录（逗号分隔，优先级高于默认目录）")
+	fs.BoolVar(&o.Check, "check-elements", false, "只校验元件定义文件，打印结果后退出")
+	fs.BoolVar(&o.GPU, "gpu", false, "启用 GPU（CUDA/cuFFT 或 MUSA/muFFT helper）加速（需以 -tags cuda 或 -tags musa 构建；等价于环境变量 WOS_GPU=1）")
+	fs.StringVar(&o.GenGo, "gen-go", "", "把元件定义文件导出为 Go 原生元件源码（打印到 stdout）")
+	fs.StringVar(&o.GenName, "gen-name", "", "导出元件的类型名（默认使用定义文件里的 name）")
+	fs.BoolVar(&o.NoWatch, "no-elements-watch", false, "关闭元件定义文件的自动重载（默认每 2 秒检查一次）")
+	if err := fs.Parse(args); err != nil {
+		return o, err
+	}
+	if fs.NArg() > 0 {
+		return o, fmt.Errorf("serve: 多余的参数 %q", fs.Arg(0))
+	}
+	return o, nil
 }
 
 // newServiceMux assembles the one HTTP mux. Path ownership is fixed here, so
@@ -82,7 +112,7 @@ func cmdServe(args []string) error {
 //
 //	/api/version, /api/lens/{design,eval,tol}, /api/coating/{design,spectrum}  OZ (exact paths)
 //	/api/...                                                                  WOS API (server.Server.Handler)
-//	/oz/                                                                      legacy single page (exact path)
+//	/oz/                                                                      301 -> /#oz (pre-merge address)
 //	/                                                                         embedded GUI (server.WebHandler)
 //
 // Exact OZ paths are more specific than the /api/ prefix, so they win; every
@@ -96,7 +126,7 @@ func newServiceMux(srv *server.Server) *http.ServeMux {
 	mux.HandleFunc("/api/lens/tol", recoverJSON(handleLensTol))
 	mux.HandleFunc("/api/coating/design", recoverJSON(handleCoatingDesign))
 	mux.HandleFunc("/api/coating/spectrum", recoverJSON(handleCoatingSpectrum))
-	mux.HandleFunc("/oz/", handleLegacyPage)
+	mux.HandleFunc("/oz/", handleOZRedirect)
 	mux.Handle("/", server.WebHandler())
 	return mux
 }
@@ -365,14 +395,14 @@ func handleCoatingSpectrum(w http.ResponseWriter, r *http.Request) {
 	writeJSON(w, http.StatusOK, map[string]any{"rows": out})
 }
 
-// handleLegacyPage serves the pre-merge single page at exactly /oz/.
-func handleLegacyPage(w http.ResponseWriter, r *http.Request) {
+// handleOZRedirect keeps the pre-merge address of the geometry/coating page
+// working: /oz/ moves permanently to the geometry/coating tab of the GUI.
+func handleOZRedirect(w http.ResponseWriter, r *http.Request) {
 	if r.URL.Path != "/oz/" {
 		http.NotFound(w, r)
 		return
 	}
-	w.Header().Set("Content-Type", "text/html; charset=utf-8")
-	_, _ = io.WriteString(w, legacyPage)
+	http.Redirect(w, r, "/#oz", http.StatusMovedPermanently)
 }
 
 // defStr / defF / defI fill request defaults (zero means "not given").
