@@ -32,7 +32,7 @@ Tetsuhiro-OZ 只有一个 HTTP 服务：`oz serve`。它在同一个 mux 上提�
 
 | 路径 | 归属 | 说明 |
 |---|---|---|
-| `/api/version`、`/api/lens/design`、`/api/lens/eval`、`/api/lens/tol`、`/api/coating/design`、`/api/coating/spectrum` | OZ | 精确路径，优先于 `/api/` 前缀 |
+| `/api/version`、`/api/lens/design`、`/api/lens/eval`、`/api/lens/tol`、`/api/lens/thermal`、`/api/lens/sens`、`/api/geo/mtf`、`/api/geo/ghost`、`/api/doe/focus`、`/api/coating/design`、`/api/coating/spectrum` | OZ | 精确路径，优先于 `/api/` 前缀 |
 | `/api/...`（其余） | WOS | 仿真 API，由 `server.Server.Handler()` 处理；未知路径 404 |
 | `/oz/` | 重定向 | 301 → `/#oz`（合并前的几何/膜系页面地址） |
 | `/` 及静态文件 | GUI | 内嵌在二进制中：`index.html`、`app.js`、`oz.js`、`style.css`、`favicon.svg`、字体 |
@@ -42,11 +42,14 @@ Tetsuhiro-OZ 只有一个 HTTP 服务：`oz serve`。它在同一个 mux 上提�
 - 请求与响应：JSON（`Content-Type: application/json; charset=utf-8`），除非端点另有说明。
 - 错误：`{"error": "…"}`，状态码 400（请求无效）、404（资源不存在）、405（方法不允许）、409（运行未完成）、429（排队已满）、500（内部错误或响应含 NaN/Inf）。
 - 方法：计算端点为 POST，查询端点为 GET；错误方法返回 405。`GET /api/health` 不限制方法（既有行为）。
-- 工作量上限（超出即 400，计算前拒绝）：光谱点数 ≤ 10000；公差运行次数 ≤ 20000；设计迭代 ≤ 10000。仿真网格与元件数由 `/api/validate` 检查。
-- 请求体上限：`/api/quantum` 1 MB；`/api/validate`、`/api/simulate`、`/api/convert` 2 MB；`/api/lens/design` 与 `/api/lens/eval` 1 MB；`/api/lens/tol` 4 MB；`/api/coating/design` 1 MB；`/api/coating/spectrum` 8 MB。
+- 工作量上限（超出即 400，计算前拒绝）：光谱点数 ≤ 10000；公差运行次数 ≤ 20000；设计迭代 ≤ 10000；热漂移 |ΔT| ≤ 500 K；灵敏度参数 ≤ 128 个、补偿器迭代 ≤ 10000；MTF 视场 ≤ 64、每视场光线 ≤ 200000、LSF 分箱 ≤ 4096、频率点 ≤ 512；鬼像双反射路径 ≤ 512 条、采样环数 ≤ 8；DOE 网格 ≤ 2048（2 的幂）、级数 ≤ 4096。仿真网格与元件数由 `/api/validate` 检查。
+- 请求体上限：`/api/quantum` 1 MB；`/api/validate`、`/api/simulate`、`/api/convert` 2 MB；`/api/lens/design`、`/api/lens/eval`、`/api/lens/thermal`、`/api/lens/sens`、`/api/geo/mtf`、`/api/geo/ghost`、`/api/doe/focus`、`/api/coating/design` 1 MB；`/api/lens/tol` 4 MB；`/api/coating/spectrum` 8 MB。
+- 确定性：全部计算端点对相同请求给出逐字节相同的响应（无时钟、无 map 迭代顺序、无随机数）；`cmd/oz/analysis_test.go` 的 `TestAnalysisEndpointDeterminism` 逐个端点断言。
 - `GET /api/version` 返回的 `version` 与仓库根目录 `VERSION` 文件一致（由 `cmd/oz` 的测试保证）。
 
 ## 4. 几何与膜系（OZ）
+
+本节每个端点与对应的 CLI 子命令共用同一个实现（`cmd/oz/analysis.go` 的 `run*` 函数，`cmd/oz/analysis_ghost.go` 为鬼像）：`oz lens thermal`、`oz lens sens`、`oz geo mtf`、`oz geo ghost`、`oz doe focus` 与 HTTP 端点给出同样的数字（CLI 用 `--json` 可导出与本文件字段一致的响应）。
 
 ### GET /api/version
 
@@ -89,6 +92,129 @@ Tetsuhiro-OZ 只有一个 HTTP 服务：`oz serve`。它在同一个 mux 上提�
     }
 
 `criteria` 至少给出一个判据时才计算良率（`yield`）。响应为 `ToleranceReport` JSON：`runs`、`seed`、`yield`（满足全部判据的比例）、`nominal`、`on_axis_rms`、`off_axis_rms`、`color_shift`、`focal_err`（分布统计）、`fail_reasons`、`failed_traces`。`runs` 缺省为 2000，最大 20000（超出返回 400），耗时随次数线性增长。
+
+### POST /api/lens/thermal
+
+一阶热漂移（G9）：把处方从 20 °C 变到 20 °C + ΔT，报告 EFL/BFL 的变化与每开尔文割线斜率（同一调用为 `oz lens thermal`）。温度模型：每个玻璃面按 CTE 缩放半径/非球面系数/半口径（胶合面取两侧玻璃 CTE 的均值，空气面取镜筒 CTE），玻璃间隙按玻璃 CTE、空气间隙按镜筒 CTE 缩放，玻璃折射率叠加温致 Δn（见 `lens/thermal_model.go` 与 `geo/thermo_model.go`）。
+
+请求：
+
+| 字段 | 类型 | 默认 | 说明 |
+|---|---|---|---|
+| `prescription` | object | 必填 | 处方 JSON（`/api/lens/design` 的 `prescription` 可直接复用） |
+| `delta_t_k` | number | 必填，≠0 | 温度变化（K，相对 20 °C），\|ΔT\| ≤ 500（超出返回 400） |
+| `lambda_nm` | number | `587.5618` | 波长 nm |
+| `mount_cte_per_k` | number | `0`（刚性镜筒） | 隔圈/镜筒的线膨胀系数 1/K，\|α\| ≤ 0.01 |
+
+响应：
+
+| 字段 | 说明 |
+|---|---|
+| `delta_t_k`、`lambda_nm`、`mount_cte_per_k` | 回显请求参数 |
+| `efl0_mm`、`bfl0_mm` | 20 °C 的 EFL/BFL（mm） |
+| `efl1_mm`、`bfl1_mm` | 20 °C+ΔT 的 EFL/BFL（mm） |
+| `efl_per_k_mm`、`bfl_per_k_mm` | 割线斜率 (X1−X0)/ΔT（mm/K） |
+
+    curl -s -X POST localhost:1130/api/lens/thermal -d '{"prescription":{…},"delta_t_k":10,"mount_cte_per_k":0}'
+
+    {"delta_t_k":10,"lambda_nm":587.5618,"mount_cte_per_k":0,
+     "efl0_mm":60.000000,"efl1_mm":60.001695,"bfl0_mm":58.147130,"bfl1_mm":58.148709,
+     "efl_per_k_mm":0.0001695347,"bfl_per_k_mm":0.00015790}
+
+### POST /api/lens/sens
+
+灵敏度表（∂f/∂x），可选逆灵敏度公差分配与补偿器验算（G6；同一调用为 `oz lens sens`）。参数集合按卡序固定生成：每面曲率 c = 1/R（平面也用曲率）、每面到下一面的厚度、非零圆锥常数、非零非球面系数、每个玻璃面的折射率 Δn；标签为 `s<卡>.<c|thk|K|A4|…|dn>`。
+
+请求（除 `prescription` 外全部可选）：
+
+| 字段 | 类型 | 默认 | 说明 |
+|---|---|---|---|
+| `prescription` | object | 必填 | 处方 JSON |
+| `lambda_nm` | number | `587.5618` | 波长 nm |
+| `metric` | string | `efl` | `efl`：∂EFL/∂x（mm/参数单位）；`merit`：固定像面点列 merit 的 ∂M/∂x（G6 口径） |
+| `rel_step` | number | `1e-3` | 最粗相对步长 |
+| `fixed_step` | bool | false | 只用固定步长（快，不给收敛判据） |
+| `inverse` | bool | false | 逆灵敏度分配（自动要求 `metric=merit`） |
+| `budget_mm` | number | — | 逆灵敏度的 merit 预算 ΔM（mm，>0，`inverse` 时必填） |
+| `mode` | string | `rss` | `rss`（统计）或 `linear`（最坏情况） |
+| `max_curvature_per_mm` | number | `2e-5` | 曲率公差上限（≈R=50 mm 处 0.05 mm 半径公差） |
+| `max_thickness_mm` | number | `0.05` | 厚度公差上限 mm |
+| `max_index` | number | `5e-4` | 折射率公差上限 Δn |
+| `max_conic` | number | `0.01` | 圆锥常数上限 |
+| `max_coeff` | number | `1e-7` | 非球面系数上限 |
+| `compensate` | bool | false | 补偿器验算（自动要求 `metric=merit`） |
+| `perturb_radius_mm` / `perturb_thickness_mm` / `perturb_index` | number | 0 | 扰动量 dR/dt/Δn（加到每个有限半径/间隔/玻璃上） |
+| `compensator_vars` | string[] | 空 | 补偿器变量 `s<卡>.<R\|thk\|K\|A4…>`；留空时只用像面补偿 |
+| `compensator_ranges_mm` | number[] | 空 | 各变量半行程 mm（可选，与变量一一对应） |
+| `image_shift` | bool | false | 在给出变量时额外把像面加入补偿器 |
+| `shift_range_mm` | number | `1` | 像面补偿半行程 mm |
+| `max_iter` | number | `100` | 补偿器 DLS 迭代上限 |
+
+响应：`metric`、`lambda_nm`、`nominal`（f 在名义处的值）、`evals`（求值次数）、`rows`（每行 `param`、`deriv`、`err`（不确定度）、`naive`（普通中心差分）、`rel_step`、`step`、`converged`）；`inverse` 时另有 `allocation`（`mode`、`budget_mm`、`predicted_mm`、`rel_err`、`rows`：`param`、`sens`、`tol`、`share`、`capped`）；`compensate` 时另有 `compensation`（`nominal_mm`、`compensated_nominal_mm`、`perturbed_mm`、`compensated_mm`、`recovery`（可为 `null`：扰动未使 merit 恶化）、`image_shift_mm`、`iterations`、`converged`）。
+
+`inverse` 的分配使用 `lens.AllocateTolerances`：每个未封顶参数贡献相同份额（linear：|s·t| = ΔM/N；rss：(s·t)² = ΔM²/N），触到上限的参数固定在 `max_*` 并把剩余预算分给其余参数；预算无法放置（全部参数先到上限）返回 400，提示放宽 `max_*` 或降低 `budget_mm`。参数 > 128 返回 400。
+
+    curl -s -X POST localhost:1130/api/lens/sens -d '{"prescription":{…},"metric":"merit","inverse":true,"budget_mm":0.005}'
+
+### POST /api/geo/mtf
+
+几何 MTF 与场曲摘要（G11；`oz geo mtf`）。每个视场用等面积圆盘采样（`geo.EqualAreaDisc`）在近轴入瞳上追迹真实光线，把命中像面的坐标分成 LSFT（y，子午）与 LSFS（x，弧矢），|Σ p_k·exp(−2πi f x_k)| 即该频率的几何 MTF（`geo.BinLSF`/`geo.LSF.MTF`）；每个视场按自己的光斑范围独立分箱，响应给出该视场的 Δ 与 Nyquist（`bin_width_*`、`nyquist_*`），请求频率超过 Nyquist 时数值仍给出但已混叠。场曲用 `geo.System.FieldFoci`（入瞳 ±rim_frac 的子午/弧矢光线对）给出 T/S 焦点，`sag_*` 为相对像面的离焦，Petzval 面取 (3S−T)/2。
+
+请求：
+
+| 字段 | 类型 | 默认 | 说明 |
+|---|---|---|---|
+| `prescription` | object | 必填 | 处方 JSON |
+| `lambda_nm` | number | `587.5618` | 波长 nm |
+| `fields_deg` | number[] | `[0]` | 子午面视场角（度，\|θ\|<90）；有限物距时按入瞳处的场角换算物高 |
+| `cycles_per_mm` | number[] | `[10,20,30,40,50]` | MTF 频率（cycles/mm，非负） |
+| `rays` | int | `2000` | 每视场光线数（4…200000） |
+| `bins` | int | `201` | LSF 分箱数（2…4096） |
+| `image_z_mm` | number | 近轴像面 | 像面轴向位置 mm（0 = 近轴像面） |
+| `rim_frac` | number | `1e-3` | 场曲光线对的入瞳半径比例 |
+
+响应：`lambda_nm`、`image_z_mm`、`rays`、`bins`、`cycles_per_mm`、`fields`（每项：`theta_deg`、`tan_y`、`rays_hit`/`rays_total`、`centroid_x_mm`/`centroid_y_mm`、`rms_radius_mm`（关于主光线）、`bin_width_tangential_mm`/`bin_width_sagittal_mm`、`nyquist_tangential_per_mm`/`nyquist_sagittal_per_mm`、`mtf_tangential[]`、`mtf_sagittal[]`）、`foci`（每项：`theta_deg`、`z_tangential_mm`/`z_sagittal_mm`、`y_tangential_mm`/`y_sagittal_mm`、`sag_tangential_mm`/`sag_sagittal_mm`/`sag_petzval_mm`）、`foci_note`（场曲不可用时说明原因：有限物距、偏心/倾斜或非近轴系统）。
+
+### POST /api/geo/ghost
+
+双反射鬼像路径表（G10；`oz geo ghost`）。`geo.System.GhostAnalysis` 枚举每对 0 ≤ J < I ≤ n−1 的反射面组合，相对能量取法向入射 Fresnel 乘积 R_I·R_J（可被 `reflectance` 覆盖），按能量降序（同能量按面索引升序）排序，并给出近轴落点（反向 ABCD 链）与小孔径采样（Hexapolar）的真实杂散光斑。
+
+请求：
+
+| 字段 | 类型 | 默认 | 说明 |
+|---|---|---|---|
+| `prescription` | object | 必填 | 处方 JSON（面数 n 满足 n(n−1)/2 ≤ 512） |
+| `lambda_nm` | number | `587.5618` | 波长 nm |
+| `field_deg` | number | `0` | 子午视场角（度） |
+| `image_z_mm` | number | 近轴像面 | 杂散光斑评估的像面 |
+| `pupil_radius_mm` | number | 入瞳半径×`1e-3` | 采样光瞳半径 mm |
+| `rings` | int | `1` | Hexapolar 采样环数（1…8） |
+| `min_relative` | number | `0` | 相对能量阈值，低于它的路径不列出 |
+| `max_paths` | int | `0`（全部） | 最多列出的路径数 |
+| `reflectance` | (number\|null)[] | 空（Fresnel） | 每面强度反射率（长度 = 面数；`null` 项回落 Fresnel 值） |
+
+响应：`lambda_nm`、`image_z_mm`、`field_deg`、`pupil_z_mm`、`pupil_radius_mm`、`rings`、`min_relative`、`paths_enumerated`、`paths`（每项：`pair`（`reflect(I=2, J=1)`）、`i`/`j`、`relative_energy`、`reflect_i`/`reflect_j`、`paraxial_x_mm`/`paraxial_y_mm`（非同轴/无法一阶分析时为 `null`）、`chief_x_mm`/`chief_y_mm`、`chief_status`、`spot_rays`/`spot_rays_total`、`spot_centroid_x_mm`/`spot_centroid_y_mm`、`spot_rms_mm`、`spot_geo_mm`、`note`（非空：镜面/坐标断点等无法分析的路径））。
+
+    curl -s -X POST localhost:1130/api/geo/ghost -d '{"prescription":{…},"min_relative":1e-3,"max_paths":8}'
+
+### POST /api/doe/focus
+
+N 级量化相位聚焦 DOE 的一级效率与焦点偏差（G8；`oz doe focus`）。调用 `doe.SimulateFocus`：M×M 网格上的量化透镜透过率 + 带限 ASM 传播到设计焦面求一级效率（窗口内功率/入射功率），并在轴上强度谱上扫描出轴向峰值（抛物线细化）。单位：接口外为 mm/nm，内部按 doe 包的 µm 工作。
+
+请求：
+
+| 字段 | 类型 | 默认 | 说明 |
+|---|---|---|---|
+| `focal_mm` | number | 必填，>0 | 设计焦距 mm |
+| `levels` | int | 必填 | 相位级数 N（≥2，≤4096） |
+| `lambda_nm` | number | `632.8` | 波长 nm |
+| `waist_um` | number | 由 `fresnel_number` 给出 | DOE 上高斯照明 1/e 振幅半径 µm |
+| `fresnel_number` | number | `32` | N_F = w0²/(λf)，用于换算 w0 = sqrt(N_F·λ·f) |
+| `grid_size` | int | `1024` | 网格 M（2 的幂，16…2048） |
+| `pixel_um` | number | `8·w0/M` | DOE 与焦面的像素间距 µm（默认与 doe 包测试同配置） |
+| `window_radii` | number | `2.5` | 效率窗口半径（焦斑半径的倍数） |
+
+响应：`focal_mm`/`focal_um`、`lambda_nm`、`levels`、`grid_size`、`pixel_um`、`waist_um`、`fresnel_number`、`spot_radius_um`（w_f = λF/(πw0)）、`eta_first_order`（数值一级效率）、`eta_analytic`（η_N = [sin(π/N)/(π/N)]²）、`eta_rel_err`、`axial_peak_um`、`focus_deviation_um`/`focus_deviation_px`（轴向峰值 − 设计焦面）、`peak_offset_px`（焦面强度峰值的横向偏移）、`window_fraction`、`incident_power`。默认网格下 |η − η_N| ≈ 3.5e-4（M=2048 时 ≈ 9e-5）。
 
 ### POST /api/coating/design
 
@@ -144,6 +270,14 @@ Tetsuhiro-OZ 只有一个 HTTP 服务：`oz serve`。它在同一个 mux 上提�
     # 几何：设计 → 评估
     curl -s -X POST localhost:1130/api/lens/design -d '{"efl_mm":100}' > d.json
     curl -s -X POST localhost:1130/api/lens/eval -d "$(python3 -c 'import json;print(json.dumps(json.load(open("d.json"))["prescription"]))')"
+    # 分析：热漂移 / 灵敏度（可加 "inverse":true,"budget_mm":0.005）/ 几何 MTF / 鬼像路径
+    P="$(python3 -c 'import json;print(json.dumps(json.load(open("d.json"))["prescription"]))')"
+    curl -s -X POST localhost:1130/api/lens/thermal -d "{\"prescription\":$P,\"delta_t_k\":10}"
+    curl -s -X POST localhost:1130/api/lens/sens -d "{\"prescription\":$P}"
+    curl -s -X POST localhost:1130/api/geo/mtf -d "{\"prescription\":$P,\"fields_deg\":[0,0.5],\"cycles_per_mm\":[10,30]}"
+    curl -s -X POST localhost:1130/api/geo/ghost -d "{\"prescription\":$P}"
+    # DOE（G8）：一级效率与解析 η_N 的对比
+    curl -s -X POST localhost:1130/api/doe/focus -d '{"focal_mm":10,"levels":4}'
     # 膜系光谱
     curl -s -X POST localhost:1130/api/coating/design -d '{"template":"single-ar","lambda_nm":550}' > c.json
     curl -s -X POST localhost:1130/api/coating/spectrum -d "{\"stack\":$(python3 -c 'import json;print(json.dumps(json.load(open("c.json"))["stack"]))'),\"from_nm\":500,\"to_nm\":600,\"step_nm\":10}"

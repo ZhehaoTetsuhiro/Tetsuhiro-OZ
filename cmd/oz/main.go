@@ -43,6 +43,12 @@ func main() {
 		err = cmdEval(os.Args[2:])
 	case "tol", "tolerance":
 		err = cmdTol(os.Args[2:])
+	case "lens":
+		err = cmdLens(os.Args[2:])
+	case "geo":
+		err = cmdGeo(os.Args[2:])
+	case "doe":
+		err = cmdDoe(os.Args[2:])
 	case "coating":
 		err = cmdCoating(os.Args[2:])
 	case "serve":
@@ -65,7 +71,7 @@ func main() {
 func usage() {
 	fmt.Print(`oz — Tetsuhiro-OZ 光学设计命令行 ` + version + `
 
-用法:（Go 惯例：选项在前，文件参数在最后）
+用法:（Go 惯例：选项在前，文件参数在最后；lens/geo 分析子命令的文件放前放后都可以）
   oz design achromat [选项] --out lens.json
       自主设计消色差双胶合（薄透镜解 → 厚透镜牛顿消色差 → DLS 抛光）。
       选项: --efl 焦距mm(必) --crown --flint --semi --field 视场角(度) --iter --no-polish --out
@@ -81,6 +87,16 @@ func usage() {
       模板: single-ar | vcoat | broadband-ar | hr | lwp | swp | splitter（自主设计膜系）
   oz coating spectrum <膜系.json> [--from 400 --to 700 --step 10 --angle 0 --pol s|p|u]
       打印 R/T/A 光谱表。
+  oz lens thermal [--delta-t 10 --lambda 587.5618 --mount-cte 0] <处方.json>
+      热漂移：ΔT 下 EFL/BFL 的变化与每开尔文斜率（G9）。
+  oz lens sens [--metric efl|merit --inverse --budget ΔM --compensate ...] <处方.json>
+      灵敏度表 ∂f/∂x；--inverse 逆灵敏度公差分配；--compensate 补偿器验算（G6）。
+  oz geo mtf [--fields 0,1,2 --cycles-per-mm 10,20,30,40,50 --rays N --bins N] <处方.json>
+      几何 MTF（子午/弧矢）与场曲（T/S/Petzval 离焦）摘要（G11）。
+  oz geo ghost [--min-relative R --max-paths N --rings N] <处方.json>   （G10，见 docs/API.md）
+      双反射鬼像路径表：面对 (I,J)、相对能量 R_I·R_J、近轴落点与杂散光斑。
+  oz doe focus --focal-mm F --levels N [--lambda 632.8 --grid-size 1024 ...]   （G8）
+      衍射光学元件一级效率 η 与解析 η_N 对比、焦点偏差。
   oz serve [选项]
       启动唯一的 HTTP 服务：GUI 在 /，API 在 /api/。WOS 的全部参数与环境变量同样适用：
       -addr（默认 :1130；WOS 旧端口用 -addr :1120）  -max-run-mb 512  -elements 目录1,目录2
