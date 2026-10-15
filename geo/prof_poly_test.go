@@ -198,14 +198,17 @@ func TestPolyAsphereOddPowersClosedForm(t *testing.T) {
 // asphere, including odd and sparse powers: the analytic slope agrees with the
 // central difference of the sag to 1e-7 (mixed relative/absolute).
 func TestPolyAsphereSlopeCentralDifference(t *testing.T) {
-	profiles := map[string]PolyAsphere{
-		"conic+even+odd": {R: 30, K: -0.5, Terms: []PolyTerm{
-			{2, 1e-4}, {3, 2e-5}, {4, -3e-6}, {5, 4e-7}, {7, -1e-9}}},
-		"flat cone+odd": {R: 0, Terms: []PolyTerm{{1, 1e-3}, {3, 2e-4}, {4, 1e-6}}},
-		"sphere sparse": {R: -40, K: 0.3, Terms: []PolyTerm{{6, 2e-8}, {9, -1e-12}}},
+	profiles := []struct {
+		name string
+		p    PolyAsphere
+	}{
+		{"conic+even+odd", PolyAsphere{R: 30, K: -0.5, Terms: []PolyTerm{
+			{2, 1e-4}, {3, 2e-5}, {4, -3e-6}, {5, 4e-7}, {7, -1e-9}}}},
+		{"flat cone+odd", PolyAsphere{R: 0, Terms: []PolyTerm{{1, 1e-3}, {3, 2e-4}, {4, 1e-6}}}},
+		{"sphere sparse", PolyAsphere{R: -40, K: 0.3, Terms: []PolyTerm{{6, 2e-8}, {9, -1e-12}}}},
 	}
-	for name, p := range profiles {
-		checkSlopeCD(t, "poly "+name, p, []float64{0.3, 1, 2.5, 4, 6, 8})
+	for _, c := range profiles {
+		checkSlopeCD(t, "poly "+c.name, c.p, []float64{0.3, 1, 2.5, 4, 6, 8})
 	}
 }
 
@@ -214,15 +217,18 @@ func TestPolyAsphereSlopeCentralDifference(t *testing.T) {
 // flat base) converges to a sag residual ≤ 1e-12 mm.
 func TestPolyAsphereIntersectResidual(t *testing.T) {
 	rays := aspRandomRays(4000, 7, 2026)
-	cases := map[string]PolyAsphere{
-		"conic base": {R: 30, K: -0.5, Terms: []PolyTerm{
-			{2, 1e-4}, {3, 2e-5}, {4, -3e-6}, {5, 4e-7}, {7, -1e-9}}},
-		"flat base": {R: 0, Terms: []PolyTerm{{1, 1e-3}, {3, 2e-4}, {4, 1e-6}}},
+	cases := []struct {
+		name string
+		p    PolyAsphere
+	}{
+		{"conic base", PolyAsphere{R: 30, K: -0.5, Terms: []PolyTerm{
+			{2, 1e-4}, {3, 2e-5}, {4, -3e-6}, {5, 4e-7}, {7, -1e-9}}}},
+		{"flat base", PolyAsphere{R: 0, Terms: []PolyTerm{{1, 1e-3}, {3, 2e-4}, {4, 1e-6}}}},
 	}
-	for name, p := range cases {
-		n := checkIntersectResidual(t, "poly intersect "+name, p, rays)
+	for _, c := range cases {
+		n := checkIntersectResidual(t, "poly intersect "+c.name, c.p, rays)
 		if n < len(rays)/4 {
-			t.Errorf("poly intersect %s: only %d of %d rays hit (geometry too sparse)", name, n, len(rays))
+			t.Errorf("poly intersect %s: only %d of %d rays hit (geometry too sparse)", c.name, n, len(rays))
 		}
 	}
 }

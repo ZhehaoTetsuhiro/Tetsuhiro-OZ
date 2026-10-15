@@ -19,8 +19,8 @@ const (
 	QCon QForm = iota
 	// QBfs is the best-fit-sphere form: the base is a sphere of radius R
 	// (K = 0) and the departure is measured along the sphere normal, Forbes
-	// (2007) Optics Express 15(8) 5218, Eq. (2.1), with the orthonormal basis of
-	// Forbes (2010) Optics Express 18(19) 19700:
+	// (2010) Optics Express 18(19) 19700, Eq. (2.1)–(2.3) (the basis of Forbes
+	// 2007, Optics Express 15(8) 5218, restated there):
 	//
 	//	z(ρ) = cρ²/(1+sqrt(1−c²ρ²)) + u²(1−u²)/sqrt(1−c²ρ²) Σ_m a_m Q_m(u²).
 	QBfs
@@ -210,8 +210,9 @@ func (p QAsphere) String() string {
 // ---------------------------------------------------------------------------
 
 // qconABC returns the coefficients of the Jacobi (α=0, β=4) three-term
-// recurrence in t = 2x−1 for the step to order n+1 (Forbes 2010 Eq. (5.2),
-// written in x = u²; here in t, the standard form):
+// recurrence in t = 2x−1 for the step to order n+1. Forbes (2010) Eq. (5.2) gives
+// the same recurrence in x = u² with b_n = 2A_n, a_n = B_n − A_n, c_n = C_n
+// (checked algebraically in prof_qasphere_test.go):
 //
 //	P_{n+1}(t) = (A_n t + B_n) P_n(t) − C_n P_{n−1}(t),
 //	A_n = (2n+5)(n+3) / ((n+1)(n+5)),

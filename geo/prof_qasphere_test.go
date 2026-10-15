@@ -200,7 +200,7 @@ func TestQbfsForbesIdentities(t *testing.T) {
 }
 
 // aspSbfs returns the normal-slope basis S_m(u) = d/du[u²(1−u²)Q_m(u²)]
-// (Forbes 2007 Eq. (2.3)) at u, written as 2u·[(1−2x)Q_m + x(1−x)Q_m'] with
+// (Forbes 2010, OE 18(19), Eq. (2.3)) at u, written as 2u·[(1−2x)Q_m + x(1−x)Q_m'] with
 // x = u² (differentiate the product u²(1−u²) and the chain rule dx/du = 2u).
 func aspSbfs(u float64, m int, q, dq []float64) float64 {
 	x := u * u
@@ -208,7 +208,7 @@ func aspSbfs(u float64, m int, q, dq []float64) float64 {
 }
 
 // TestQbfsSlopeOrthonormal is the defining property of the Qbfs basis (Forbes
-// 2007 Eq. (2.2), Forbes 2010 Eq. (2.2)):
+// Forbes 2010, OE 18(19), Eq. (2.2)):
 //
 //	(2/π) ∫_0^1 S_m(u) S_n(u) / sqrt(1 − u²) du = δ_mn .
 //
