@@ -103,11 +103,16 @@ type Card struct {
 	// PolyTerms, when non-empty, makes the surface the general polynomial
 	// asphere Σ coeff·r^power on the conic base (RadiusMM, ConicK). Powers are
 	// positive integers and odd powers are allowed. QAsphere, when non-nil,
-	// makes the surface a Forbes Q-type asphere (see QCard). Coeffs, PolyTerms
-	// and QAsphere are mutually exclusive; an absent field keeps its legacy
-	// meaning, so existing prescriptions load and save unchanged.
+	// makes the surface a Forbes Q-type asphere (see QCard). XYPoly, when
+	// non-nil, makes it a freeform XY polynomial (see XYCard). Zernike, when
+	// non-nil, makes it a Noll-index Zernike surface (see ZernikeCard).
+	// Coeffs, PolyTerms, QAsphere, XYPoly and Zernike are mutually exclusive;
+	// an absent field keeps its legacy meaning, so existing prescriptions load
+	// and save unchanged.
 	PolyTerms []PolyTermCard `json:"poly_terms,omitempty"`
 	QAsphere  *QCard         `json:"q_asphere,omitempty"`
+	XYPoly    *XYCard        `json:"xy_polynomial,omitempty"`
+	Zernike   *ZernikeCard   `json:"zernike,omitempty"`
 
 	DecenterXMM float64 `json:"decenter_x_mm,omitempty"` // decentre along x (mm)
 	DecenterYMM float64 `json:"decenter_y_mm,omitempty"` // decentre along y (mm)
@@ -133,8 +138,37 @@ type QCard struct {
 	Coeffs       []float64 `json:"coeffs,omitempty"`
 }
 
+// XYCard is the JSON form of a freeform XY polynomial surface
+// (geo.XYPolynomial): the departure sum(a_ij (x/N)^i (y/N)^j, i+j >= 2) on the
+// conic base (RadiusMM, ConicK) of the card. NormRadiusMM is the normalisation
+// radius N (mm); 0 means the raw coordinates.
+type XYCard struct {
+	Terms        []XYTermCard `json:"terms,omitempty"`
+	NormRadiusMM float64      `json:"norm_radius_mm,omitempty"`
+}
+
+// XYTermCard is the JSON form of one freeform monomial Coeff*x^I*y^J.
+type XYTermCard struct {
+	I     int     `json:"i"`
+	J     int     `json:"j"`
+	Coeff float64 `json:"coeff"`
+}
+
+// ZernikeCard is the JSON form of a Zernike surface (geo.ZernikeSurface):
+// the base (RadiusMM, ConicK) plus Σ_j Coeffs[j-1]·Z_j(ρ,θ) in Noll's
+// sequential index (j = 1, 2, 3, ...: j=4 defocus, j=11 primary spherical).
+// NormRadiusMM is the unit-disk normalisation radius ρ = r/NormRadiusMM (mm).
+// Orthonormal selects Noll's unit-RMS normalisation (JOSA 66:207 Eq. (1)) for
+// the coefficient list instead of the polynomial form, i.e. the same surface
+// may be written either way.
+type ZernikeCard struct {
+	NormRadiusMM float64   `json:"norm_radius_mm"`
+	Coeffs       []float64 `json:"coeffs,omitempty"`
+	Orthonormal  bool      `json:"orthonormal,omitempty"`
+}
+
 // asphereKinds counts the aspheric descriptions set on the card (Coeffs,
-// PolyTerms, QAsphere). A plain conic or sphere counts zero.
+// PolyTerms, QAsphere, XYPoly, Zernike). A plain conic or sphere counts zero.
 func (c Card) asphereKinds() int {
 	n := 0
 	if len(c.Coeffs) > 0 {
@@ -146,6 +180,12 @@ func (c Card) asphereKinds() int {
 	if c.QAsphere != nil {
 		n++
 	}
+	if c.XYPoly != nil {
+		n++
+	}
+	if c.Zernike != nil {
+		n++
+	}
 	return n
 }
 
@@ -153,9 +193,9 @@ func (c Card) asphereKinds() int {
 // are mutually exclusive, and the new ones must build a valid geo profile.
 func (c Card) validateAsphere(i int) error {
 	if c.asphereKinds() > 1 {
-		return fmt.Errorf("lens: card %d: coeffs, poly_terms and q_asphere are mutually exclusive", i)
+		return fmt.Errorf("lens: card %d: coeffs, poly_terms, q_asphere, xy_polynomial and zernike are mutually exclusive", i)
 	}
-	if len(c.PolyTerms) > 0 || c.QAsphere != nil {
+	if len(c.PolyTerms) > 0 || c.QAsphere != nil || c.XYPoly != nil || c.Zernike != nil {
 		if _, err := c.profile(); err != nil {
 			return fmt.Errorf("lens: card %d: %w", i, err)
 		}
@@ -199,7 +239,7 @@ func (c Card) posed() bool {
 // profile converts the card into a geo surface profile.
 func (c Card) profile() (geo.Profile, error) {
 	if c.asphereKinds() > 1 {
-		return nil, fmt.Errorf("coeffs, poly_terms and q_asphere are mutually exclusive")
+		return nil, fmt.Errorf("coeffs, poly_terms, q_asphere, xy_polynomial and zernike are mutually exclusive")
 	}
 	if len(c.PolyTerms) > 0 {
 		terms := make([]geo.PolyTerm, len(c.PolyTerms))
@@ -211,6 +251,33 @@ func (c Card) profile() (geo.Profile, error) {
 			return nil, err
 		}
 		return p, nil
+	}
+	if c.XYPoly != nil {
+		terms := make([]geo.XYTerm, len(c.XYPoly.Terms))
+		for k, t := range c.XYPoly.Terms {
+			terms[k] = geo.XYTerm{I: t.I, J: t.J, Coeff: t.Coeff}
+		}
+		p, err := geo.NewXYPolynomial(c.RadiusMM, c.ConicK, c.XYPoly.NormRadiusMM, terms)
+		if err != nil {
+			return nil, err
+		}
+		return p, nil
+	}
+	if c.Zernike != nil {
+		z := geo.ZernikeSurface{
+			R: c.RadiusMM, K: c.ConicK,
+			NormR:  c.Zernike.NormRadiusMM,
+			Coeffs: append([]float64(nil), c.Zernike.Coeffs...),
+		}
+		if c.Zernike.Orthonormal {
+			for j := range z.Coeffs {
+				z.Coeffs[j] *= geo.ZernikeNollNorm(j + 1) // c_poly = c_ortho · N_j
+			}
+		}
+		if err := z.Validate(); err != nil {
+			return nil, err
+		}
+		return z, nil
 	}
 	if c.QAsphere != nil {
 		form, err := qFormOf(c.QAsphere.Form)
