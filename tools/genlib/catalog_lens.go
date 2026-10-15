@@ -58,7 +58,7 @@ func singlet(l *lib, sh shapeT, glass string, fl, wantFnum float64, fov float64)
 	name := fmt.Sprintf("%s单透镜 %s f=%.4gmm F/%s", sh.zh, glass, efl, trimNum(fnum, 2))
 	p, err := buildLayout(name, []grp{g}, 2.5, f, semi, math.Inf(-1))
 	if err != nil {
-		fmt.Printf("  ! singlet %s %s f=%g: %v\n", sh.key, glass, f, err)
+		failf("singlet %s %s f=%g: %v\n", sh.key, glass, f, err)
 		return
 	}
 	note := fmt.Sprintf("单透镜（%s）｜%s｜设计焦距 %smm，口径 %smm，F/%s",
@@ -130,7 +130,7 @@ func buildSinglets(l *lib) {
 		p, err := buildLayout(fmt.Sprintf("平凸单透镜 N-BK7 f=100mm F/%s（口径扫描）", trimNum(fn, 2)),
 			[]grp{g}, 2.5, efl, semi, math.Inf(-1))
 		if err != nil {
-			fmt.Printf("  ! singlet fnum %g: %v\n", fn, err)
+			failf("singlet fnum %g: %v\n", fn, err)
 			continue
 		}
 		l.add(fmt.Sprintf("singlet-pcx-f100-nbk7-%s.json", fnumCode(fn)), p, "singlet", 1,
@@ -151,7 +151,7 @@ func buildSinglets(l *lib) {
 		p, err := buildLayout(fmt.Sprintf("弯曲族 N-BK7 f=%smm（c2/c1=%.2f）", trimNum(target, 0), k),
 			[]grp{g}, 2.5, target, 10, math.Inf(-1))
 		if err != nil {
-			fmt.Printf("  ! bend k=%g: %v\n", k, err)
+			failf("bend k=%g: %v\n", k, err)
 			continue
 		}
 		l.add(fmt.Sprintf("singlet-bend-k%s-f%s-nbk7.json", numCode(k), trimNum(math.Abs(target), 0)), p, "singlet", 2,
@@ -159,73 +159,6 @@ func buildSinglets(l *lib) {
 				"fov0.5deg", "sweep:bending", "efl:" + trimNum(target, 0)},
 			fmt.Sprintf("单透镜弯曲族｜N-BK7｜f=%smm、F/5 固定，第二个面的曲率比为 %s：弯月形（比值→1）球差显著下降", trimNum(target, 0), trimNum(k, 2)))
 	}
-	// aspheric singlets: the front surface carries A4
-	for _, f := range []float64{25, 50, 100, 200} {
-		semi := f / (2 * fnumFor(f, 3))
-		g := grp{name: "L1", curv: seedConvPCX("N-BK7", f), glasses: []string{"N-BK7", ""}, thick: thickFor(f), after: 30}
-		p, err := buildPrescriptionAsphere(fmt.Sprintf("非球面单透镜 N-BK7 f=%smm F/3", trimNum(f, 0)), []grp{g}, 2.5, f, semi)
-		if err != nil {
-			fmt.Printf("  ! asphere f=%g: %v\n", f, err)
-			continue
-		}
-		l.add(fmt.Sprintf("singlet-asphere-f%s-nbk7.json", trimNum(f, 0)), p, "singlet", 2,
-			[]string{"singlet", "asphere", "N-BK7", "F/3", "visible", "classic", "quality:analytic",
-				"fov0.5deg", "efl:" + trimNum(f, 0), "sweep:shape"},
-			fmt.Sprintf("非球面单透镜｜N-BK7｜f=%smm、F/%s：球面项 A4 由实光线追迹求解，使边缘球差归零（施密特式修正）", trimNum(f, 0), trimNum(fnumFor(f, 3), 2)))
-	}
-}
-
-// buildPrescriptionAsphere builds a biconvex-free aspheric singlet whose
-// second surface carries an A4 term solved on the real trace so that the
-// marginal focus coincides with the paraxial one.
-func buildPrescriptionAsphere(name string, gs []grp, lead, efl, semi float64) (*lens.Prescription, error) {
-	p, err := buildLayout(name, gs, lead, efl, semi, math.Inf(-1))
-	if err != nil {
-		return nil, err
-	}
-	// Put the asphere on the second surface (the convex one), then solve A4.
-	last := len(p.Cards) - 1
-	cards := append([]lens.Card(nil), p.Cards...)
-	cards[last].Coeffs = []float64{0}
-	par, err := p.Paraxial(geo.Wavelengthd)
-	if err != nil {
-		return nil, err
-	}
-	zFocus := par.BackFocalZ
-	h := semi * 0.98
-	z0 := -(spanOf2(cards) * 2) - 100
-	resid := func(a4 float64) float64 {
-		c := append([]lens.Card(nil), cards...)
-		c[last].Coeffs = []float64{a4}
-		sys, err := buildSysFromCards(c)
-		if err != nil {
-			return math.NaN()
-		}
-		r := geo.NewRay(geo.V(0, h, z0), geo.V(0, 0, 1), geo.Wavelengthd)
-		res := sys.Trace(r)
-		if !res.OK() {
-			return math.NaN()
-		}
-		st := res.Steps[len(res.Steps)-1]
-		if math.Abs(st.DirOut.Z) < 1e-12 {
-			return math.NaN()
-		}
-		t := (zFocus - st.Point.Z) / st.DirOut.Z
-		return st.Point.Y + t*st.DirOut.Y
-	}
-	a4, err := solve1D(resid, -1e-3/(semi*semi), 1e-3/(semi*semi), 200, 120)
-	if err != nil {
-		return nil, fmt.Errorf("asphere solve: %v", err)
-	}
-	p.Cards = cards
-	p.Cards[last].Coeffs = []float64{a4}
-	if err := p.Validate(); err != nil {
-		return nil, err
-	}
-	if _, err := p.System(); err != nil {
-		return nil, err
-	}
-	return p, nil
 }
 
 func spanOf2(cards []lens.Card) float64 {
@@ -234,10 +167,6 @@ func spanOf2(cards []lens.Card) float64 {
 		s += math.Abs(c.ThicknessMM)
 	}
 	return s
-}
-
-func buildSysFromCards(cards []lens.Card) (*geo.System, error) {
-	return buildSys(cards)
 }
 
 // ---------- cemented achromats ----------
@@ -256,7 +185,7 @@ func achromatDesigned(l *lib, crown, flint string, efl, wantFnum float64, fieldD
 	}
 	p, res, err := lens.DesignAchromat(efl, crown, flint, semi, opts)
 	if err != nil {
-		fmt.Printf("  ! achromat dls %s/%s f=%g: %v\n", crown, flint, efl, err)
+		failf("achromat dls %s/%s f=%g: %v\n", crown, flint, efl, err)
 		return
 	}
 	stats := ""
@@ -279,7 +208,7 @@ func achromatSolved(l *lib, crown, flint string, efl, wantFnum float64) {
 	semi := efl / (2 * fnum)
 	p, _, err := lens.DesignAchromat(efl, crown, flint, semi, &lens.DesignOptions{SkipPolish: true})
 	if err != nil {
-		fmt.Printf("  ! achromat solve %s/%s f=%g f/%g: %v\n", crown, flint, efl, fnum, err)
+		failf("achromat solve %s/%s f=%g f/%g: %v\n", crown, flint, efl, fnum, err)
 		return
 	}
 	p.Name = fmt.Sprintf("消色差双胶合 %s/%s f=%.4gmm F/%s（解析解）", crown, flint, efl, trimNum(fnum, 2))
@@ -303,7 +232,7 @@ func achromatReversed(l *lib, crown, flint string, efl, wantFnum float64) {
 	semi := efl / (2 * fnum)
 	base, _, err := lens.DesignAchromat(efl, crown, flint, semi, &lens.DesignOptions{SkipPolish: true})
 	if err != nil {
-		fmt.Printf("  ! achromat rev %s/%s f=%g: %v\n", crown, flint, efl, err)
+		failf("achromat rev %s/%s f=%g: %v\n", crown, flint, efl, err)
 		return
 	}
 	n := len(base.Cards)
@@ -331,7 +260,7 @@ func achromatReversed(l *lib, crown, flint string, efl, wantFnum float64) {
 		ObjectZMM: math.Inf(-1), Stop: 0, Cards: cards,
 	}
 	if err := finishLens(p, semi, efl); err != nil {
-		fmt.Printf("  ! achromat rev finish %s/%s f=%g: %v\n", crown, flint, efl, err)
+		failf("achromat rev finish %s/%s f=%g: %v\n", crown, flint, efl, err)
 		return
 	}
 	l.add(achromatFilename("rev", crown, flint, efl), p, "achromat", 3,
@@ -358,7 +287,7 @@ func nirAchromat(l *lib, crown, flint string, efl float64, fnum float64) {
 	v1 := (g1.N(l1) - 1) / (g1.N(l1) - g1.N(l2))
 	v2 := (g2.N(l1) - 1) / (g2.N(l1) - g2.N(l2))
 	if !(v1 > v2) {
-		fmt.Printf("  ! nir achromat %s/%s: V(%g)=%.2f is not above V(%g)=%.2f\n", crown, flint, l1, v1, l1, v2)
+		failf("nir achromat %s/%s: V(%g)=%.2f is not above V(%g)=%.2f\n", crown, flint, l1, v1, l1, v2)
 		return
 	}
 	phi := 1 / efl
@@ -390,33 +319,27 @@ func nirAchromat(l *lib, crown, flint string, efl float64, fnum float64) {
 	}
 	s, err := solve1D(eval, 0.2, 5, 200, 120)
 	if err != nil {
-		fmt.Printf("  ! nir achromat %s/%s f=%g: %v\n", crown, flint, efl, err)
+		failf("nir achromat %s/%s f=%g: %v\n", crown, flint, efl, err)
 		return
 	}
 	for k, i := range []int{1, 2, 3} {
 		p.Cards[i].RadiusMM = r4(orig[k] / s)
 	}
 	if err := autoApertures(p, semi); err != nil {
-		fmt.Printf("  ! nir achromat apertures %s/%s f=%g: %v\n", crown, flint, efl, err)
+		failf("nir achromat apertures %s/%s f=%g: %v\n", crown, flint, efl, err)
 		return
 	}
 	if err := p.Validate(); err != nil {
-		fmt.Printf("  ! nir achromat validate %s/%s f=%g: %v\n", crown, flint, efl, err)
+		failf("nir achromat validate %s/%s f=%g: %v\n", crown, flint, efl, err)
 		return
-	}
-	pa, _ := p.Paraxial(l1)
-	pb, _ := p.Paraxial(l2)
-	delta := math.NaN()
-	if pa != nil && pb != nil {
-		delta = pa.EFL - pb.EFL
 	}
 	p.Name = fmt.Sprintf("近红外消色差双胶合 %s/%s f=%smm（1064/1550nm）", crown, flint, trimNum(efl, 0))
 	file := fmt.Sprintf("achromat-nir-f%s-%s-%s.json", trimNum(efl, 0), glassCode(crown), glassCode(flint))
 	l.add(file, p, "achromat", 4,
 		[]string{"achromat", "doublet", "nir", crown, flint, fnumTag(fnum), eflTag(efl),
 			"classic", "quality:analytic", "fov0.5deg", "sweep:band"},
-		fmt.Sprintf("近红外消色差双胶合｜%s+%s｜f=%smm、F/%s｜经典构造：功率分配用 1064nm/1550nm 之间的阿贝数（同一 Sellmeier 数据）解析求出、再由近轴引擎按 EFL(1064)=目标 定标；1064 与 1550nm 的焦距差实测 %s（由 libcheck 复核）",
-			crown, flint, trimNum(efl, 0), trimNum(fnum, 2), fmtSig(delta, "mm")))
+		fmt.Sprintf("近红外消色差双胶合｜%s+%s｜f=%smm、F/%s｜经典构造：功率分配用 1064nm/1550nm 之间的阿贝数（同一 Sellmeier 数据）解析求出、再由近轴引擎按 EFL(1064)=目标 定标；d 线指标见下；1064 与 1550nm 的焦距差不在本库复核清单内",
+			crown, flint, trimNum(efl, 0), trimNum(fnum, 2)))
 	l.nir[file] = true
 }
 
@@ -431,7 +354,7 @@ func doubletFinite(l *lib, crown, flint string, efl float64, ratio float64) {
 	p, err := buildLayout(fmt.Sprintf("%s/%s 双胶合 1:%.3g 成像", crown, flint, ratio),
 		[]grp{g}, 3, efl, semi, objZ)
 	if err != nil {
-		fmt.Printf("  ! doublet finite %s/%s: %v\n", crown, flint, err)
+		failf("doublet finite %s/%s: %v\n", crown, flint, err)
 		return
 	}
 	par, err := p.Paraxial(geo.Wavelengthd)

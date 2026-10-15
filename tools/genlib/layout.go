@@ -1,8 +1,9 @@
 // The example catalogue machinery of library/geo: thin-lens seeds, layout
-// expansion, paraxial scaling, automatic apertures and the DLS polish
-// wrapper. Every prescription in the library is produced by one of the two
-// solvers here (closed form, or the package's own least-squares polisher),
-// never by hand-typed numbers.
+// expansion, paraxial scaling, automatic apertures, the DLS polish wrapper,
+// and the library container with its failure records. Every prescription in
+// the library is produced by one of the solvers here (closed form, bounded
+// root search, or the package's own least-squares polisher), never by
+// hand-typed numbers.
 package main
 
 import (
@@ -12,7 +13,35 @@ import (
 
 	"tetsuhiro-oz/geo"
 	"tetsuhiro-oz/lens"
+	"tetsuhiro-oz/tools/libcheck/measure"
 )
+
+// ---------- generation records ----------
+
+// The records of one generation run: every candidate that was skipped with
+// its reason, every candidate merged into an identical earlier design, and
+// every file renamed to keep file names unique. main writes them to
+// library/geo/FAILURES.md.
+var (
+	buildFails []string // construction failures: the candidate never reached the library
+	candFails  []string // registered candidates skipped at measurement or assertion time
+	merges     []string // candidates merged into an identical earlier design
+	renames    []string // files renamed to keep names unique
+)
+
+func record(dst *[]string, format string, a ...interface{}) {
+	msg := strings.TrimRight(fmt.Sprintf(format, a...), "\n")
+	*dst = append(*dst, msg)
+	fmt.Println("  ! " + msg)
+}
+
+// failf records a construction failure: a layout or solve that produced no
+// candidate. The message names the family and the parameters.
+func failf(format string, a ...interface{}) { record(&buildFails, format, a...) }
+
+// skipf records a registered candidate that failed measurement, the
+// library assertions or the description check, and was not written.
+func skipf(format string, a ...interface{}) { record(&candFails, format, a...) }
 
 // ---------- library container ----------
 
@@ -24,29 +53,66 @@ type item struct {
 
 type lib struct {
 	items []item
-	seen  map[string]bool
+	seen  map[string]bool   // file names in use
+	names map[string]bool   // example names in use
+	fps   map[string]string // parameter fingerprint -> file that holds it
 	byCat map[string]int
-	// nir marks the examples that are designed for the near infrared: their
-	// 1064/1550 nm focal difference is measured as well.
+	// nir marks the examples designed for the near infrared.
 	nir map[string]bool
 }
 
 func newLib() *lib {
-	return &lib{seen: map[string]bool{}, byCat: map[string]int{}, nir: map[string]bool{}}
+	return &lib{seen: map[string]bool{}, names: map[string]bool{}, fps: map[string]string{},
+		byCat: map[string]int{}, nir: map[string]bool{}}
 }
 
+// add registers one candidate. It never panics:
+//   - a candidate whose parameters equal an earlier one is merged into it;
+//   - a file name already in use gets a readable "-altN" suffix;
+//   - a name already in use gets a "（变体N）" suffix.
 func (l *lib) add(file string, p *lens.Prescription, cat string, diff int, tg []string, note string) {
-	if l.seen[file] {
-		panic("duplicate file name " + file)
+	measure.Canonical(p)
+	fp, err := measure.Fingerprint(p)
+	if err != nil {
+		failf("%s: fingerprint: %v", file, err)
+		return
 	}
-	l.seen[file] = true
+	if prev, ok := l.fps[fp]; ok {
+		merges = append(merges, fmt.Sprintf("%s 与 %s 参数指纹相同（同一光学设计），合并", file, prev))
+		return
+	}
+	name := file
+	if l.seen[name] {
+		base := strings.TrimSuffix(file, ".json")
+		for k := 2; ; k++ {
+			cand := fmt.Sprintf("%s-alt%d.json", base, k)
+			if !l.seen[cand] {
+				name = cand
+				break
+			}
+		}
+		renames = append(renames, fmt.Sprintf("%s 改名为 %s（同名文件，参数不同）", file, name))
+	}
+	l.seen[name] = true
+	l.fps[fp] = name
 	p.Category = cat
 	p.Difficulty = diff
 	p.Tags = tg
 	if p.Name == "" {
-		p.Name = file
+		p.Name = name
 	}
-	l.items = append(l.items, item{file: file, p: p, note: note})
+	if l.names[p.Name] {
+		base := p.Name
+		for k := 2; ; k++ {
+			cand := fmt.Sprintf("%s（变体%d）", base, k)
+			if !l.names[cand] {
+				p.Name = cand
+				break
+			}
+		}
+	}
+	l.names[p.Name] = true
+	l.items = append(l.items, item{file: name, p: p, note: note})
 	l.byCat[cat]++
 }
 
@@ -87,8 +153,7 @@ func seedBic(glass string, f float64) []float64 {
 
 // seedMen is the thin-lens seed of a meniscus whose rear curvature is 0.55
 // times its front curvature: the sign of f picks a positive or a negative
-// meniscus. It is a real curvature pair (mm⁻¹), not a ratio, so that a
-// meniscus can be mixed with other elements inside one layout.
+// meniscus.
 func seedMen(glass string, f float64) []float64 {
 	n := idxOf(glass)
 	k := 1 / (0.45 * (n - 1) * f)
@@ -115,10 +180,10 @@ func seedAchromat(crown, flint string, f float64) []float64 {
 
 // ---------- layout machinery ----------
 
-// grp is one element of a layout: curvature *ratios* (from the seed
-// functions above — the whole layout is scaled by the paraxial solve, so
-// their units do not matter), the glass after every surface, the element
-// thickness and the air gap that follows it.
+// grp is one element of a layout: curvature ratios (from the seed functions
+// above; the whole layout is scaled by the paraxial solve, so their units do
+// not matter), the glass after every surface, the element thickness and the
+// air gap that follows it.
 type grp struct {
 	name    string
 	curv    []float64
@@ -183,24 +248,23 @@ func buildLayout(name string, gs []grp, lead, efl, pupilSemi, objZ float64, objT
 
 // finishLens rounds the geometry, guarantees manufacturing room between
 // neighbouring surfaces, gives every non-stop card an aperture that clears
-// the used beam and re-solves the focal length after those edits. It is
-// idempotent enough to be called again after a polish.
+// the used beam, and solves the radii for the target focal length.
+//
+// The result is frozen in three steps — thicknesses to 0.1 µm, the radii
+// re-solved on that geometry, the radii to 0.1 nm — and the frozen
+// prescription must reproduce the target EFL to a relative residual of 1e-6.
+// Otherwise an error is returned and the candidate is skipped.
 func finishLens(p *lens.Prescription, pupilSemi, targetEFL float64) error {
 	if pupilSemi > 0 {
 		p.Cards[0].SemiAperMM = r3(pupilSemi)
 	}
-	// Exact similarity step: scaling every radius *and* every thickness by a
-	// multiplies the EFL by exactly a (the paraxial equations are
-	// similarity-covariant), so the seed layout lands on the requested focal
-	// length in one step. The loops below then only repair rounding and
-	// manufacturing clearance.
+	// Exact similarity step: scaling every radius and every thickness by a
+	// multiplies the EFL by exactly a, so the seed lands on the target in one
+	// step. Only applied when the seed is already in the right power class.
 	if targetEFL != 0 {
 		if par, err := p.Paraxial(geo.Wavelengthd); err == nil {
 			if e := par.EFL; !math.IsNaN(e) && !math.IsInf(e, 0) && e != 0 {
-				a := targetEFL / e
-				// Only when the seed is already in the right power class:
-				// a near-afocal seed would otherwise collapse to nothing.
-				if a > 1e-3 && a < 1e3 {
+				if a := targetEFL / e; a > 1e-3 && a < 1e3 {
 					for i := range p.Cards {
 						if !math.IsInf(p.Cards[i].RadiusMM, 0) {
 							p.Cards[i].RadiusMM *= a
@@ -220,17 +284,34 @@ func finishLens(p *lens.Prescription, pupilSemi, targetEFL float64) error {
 		if err := clearance(p, pupilSemi); err != nil {
 			return err
 		}
-		if err := solveEFL(p, radiiIdx(p.Cards), targetEFL); err != nil {
-			return err
+		if targetEFL != 0 {
+			if err := solveEFL(p, radiiIdx(p.Cards), targetEFL); err != nil {
+				return err
+			}
 		}
 		if err := autoApertures(p, pupilSemi); err != nil {
 			return err
 		}
 	}
+	// Freeze the geometry, re-solve the radii on it, freeze the radii.
 	for i := range p.Cards {
-		p.Cards[i].ThicknessMM = r3(p.Cards[i].ThicknessMM)
-		if !math.IsInf(p.Cards[i].RadiusMM, 0) {
-			p.Cards[i].RadiusMM = r4(p.Cards[i].RadiusMM)
+		p.Cards[i].ThicknessMM = r4(p.Cards[i].ThicknessMM)
+	}
+	if targetEFL != 0 {
+		if err := solveEFL(p, radiiIdx(p.Cards), targetEFL); err != nil {
+			return fmt.Errorf("final solve: %w", err)
+		}
+		for i := range p.Cards {
+			if !math.IsInf(p.Cards[i].RadiusMM, 0) {
+				p.Cards[i].RadiusMM = r7(p.Cards[i].RadiusMM)
+			}
+		}
+		par, err := p.Paraxial(geo.Wavelengthd)
+		if err != nil {
+			return fmt.Errorf("frozen prescription: %w", err)
+		}
+		if rel := math.Abs(par.EFL-targetEFL) / math.Abs(targetEFL); !(rel <= 1e-6) {
+			return fmt.Errorf("EFL residual %.3g after freezing (target %g, got %g)", rel, targetEFL, par.EFL)
 		}
 	}
 	if err := p.Validate(); err != nil {
@@ -314,21 +395,17 @@ func autoApertures(p *lens.Prescription, pupilSemi float64) error {
 	return nil
 }
 
-// ---------- quality helpers ----------
-
 // spotOnOff returns the d-line on-axis and off-axis spot RMS of a refractive
-// prescription.
+// prescription (the off-axis field is the one of the measurement).
 func spotOnOff(p *lens.Prescription, fieldDeg float64) (on, off float64, err error) {
 	samples := lens.UnitDiskSamples(3, 6)
 	on, _, _, err = lens.SpotRMS(p, geo.Wavelengthd, lens.Field{}, samples)
 	if err != nil {
 		return 0, 0, err
 	}
-	f := lens.Field{}
+	f := lens.Field{TanY: 0.02 * math.Abs(p.ObjectZMM)}
 	if math.IsInf(p.ObjectZMM, -1) {
 		f = lens.Field{TanY: math.Tan(fieldDeg * math.Pi / 180)}
-	} else {
-		f = lens.Field{TanY: 0.02 * math.Abs(p.ObjectZMM)}
 	}
 	off, _, _, err = lens.SpotRMS(p, geo.Wavelengthd, f, samples)
 	if err != nil {
@@ -449,10 +526,16 @@ func eflTag(f float64) string { return "efl:" + trimNum(f, 1) }
 
 func fnumCode(f float64) string { return "f" + strings.ReplaceAll(trimNum(f, 2), ".", "p") }
 
+// trimNum formats x with dec decimals and drops the trailing zeros of the
+// fraction only. (Stripping zeros of the integer part as well turned 100
+// into "1" and 1000 into "1": that collision produced the duplicate file
+// name mirror-parabola-f1-f4.json.)
 func trimNum(x float64, dec int) string {
 	s := fmt.Sprintf("%.*f", dec, x)
-	s = strings.TrimRight(s, "0")
-	s = strings.TrimRight(s, ".")
+	if strings.Contains(s, ".") {
+		s = strings.TrimRight(s, "0")
+		s = strings.TrimSuffix(s, ".")
+	}
 	if s == "" || s == "-" {
 		s = "0"
 	}
