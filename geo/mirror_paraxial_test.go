@@ -1209,3 +1209,100 @@ func TestLibraryMirrorFocusNumbers(t *testing.T) {
 	t.Logf("cassegrain layout: physical focus %.9f, pair crossing %.6f, artifact crossing %.6f, library FOCUSZ %.6f",
 		zTrue, zPair, zArtifact, 345.328867)
 }
+
+// ---------------------------------------------------------------------------
+// 16. a folded double pass: curved mirror, flat fold, image behind the primary
+// ---------------------------------------------------------------------------
+
+func TestParaxialMirrorDoublePass(t *testing.T) {
+	// A concave mirror of R = -2000 at z = 60 with a plane fold 160 mm down the
+	// reflected beam, at z = -100. The plane mirror sends the (still converging)
+	// beam back towards +z, so the light passes the plane of the curved mirror a
+	// second time and comes to a focus behind it: the sequential chain is two
+	// reflecting surfaces with one negative thickness, and the image is the
+	// extrapolation of the emergent ray line.
+	const (
+		R1 = -2000.0
+		d  = 160.0
+		z1 = 60.0
+		z2 = z1 - d
+	)
+	sys := mustSystem(t, Air{}, []Surface{
+		{Profile: Plane{}, Aperture: CircleAperture(40)},
+		{Profile: Sphere{R: R1}, Mirror: true, Aperture: CircleAperture(40)},
+		{Profile: Plane{}, Mirror: true, Aperture: CircleAperture(40)},
+	}, []float64{z1, -d}, nil)
+	p, err := sys.Paraxial(Wavelengthd, math.Inf(-1))
+	if err != nil {
+		t.Fatalf("Paraxial: %v", err)
+	}
+	// Ray picture: the parallel ray at height 1 leaves the curved mirror with
+	// u = 2/|R1| = 1e-3, reaches the fold at y = 1 - d·u = 0.84 and returns with
+	// u = -1e-3, so it crosses the axis d - |R1|/2 = -840 mm from the fold.
+	wantZ := z2 - d + math.Abs(R1)/2
+	checkRel(t, "double-pass image z", p.ImageZ, wantZ, 1e-12)
+	checkRel(t, "double-pass image z = z1 - 2d + |R1|/2", p.ImageZ, z1-2*d+math.Abs(R1)/2, 1e-12)
+	checkRel(t, "Parity = +1 (two reflections)", p.Parity(), 1, 1e-15)
+	checkRel(t, "real ray image", realCrossOfRay(sys, 1e-3, Wavelengthd, -2000), wantZ, 1e-6)
+	// The image lies behind the plane of the curved mirror: the fold turns the
+	// diverging-to-converging beam around, which is what the sign of the
+	// thickness encodes.
+	if !(p.ImageZ > sys.VertexZ(1)) {
+		t.Fatalf("the double-pass image %g must lie behind the first mirror (%g)", p.ImageZ, sys.VertexZ(1))
+	}
+	// A finite object: the object at the focus of the curved mirror would send a
+	// parallel beam to the fold; the fold returns it parallel, so the image is
+	// at infinity (the plane mirror is afocal and the curved mirror undoes
+	// itself on the way back only for the focus at its focal point).
+	pp, err := sys.Paraxial(Wavelengthd, z1+R1/2)
+	if err != nil {
+		t.Fatalf("finite object: %v", err)
+	}
+	if !math.IsInf(pp.ImageZ, 0) {
+		t.Errorf("an object at the focus of the curved mirror must leave a collimated beam after the flat fold, got ImageZ = %g", pp.ImageZ)
+	}
+}
+
+// ---------------------------------------------------------------------------
+// 17. a mirror immersed in glass: the power of a reflection does not disperse
+// ---------------------------------------------------------------------------
+
+func TestParaxialImmersedMirror(t *testing.T) {
+	// A plane entrance face (no power), a flat 20 mm block of N-BK7 and a
+	// reflecting rear surface of R = -400: the mirror sits inside one medium, so
+	// the first-order engine accepts it, and its slope power u' = -2 c y carries
+	// no refractive index — the crossing of the reflected ray is the same at
+	// every wavelength even though the glass disperses.
+	sys := mustSystem(t, Air{}, []Surface{
+		{Profile: Plane{}, Aperture: CircleAperture(30)},
+		{Profile: Sphere{R: -400}, Mirror: true, Aperture: CircleAperture(30)},
+	}, []float64{20}, []Medium{Air{}, N_BK7, N_BK7})
+	p, err := sys.Paraxial(Wavelengthd, math.Inf(-1))
+	if err != nil {
+		t.Fatalf("Paraxial: %v", err)
+	}
+	checkRel(t, "immersed mirror BFL = R/2 from the vertex", p.BFL, -200, 1e-12)
+	checkRel(t, "immersed mirror ImageZ", p.ImageZ, sys.VertexZ(1)-200, 1e-12)
+	// The index cancels in the slope of the reflected ray: nothing to see in
+	// colour (only round-off leaves a residue below 1e-12 mm).
+	if fc, err := sys.AxialChromatic(math.Inf(-1), WavelengthF, WavelengthC); err != nil {
+		t.Fatal(err)
+	} else if math.Abs(fc) > 1e-12 {
+		t.Errorf("immersed mirror F-C = %g, want 0 (the mirror power -2 n c has no index in slope form)", fc)
+	}
+	// Real ray: refraction at the plane does not bend a parallel ray, and the
+	// crossing is at R/2 from the mirror whatever the index.
+	checkRel(t, "real ray focus", realCrossOfRay(sys, 1e-4, Wavelengthd, -500), sys.VertexZ(1)-200, 1e-9)
+	t.Logf("immersed mirror: ImageZ %.9f (vertex %.3f), F-C %.3g", p.ImageZ, sys.VertexZ(1),
+		mustChromatic(t, sys))
+}
+
+// mustChromatic returns the F-C shift of a system or fails the test.
+func mustChromatic(t *testing.T, sys *System) float64 {
+	t.Helper()
+	fc, err := sys.AxialChromatic(math.Inf(-1), WavelengthF, WavelengthC)
+	if err != nil {
+		t.Fatalf("AxialChromatic: %v", err)
+	}
+	return fc
+}
