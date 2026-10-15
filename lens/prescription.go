@@ -56,6 +56,15 @@ func (v VarSpec) String() string {
 // geo.Glass (N-BK7, fused silica, N-SF5, N-SK16, F2). SemiAperMM > 0 sets a
 // circular clear aperture of that radius; 0 means unlimited. Mirror makes
 // the surface reflective (the medium does not change across it).
+//
+// DecenterXMM/DecenterYMM and TiltXDeg/TiltYDeg/TiltZDeg decentre and tilt the
+// card's surface (geo.CoordBreak convention: decentre first, then the tilts
+// about x, y and z, the angles in degrees). The following cards are not
+// affected. Every field is optional: an absent field, which is the case of
+// every prescription written before these fields existed, is zero, i.e. no
+// decentre and no tilt. The first-order engine (Paraxial and everything built
+// on it) rejects a decentred or tilted card with an error; trace the system
+// instead.
 type Card struct {
 	Name        string    `json:"name,omitempty"`
 	RadiusMM    float64   `json:"radius_mm"`
@@ -74,6 +83,12 @@ type Card struct {
 	// meaning, so existing prescriptions load and save unchanged.
 	PolyTerms []PolyTermCard `json:"poly_terms,omitempty"`
 	QAsphere  *QCard         `json:"q_asphere,omitempty"`
+
+	DecenterXMM float64 `json:"decenter_x_mm,omitempty"` // decentre along x (mm)
+	DecenterYMM float64 `json:"decenter_y_mm,omitempty"` // decentre along y (mm)
+	TiltXDeg    float64 `json:"tilt_x_deg,omitempty"`    // tilt about x (degrees)
+	TiltYDeg    float64 `json:"tilt_y_deg,omitempty"`    // tilt about y (degrees)
+	TiltZDeg    float64 `json:"tilt_z_deg,omitempty"`    // roll about z (degrees)
 }
 
 // PolyTermCard is the JSON form of one polynomial asphere term Coeff·r^Power.
@@ -133,6 +148,27 @@ func qFormOf(name string) (geo.QForm, error) {
 		return geo.QBfs, nil
 	}
 	return 0, fmt.Errorf("q_asphere.form %q must be \"qcon\" or \"qbfs\"", name)
+}
+
+// pose returns the coordinate break of the card's surface, nil for an
+// undecentred, untilted card.
+func (c Card) pose() *geo.CoordBreak {
+	if !c.posed() {
+		return nil
+	}
+	const d2r = math.Pi / 180
+	return &geo.CoordBreak{
+		Dx:    c.DecenterXMM,
+		Dy:    c.DecenterYMM,
+		TiltX: c.TiltXDeg * d2r,
+		TiltY: c.TiltYDeg * d2r,
+		TiltZ: c.TiltZDeg * d2r,
+	}
+}
+
+// posed reports whether the card is decentred or tilted (or rolled).
+func (c Card) posed() bool {
+	return c.DecenterXMM != 0 || c.DecenterYMM != 0 || c.TiltXDeg != 0 || c.TiltYDeg != 0 || c.TiltZDeg != 0
 }
 
 // profile converts the card into a geo surface profile.
@@ -252,6 +288,11 @@ func (p *Prescription) Validate() error {
 		if c.SemiAperMM < 0 {
 			return fmt.Errorf("lens: card %d has a negative semi-aperture", i)
 		}
+		for _, v := range [...]float64{c.DecenterXMM, c.DecenterYMM, c.TiltXDeg, c.TiltYDeg, c.TiltZDeg} {
+			if math.IsNaN(v) || math.IsInf(v, 0) {
+				return fmt.Errorf("lens: card %d has a non-finite decentre or tilt (%v)", i, v)
+			}
+		}
 		for j, a := range c.Coeffs {
 			if math.IsNaN(a) || math.IsInf(a, 0) {
 				return fmt.Errorf("lens: card %d coefficient A%d is not finite", i, 2*j+4)
@@ -280,7 +321,7 @@ func (p *Prescription) System() (*geo.System, error) {
 		if err != nil {
 			return nil, fmt.Errorf("lens: card %d: %w", i, err)
 		}
-		sf := geo.Surface{Profile: prof, Mirror: c.Mirror, Name: c.Name}
+		sf := geo.Surface{Profile: prof, Mirror: c.Mirror, Name: c.Name, Pose: c.pose()}
 		if c.SemiAperMM > 0 {
 			sf.Aperture = geo.CircleAperture(c.SemiAperMM)
 		}
@@ -555,6 +596,10 @@ func (p *Prescription) String() string {
 		mir := ""
 		if c.Mirror {
 			mir = " [mirror]"
+		}
+		if c.posed() {
+			mir += fmt.Sprintf(" [decentre (%g, %g) mm, tilt (%g, %g, %g) deg]",
+				c.DecenterXMM, c.DecenterYMM, c.TiltXDeg, c.TiltYDeg, c.TiltZDeg)
 		}
 		g := c.Glass
 		if g == "" {

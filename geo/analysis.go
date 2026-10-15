@@ -87,6 +87,12 @@ type imageHit struct {
 // is implied by the imageZ argument instead).
 func (s *System) traceToPlane(r Ray, imageZ float64) imageHit {
 	out := imageHit{}
+	if r.Status == StatusNotConverged {
+		// A chief ray that did not converge (coordinate-break systems) is not a
+		// valid reference; report it instead of tracing it as if it were valid.
+		out.Status = StatusNotConverged
+		return out
+	}
 	res := s.Trace(r)
 	if len(res.Steps) == 0 {
 		out.Status = res.Status
@@ -179,7 +185,7 @@ func (s *System) SpotDiagram(f Field, pup Pupil, pts []PupilPoint, imageZ, lambd
 	if nOK > 0 {
 		sd.Centroid = sum.Div(float64(nOK))
 	}
-	h := s.traceToPlane(LaunchRay(f, pup, PupilPoint{}, lambdaNm), imageZ)
+	h := s.traceToPlane(s.chiefLaunch(f, pup, lambdaNm), imageZ)
 	sd.Chief, sd.ChiefStatus = h.Hit, h.Status
 	return sd, nil
 }
@@ -342,7 +348,7 @@ func (s *System) RayFan(f Field, pup Pupil, n int, azimuthDeg, imageZ, lambdaNm 
 	case RefExplicit:
 		origin = ref.Point
 	default: // RefChief
-		h := s.traceToPlane(LaunchRay(f, pup, PupilPoint{}, lambdaNm), imageZ)
+		h := s.traceToPlane(s.chiefLaunch(f, pup, lambdaNm), imageZ)
 		if !h.Status.OK() {
 			return nil, fmt.Errorf("geo: ray fan: the chief ray (%s) did not reach the image plane", h.Status)
 		}
@@ -487,7 +493,8 @@ func (s *System) OPDGrid(f Field, pup Pupil, pts []PupilPoint, imageZ, lambdaNm 
 			nHit++
 		}
 	}
-	chief := s.traceToPlane(LaunchRay(f, pup, PupilPoint{}, lambdaNm), imageZ)
+	chiefRay := s.chiefLaunch(f, pup, lambdaNm)
+	chief := s.traceToPlane(chiefRay, imageZ)
 	if !chief.Status.OK() {
 		return nil, fmt.Errorf("geo: OPD: the chief ray (%s) did not reach the image plane", chief.Status)
 	}
@@ -523,6 +530,18 @@ func (s *System) OPDGrid(f Field, pup Pupil, pts []PupilPoint, imageZ, lambdaNm 
 	// adding (P_i − P_chief)·d — puts every ray on the same incident
 	// wavefront before the OPLs are compared. (For a finite object all rays
 	// start at the same object point and the correction vanishes.)
+	// Under poses the chief ray of an infinite field starts at its own launch
+	// point, not on the pupil plane. Its optical path is therefore referred to
+	// its crossing pc of the pupil plane (the sampled rays start on that plane),
+	// and the incident wavefront is aligned with pc.
+	posed := s.hasPose() && !f.Finite
+	var pc Vec3
+	oplChief := chief.ExitOPL
+	if posed && chiefRay.Dir.Z != 0 {
+		tpc := (pup.Z - chiefRay.Origin.Z) / chiefRay.Dir.Z
+		pc = chiefRay.At(tpc)
+		oplChief -= s.Mediums[0].N(lambdaNm) * tpc
+	}
 	incident := func(p PupilPoint) float64 {
 		if f.Finite {
 			return 0
@@ -531,9 +550,11 @@ func (s *System) OPDGrid(f Field, pup Pupil, pts []PupilPoint, imageZ, lambdaNm 
 		if !ok {
 			return 0
 		}
+		if posed {
+			return V(pup.Offset.X+p.PX*pup.Radius-pc.X, pup.Offset.Y+p.PY*pup.Radius-pc.Y, 0).Dot(d)
+		}
 		return V(p.PX*pup.Radius, p.PY*pup.Radius, 0).Dot(d)
 	}
-	oplChief := chief.ExitOPL
 	for i := range pts {
 		g.Raw[i] = math.NaN()
 		if !data[i].ok {

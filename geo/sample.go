@@ -122,7 +122,11 @@ func (f Field) String() string { return "field[" + f.Label() + "]" }
 //
 // in the normalized pupil coordinates of the unit disc. It is normally the
 // paraxial entrance pupil (see System.EntrancePupil), whose centre lies on the
-// optical axis (Offset = 0), but any reference plane works — mirror systems,
+// optical axis (Offset = 0), but any reference plane works. For a system with
+// coordinate breaks or posed surfaces there is no paraxial pupil: pass the
+// plane and Offset = System.ChiefCrossing(field, z, λ) so that the sampling is
+// centred on the real chief ray (the chief reference of the analysis routines
+// is the real chief ray in any case) — mirror systems,
 // for which the paraxial engine is not available, simply pass a plane in front
 // of the first surface with the clear semi-diameter as Radius and the chief
 // offset of System.ChiefOffset as Offset, which puts the pupil centre on the
@@ -418,6 +422,9 @@ func (s *System) ExitPupil(f Field, lambdaNm float64) (Pupil, error) {
 // PupilPoint): the two agree to first order but the real chief ray defined
 // here is the one whose image height defines the classical distortion.
 func (s *System) ChiefRay(f Field, lambdaNm float64) Ray {
+	if s.hasPose() {
+		return s.chiefRayPosed(f, lambdaNm)
+	}
 	stop := s.StopIndex
 	if stop < 0 || stop >= len(s.Surfaces) {
 		stop = 0
@@ -513,6 +520,10 @@ func (s *System) ChiefRay(f Field, lambdaNm float64) Ray {
 //
 // The plane must lie in the object space (in front of the first surface).
 func (s *System) ChiefOffset(f Field, zPlane float64) (Vec3, error) {
+	if s.hasPose() {
+		return Zero, fmt.Errorf("geo: chief offset: the system has coordinate breaks or posed surfaces; " +
+			"use ChiefCrossing(field, zPlane, wavelength), which needs the wavelength of the trace")
+	}
 	stop := s.StopIndex
 	if stop < 0 || stop >= len(s.Surfaces) {
 		stop = 0

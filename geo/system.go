@@ -76,9 +76,22 @@ func (s *System) Validate() error {
 	if n == 0 {
 		return fmt.Errorf("geo: system has no surfaces")
 	}
-	for i, sf := range s.Surfaces {
+	for i := range s.Surfaces {
+		sf := &s.Surfaces[i]
+		if sf.Break {
+			if sf.Mirror {
+				return fmt.Errorf("geo: element %d is a coordinate break and cannot be a mirror", i)
+			}
+			if sf.Pose != nil && !sf.Pose.finite() {
+				return fmt.Errorf("geo: coordinate break %d has non-finite parameters (%+v)", i, *sf.Pose)
+			}
+			continue
+		}
 		if sf.Profile == nil {
 			return fmt.Errorf("geo: surface %d has a nil profile", i)
+		}
+		if sf.Pose != nil && !sf.Pose.finite() {
+			return fmt.Errorf("geo: surface %d has a non-finite pose (%+v)", i, *sf.Pose)
 		}
 	}
 	if len(s.Mediums) != n+1 {
@@ -99,8 +112,17 @@ func (s *System) Validate() error {
 			return fmt.Errorf("geo: thickness %d is not finite (%v)", i, t)
 		}
 	}
+	for i := range s.Surfaces {
+		if s.Surfaces[i].Break && s.Mediums[i].Name() != s.Mediums[i+1].Name() {
+			return fmt.Errorf("geo: coordinate break %d separates different media (%s, %s)",
+				i, s.Mediums[i].Name(), s.Mediums[i+1].Name())
+		}
+	}
 	if s.StopIndex < 0 || s.StopIndex >= n {
 		return fmt.Errorf("geo: stop index %d out of range [0,%d]", s.StopIndex, n-1)
+	}
+	if s.Surfaces[s.StopIndex].Break {
+		return fmt.Errorf("geo: stop index %d is a coordinate break, not a surface", s.StopIndex)
 	}
 	return nil
 }
@@ -109,13 +131,21 @@ func (s *System) Validate() error {
 func (s *System) NumSurfaces() int { return len(s.Surfaces) }
 
 // VertexZ returns the axial position (mm) of the vertex of surface i in the
-// global frame (OriginZ plus the thicknesses in front of it).
+// global frame: for a system without poses this is OriginZ plus the thicknesses
+// in front of it; for a system with coordinate breaks or posed surfaces it is
+// the z coordinate of the vertex on the chain of frames (see CoordBreak).
 func (s *System) VertexZ(i int) float64 {
-	z := s.OriginZ
-	for k := 0; k < i && k < len(s.Thickness); k++ {
-		z += s.Thickness[k]
+	c := s.chainStart()
+	n := len(s.Surfaces)
+	for k := 0; k < i && k < n && k < len(s.Thickness); k++ {
+		_, ref := s.place(k, c)
+		c = s.advance(ref, k)
 	}
-	return z
+	if i >= 0 && i < n {
+		e, _ := s.place(i, c)
+		return e.o.Z
+	}
+	return c.o.Z
 }
 
 // IndexBefore returns the refractive index in front of surface i at wavelength
@@ -134,15 +164,65 @@ func (s *System) IndexAfter(i int, wavelengthNm float64) float64 {
 // apertures). Rays may be launched safely in front of zmin.
 func (s *System) BoundsZ(rMax float64) (float64, float64) {
 	zmin, zmax := math.Inf(1), math.Inf(-1)
+	c := s.chainStart()
 	for i, sf := range s.Surfaces {
-		z := s.VertexZ(i)
-		lo, hi := sf.ZRange(rMax)
-		if z+lo < zmin {
-			zmin = z + lo
+		e, ref := s.place(i, c)
+		c = s.advance(ref, i)
+		if sf.Break {
+			continue
 		}
-		if z+hi > zmax {
-			zmax = z + hi
+		var lo, hi float64
+		if e.plain {
+			z := e.o.Z
+			lo, hi = sf.ZRange(rMax)
+			lo, hi = z+lo, z+hi
+		} else {
+			lo, hi = frameZRange(sf, e, rMax)
 		}
+		if lo < zmin {
+			zmin = lo
+		}
+		if hi > zmax {
+			zmax = hi
+		}
+	}
+	return zmin, zmax
+}
+
+// frameZRange returns the smallest and largest global z reached by the clear
+// aperture of a surface placed in the frame e (the aperture radius is
+// MaxRadius, or rMax for an unlimited aperture). The surface is sampled on a
+// polar grid because the axial sag range does not apply to a tilted frame.
+func frameZRange(sf Surface, e frame, rMax float64) (float64, float64) {
+	rr := sf.MaxRadius()
+	if math.IsInf(rr, 1) {
+		rr = rMax
+	}
+	if !(rr > 0) || math.IsInf(rr, 1) {
+		return math.Inf(-1), math.Inf(1)
+	}
+	const nr, na = 48, 96
+	zmin, zmax := math.Inf(1), math.Inf(-1)
+	for k := 0; k <= nr; k++ {
+		r := rr * float64(k) / nr
+		for j := 0; j < na; j++ {
+			a := 2 * math.Pi * float64(j) / na
+			x, y := r*math.Cos(a), r*math.Sin(a)
+			zl := sf.Sag(x, y)
+			if math.IsNaN(zl) || math.IsInf(zl, 0) {
+				continue
+			}
+			z := e.toGlobal(Vec3{x, y, zl}).Z
+			if z < zmin {
+				zmin = z
+			}
+			if z > zmax {
+				zmax = z
+			}
+		}
+	}
+	if zmin > zmax {
+		return math.Inf(-1), math.Inf(1)
 	}
 	return zmin, zmax
 }
@@ -228,10 +308,16 @@ func (s *System) Trace(r Ray) TraceResult {
 	}
 	r.Status = StatusOK
 	lambda := r.WavelengthNm
-	z := s.OriginZ
+	c := s.chainStart()
 	dir := r.Dir
 	for i := range s.Surfaces {
 		surf := s.Surfaces[i]
+		e, ref := s.place(i, c)
+		c = s.advance(ref, i)
+		if surf.Break {
+			// A pure coordinate break has no interaction: it only changed the chain.
+			continue
+		}
 		nB := s.Mediums[i].N(lambda)
 		nA := s.Mediums[i+1].N(lambda)
 		if !finitePositive(nB) || !finitePositive(nA) {
@@ -239,8 +325,8 @@ func (s *System) Trace(r Ray) TraceResult {
 			res.Ray, res.Status, res.FailedAt = r, StatusDegenerate, i
 			return res
 		}
-		local := r.Origin.Sub(V(0, 0, z))
-		point, t, hit := surf.Intersect(local, dir, tMinDefault)
+		local := e.toLocal(r.Origin)
+		point, t, hit := surf.Intersect(local, e.dirToLocal(dir), tMinDefault)
 		step := Step{
 			Surface: i, Label: surf.Label(), Mirror: surf.Mirror,
 			DirIn: dir, DirOut: dir, NBefore: nB, NAfter: nA,
@@ -257,8 +343,8 @@ func (s *System) Trace(r Ray) TraceResult {
 		}
 		r.OPL += nB * t
 		r.Path += t
-		r.Origin = point.Add(V(0, 0, z))
-		nrm := surf.Normal(point.X, point.Y)
+		r.Origin = e.toGlobal(point)
+		nrm := e.dirToGlobal(surf.Normal(point.X, point.Y))
 		if nrm.Norm2() == 0 {
 			step.Status = StatusDegenerate
 			res.Steps = append(res.Steps, step)
@@ -301,9 +387,6 @@ func (s *System) Trace(r Ray) TraceResult {
 		res.Steps = append(res.Steps, step)
 		dir = newDir
 		r.Dir = newDir
-		if i < len(s.Thickness) {
-			z += s.Thickness[i]
-		}
 	}
 	r.Status = StatusOK
 	res.Ray, res.Status = r, StatusOK
@@ -314,6 +397,9 @@ func (s *System) Trace(r Ray) TraceResult {
 // excluded). The object-side medium of the sub-system is the medium in front of
 // surface 'from'.
 func (s *System) Sub(from, to int) (*System, error) {
+	if s.hasPose() {
+		return nil, fmt.Errorf("geo: sub-systems of systems with coordinate breaks or posed surfaces are not supported")
+	}
 	if from < 0 || to > len(s.Surfaces) || from >= to {
 		return nil, fmt.Errorf("geo: invalid sub-system range [%d,%d)", from, to)
 	}
@@ -345,7 +431,8 @@ func (s *System) Sub(from, to int) (*System, error) {
 // WithImagePlane returns a copy of the system with a flat image plane appended
 // at axial position z (mm). The ray can end on this plane, which is what the
 // analysis routines of this package (spot diagram, transverse aberration, OPD)
-// expect.
+// expect. The plane is placed along the axis of the last element's reference
+// frame, so that it lies at global z for systems with coordinate breaks too.
 func (s *System) WithImagePlane(z float64) *System {
 	out := &System{
 		Surfaces:  append([]Surface(nil), s.Surfaces...),
@@ -355,14 +442,21 @@ func (s *System) WithImagePlane(z float64) *System {
 		OriginZ:   s.OriginZ,
 		Name:      s.Name,
 	}
-	last := s.VertexZ(len(s.Surfaces) - 1)
+	c := s.chainStart()
+	var ref frame
+	for i := range s.Surfaces {
+		_, ref = s.place(i, c)
+		c = s.advance(ref, i)
+	}
 	out.Surfaces = append(out.Surfaces, Surface{Profile: Plane{}, Name: "image plane"})
-	out.Thickness = append(out.Thickness, z-last)
+	out.Thickness = append(out.Thickness, (z-ref.o.Z)/ref.r.col(2).Z)
 	out.Mediums = append(out.Mediums, s.Mediums[len(s.Mediums)-1])
 	return out
 }
 
-// Reversed returns the time-reversed system. It describes exactly the same
+// Reversed returns the time-reversed system, or nil when the system contains
+// coordinate breaks or posed surfaces (a time-reversed chain of tilted frames is
+// not provided). For a coaxial system it describes exactly the same
 // physical surfaces (the profiles are unchanged, the sag still measured from
 // each vertex in +z), traversed in the opposite direction: the surface list is
 // reversed, the gaps are listed in reverse order and therefore become negative,
@@ -371,6 +465,9 @@ func (s *System) WithImagePlane(z float64) *System {
 // forward trace, which is the standard way to solve conjugates and double-pass
 // systems.
 func (s *System) Reversed() *System {
+	if s.hasPose() {
+		return nil
+	}
 	n := len(s.Surfaces)
 	out := &System{Name: s.Name, StopIndex: n - 1 - s.StopIndex}
 	out.OriginZ = s.VertexZ(n - 1)

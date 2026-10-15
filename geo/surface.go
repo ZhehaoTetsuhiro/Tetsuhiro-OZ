@@ -524,20 +524,32 @@ func solveIntersection(p Profile, baseR, baseK float64, hasBase bool, o, d Vec3,
 // Surface is one optical surface of a sequential system.
 //
 // The surface lives in its own local frame: the vertex sits at the local
-// origin and the local optical axis is +z. A System shifts each surface along
-// z by the sum of the preceding thicknesses; surfaces are currently not
-// decentred or tilted (a documented limitation of this revision — remember
-// that a surface may be placed at any z, including negative, so folded mirror
-// systems can be laid out by hand).
+// origin and the local optical axis is the surface's z axis. A System places
+// each surface on the chain of frames (see the package documentation and
+// CoordBreak): with no poses and no break elements the chain is the global
+// axis and every surface sits at the sum of the preceding thicknesses.
+//
+// Pose decentres and tilts this surface alone (the chain is restored for the
+// following surfaces: auto-return). Break marks a pure coordinate-break element
+// of the sequence: it has no profile and no optical action, its Pose is the
+// break, and it changes the chain for every following element until a return
+// break restores it.
 //
 // Mirror selects the interaction: when false the surface refracts between the
 // medium before and after it (Snell's law, with total internal reflection
 // detection); when true it reflects and the medium does not change.
 type Surface struct {
-	Profile  Profile  // sag description, must not be nil
+	Profile  Profile  // sag description, must not be nil unless Break is set
 	Aperture Aperture // clear aperture, nil = unlimited
 	Mirror   bool     // true: reflect instead of refract
 	Name     string   // optional label used in traces and reports
+	// Pose decentres and tilts the surface (a coordinate break applied to this
+	// surface only). Nil (the zero value) leaves it on the chain axis.
+	Pose *CoordBreak
+	// Break turns the element into a pure coordinate break: no profile, no
+	// interaction with rays, no Step in traces; Pose is its break. The media on
+	// both sides of a break element must be the same medium.
+	Break bool
 }
 
 // NewSurface returns a surface with the given profile and a circular clear
@@ -566,6 +578,9 @@ func (s Surface) WithName(n string) Surface { s.Name = n; return s }
 func (s Surface) Label() string {
 	if s.Name != "" {
 		return s.Name
+	}
+	if s.Break {
+		return "coordinate break"
 	}
 	if s.Profile == nil {
 		return "unnamed surface"

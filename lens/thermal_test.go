@@ -33,7 +33,7 @@ func thickBiconvex(glass string) *Prescription {
 	}
 }
 
-func relDiff(a, b float64) float64 {
+func relDiffThermal(a, b float64) float64 {
 	return math.Abs(a-b) / math.Max(1, math.Abs(b))
 }
 
@@ -76,8 +76,8 @@ func TestThermalZeroIdentity(t *testing.T) {
 			"F#": {a.FNumber, b.FNumber}, "M": {a.Magnification, b.Magnification},
 		}
 		for k, v := range pairs {
-			worst = math.Max(worst, relDiff(v[1], v[0]))
-			if relDiff(v[1], v[0]) > 1e-15 {
+			worst = math.Max(worst, relDiffThermal(v[1], v[0]))
+			if relDiffThermal(v[1], v[0]) > 1e-15 {
 				t.Errorf("%s: %s changed at ΔT=0: %.17g → %.17g", p.Name, k, v[0], v[1])
 			}
 		}
@@ -99,8 +99,8 @@ func TestThermalZeroIdentity(t *testing.T) {
 				{ra.Final().X, rb.Final().X}, {ra.Final().Y, rb.Final().Y}, {ra.Final().Z, rb.Final().Z},
 				{ra.Direction().Y, rb.Direction().Y}, {ra.OPL(), rb.OPL()},
 			} {
-				worst = math.Max(worst, relDiff(pair[1], pair[0]))
-				if relDiff(pair[1], pair[0]) > 1e-15 {
+				worst = math.Max(worst, relDiffThermal(pair[1], pair[0]))
+				if relDiffThermal(pair[1], pair[0]) > 1e-15 {
 					t.Errorf("%s: trace changed at ΔT=0: %.17g → %.17g", p.Name, pair[0], pair[1])
 				}
 			}
@@ -211,7 +211,7 @@ func TestThermalSystemScaling(t *testing.T) {
 	s := 1 + bk7.CTE*dT
 	checkEq := func(name string, got, want float64) {
 		t.Helper()
-		if relDiff(got, want) > 1e-14 {
+		if relDiffThermal(got, want) > 1e-14 {
 			t.Errorf("%s = %.15g, want %.15g", name, got, want)
 		}
 	}
