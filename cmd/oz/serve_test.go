@@ -74,6 +74,8 @@ func TestServeEndpoints(t *testing.T) {
 		"height: clamp(",            // plot height follows the viewport width, capped
 		"@media (max-width: 700px)", // single-column layout on phones
 		"@media (pointer: coarse)",  // touch targets on touch screens
+		"#ozGroupPlot",              // the 3D group canvas keeps its own responsive height
+		"touch-action: none",        // ... and receives the drag gestures on touch screens
 	} {
 		if !strings.Contains(css, want) {
 			t.Errorf("style.css missing %q", want)
@@ -84,6 +86,9 @@ func TestServeEndpoints(t *testing.T) {
 		"devicePixelRatio", `addEventListener("resize"`, "orientationchange",
 		"/api/lens/design", "/api/lens/eval", "/api/lens/tol",
 		"/api/lens/thermal", "/api/lens/sens",
+		"/api/lens/group/layout", "/api/lens/group/image", "/api/lens/group/afocal",
+		"/api/lens/group/dispersion", "/api/lens/group/set", "/api/lens/group/prescription",
+		"ozGroup", "ozGroupPlot", "pointerdown",
 		"/api/coating/design", "/api/coating/spectrum", "/api/version",
 	} {
 		if !strings.Contains(js, want) {

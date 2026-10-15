@@ -91,6 +91,16 @@ func usage() {
       热漂移：ΔT 下 EFL/BFL 的变化与每开尔文斜率（G9）。
   oz lens sens [--metric efl|merit --inverse --budget ΔM --compensate ...] <处方.json>
       灵敏度表 ∂f/∂x；--inverse 逆灵敏度公差分配；--compensate 补偿器验算（G6）。
+  oz lens group show|layout|image|afocal|dispersion|set|to-prescription <group.json> ...
+      元件级透镜组（含镜、3D 折转，见 docs/API.md §4）：
+      show      打印元件表；layout 逐面顶点/轴向/法向/折转（--json）；
+      image     实光线成像位置（--field-deg/--field-tan/--lambda/--pupil/--scan/--range/--json）；
+      afocal    角放大率 Γ 与准直残差（--lambda/--pupil/--json）；
+      dispersion 两波长焦移（--lambda-a F --lambda-b C，--json）；
+      set       逐参数编辑（-p e0.front.R=120 -p e2.tilt_x_deg=45，-o out.json）；
+      to-prescription  转成卡片处方（-o rx.json）。
+  oz lens parax [--object-z mm --field-tan t --lambda nm] <处方.json>   （含镜系统的一阶）
+      EFL/FFL/BFL/像面/放大率/入出瞳/镜数/Parity/Afocal/Γ/F–C 焦移（--json）。
   oz geo mtf [--fields 0,1,2 --cycles-per-mm 10,20,30,40,50 --rays N --bins N] <处方.json>
       几何 MTF（子午/弧矢）与场曲（T/S/Petzval 离焦）摘要（G11）。
   oz geo ghost [--min-relative R --max-paths N --rings N] <处方.json>   （G10，见 docs/API.md）

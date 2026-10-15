@@ -119,7 +119,8 @@ func parseServeFlags(args []string) (serveOptions, error) {
 // newServiceMux assembles the one HTTP mux. Path ownership is fixed here, so
 // no two components claim the same path:
 //
-//	/api/version, /api/lens/{design,eval,tol,thermal,sens},
+//	/api/version, /api/lens/{design,eval,tol,thermal,sens,parax},
+//	/api/lens/group/{layout,image,afocal,dispersion,set,prescription},
 //	/api/geo/{mtf,ghost}, /api/doe/focus, /api/coating/{design,spectrum}   OZ (exact paths)
 //	/api/...                                                               WOS API (server.Server.Handler)
 //	/oz/                                                                   301 -> /#oz (pre-merge address)
@@ -136,6 +137,13 @@ func newServiceMux(srv *server.Server) *http.ServeMux {
 	mux.HandleFunc("/api/lens/tol", recoverJSON(handleLensTol))
 	mux.HandleFunc("/api/lens/thermal", recoverJSON(handleLensThermal))
 	mux.HandleFunc("/api/lens/sens", recoverJSON(handleLensSens))
+	mux.HandleFunc("/api/lens/parax", recoverJSON(handleLensParax))
+	mux.HandleFunc("/api/lens/group/layout", recoverJSON(handleLensGroupLayout))
+	mux.HandleFunc("/api/lens/group/image", recoverJSON(handleLensGroupImage))
+	mux.HandleFunc("/api/lens/group/afocal", recoverJSON(handleLensGroupAfocal))
+	mux.HandleFunc("/api/lens/group/dispersion", recoverJSON(handleLensGroupDispersion))
+	mux.HandleFunc("/api/lens/group/set", recoverJSON(handleLensGroupSet))
+	mux.HandleFunc("/api/lens/group/prescription", recoverJSON(handleLensGroupPrescription))
 	mux.HandleFunc("/api/geo/mtf", recoverJSON(handleGeoMTF))
 	mux.HandleFunc("/api/geo/ghost", recoverJSON(handleGeoGhost))
 	mux.HandleFunc("/api/doe/focus", recoverJSON(handleDOEFocus))
