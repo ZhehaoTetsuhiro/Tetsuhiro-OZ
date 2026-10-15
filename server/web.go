@@ -8,8 +8,9 @@ import (
 )
 
 // webFS is the single-page GUI: index.html, app.js (wave/quantum), oz.js
-// (geometry/coating tab), style.css, favicon.svg and the vendored font. It is
-// compiled into the binary, so `oz serve` needs no files next to it.
+// (geometry/coating tab), ai.js (the assistant panel), style.css, favicon.svg
+// and the vendored font. It is compiled into the binary, so `oz serve` needs
+// no files next to it.
 //
 //go:embed web
 var webFS embed.FS

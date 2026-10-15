@@ -1864,6 +1864,7 @@ const HELP_ROWS = [
   ["s", "把当前配置保存为 JSON 文件"],
   ["Esc", "关闭对话框"],
   ["m", "波动光学 / 量子光学 模式切换"],
+  ["✦ AI 助手", "右侧栏助手（默认隐藏）：配置自己的提供方与 API Key 后，可解释元件、检查当前配置、设计光路（```oz-config 一键应用）或写新元件定义（```oz-element 一键落盘）"],
 ];
 
 function openHelp() {
@@ -2063,6 +2064,9 @@ document.addEventListener("keydown", (e) => {
     if (e.key === "Enter" && (e.ctrlKey || e.metaKey)) { applyJson(); return; }
     return;
   }
+  // AI 助手面板（右侧栏）自己处理按键：焦点落在它的按钮或输入框里时，
+  // 空格不该触发波动仿真、m 不该切模式、i 不该打开插入元件。
+  if (t && t.closest && t.closest("#aiPanel")) return;
   if (inField) {
     if (e.key === "f" && S.mode === "wave") { e.preventDefault(); jumpFocus(); return; }
     if (e.key === "Enter" && tag === "INPUT" && (t.type === "number" || t.type === "text")) t.blur();

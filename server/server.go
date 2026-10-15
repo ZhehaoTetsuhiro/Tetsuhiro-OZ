@@ -17,6 +17,10 @@
 //	GET  /api/runs/{id}/inspect/{pid}?x=&y=&part=    local Jones/Stokes/phase readout
 //	GET  /api/runs/{id}/scene                        routed light path (3D layout view)
 //
+//	POST /api/ai/chat                          chat with the user's own provider (see ai.go)
+//	GET  /api/ai/context                       the specification digest the assistant reads
+//	POST /api/ai/element                       validate + write a scripted element definition
+//
 // Plane field views (?field=...) are total/amplitude/ex/ey/ez, phase_x/phase_y/
 // phase_z (wrapped), phase_u (unwrapped wavefront), pol_azimuth/pol_ellip/
 // pol_s1/pol_s2/pol_s3/pol_degree and color (real-wavelength RGB, PNG only).
@@ -167,6 +171,10 @@ func (s *Server) Handler() http.Handler {
 	mux.HandleFunc("/api/elements/", func(w http.ResponseWriter, r *http.Request) {
 		// reload and {name}/preview.png live under the slash.
 		s.handleElements(w, r)
+	})
+	mux.HandleFunc("/api/ai/", func(w http.ResponseWriter, r *http.Request) {
+		// chat, context and element writing for the GUI's assistant panel.
+		s.handleAI(w, r)
 	})
 	mux.HandleFunc("/api/health", func(w http.ResponseWriter, r *http.Request) {
 		st := optics.GPUState()

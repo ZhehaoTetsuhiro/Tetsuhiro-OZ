@@ -120,11 +120,17 @@ func TestServiceMountsEveryEndpoint(t *testing.T) {
 		{http.MethodPost, "/api/coating/design", `{"template":"single-ar","lambda_nm":550}`, http.StatusOK},
 		// GUI and the pre-merge address.
 		{http.MethodGet, "/", "", http.StatusOK},
+		{http.MethodGet, "/ai.js", "", http.StatusOK},
 		{http.MethodGet, "/oz/", "", http.StatusMovedPermanently},
 		{http.MethodGet, "/app.js", "", http.StatusOK},
 		{http.MethodGet, "/style.css", "", http.StatusOK},
 		{http.MethodGet, "/favicon.svg", "", http.StatusOK},
 		{http.MethodGet, "/fonts/rajdhani-700.woff2", "", http.StatusOK},
+		// AI assistant API: context is a plain GET; chat and element refuse the
+		// wrong method before anything is configured.
+		{http.MethodGet, "/api/ai/context", "", http.StatusOK},
+		{http.MethodGet, "/api/ai/chat", "", http.StatusMethodNotAllowed},
+		{http.MethodGet, "/api/ai/element", "", http.StatusMethodNotAllowed},
 	}
 	for _, c := range cases {
 		code, _, body := doHTTP(t, ts.URL, c.method, c.path, c.body)
@@ -321,6 +327,7 @@ func TestGUIServedAtRoot(t *testing.T) {
 	for path, ctype := range map[string]string{
 		"/app.js":                   "javascript",
 		"/oz.js":                    "javascript",
+		"/ai.js":                    "javascript",
 		"/style.css":                "text/css",
 		"/favicon.svg":              "image/svg+xml",
 		"/fonts/rajdhani-700.woff2": "font/woff2",
@@ -453,7 +460,7 @@ func TestGUIScriptsParse(t *testing.T) {
 		}
 		node = found
 	}
-	for _, f := range []string{"app.js", "oz.js"} {
+	for _, f := range []string{"app.js", "oz.js", "ai.js"} {
 		out, err := exec.Command(node, "--check", filepath.Join("..", "..", "server", "web", f)).CombinedOutput()
 		if err != nil {
 			t.Errorf("node --check %s: %v\n%s", f, err, out)

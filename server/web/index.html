@@ -33,6 +33,7 @@
     <button id="ozModeBtn" title="几何光学（消色差设计、公差）与膜系设计（m 键循环切换）">几何/膜系</button>
   </span>
   <button id="runBtn" title="运行模拟 (空格)">▶ 运行</button>
+  <button id="aiBtn" title="AI 助手：配置自己的提供方后，可解释元件、检查当前配置、设计光路 (右侧栏，默认隐藏)">✦ AI 助手</button>
   <button id="helpBtn" title="快捷键帮助 (?)">? 帮助</button>
   <label class="themeToggle" title="主题：浅色＝天蓝色主色调，暗色＝黑底 + 蓝色系（选择会记住，下次打开沿用）">
     <input type="checkbox" id="themeSwitch" role="switch" aria-label="暗色模式">
@@ -222,10 +223,51 @@
       </article>
     </section>
   </section>
+
+  <aside id="aiPanel" aria-label="AI 助手" hidden>
+    <section class="aiCard">
+      <h2>AI 助手 <button id="aiClose" class="mini" title="收起助手（再点顶栏 ✦ AI 助手 可重新打开）">收起</button></h2>
+      <details id="aiSettings" class="ozDetails">
+        <summary>提供方设置（保存在本浏览器，不会上传到别处）</summary>
+        <div class="ozGrid">
+          <label class="ozField"><span>提供方</span>
+            <select id="aiPreset" title="选预设会填入地址与模型；密钥仍需自己填"></select></label>
+          <label class="ozField"><span>模型</span>
+            <input type="text" id="aiModel" placeholder="如 gpt-4o-mini / deepseek-chat / qwen-plus" spellcheck="false" autocapitalize="off"></label>
+          <label class="ozField aiWide"><span>Base URL（OpenAI 兼容）</span>
+            <input type="text" id="aiBase" placeholder="https://api.openai.com/v1" spellcheck="false" autocapitalize="off"></label>
+          <label class="ozField aiWide"><span>API Key</span>
+            <input type="password" id="aiKey" placeholder="sk-…" spellcheck="false" autocapitalize="off" autocomplete="off"></label>
+          <label class="ozField"><span>温度</span>
+            <input type="number" id="aiTemp" value="0.3" min="0" max="2" step="0.1" inputmode="decimal"></label>
+        </div>
+        <div class="ozActions">
+          <button id="aiTest" type="button" class="secondary">测试连接</button>
+        </div>
+        <p class="hint">密钥只存放在这台浏览器里，随每次提问经本服务转发给你配置的提供方；服务端不记录、不落盘。支持任何 OpenAI 兼容端点（含本地 llama.cpp / Ollama）。</p>
+      </details>
+      <p class="hint aiSpecLine" id="aiSpec" title="点击查看助手读到的规范摘要">规范摘要 加载中…</p>
+      <pre class="ozOut aiSpecText" id="aiSpecText" hidden aria-label="规范摘要"></pre>
+      <div id="aiLog" role="log" aria-live="polite" aria-label="对话记录"></div>
+      <div class="aiQuick" role="group" aria-label="快捷提问">
+        <button data-q="解释一下我现在选中的这个元件是做什么的，它的参数各自什么意思，典型取值是多少？">解释当前元件</button>
+        <button data-q="看一下我现在的配置，有没有什么问题？按字段路径给出具体改法。">检查当前配置</button>
+        <button data-q="设计一个杨氏双缝干涉光路，给出完整可运行的配置。">设计光路</button>
+        <button data-q="帮我定义一个新的脚本元件：轴锥镜（axicon），相位 φ(r) = -k·r，说明每个字段怎么填。">新元件定义</button>
+      </div>
+      <textarea id="aiInput" rows="3" spellcheck="false" placeholder="问点什么…（Enter 发送，Shift+Enter 换行）" aria-label="向 AI 助手提问"></textarea>
+      <div class="ozActions">
+        <button id="aiSend" type="button">发送</button>
+        <button id="aiStop" type="button" class="secondary" disabled>停止</button>
+        <button id="aiClear" type="button" class="secondary">清空对话</button>
+      </div>
+      <p class="hint aiStatus" id="aiStatus" role="status" aria-live="polite"></p>
+    </section>
+  </aside>
 </main>
 
 <footer>
-  <span id="footerKeys">Tab 移动焦点 · f 定位参数 · ↑↓ 选择元件 · i 插入 · d 删除 · ▶ 空格运行 · q/e 切换平面 · 1-8/0 视图 · 点击图像读取偏振相位 · p 剖面 · h 隐藏图案 · l 对数 · j JSON · n 新建 · o 打开 · s 保存 · Esc 返回 · m 模式 · ? 帮助</span>
+  <span id="footerKeys">Tab 移动焦点 · f 定位参数 · ↑↓ 选择元件 · i 插入 · d 删除 · ▶ 空格运行 · q/e 切换平面 · 1-8/0 视图 · 点击图像读取偏振相位 · p 剖面 · h 隐藏图案 · l 对数 · j JSON · n 新建 · o 打开 · s 保存 · Esc 返回 · m 模式 · ✦ AI 助手 · ? 帮助</span>
 </footer>
 
 <div id="helpOverlay" class="overlay" hidden>
@@ -259,5 +301,6 @@
 
 <script src="app.js"></script>
 <script src="oz.js"></script>
+<script src="ai.js"></script>
 </body>
 </html>

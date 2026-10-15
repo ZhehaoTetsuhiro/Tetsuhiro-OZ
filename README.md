@@ -46,6 +46,11 @@
     ./oz serve --addr :1130                # 本地 HTTP 服务（JSON API + GUI）
     go test ./...                          # 全量精度测试（全部确定性）
 
+**GUI 里的 AI 助手**：顶栏「✦ AI 助手」打开右侧栏，填上自己的 OpenAI 兼容端点
+（含本地 llama.cpp / Ollama）与 API Key 即可。助手会自动读取本二进制的元件规范
+与当前光路状态，能解释元件、检查配置、设计光路（`oz-config` 一键应用）或写新的
+脚本元件定义（`oz-element` 一键落盘、即刻可用）。密钥只存在浏览器里，服务端不记录。
+
 GPU（MUSA，本机 MTT S4000）：`go build -tags musa -o oz-musa ./cmd/oz`，
 `WOS_GPU=1 WOS_MUSA_HELPER=./wos-musa-fft ./oz-musa serve --addr :6008 --gpu`。
 helper 源码见 `tools/musa-fft/`。
@@ -58,6 +63,6 @@ helper 源码见 `tools/musa-fft/`。
   achromat 102 / 偏心倾斜 90 / 非球面 61 / Forbes Q 44 / 镜面 45；镜面家族为会聚设计、
   FOCUSZ 为实测最佳焦面）。
 - 证据链：`docs/VERIFICATION.md`（TMM 对拍 1e-14、rayoptics 对拍、互验 E1–E6 等）。
-- 图形与交互：内嵌 GUI（键盘+鼠标、移动端适配、几何/膜系模式页、高级分析折叠区）。
+- 图形与交互：内嵌 GUI（键盘+鼠标、移动端适配、几何/膜系模式页、高级分析折叠区、AI 助手右侧栏）。
 
 详细运维（服务端口、外链、日志）：见 `/root/autodl-tmp/README-services.md`。

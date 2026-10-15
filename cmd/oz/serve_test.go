@@ -64,16 +64,23 @@ func TestServeEndpoints(t *testing.T) {
 		`<meta name="viewport" content="width=device-width, initial-scale=1">`,
 		`id="ozModeBtn"`, `id="ozEditor"`, `id="ozOutput"`, `id="ozPlot"`,
 		`<script src="oz.js"></script>`,
+		// AI 助手：右侧栏默认隐藏，顶栏按钮打开；设置与对话面板齐全。
+		`id="aiBtn"`, `id="aiPanel"`, `id="aiSettings"`, `id="aiLog"`, `id="aiInput"`,
+		`id="aiPanel" aria-label="AI 助手" hidden`,
+		`<script src="ai.js"></script>`,
 	} {
 		if !strings.Contains(page, want) {
 			t.Errorf("GUI page missing %q", want)
 		}
 	}
+	// The right-hand column must not be a second scroll container on phones.
 	css := get("/style.css")
 	for _, want := range []string{
 		"height: clamp(",            // plot height follows the viewport width, capped
 		"@media (max-width: 700px)", // single-column layout on phones
 		"@media (pointer: coarse)",  // touch targets on touch screens
+		"#aiPanel {",                // the assistant column exists in the layout
+		"#aiLog {",                  // and scrolls its own conversation
 	} {
 		if !strings.Contains(css, want) {
 			t.Errorf("style.css missing %q", want)
@@ -88,6 +95,16 @@ func TestServeEndpoints(t *testing.T) {
 	} {
 		if !strings.Contains(js, want) {
 			t.Errorf("oz.js missing %q", want)
+		}
+	}
+	ai := get("/ai.js")
+	for _, want := range []string{
+		"/api/ai/chat", "/api/ai/context", "/api/ai/element",
+		"oz-config", "oz-element", "localStorage", "api_key",
+		"adoptConfig", // applying a config reuses the open-file path
+	} {
+		if !strings.Contains(ai, want) {
+			t.Errorf("ai.js missing %q", want)
 		}
 	}
 

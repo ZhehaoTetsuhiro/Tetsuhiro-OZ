@@ -33,9 +33,10 @@ Tetsuhiro-OZ 只有一个 HTTP 服务：`oz serve`。它在同一个 mux 上提�
 | 路径 | 归属 | 说明 |
 |---|---|---|
 | `/api/version`、`/api/lens/design`、`/api/lens/eval`、`/api/lens/tol`、`/api/lens/thermal`、`/api/lens/sens`、`/api/geo/mtf`、`/api/geo/ghost`、`/api/doe/focus`、`/api/coating/design`、`/api/coating/spectrum` | OZ | 精确路径，优先于 `/api/` 前缀 |
+| `/api/ai/*` | WOS | AI 助手（用户自带提供方，见 §5b） |
 | `/api/...`（其余） | WOS | 仿真 API，由 `server.Server.Handler()` 处理；未知路径 404 |
 | `/oz/` | 重定向 | 301 → `/#oz`（合并前的几何/膜系页面地址） |
-| `/` 及静态文件 | GUI | 内嵌在二进制中：`index.html`、`app.js`、`oz.js`、`style.css`、`favicon.svg`、字体 |
+| `/` 及静态文件 | GUI | 内嵌在二进制中：`index.html`、`app.js`、`oz.js`、`ai.js`、`style.css`、`favicon.svg`、字体 |
 
 ## 3. 约定
 
@@ -43,7 +44,7 @@ Tetsuhiro-OZ 只有一个 HTTP 服务：`oz serve`。它在同一个 mux 上提�
 - 错误：`{"error": "…"}`，状态码 400（请求无效）、404（资源不存在）、405（方法不允许）、409（运行未完成）、429（排队已满）、500（内部错误或响应含 NaN/Inf）。
 - 方法：计算端点为 POST，查询端点为 GET；错误方法返回 405。`GET /api/health` 不限制方法（既有行为）。
 - 工作量上限（超出即 400，计算前拒绝）：光谱点数 ≤ 10000；公差运行次数 ≤ 20000；设计迭代 ≤ 10000；热漂移 |ΔT| ≤ 500 K；灵敏度参数 ≤ 128 个、补偿器迭代 ≤ 10000；MTF 视场 ≤ 64、每视场光线 ≤ 200000、LSF 分箱 ≤ 4096、频率点 ≤ 512；鬼像双反射路径 ≤ 512 条、采样环数 ≤ 8；DOE 网格 ≤ 2048（2 的幂）、级数 ≤ 4096。仿真网格与元件数由 `/api/validate` 检查。
-- 请求体上限：`/api/quantum` 1 MB；`/api/validate`、`/api/simulate`、`/api/convert` 2 MB；`/api/lens/design`、`/api/lens/eval`、`/api/lens/thermal`、`/api/lens/sens`、`/api/geo/mtf`、`/api/geo/ghost`、`/api/doe/focus`、`/api/coating/design` 1 MB；`/api/lens/tol` 4 MB；`/api/coating/spectrum` 8 MB。
+- 请求体上限：`/api/quantum` 1 MB；`/api/ai/chat` 4 MB（消息 + 当前状态）；`/api/ai/element` 1 MB；`/api/validate`、`/api/simulate`、`/api/convert` 2 MB；`/api/lens/design`、`/api/lens/eval`、`/api/lens/thermal`、`/api/lens/sens`、`/api/geo/mtf`、`/api/geo/ghost`、`/api/doe/focus`、`/api/coating/design` 1 MB；`/api/lens/tol` 4 MB；`/api/coating/spectrum` 8 MB。
 - 确定性：全部计算端点对相同请求给出逐字节相同的响应（无时钟、无 map 迭代顺序、无随机数）；`cmd/oz/analysis_test.go` 的 `TestAnalysisEndpointDeterminism` 逐个端点断言。
 - `GET /api/version` 返回的 `version` 与仓库根目录 `VERSION` 文件一致（由 `cmd/oz` 的测试保证）。
 
@@ -261,6 +262,26 @@ N 级量化相位聚焦 DOE 的一级效率与焦点偏差（G8；`oz doe focus`
      "gates":[{"type":"beam_splitter","params":{"mode0":0,"mode1":1,"reflectivity":0.5}}]}
 
 响应为 `QuantumResult`（`mean_photons`、`g2`、`photon_distributions`、`quadratures`、`joint_distributions`、`joint_full`（全模式联合分布，little-endian 下标）、`norm`）。限制：`(cutoff+1)^modes ≤ 2^20`。
+
+## 5b. AI 助手（用户自带提供方）
+
+右侧栏「✦ AI 助手」（默认隐藏）背后的三个端点。**提供方与密钥由用户在前端自行配置，只存放在浏览器 `localStorage`**；服务端不保存、不记录、不落盘，每次请求原样转发到用户指定的端点，因此这里不需要也不存在服务端密钥配置。
+
+| 方法 | 路径 | 说明 |
+|---|---|---|
+| POST | `/api/ai/chat` | 一次对话轮次。请求体 `{provider:{base_url,api_key,model,temperature?,max_tokens?}, messages:[{role:"user"\|"assistant",content}], state?:{mode,config,selected,run,warnings,quantum,lens,coating}, stream?:bool}` |
+| GET | `/api/ai/context` | 助手读到的**规范摘要**：`{spec, chars, sections, generated, spec_source}`。由 `optics.BuildCatalog()` 现算，因此与二进制实现的元件/光源/方法/形状严格一致，不会与手抄副本漂移 |
+| POST | `/api/ai/element` | 校验并写入一个脚本元件定义：`{definition:{...}}`。先经内核 `optics.ParseElementDefinition` 校验（表达式、保留名、未知字段一律 400），通过后才写入第一个元件定义目录并重载注册表 |
+
+`/api/ai/chat` 的行为：
+
+- **系统提示由服务端拼装** = 规范摘要（约 4 万字符）+ GUI 传来的当前状态（当前配置、正在查看的元件/光源、最近一次仿真的平面与警告）。助手因此「自动读取规范与当前状态」，浏览器无需知道任何内核细节。
+- 提供方需为 **OpenAI 兼容** 端点（`{base_url}/chat/completions`，`Authorization: Bearer …`）：OpenAI、DeepSeek、通义千问兼容模式、Moonshot、智谱、本地 llama.cpp / Ollama 均可。
+- `stream:true` 时返回 **SSE**（`text/event-stream`），事件为 `{"type":"delta","text":…}`、`{"type":"done","content":…}`、`{"type":"error","error":…}`；`stream:false` 返回 `{"content","model","usage"}`。
+- 校验失败（缺 `base_url`/`model`、非 http(s)  scheme、空 `messages`、角色不是 user/assistant、消息数 > 60）在发起任何网络调用前即 400；提供方返回非 2xx 时原样转述其错误文本并答 502，因此「密钥不对」与「服务坏了」可区分。
+- 请求体上限 4 MB；规范摘要截断于 48000 字符，注入的当前状态截断于 24000 字符；单次请求上限 8192 token；提供方调用硬超时 15 分钟（浏览器断开即取消）。
+
+GUI 与助手的协作协议：助手把**完整配置**放在 ```` ```oz-config ```` 围栏里，GUI 渲染出「应用到场景」按钮（先过 `/api/validate`，再走与「打开文件」完全相同的 `adoptConfig` 路径并运行）；把**元件定义**放在 ```` ```oz-element ```` 围栏里，GUI 渲染出「写入元件定义」按钮（调 `/api/ai/element`，落盘后立即出现在插入列表）。密钥与前缀选择记在浏览器本地，`?ai=1` 或 `#ai` 可直接打开助手栏。
 
 ## 6. 最小示例
 
