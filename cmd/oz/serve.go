@@ -119,10 +119,11 @@ func parseServeFlags(args []string) (serveOptions, error) {
 // newServiceMux assembles the one HTTP mux. Path ownership is fixed here, so
 // no two components claim the same path:
 //
-//	/api/version, /api/lens/{design,eval,tol}, /api/coating/{design,spectrum}  OZ (exact paths)
-//	/api/...                                                                  WOS API (server.Server.Handler)
-//	/oz/                                                                      301 -> /#oz (pre-merge address)
-//	/                                                                         embedded GUI (server.WebHandler)
+//	/api/version, /api/lens/{design,eval,tol,thermal,sens},
+//	/api/geo/{mtf,ghost}, /api/doe/focus, /api/coating/{design,spectrum}   OZ (exact paths)
+//	/api/...                                                               WOS API (server.Server.Handler)
+//	/oz/                                                                   301 -> /#oz (pre-merge address)
+//	/                                                                      embedded GUI (server.WebHandler)
 //
 // Exact OZ paths are more specific than the /api/ prefix, so they win; every
 // other /api/ path goes to the WOS mux, which answers 404 for unknown routes.
@@ -133,6 +134,11 @@ func newServiceMux(srv *server.Server) *http.ServeMux {
 	mux.HandleFunc("/api/lens/design", recoverJSON(handleLensDesign))
 	mux.HandleFunc("/api/lens/eval", recoverJSON(handleLensEval))
 	mux.HandleFunc("/api/lens/tol", recoverJSON(handleLensTol))
+	mux.HandleFunc("/api/lens/thermal", recoverJSON(handleLensThermal))
+	mux.HandleFunc("/api/lens/sens", recoverJSON(handleLensSens))
+	mux.HandleFunc("/api/geo/mtf", recoverJSON(handleGeoMTF))
+	mux.HandleFunc("/api/geo/ghost", recoverJSON(handleGeoGhost))
+	mux.HandleFunc("/api/doe/focus", recoverJSON(handleDOEFocus))
 	mux.HandleFunc("/api/coating/design", recoverJSON(handleCoatingDesign))
 	mux.HandleFunc("/api/coating/spectrum", recoverJSON(handleCoatingSpectrum))
 	mux.HandleFunc("/oz/", handleOZRedirect)
@@ -332,6 +338,82 @@ func handleLensTol(w http.ResponseWriter, r *http.Request) {
 		return
 	}
 	writeJSON(w, http.StatusOK, rep)
+}
+
+// handleLensThermal answers POST /api/lens/thermal: the first-order thermal
+// drift of a prescription (same core as `oz lens thermal`).
+func handleLensThermal(w http.ResponseWriter, r *http.Request) {
+	var req lensThermalRequest
+	if !decodePOST(w, r, &req, 1<<20) {
+		return
+	}
+	res, err := runLensThermal(req)
+	if err != nil {
+		writeAPIErr(w, http.StatusBadRequest, err)
+		return
+	}
+	writeJSON(w, http.StatusOK, res)
+}
+
+// handleLensSens answers POST /api/lens/sens: the sensitivity table and, on
+// request, the inverse-sensitivity allocation and/or a compensator
+// verification (same core as `oz lens sens`).
+func handleLensSens(w http.ResponseWriter, r *http.Request) {
+	var req lensSensRequest
+	if !decodePOST(w, r, &req, 1<<20) {
+		return
+	}
+	res, err := runLensSens(req)
+	if err != nil {
+		writeAPIErr(w, http.StatusBadRequest, err)
+		return
+	}
+	writeJSON(w, http.StatusOK, res)
+}
+
+// handleGeoMTF answers POST /api/geo/mtf: the geometric MTF of every requested
+// field and the tangential/sagittal focal surfaces (same core as `oz geo mtf`).
+func handleGeoMTF(w http.ResponseWriter, r *http.Request) {
+	var req geoMTFRequest
+	if !decodePOST(w, r, &req, 1<<20) {
+		return
+	}
+	res, err := runGeoMTF(req)
+	if err != nil {
+		writeAPIErr(w, http.StatusBadRequest, err)
+		return
+	}
+	writeJSON(w, http.StatusOK, res)
+}
+
+// handleGeoGhost answers POST /api/geo/ghost: the double-reflection ghost path
+// table of a prescription (same core as `oz geo ghost`).
+func handleGeoGhost(w http.ResponseWriter, r *http.Request) {
+	var req geoGhostRequest
+	if !decodePOST(w, r, &req, 1<<20) {
+		return
+	}
+	res, err := runGeoGhost(req)
+	if err != nil {
+		writeAPIErr(w, http.StatusBadRequest, err)
+		return
+	}
+	writeJSON(w, http.StatusOK, res)
+}
+
+// handleDOEFocus answers POST /api/doe/focus: the first-order efficiency and
+// the focus deviation of an N-level focusing DOE (same core as `oz doe focus`).
+func handleDOEFocus(w http.ResponseWriter, r *http.Request) {
+	var req doeFocusRequest
+	if !decodePOST(w, r, &req, 1<<20) {
+		return
+	}
+	res, err := runDOEFocus(req)
+	if err != nil {
+		writeAPIErr(w, http.StatusBadRequest, err)
+		return
+	}
+	writeJSON(w, http.StatusOK, res)
 }
 
 // handleCoatingDesign answers POST /api/coating/design with one of the built-in
