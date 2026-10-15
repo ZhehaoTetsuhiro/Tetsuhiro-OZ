@@ -6,6 +6,9 @@ import (
 	"testing"
 )
 
+// posePtr returns a pointer to a copy of cb (the Surface.Pose convention).
+func posePtr(cb CoordBreak) *CoordBreak { return &cb }
+
 // Acceptance tests of the decentre/tilt machinery (see the report of the
 // geo-frame task). Every numerical threshold is justified in the test text.
 
@@ -19,8 +22,8 @@ func decentredLens(t *testing.T, dx, tiltY float64) *System {
 	pose := CoordBreak{Dx: dx, TiltY: tiltY}
 	return mustSystem(t, Air{},
 		[]Surface{
-			{Profile: Sphere{R: 100}, Aperture: CircleAperture(15), Pose: pose, Name: "L front"},
-			{Profile: Sphere{R: -100}, Aperture: CircleAperture(15), Pose: pose, Name: "L rear"},
+			{Profile: Sphere{R: 100}, Aperture: CircleAperture(15), Pose: posePtr(pose), Name: "L front"},
+			{Profile: Sphere{R: -100}, Aperture: CircleAperture(15), Pose: posePtr(pose), Name: "L rear"},
 		},
 		[]float64{0},
 		[]Medium{Air{}, ConstantIndex(1.5), Air{}})
@@ -45,7 +48,7 @@ func TestTiltedPlaneMirrorDeflectsByTwoTheta(t *testing.T) {
 			} else {
 				pose.TiltY = th
 			}
-			sys := mustSystem(t, Air{}, []Surface{{Profile: Plane{}, Mirror: true, Pose: pose}}, nil, nil)
+			sys := mustSystem(t, Air{}, []Surface{{Profile: Plane{}, Mirror: true, Pose: posePtr(pose)}}, nil, nil)
 			in := NewRay(V(0, 0, -10), V(0, 0, 1), testLambda)
 			res := sys.Trace(in)
 			if !res.OK() {
@@ -137,8 +140,8 @@ func TestDecentredPlateLateralShiftIsInvariant(t *testing.T) {
 	plate := func(dx float64) *System {
 		return mustSystem(t, Air{},
 			[]Surface{
-				{Profile: Plane{}, Aperture: CircleAperture(50), Pose: CoordBreak{Dx: dx}},
-				{Profile: Plane{}, Aperture: CircleAperture(50), Pose: CoordBreak{Dx: dx}},
+				{Profile: Plane{}, Aperture: CircleAperture(50), Pose: posePtr(CoordBreak{Dx: dx})},
+				{Profile: Plane{}, Aperture: CircleAperture(50), Pose: posePtr(CoordBreak{Dx: dx})},
 			},
 			[]float64{T},
 			[]Medium{Air{}, ConstantIndex(n), Air{}})
@@ -180,8 +183,8 @@ func TestTranslatedSystemIsTranslatedImage(t *testing.T) {
 	base := func(pose CoordBreak) *System {
 		return mustSystem(t, Air{},
 			[]Surface{
-				{Profile: Sphere{R: 50}, Aperture: CircleAperture(12.5), Pose: pose},
-				{Profile: Sphere{R: -50}, Aperture: CircleAperture(12.5), Pose: pose},
+				{Profile: Sphere{R: 50}, Aperture: CircleAperture(12.5), Pose: posePtr(pose)},
+				{Profile: Sphere{R: -50}, Aperture: CircleAperture(12.5), Pose: posePtr(pose)},
 			},
 			[]float64{5},
 			[]Medium{Air{}, bk7, Air{}})
@@ -269,8 +272,8 @@ func TestRollInvarianceOfSpotAndOPD(t *testing.T) {
 		p := CoordBreak{TiltZ: roll}
 		return mustSystem(t, Air{},
 			[]Surface{
-				{Profile: Sphere{R: 60}, Aperture: CircleAperture(12), Pose: p},
-				{Profile: EvenAsphere{R: -60, K: 0, Coeffs: []float64{1e-6}}, Aperture: CircleAperture(12), Pose: p},
+				{Profile: Sphere{R: 60}, Aperture: CircleAperture(12), Pose: posePtr(p)},
+				{Profile: EvenAsphere{R: -60, K: 0, Coeffs: []float64{1e-6}}, Aperture: CircleAperture(12), Pose: posePtr(p)},
 			},
 			[]float64{4},
 			[]Medium{Air{}, bk7, Air{}})
@@ -347,8 +350,8 @@ func TestChiefRayOfPosedSystemHitsStopCentre(t *testing.T) {
 	f2, _ := Glass("F2")
 	sys := mustSystem(t, Air{},
 		[]Surface{
-			{Profile: Sphere{R: 80}, Aperture: CircleAperture(12), Pose: CoordBreak{TiltX: -0.03}},
-			{Profile: Sphere{R: -40}, Aperture: CircleAperture(10), Pose: CoordBreak{Dx: 0.5, TiltY: 0.04}},
+			{Profile: Sphere{R: 80}, Aperture: CircleAperture(12), Pose: posePtr(CoordBreak{TiltX: -0.03})},
+			{Profile: Sphere{R: -40}, Aperture: CircleAperture(10), Pose: posePtr(CoordBreak{Dx: 0.5, TiltY: 0.04})},
 			{Profile: Sphere{R: -200}, Aperture: CircleAperture(12)},
 		},
 		[]float64{5, 2},
@@ -402,8 +405,8 @@ func TestCoordBreakAndReturnIsIdentity(t *testing.T) {
 	withPair := mustSystem(t, Air{},
 		[]Surface{
 			surfaces()[0],
-			{Break: true, Pose: cb},
-			{Break: true, Pose: cb.Inverse()},
+			{Break: true, Pose: posePtr(cb)},
+			{Break: true, Pose: posePtr(cb.Inverse())},
 			surfaces()[1],
 		},
 		[]float64{a, 0, 4 - a},
@@ -412,7 +415,7 @@ func TestCoordBreakAndReturnIsIdentity(t *testing.T) {
 	withBreakOnly := mustSystem(t, Air{},
 		[]Surface{
 			surfaces()[0],
-			{Break: true, Pose: cb},
+			{Break: true, Pose: posePtr(cb)},
 			surfaces()[1],
 		},
 		[]float64{a, 4 - a},
@@ -488,12 +491,12 @@ func TestPosedSystemRejectsFirstOrderEngines(t *testing.T) {
 func TestRollAndAxialBreaksKeepFirstOrderOptics(t *testing.T) {
 	plain := nominalLens(t)
 	rolled := decentredLens(t, 0, 0)
-	rolled.Surfaces[0].Pose = CoordBreak{TiltZ: 0.4}
-	rolled.Surfaces[1].Pose = CoordBreak{TiltZ: 0.4}
+	rolled.Surfaces[0].Pose = posePtr(CoordBreak{TiltZ: 0.4})
+	rolled.Surfaces[1].Pose = posePtr(CoordBreak{TiltZ: 0.4})
 	withAxialBreak := mustSystem(t, Air{},
 		[]Surface{
 			{Profile: Sphere{R: 100}, Aperture: CircleAperture(15)},
-			{Break: true, Pose: CoordBreak{}},
+			{Break: true, Pose: posePtr(CoordBreak{})},
 			{Profile: Sphere{R: -100}, Aperture: CircleAperture(15)},
 		},
 		[]float64{0, 0},
@@ -520,7 +523,7 @@ func TestBreakAndPoseValidation(t *testing.T) {
 		return s.Validate()
 	}
 	plane := Surface{Profile: Plane{}}
-	if err := mk([]Surface{plane, {Break: true, Pose: CoordBreak{Dx: 1}}, plane},
+	if err := mk([]Surface{plane, {Break: true, Pose: posePtr(CoordBreak{Dx: 1})}, plane},
 		[]float64{1, 1}, []Medium{Air{}, g, ConstantIndex(1.7), Air{}}, 0); err == nil {
 		t.Error("a break between different media: want an error")
 	}
@@ -528,15 +531,15 @@ func TestBreakAndPoseValidation(t *testing.T) {
 		[]float64{1, 1}, []Medium{Air{}, g, g, Air{}}, 0); err == nil {
 		t.Error("a mirror break: want an error")
 	}
-	if err := mk([]Surface{plane, {Break: true, Pose: CoordBreak{Dx: 1}}, plane},
+	if err := mk([]Surface{plane, {Break: true, Pose: posePtr(CoordBreak{Dx: 1})}, plane},
 		[]float64{1, 1}, []Medium{Air{}, g, g, Air{}}, 1); err == nil {
 		t.Error("a break as the stop: want an error")
 	}
-	if err := mk([]Surface{{Profile: Plane{}, Pose: CoordBreak{Dx: math.NaN()}}},
+	if err := mk([]Surface{{Profile: Plane{}, Pose: posePtr(CoordBreak{Dx: math.NaN()})}},
 		nil, []Medium{Air{}, Air{}}, 0); err == nil {
 		t.Error("a NaN pose: want an error")
 	}
-	if err := mk([]Surface{{Break: true, Pose: CoordBreak{Dx: 1}}, plane},
+	if err := mk([]Surface{{Break: true, Pose: posePtr(CoordBreak{Dx: 1})}, plane},
 		[]float64{1}, []Medium{Air{}, Air{}, Air{}}, 1); err != nil {
 		t.Errorf("a valid break before a surface rejected: %v", err)
 	}
@@ -559,7 +562,7 @@ func TestAutoReturnAndPoseFrame(t *testing.T) {
 	const th = 0.2
 	sys := mustSystem(t, Air{},
 		[]Surface{
-			{Profile: Plane{}, Aperture: CircleAperture(20), Pose: CoordBreak{Dx: 0.4, TiltX: th}},
+			{Profile: Plane{}, Aperture: CircleAperture(20), Pose: posePtr(CoordBreak{Dx: 0.4, TiltX: th})},
 			{Profile: Plane{}, Aperture: CircleAperture(20)},
 		},
 		[]float64{3},
@@ -586,8 +589,8 @@ func TestAutoReturnAndPoseFrame(t *testing.T) {
 func TestChiefRayUnlimitedApertures(t *testing.T) {
 	sys := mustSystem(t, Air{},
 		[]Surface{
-			{Profile: Sphere{R: 100}, Pose: CoordBreak{Dx: 0.3, TiltY: 0.02}},
-			{Profile: Sphere{R: -100}, Pose: CoordBreak{Dx: 0.3, TiltY: 0.02}},
+			{Profile: Sphere{R: 100}, Pose: posePtr(CoordBreak{Dx: 0.3, TiltY: 0.02})},
+			{Profile: Sphere{R: -100}, Pose: posePtr(CoordBreak{Dx: 0.3, TiltY: 0.02})},
 		},
 		[]float64{0},
 		[]Medium{Air{}, ConstantIndex(1.5), Air{}})
@@ -603,4 +606,74 @@ func TestChiefRayUnlimitedApertures(t *testing.T) {
 	if math.Hypot(h.X, h.Y) > 1e-10 {
 		t.Errorf("chief ray misses the stop centre by (%.3g, %.3g)", h.X, h.Y)
 	}
+}
+
+// TestAnalysisReferenceModesOnPosedSystem checks the three transverse
+// references on a decentred singlet (all surfaces moved by (d, e), sampling
+// centred on the real chief): chief = the real chief hit, centroid = the mean of
+// the valid hits, vertex = the global axis point (0, 0, imageZ) (the image of
+// the nominal axis; it is not the image of the decentred system's own axis).
+// The spot RMS about any point P obeys the parallel-axis identity
+// RMS(P)² = RMS(centroid)² + |P − centroid|², checked to 1e-12 mm.
+func TestAnalysisReferenceModesOnPosedSystem(t *testing.T) {
+	bk7, _ := Glass("N-BK7")
+	const d, e = 0.8, -0.45
+	sys := mustSystem(t, Air{},
+		[]Surface{
+			{Profile: Sphere{R: 50}, Aperture: CircleAperture(12.5), Pose: posePtr(CoordBreak{Dx: d, Dy: e})},
+			{Profile: Sphere{R: -50}, Aperture: CircleAperture(12.5), Pose: posePtr(CoordBreak{Dx: d, Dy: e})},
+		},
+		[]float64{5},
+		[]Medium{Air{}, bk7, Air{}})
+	field := FieldAngle(0, 2)
+	pup := Pupil{Z: -20, Radius: 8}
+	off, err := sys.ChiefCrossing(field, pup.Z, testLambda)
+	if err != nil {
+		t.Fatal(err)
+	}
+	pup.Offset = off
+	imageZ := 100.0 // any plane near focus; the references are defined on it
+	pts := Hexapolar(4)
+	sd, err := sys.SpotDiagram(field, pup, pts, imageZ, testLambda)
+	if err != nil {
+		t.Fatal(err)
+	}
+	chief := sd.Stats(ChiefReference())
+	cen := sd.Stats(CentroidReference())
+	vert := sd.Stats(VertexReference())
+	if chief.Reference != sd.Chief {
+		t.Errorf("chief reference %v, want the chief hit %v", chief.Reference, sd.Chief)
+	}
+	if cen.Reference.Sub(sd.Centroid).Norm() > 1e-12 {
+		t.Errorf("centroid reference %v, want %v", cen.Reference, sd.Centroid)
+	}
+	if vert.Reference != V(0, 0, imageZ) {
+		t.Errorf("vertex reference %v, want (0, 0, %g)", vert.Reference, imageZ)
+	}
+	for name, st := range map[string]SpotStats{"chief": chief, "vertex": vert} {
+		lhs := st.RMS * st.RMS
+		rhs := cen.RMS*cen.RMS + st.Reference.Sub(cen.Centroid).Norm2()
+		if math.Abs(lhs-rhs) > 1e-12 {
+			t.Errorf("parallel-axis identity violated for the %s reference: %.15g vs %.15g", name, lhs, rhs)
+		}
+	}
+	// The OPD reference point follows the same definitions.
+	for _, c := range []struct {
+		ref  Reference
+		want Vec3
+	}{
+		{ChiefReference(), sd.Chief},
+		{CentroidReference(), sd.Centroid},
+		{VertexReference(), V(0, 0, imageZ)},
+	} {
+		g, err := sys.OPDGrid(field, pup, pts, imageZ, testLambda, OPDOptions{Reference: c.ref})
+		if err != nil {
+			t.Fatalf("OPD with %v reference: %v", c.ref, err)
+		}
+		if g.ReferencePoint.Sub(c.want).Norm() > 1e-10 {
+			t.Errorf("OPD %v reference %v, want %v", c.ref, g.ReferencePoint, c.want)
+		}
+	}
+	t.Logf("references: chief %v, centroid %v, vertex %v; RMS chief %.6g, centroid %.6g, vertex %.6g mm",
+		sd.Chief, sd.Centroid, vert.Reference, chief.RMS, cen.RMS, vert.RMS)
 }

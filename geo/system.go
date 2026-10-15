@@ -76,21 +76,22 @@ func (s *System) Validate() error {
 	if n == 0 {
 		return fmt.Errorf("geo: system has no surfaces")
 	}
-	for i, sf := range s.Surfaces {
+	for i := range s.Surfaces {
+		sf := &s.Surfaces[i]
 		if sf.Break {
 			if sf.Mirror {
 				return fmt.Errorf("geo: element %d is a coordinate break and cannot be a mirror", i)
 			}
-			if !sf.Pose.finite() {
-				return fmt.Errorf("geo: coordinate break %d has non-finite parameters (%+v)", i, sf.Pose)
+			if sf.Pose != nil && !sf.Pose.finite() {
+				return fmt.Errorf("geo: coordinate break %d has non-finite parameters (%+v)", i, *sf.Pose)
 			}
 			continue
 		}
 		if sf.Profile == nil {
 			return fmt.Errorf("geo: surface %d has a nil profile", i)
 		}
-		if !sf.Pose.finite() {
-			return fmt.Errorf("geo: surface %d has a non-finite pose (%+v)", i, sf.Pose)
+		if sf.Pose != nil && !sf.Pose.finite() {
+			return fmt.Errorf("geo: surface %d has a non-finite pose (%+v)", i, *sf.Pose)
 		}
 	}
 	if len(s.Mediums) != n+1 {
@@ -111,8 +112,8 @@ func (s *System) Validate() error {
 			return fmt.Errorf("geo: thickness %d is not finite (%v)", i, t)
 		}
 	}
-	for i, sf := range s.Surfaces {
-		if sf.Break && s.Mediums[i].Name() != s.Mediums[i+1].Name() {
+	for i := range s.Surfaces {
+		if s.Surfaces[i].Break && s.Mediums[i].Name() != s.Mediums[i+1].Name() {
 			return fmt.Errorf("geo: coordinate break %d separates different media (%s, %s)",
 				i, s.Mediums[i].Name(), s.Mediums[i+1].Name())
 		}
@@ -171,7 +172,7 @@ func (s *System) BoundsZ(rMax float64) (float64, float64) {
 			continue
 		}
 		var lo, hi float64
-		if e.r == ident3() {
+		if e.plain {
 			z := e.o.Z
 			lo, hi = sf.ZRange(rMax)
 			lo, hi = z+lo, z+hi

@@ -34,8 +34,8 @@ func TestCardPoseLegacyJSONUnchanged(t *testing.T) {
 		t.Fatal(err)
 	}
 	for i, sf := range sys.Surfaces {
-		if !sf.Pose.IsIdentity() {
-			t.Errorf("surface %d of a legacy file has pose %+v", i, sf.Pose)
+		if sf.Pose != nil && !sf.Pose.IsIdentity() {
+			t.Errorf("surface %d of a legacy file has pose %+v", i, *sf.Pose)
 		}
 	}
 	par, err := old.Paraxial(geo.Wavelengthd)
@@ -82,7 +82,10 @@ func TestCardPoseJSONRoundTrip(t *testing.T) {
 		t.Fatal(err)
 	}
 	want := geo.CoordBreak{Dx: 0.5, Dy: -0.25, TiltX: 2.5 * math.Pi / 180, TiltY: -math.Pi / 180, TiltZ: math.Pi / 6}
-	got := sys.Surfaces[0].Pose
+	if sys.Surfaces[0].Pose == nil {
+		t.Fatal("decentred card has no pose")
+	}
+	got := *sys.Surfaces[0].Pose
 	for name, pair := range map[string][2]float64{
 		"Dx": {got.Dx, want.Dx}, "Dy": {got.Dy, want.Dy}, "TiltX": {got.TiltX, want.TiltX},
 		"TiltY": {got.TiltY, want.TiltY}, "TiltZ": {got.TiltZ, want.TiltZ},
@@ -91,8 +94,8 @@ func TestCardPoseJSONRoundTrip(t *testing.T) {
 			t.Errorf("pose %s = %.17g, want %.17g", name, pair[0], pair[1])
 		}
 	}
-	if !sys.Surfaces[1].Pose.IsIdentity() {
-		t.Errorf("the pose of card 0 leaked into card 1: %+v", sys.Surfaces[1].Pose)
+	if p := sys.Surfaces[1].Pose; p != nil && !p.IsIdentity() {
+		t.Errorf("the pose of card 0 leaked into card 1: %+v", *p)
 	}
 
 	buf, err := json.Marshal(&p)

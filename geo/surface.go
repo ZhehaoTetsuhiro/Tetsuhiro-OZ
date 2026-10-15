@@ -544,8 +544,8 @@ type Surface struct {
 	Mirror   bool     // true: reflect instead of refract
 	Name     string   // optional label used in traces and reports
 	// Pose decentres and tilts the surface (a coordinate break applied to this
-	// surface only). The zero value leaves it on the chain axis.
-	Pose CoordBreak
+	// surface only). Nil (the zero value) leaves it on the chain axis.
+	Pose *CoordBreak
 	// Break turns the element into a pure coordinate break: no profile, no
 	// interaction with rays, no Step in traces; Pose is its break. The media on
 	// both sides of a break element must be the same medium.

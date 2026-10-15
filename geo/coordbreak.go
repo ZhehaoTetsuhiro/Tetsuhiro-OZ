@@ -47,9 +47,9 @@ import (
 // rotation Q' = Qᵀ, which is again written as Rx(a)·Ry(b)·Rz(c) (the angles a, b,
 // c are obtained by a Cardan decomposition of Qᵀ). Placed after a break with
 // nothing in between, the return restores the optical axis of the enclosing
-// frame. The axial distance between a break and its return is measured along
-// the axis of the broken frame; to return across a non-zero gap, put the return
-// at the vertex reached after that gap.
+// frame. A non-zero axial spacing between a break and its return is a
+// translation along the broken axis and must be included in the Dz of the
+// return; the identity is tested for zero spacing only.
 //
 // The angle fields are in radians. |TiltY| = π/2 is a gimbal lock of the
 // inverse decomposition; the forward transform is well-defined there.
@@ -191,13 +191,14 @@ func eulerXYZ(m mat3) (a, b, c float64) {
 // enclosing (global) frame: P = o + r·p, where the columns of r are the local
 // axes expressed in the global frame.
 type frame struct {
-	o Vec3
-	r mat3
+	o     Vec3
+	r     mat3
+	plain bool // r is exactly the identity: the untilted fast path (exact arithmetic)
 }
 
 // toGlobal maps a local point to the global frame.
 func (f frame) toGlobal(p Vec3) Vec3 {
-	if f.r == ident3() {
+	if f.plain {
 		return f.o.Add(p) // exact: the arithmetic of the untilted layout
 	}
 	return f.o.Add(f.r.mulVec(p))
@@ -205,7 +206,7 @@ func (f frame) toGlobal(p Vec3) Vec3 {
 
 // toLocal maps a global point to the local frame: p = rᵀ (P − o).
 func (f frame) toLocal(P Vec3) Vec3 {
-	if f.r == ident3() {
+	if f.plain {
 		return P.Sub(f.o) // exact: the arithmetic of the untilted layout
 	}
 	return f.r.transpose().mulVec(P.Sub(f.o))
@@ -213,7 +214,7 @@ func (f frame) toLocal(P Vec3) Vec3 {
 
 // dirToGlobal maps a direction (or a unit normal) to the global frame.
 func (f frame) dirToGlobal(d Vec3) Vec3 {
-	if f.r == ident3() {
+	if f.plain {
 		return d
 	}
 	return f.r.mulVec(d)
@@ -221,7 +222,7 @@ func (f frame) dirToGlobal(d Vec3) Vec3 {
 
 // dirToLocal maps a global direction into the local frame.
 func (f frame) dirToLocal(d Vec3) Vec3 {
-	if f.r == ident3() {
+	if f.plain {
 		return d
 	}
 	return f.r.transpose().mulVec(d)
@@ -230,9 +231,11 @@ func (f frame) dirToLocal(d Vec3) Vec3 {
 // apply returns the frame obtained by the coordinate break cb applied to f:
 // origin o + r·d, axes r·Q (d = (Dx, Dy, Dz)).
 func (f frame) apply(cb CoordBreak) frame {
+	r := f.r.mul(cb.rotation())
 	return frame{
-		o: f.o.Add(f.r.mulVec(cb.displacement())),
-		r: f.r.mul(cb.rotation()),
+		o:     f.o.Add(f.r.mulVec(cb.displacement())),
+		r:     r,
+		plain: f.plain && r == ident3(),
 	}
 }
 
@@ -243,7 +246,7 @@ func (f frame) apply(cb CoordBreak) frame {
 // chainStart returns the frame of the system origin: the vertex of element 0
 // sits at z = OriginZ and the axes are the global axes.
 func (s *System) chainStart() frame {
-	return frame{o: Vec3{0, 0, s.OriginZ}, r: ident3()}
+	return frame{o: Vec3{0, 0, s.OriginZ}, r: ident3(), plain: true}
 }
 
 // place returns the frame e in which the local coordinates of element i are
@@ -256,15 +259,18 @@ func (s *System) chainStart() frame {
 //     changed: the gap is measured from c (auto-return to the optical axis).
 //   - A plain surface has e = c.
 func (s *System) place(i int, c frame) (e, ref frame) {
-	sf := s.Surfaces[i]
+	sf := &s.Surfaces[i]
 	if sf.Break {
-		e = c.apply(sf.Pose)
+		if sf.Pose == nil {
+			return c, c
+		}
+		e = c.apply(*sf.Pose)
 		return e, e
 	}
-	if sf.Pose.IsIdentity() {
+	if sf.Pose == nil {
 		return c, c
 	}
-	return c.apply(sf.Pose), c
+	return c.apply(*sf.Pose), c
 }
 
 // advance returns the chain frame that precedes element i+1: the origin is
@@ -273,6 +279,9 @@ func (s *System) place(i int, c frame) (e, ref frame) {
 func (s *System) advance(ref frame, i int) frame {
 	if i < 0 || i >= len(s.Thickness) {
 		return ref
+	}
+	if ref.plain {
+		return frame{o: Vec3{ref.o.X, ref.o.Y, ref.o.Z + s.Thickness[i]}, r: ref.r, plain: true} // exact: untilted chain
 	}
 	return frame{o: ref.o.Add(ref.r.col(2).Mul(s.Thickness[i])), r: ref.r}
 }
@@ -292,7 +301,7 @@ func (s *System) elementFrame(i int) frame {
 // surface with a non-identity pose (decentre, tilt or roll).
 func (s *System) hasPose() bool {
 	for _, sf := range s.Surfaces {
-		if sf.Break || !sf.Pose.IsIdentity() {
+		if sf.Break || (sf.Pose != nil && !sf.Pose.IsIdentity()) {
 			return true
 		}
 	}
@@ -305,12 +314,12 @@ func (s *System) hasPose() bool {
 // numbers for a decentred or tilted layout.
 func (s *System) requireCoaxial(what string) error {
 	for i, sf := range s.Surfaces {
-		if sf.Pose.decentredOrTilted() {
+		if sf.Pose != nil && sf.Pose.decentredOrTilted() {
 			kind := "surface"
 			if sf.Break {
 				kind = "coordinate break"
 			}
-			return errNotCoaxial(what, i, kind, sf.Label(), sf.Pose)
+			return errNotCoaxial(what, i, kind, sf.Label(), *sf.Pose)
 		}
 	}
 	return nil

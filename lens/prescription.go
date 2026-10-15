@@ -82,11 +82,14 @@ type Card struct {
 	TiltZDeg    float64 `json:"tilt_z_deg,omitempty"`    // roll about z (degrees)
 }
 
-// pose returns the coordinate break of the card's surface (the zero break for
-// an undecentred, untilted card).
-func (c Card) pose() geo.CoordBreak {
+// pose returns the coordinate break of the card's surface, nil for an
+// undecentred, untilted card.
+func (c Card) pose() *geo.CoordBreak {
+	if !c.posed() {
+		return nil
+	}
 	const d2r = math.Pi / 180
-	return geo.CoordBreak{
+	return &geo.CoordBreak{
 		Dx:    c.DecenterXMM,
 		Dy:    c.DecenterYMM,
 		TiltX: c.TiltXDeg * d2r,
