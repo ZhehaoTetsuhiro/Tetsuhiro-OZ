@@ -36,8 +36,10 @@
 // Validity: (i) phase depth exactly 2π (no residual modulation); (ii) equal
 // level widths; (iii) unit amplitude transmittance; (iv) scalar theory, i.e.
 // the local grating period is much larger than λ (the diffraction angles are
-// small); (v) the sampling resolves the level steps (several pixels per step)
-// for the numerical check; (vi) the value is the diffraction efficiency of the
+// small); (v) the sampling resolves the level steps: the grating check uses
+// 1024 samples per period (exact); the focusing check uses 0.5–8 pixels per
+// level step at the beam radius (TestFocusDOE; TestFocusDOEConvergence with
+// 4–8 px per step reaches |Δη| ≤ 5e-5); (vi) the value is the diffraction efficiency of the
 // first order alone, which for the grating means the energy in order m = 1
 // with respect to the incident power. For a focusing (kinoform) element the
 // same η_N applies locally to every zone, because the local period changes

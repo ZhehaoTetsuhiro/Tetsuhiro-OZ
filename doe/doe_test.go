@@ -281,6 +281,40 @@ func TestFocusDOE(t *testing.T) {
 	}
 }
 
+// TestFocusDOEConvergence repeats the focusing check on a 4096² grid with
+// finer level sampling (4–8 px per level step at the beam radius; N_F = 8 for
+// N = 8, 16, where the defocused-order contamination is negligible, and N_F =
+// 32 for N = 2, 4). It runs only when DOE_CONVERGENCE is set (≈30 s). The
+// efficiency bound is the same 1e-3. The axial peak offset is logged, not
+// asserted: at small N_F it is a physical focal shift of the on-axis maximum
+// (about −12 µm at N_F = 8, scaling roughly as 1/N_F²).
+func TestFocusDOEConvergence(t *testing.T) {
+	if os.Getenv("DOE_CONVERGENCE") == "" {
+		t.Skip("set DOE_CONVERGENCE=1 to run the 4096² convergence check")
+	}
+	cases := []struct {
+		n  int
+		nf float64
+	}{{2, 32}, {4, 32}, {8, 8}, {16, 8}}
+	for _, c := range cases {
+		w0 := math.Sqrt(c.nf * testLambda * testF)
+		dx := 8 * w0 / 4096
+		res, err := SimulateFocus(FocusSpec{
+			Lambda: testLambda, F: testF, Levels: c.n, W0: w0, M: 4096, Dx: dx, WinW: testWinW,
+		})
+		if err != nil {
+			t.Fatal(err)
+		}
+		if d := math.Abs(res.Eta - res.EtaAnalytic); d > effTol {
+			t.Errorf("N=%d (N_F=%g, M=4096): focal η = %.6f, η_N = %.6f (|diff| %.3g > %g)",
+				c.n, c.nf, res.Eta, res.EtaAnalytic, d, effTol)
+		}
+		t.Logf("N=%d N_F=%g M=4096 dx=%.3f µm: η=%.6f η_N=%.6f |diff|=%.2e; axial peak %+.2f µm (%+.1f px); px per level step at w0 = %.1f",
+			c.n, c.nf, dx, res.Eta, res.EtaAnalytic, math.Abs(res.Eta-res.EtaAnalytic),
+			res.AxialZ-testF, (res.AxialZ-testF)/dx, 1/(float64(c.n)*dx*w0/(testLambda*testF)))
+	}
+}
+
 // TestPhaseMapOutput writes the quantised phase maps of the lens (N = 2, 4,
 // 8, 16) as PNG files when DOE_PHASE_DIR is set; it always checks that the
 // image decodes with exactly N grey levels.

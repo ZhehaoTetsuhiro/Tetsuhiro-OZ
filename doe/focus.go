@@ -85,45 +85,81 @@ func SimulateFocus(s FocusSpec) (FocusResult, error) {
 	res.PeakOffsetPx = math.Hypot(dr, dc)
 	res.WindowFrac = 1 - math.Exp(-2*s.WinW*s.WinW)
 
-	// (3) Axial peak. A coarse scan over ±½ Rayleigh range (11 points) locates
-	// the maximum; a fine scan of one-pixel steps around it (21 points) gives
-	// the peak with a parabolic refinement on the pixel grid.
+	// (3) Axial peak: the maximum of the on-axis intensity on ±½ Rayleigh range
+	// (unimodal there), by golden-section search to half a pixel, then a
+	// parabolic refinement over three points spaced by half a pixel.
 	spec, err := Spectrum(lp.T, s.M)
 	if err != nil {
 		return FocusResult{}, err
 	}
 	zR := math.Pi * res.Wf * res.Wf / s.Lambda
-	coarse := make([]float64, 11)
-	for i := range coarse {
-		coarse[i] = s.F + (float64(i)-5)*0.1*zR
-	}
-	axC, err := AxialField(spec, s.M, s.Dx, s.Lambda, coarse)
+	zAx, err := axialPeak(spec, s.M, s.Dx, s.Lambda, s.F-0.5*zR, s.F+0.5*zR, 0.5*s.Dx)
 	if err != nil {
 		return FocusResult{}, err
 	}
-	kc := argmaxSq(axC)
-	zc := coarse[kc]
-	fine := make([]float64, 21)
-	for i := range fine {
-		fine[i] = zc + float64(i-10)*s.Dx
-	}
-	axF, err := AxialField(spec, s.M, s.Dx, s.Lambda, fine)
-	if err != nil {
-		return FocusResult{}, err
-	}
-	kf := argmaxSq(axF)
 	res.AxialStep = s.Dx
-	res.AxialZ = fine[kf]
-	if kf > 0 && kf < len(axF)-1 {
-		y0, y1, y2 := sqr(axF[kf-1]), sqr(axF[kf]), sqr(axF[kf+1])
-		if den := y0 - 2*y1 + y2; den != 0 {
-			res.AxialZ = fine[kf] + 0.5*(y0-y2)/den*s.Dx
-		}
-	}
+	res.AxialZ = zAx
 	return res, nil
 }
 
 func sqr(v complex128) float64 { return real(v)*real(v) + imag(v)*imag(v) }
+
+// axialPeak returns the axial position in [a, b] of the maximum of the on-axis
+// intensity |u(0,0,z)|², by golden-section search to bracket width tol and a
+// parabolic refinement with points spaced tol apart. The intensity is assumed
+// unimodal on [a, b]; the caller chooses the interval.
+func axialPeak(spec []complex128, m int, dx, lambda, a, b, tol float64) (float64, error) {
+	intensity := func(z float64) (float64, error) {
+		v, err := AxialField(spec, m, dx, lambda, []float64{z})
+		if err != nil {
+			return 0, err
+		}
+		return sqr(v[0]), nil
+	}
+	const gr = 0.6180339887498949 // (√5 − 1)/2
+	c := b - gr*(b-a)
+	d := a + gr*(b-a)
+	fc, err := intensity(c)
+	if err != nil {
+		return 0, err
+	}
+	fd, err := intensity(d)
+	if err != nil {
+		return 0, err
+	}
+	for b-a > tol {
+		if fc > fd {
+			b, d, fd = d, c, fc
+			c = b - gr*(b-a)
+			if fc, err = intensity(c); err != nil {
+				return 0, err
+			}
+		} else {
+			a, c, fc = c, d, fd
+			d = a + gr*(b-a)
+			if fd, err = intensity(d); err != nil {
+				return 0, err
+			}
+		}
+	}
+	z := 0.5 * (a + b)
+	y0, err := intensity(z - tol)
+	if err != nil {
+		return 0, err
+	}
+	y1, err := intensity(z)
+	if err != nil {
+		return 0, err
+	}
+	y2, err := intensity(z + tol)
+	if err != nil {
+		return 0, err
+	}
+	if den := y0 - 2*y1 + y2; den < 0 {
+		z += 0.5 * (y0 - y2) / den * tol
+	}
+	return z, nil
+}
 
 // argmaxSq returns the index of the largest |v|².
 func argmaxSq(v []complex128) int {
