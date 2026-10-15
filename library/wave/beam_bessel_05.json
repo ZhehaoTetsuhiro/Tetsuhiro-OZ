@@ -1,0 +1,89 @@
+{
+  "name": "贝塞尔光束（轴锥镜 α=20.0 mrad）：中心斑 24.2 µm",
+  "grid": {
+    "size": 1024,
+    "width": 0.008
+  },
+  "wavelength": 6.328e-07,
+  "polarized": false,
+  "method": "asm",
+  "evanescent": "decay",
+  "evanescent_limit": 0,
+  "backward_regularize": false,
+  "tikhonov_alpha": 0,
+  "bandlimit": {
+    "fraction": 0.9,
+    "sigma": 0.05
+  },
+  "sources": [
+    {
+      "id": "src",
+      "type": "gaussian",
+      "params": {
+        "power": 0.001,
+        "waist": 0.0015
+      },
+      "pos": {
+        "x": 0.0,
+        "y": 0.0,
+        "z": -0.05
+      },
+      "dir": {
+        "x": 0.0,
+        "y": 0.0,
+        "z": 1.0
+      },
+      "label": "高斯 w₀=1.5 mm",
+      "wavelength": 6.328e-07
+    }
+  ],
+  "scene": {
+    "components": [
+      {
+        "id": "ax",
+        "type": "axicon",
+        "pos": {
+          "x": 0.0,
+          "y": 0.0,
+          "z": 0.0
+        },
+        "label": "轴锥镜 α=20.0 mrad",
+        "shape": {
+          "kind": "circle",
+          "params": {
+            "radius": 0.0036000000000000003
+          }
+        },
+        "params": {
+          "alpha": 0.02,
+          "index": 1.5
+        }
+      },
+      {
+        "id": "det",
+        "type": "sensor",
+        "pos": {
+          "x": 0.0,
+          "y": 0.0,
+          "z": 0.1349954999699997
+        },
+        "label": "观察面",
+        "yaw": 3.141592653589793
+      }
+    ]
+  },
+  "meta": {
+    "zod": {
+      "category": "传播/光束",
+      "difficulty": "进阶",
+      "description": "轴锥镜（底面夹角 α=20.0 mrad、n=1.5）把高斯光束转成无衍射（贝塞尔）光束；理论无衍射区长度 z_max=w₀/tan((n−1)α)≈150 mm。",
+      "expected": "中心亮斑直径 ≈2×2.405/(k·sin((n−1)α))=48.4 µm（比同尺寸高斯聚焦更小），外侧为同心环；在 z_max 之前横向轮廓**不随距离变化**（无衍射），之后退化为普通高斯。",
+      "tags": [
+        "贝塞尔光束",
+        "轴锥镜",
+        "无衍射光束"
+      ],
+      "theory": "中心斑 ~2.405/(k sinβ)，β=(n−1)α；无衍射区 z_max=w₀/tanβ"
+    }
+  }
+}

@@ -1,0 +1,94 @@
+{
+  "name": "波带片色散：λ=633 nm 时一级焦点移到 f·λ₀/λ",
+  "grid": {
+    "size": 1024,
+    "width": 0.004
+  },
+  "wavelength": 6.328e-07,
+  "polarized": false,
+  "method": "asm",
+  "evanescent": "decay",
+  "evanescent_limit": 0,
+  "backward_regularize": false,
+  "tikhonov_alpha": 0,
+  "bandlimit": {
+    "fraction": 0.9,
+    "sigma": 0.05
+  },
+  "sources": [
+    {
+      "id": "src",
+      "type": "plane",
+      "params": {
+        "power": 0.001
+      },
+      "pos": {
+        "x": 0.0,
+        "y": 0.0,
+        "z": -0.05
+      },
+      "dir": {
+        "x": 0.0,
+        "y": 0.0,
+        "z": 1.0
+      },
+      "wavelength": 6.328e-07
+    }
+  ],
+  "scene": {
+    "components": [
+      {
+        "id": "zp",
+        "type": "zone_plate",
+        "pos": {
+          "x": 0.0,
+          "y": 0.0,
+          "z": 0.0
+        },
+        "label": "波带片（设计 f=50 mm @633 nm）",
+        "shape": {
+          "kind": "circle",
+          "params": {
+            "radius": 0.0005031166931969561
+          }
+        },
+        "params": {
+          "f": 0.05,
+          "radius": 0.0005031166931969561,
+          "kind": "phase"
+        }
+      },
+      {
+        "id": "det",
+        "type": "sensor",
+        "pos": {
+          "x": 0.0,
+          "y": 0.0,
+          "z": 0.05
+        },
+        "label": "设计焦点位置",
+        "yaw": 3.141592653589793,
+        "shape": {
+          "kind": "circle",
+          "params": {
+            "radius": 0.0002
+          }
+        }
+      }
+    ]
+  },
+  "meta": {
+    "zod": {
+      "category": "衍射",
+      "difficulty": "高级",
+      "description": "波带片的环半径按 λ₀=633 nm、f=50 mm 写死，此处用 λ=633 nm 照明——衍射元件的强色散：焦点位置随波长移动。",
+      "expected": "焦点 z ≈ f·λ₀/λ = 50.0 mm（λ=633 nm）；波长偏离设计值时环半径不再满足 r²=mλf，焦斑弥散、轴上强度下降。这是衍射光学元件（DOE）与折射透镜（无焦移）最本质的区别。",
+      "tags": [
+        "波带片",
+        "色散",
+        "DOE"
+      ],
+      "theory": "衍射元件焦点随波长移动 f' = f λ₀/λ"
+    }
+  }
+}

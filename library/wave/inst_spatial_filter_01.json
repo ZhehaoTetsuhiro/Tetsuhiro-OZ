@@ -1,0 +1,146 @@
+{
+  "name": "空间滤波器：针孔 0.5 mm（宽松）",
+  "grid": {
+    "size": 512,
+    "width": 0.01
+  },
+  "wavelength": 6.328e-07,
+  "polarized": false,
+  "method": "asm",
+  "evanescent": "decay",
+  "evanescent_limit": 0,
+  "backward_regularize": false,
+  "tikhonov_alpha": 0,
+  "bandlimit": {
+    "fraction": 0.9,
+    "sigma": 0.05
+  },
+  "sources": [
+    {
+      "id": "src",
+      "type": "plane",
+      "params": {
+        "power": 0.001
+      },
+      "pos": {
+        "x": 0.0,
+        "y": 0.0,
+        "z": -0.05
+      },
+      "dir": {
+        "x": 0.0,
+        "y": 0.0,
+        "z": 1.0
+      },
+      "wavelength": 6.328e-07
+    }
+  ],
+  "scene": {
+    "components": [
+      {
+        "id": "obj",
+        "type": "aperture",
+        "pos": {
+          "x": 0.0,
+          "y": 0.0,
+          "z": 0.0
+        },
+        "label": "待净化光束（带高频噪声）",
+        "shape": {
+          "kind": "circle",
+          "params": {
+            "radius": 0.0015
+          }
+        }
+      },
+      {
+        "id": "l1",
+        "type": "lens",
+        "pos": {
+          "x": 0.0,
+          "y": 0.0,
+          "z": 0.1
+        },
+        "label": "聚焦透镜 f=100 mm",
+        "shape": {
+          "kind": "circle",
+          "params": {
+            "radius": 0.004
+          }
+        },
+        "params": {
+          "f": 0.1
+        }
+      },
+      {
+        "id": "pin",
+        "type": "aperture",
+        "pos": {
+          "x": 0.0,
+          "y": 0.0,
+          "z": 0.2
+        },
+        "label": "针孔 针孔 0.5 mm（宽松）",
+        "shape": {
+          "kind": "circle",
+          "params": {
+            "radius": 0.00025
+          }
+        }
+      },
+      {
+        "id": "l2",
+        "type": "lens",
+        "pos": {
+          "x": 0.0,
+          "y": 0.0,
+          "z": 0.30000000000000004
+        },
+        "label": "再准直透镜 f=100 mm",
+        "shape": {
+          "kind": "circle",
+          "params": {
+            "radius": 0.004
+          }
+        },
+        "params": {
+          "f": 0.1
+        }
+      },
+      {
+        "id": "det",
+        "type": "sensor",
+        "pos": {
+          "x": 0.0,
+          "y": 0.0,
+          "z": 0.6000000000000001
+        },
+        "label": "净化后的光束",
+        "yaw": 3.141592653589793,
+        "shape": {
+          "kind": "rectangle",
+          "params": {
+            "width": 0.009000000000000001,
+            "height": 0.009000000000000001
+          }
+        }
+      }
+    ]
+  },
+  "meta": {
+    "zod": {
+      "category": "仪器",
+      "difficulty": "进阶",
+      "description": "空间滤波器（4f 针孔）：透镜把光束聚焦到针孔，针孔只让近轴的低空间频率通过，再由第二个透镜恢复平行光；针孔直径 针孔 0.5 mm（宽松）。",
+      "expected": "针孔直径 0.50 mm 对应焦面上允许的空间频率上限 ρ_max=3.95 /mm（截止角 θ=2.50 mrad）。针孔越小输出越干净（接近理想高斯），但透过率也越低；针孔小于聚焦艾里斑时会因衍射而展宽输出。这是激光实验里「净化波前」的标准做法。",
+      "tags": [
+        "空间滤波",
+        "针孔",
+        "4f",
+        "波前净化"
+      ],
+      "theory": "焦面针孔 = 低通滤波器；截止频率 ρ = r_p/(λf)"
+    },
+    "sample": true
+  }
+}

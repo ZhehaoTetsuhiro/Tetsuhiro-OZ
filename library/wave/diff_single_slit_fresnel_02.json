@@ -1,0 +1,91 @@
+{
+  "name": "单缝菲涅耳（近场）衍射：z=50 mm，N_F=5.1",
+  "grid": {
+    "size": 512,
+    "width": 0.01
+  },
+  "wavelength": 6.328e-07,
+  "polarized": false,
+  "method": "asm",
+  "evanescent": "decay",
+  "evanescent_limit": 0,
+  "backward_regularize": false,
+  "tikhonov_alpha": 0,
+  "bandlimit": {
+    "fraction": 0.9,
+    "sigma": 0.05
+  },
+  "sources": [
+    {
+      "id": "src",
+      "type": "plane",
+      "params": {
+        "power": 0.001
+      },
+      "pos": {
+        "x": 0.0,
+        "y": 0.0,
+        "z": -0.05
+      },
+      "dir": {
+        "x": 0.0,
+        "y": 0.0,
+        "z": 1.0
+      },
+      "wavelength": 6.328e-07
+    }
+  ],
+  "scene": {
+    "components": [
+      {
+        "id": "slit",
+        "type": "aperture",
+        "pos": {
+          "x": 0.0,
+          "y": 0.0,
+          "z": 0.0
+        },
+        "label": "单缝 a=0.40 mm",
+        "shape": {
+          "kind": "rectangle",
+          "params": {
+            "width": 0.0004,
+            "height": 0.0095
+          }
+        }
+      },
+      {
+        "id": "det",
+        "type": "sensor",
+        "pos": {
+          "x": 0.0,
+          "y": 0.0,
+          "z": 0.05
+        },
+        "label": "近场屏",
+        "yaw": 3.141592653589793,
+        "shape": {
+          "kind": "rectangle",
+          "params": {
+            "width": 0.009000000000000001,
+            "height": 0.009000000000000001
+          }
+        }
+      }
+    ]
+  },
+  "meta": {
+    "zod": {
+      "category": "衍射",
+      "difficulty": "进阶",
+      "description": "缝宽 0.40 mm，观察距离缩到 50 mm（菲涅耳数 N_F=a²/(λz)=5.06）。距离不够远，边缘子波的相位差不可忽略。",
+      "expected": "近场不满足远场条件：图样是菲涅耳区结构——亮纹不是等间距，中央强度随 z 起伏（N_F≈5.06 时轴上为极大）。距离越近越接近缝的几何投影（边缘仅 明显振荡）。",
+      "tags": [
+        "单缝",
+        "菲涅耳衍射",
+        "近场"
+      ],
+      "theory": "N_F = a²/(λz)；N_F≪1 才进入夫琅禾费区"
+    }
+  }
+}

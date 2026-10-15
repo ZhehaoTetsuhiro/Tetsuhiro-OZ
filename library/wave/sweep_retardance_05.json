@@ -1,0 +1,157 @@
+{
+  "name": "扫掠·波片延迟 0.500×2π → 正交透过率 1.000",
+  "grid": {
+    "size": 512,
+    "width": 0.01
+  },
+  "wavelength": 6.328e-07,
+  "polarized": true,
+  "method": "asm",
+  "evanescent": "decay",
+  "evanescent_limit": 0,
+  "backward_regularize": false,
+  "tikhonov_alpha": 0,
+  "bandlimit": {
+    "fraction": 0.9,
+    "sigma": 0.05
+  },
+  "sources": [
+    {
+      "id": "src",
+      "type": "plane",
+      "params": {
+        "power": 0.001,
+        "polarization": "x"
+      },
+      "pos": {
+        "x": 0.0,
+        "y": 0.0,
+        "z": -0.05
+      },
+      "dir": {
+        "x": 0.0,
+        "y": 0.0,
+        "z": 1.0
+      },
+      "label": "x 偏振平面波",
+      "wavelength": 6.328e-07
+    }
+  ],
+  "scene": {
+    "components": [
+      {
+        "id": "clip",
+        "type": "aperture",
+        "pos": {
+          "x": 0.0,
+          "y": 0.0,
+          "z": 0.0
+        },
+        "label": "限光阑",
+        "shape": {
+          "kind": "rectangle",
+          "params": {
+            "width": 0.006,
+            "height": 0.006
+          }
+        }
+      },
+      {
+        "id": "xp0",
+        "type": "polarizer",
+        "pos": {
+          "x": 0.0,
+          "y": 0.0,
+          "z": 0.02
+        },
+        "label": "起偏器 0°",
+        "shape": {
+          "kind": "circle",
+          "params": {
+            "radius": 0.0049
+          }
+        },
+        "params": {
+          "angle": 0.0
+        }
+      },
+      {
+        "id": "xr",
+        "type": "retarder",
+        "pos": {
+          "x": 0.0,
+          "y": 0.0,
+          "z": 0.04
+        },
+        "label": "波片（快轴 45°、延迟 0.500×2π）",
+        "shape": {
+          "kind": "circle",
+          "params": {
+            "radius": 0.0049
+          }
+        },
+        "params": {
+          "retardance": 3.141592653589793,
+          "axis": 0.7853981633974483
+        }
+      },
+      {
+        "id": "xa",
+        "type": "polarizer",
+        "pos": {
+          "x": 0.0,
+          "y": 0.0,
+          "z": 0.06
+        },
+        "label": "检偏器 90°（正交）",
+        "shape": {
+          "kind": "circle",
+          "params": {
+            "radius": 0.0049
+          }
+        },
+        "params": {
+          "angle": 1.5707963267948966
+        }
+      },
+      {
+        "id": "det",
+        "type": "sensor",
+        "pos": {
+          "x": 0.0,
+          "y": 0.0,
+          "z": 0.08
+        },
+        "label": "读数",
+        "yaw": 3.141592653589793,
+        "shape": {
+          "kind": "rectangle",
+          "params": {
+            "width": 0.006,
+            "height": 0.006
+          }
+        }
+      }
+    ]
+  },
+  "meta": {
+    "zod": {
+      "category": "参数扫掠",
+      "difficulty": "进阶",
+      "description": "固定起偏 0°、快轴 45°、检偏 90°（正交），把波片相位延迟从 0 扫到 2π（第 5 条）。",
+      "expected": "正交检偏下透过率 I=sin²(δ/2)=1.000：δ=0 与 2π 时全暗（等价于无波片）、δ=π 时全亮（半波片把偏振转 90°）、δ=π/2 时 50%（四分之一波片产生圆偏振）。这条曲线就是判断波片规格的标准测量法（旋转正交偏振片法）。",
+      "tags": [
+        "波片延迟扫掠",
+        "正交偏振",
+        "波片定标"
+      ],
+      "theory": "I = sin²(δ/2)",
+      "sweep": {
+        "param": "retardance_2pi",
+        "value": 0.5,
+        "index": 5,
+        "of": 8
+      }
+    }
+  }
+}

@@ -1,0 +1,109 @@
+{
+  "name": "单透镜成像：物距 150 mm、f=100 mm → 像距 60 mm、放大 0.40×",
+  "grid": {
+    "size": 512,
+    "width": 0.01
+  },
+  "wavelength": 6.328e-07,
+  "polarized": false,
+  "method": "asm",
+  "evanescent": "decay",
+  "evanescent_limit": 0,
+  "backward_regularize": false,
+  "tikhonov_alpha": 0,
+  "bandlimit": {
+    "fraction": 0.9,
+    "sigma": 0.05
+  },
+  "sources": [
+    {
+      "id": "src",
+      "type": "plane",
+      "params": {
+        "power": 0.001
+      },
+      "pos": {
+        "x": 0.0,
+        "y": 0.0,
+        "z": -0.05
+      },
+      "dir": {
+        "x": 0.0,
+        "y": 0.0,
+        "z": 1.0
+      },
+      "wavelength": 6.328e-07
+    }
+  ],
+  "scene": {
+    "components": [
+      {
+        "id": "g",
+        "type": "grating",
+        "pos": {
+          "x": 0.15,
+          "y": 0.0,
+          "z": 0.0
+        },
+        "label": "物：周期 0.5 mm 的振幅光栅",
+        "params": {
+          "kind": "amplitude_binary",
+          "period": 0.0005,
+          "duty": 0.5
+        }
+      },
+      {
+        "id": "l",
+        "type": "lens",
+        "pos": {
+          "x": 0.0,
+          "y": 0.0,
+          "z": 0.0
+        },
+        "label": "成像透镜 f=100 mm",
+        "shape": {
+          "kind": "circle",
+          "params": {
+            "radius": 0.0045000000000000005
+          }
+        },
+        "params": {
+          "f": 0.1
+        }
+      },
+      {
+        "id": "det",
+        "type": "sensor",
+        "pos": {
+          "x": 0.0,
+          "y": 0.0,
+          "z": 0.06
+        },
+        "label": "像面",
+        "yaw": 3.141592653589793,
+        "shape": {
+          "kind": "rectangle",
+          "params": {
+            "width": 0.009000000000000001,
+            "height": 0.009000000000000001
+          }
+        }
+      }
+    ]
+  },
+  "meta": {
+    "zod": {
+      "category": "仪器",
+      "difficulty": "进阶",
+      "description": "阿贝成像：光栅（周期 0.5 mm）放在物距 150 mm，用 f=100 mm 透镜成像，像距按高斯公式 b=f·a/(a−f)=60 mm。",
+      "expected": "像面出现光栅的像，放大率 M=b/a=0.40（倒立）；由于孔径有限（8 mm 口径）只有有限个衍射级参与成像，因此像的对比度取决于「通过了几级」——这正是阿贝成像理论：**成像 = 两次衍射**，分辨率由能收集的衍射级数决定。",
+      "tags": [
+        "阿贝成像",
+        "透镜公式",
+        "分辨率"
+      ],
+      "theory": "1/f = 1/a + 1/b；M = b/a；分辨率由收集的衍射级数决定"
+    },
+    "sample": true
+  }
+}

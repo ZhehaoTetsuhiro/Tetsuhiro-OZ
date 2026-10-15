@@ -1,0 +1,147 @@
+{
+  "name": "4f 相干图像处理：方向滤波（竖直狭缝）",
+  "grid": {
+    "size": 512,
+    "width": 0.008
+  },
+  "wavelength": 6.328e-07,
+  "polarized": false,
+  "method": "asm",
+  "evanescent": "decay",
+  "evanescent_limit": 0,
+  "backward_regularize": false,
+  "tikhonov_alpha": 0,
+  "bandlimit": {
+    "fraction": 0.9,
+    "sigma": 0.05
+  },
+  "sources": [
+    {
+      "id": "src",
+      "type": "plane",
+      "params": {
+        "power": 0.001
+      },
+      "pos": {
+        "x": 0.0,
+        "y": 0.0,
+        "z": -0.05
+      },
+      "dir": {
+        "x": 0.0,
+        "y": 0.0,
+        "z": 1.0
+      },
+      "wavelength": 6.328e-07
+    }
+  ],
+  "scene": {
+    "components": [
+      {
+        "id": "obj",
+        "type": "aperture",
+        "pos": {
+          "x": 0.0,
+          "y": 0.0,
+          "z": 0.0
+        },
+        "label": "物：方孔（含各种空间频率）",
+        "shape": {
+          "kind": "rectangle",
+          "params": {
+            "width": 0.004,
+            "height": 0.004
+          }
+        }
+      },
+      {
+        "id": "l1",
+        "type": "lens",
+        "pos": {
+          "x": 0.0,
+          "y": 0.0,
+          "z": 0.075
+        },
+        "label": "傅里叶透镜 f=75 mm",
+        "shape": {
+          "kind": "circle",
+          "params": {
+            "radius": 0.00392
+          }
+        },
+        "params": {
+          "f": 0.075
+        }
+      },
+      {
+        "id": "flt",
+        "type": "aperture",
+        "pos": {
+          "x": 0.0,
+          "y": 0.0,
+          "z": 0.15
+        },
+        "label": "频谱面滤波：方向滤波（竖直狭缝）",
+        "shape": {
+          "kind": "rectangle",
+          "params": {
+            "width": 0.0002,
+            "height": 0.0032
+          }
+        }
+      },
+      {
+        "id": "l2",
+        "type": "lens",
+        "pos": {
+          "x": 0.0,
+          "y": 0.0,
+          "z": 0.22499999999999998
+        },
+        "label": "逆变换透镜 f=75 mm",
+        "shape": {
+          "kind": "circle",
+          "params": {
+            "radius": 0.00392
+          }
+        },
+        "params": {
+          "f": 0.075
+        }
+      },
+      {
+        "id": "det",
+        "type": "sensor",
+        "pos": {
+          "x": 0.0,
+          "y": 0.0,
+          "z": 0.3
+        },
+        "label": "像面",
+        "yaw": 3.141592653589793,
+        "shape": {
+          "kind": "rectangle",
+          "params": {
+            "width": 0.0076,
+            "height": 0.0076
+          }
+        }
+      }
+    ]
+  },
+  "meta": {
+    "zod": {
+      "category": "仪器",
+      "difficulty": "高级",
+      "description": "4f 系统（物 → 傅里叶透镜 → **频谱面处理** → 逆变换透镜 → 像）：方向滤波（竖直狭缝）。",
+      "expected": "只保留水平方向的空间频率（条纹变竖直）。物是 8 mm 方孔（频谱为二维 sinc，零级最大、高频向四周展开），在频谱面上做空间频率选择后，像面重建出对应的滤波结果——这就是 4f 相干光学图像处理（阿贝成像理论）的全部内容。",
+      "tags": [
+        "4f系统",
+        "傅里叶光学",
+        "图像处理",
+        "阿贝成像"
+      ],
+      "theory": "4f：物面 → 频谱面（傅里叶变换）→ 像面（逆变换）；滤波=乘传递函数"
+    }
+  }
+}

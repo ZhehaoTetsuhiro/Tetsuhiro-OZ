@@ -1,0 +1,91 @@
+{
+  "name": "同心环阵列（光子筛风格）：4 环",
+  "grid": {
+    "size": 1024,
+    "width": 0.02
+  },
+  "wavelength": 6.328e-07,
+  "polarized": false,
+  "method": "asm",
+  "evanescent": "decay",
+  "evanescent_limit": 0,
+  "backward_regularize": false,
+  "tikhonov_alpha": 0,
+  "bandlimit": {
+    "fraction": 0.9,
+    "sigma": 0.05
+  },
+  "sources": [
+    {
+      "id": "src",
+      "type": "plane",
+      "params": {
+        "power": 0.001
+      },
+      "pos": {
+        "x": 0.0,
+        "y": 0.0,
+        "z": -0.05
+      },
+      "dir": {
+        "x": 0.0,
+        "y": 0.0,
+        "z": 1.0
+      },
+      "wavelength": 6.328e-07
+    }
+  ],
+  "scene": {
+    "components": [
+      {
+        "id": "ap",
+        "type": "aperture",
+        "pos": {
+          "x": 0.0,
+          "y": 0.0,
+          "z": 0.0
+        },
+        "label": "外环",
+        "shape": {
+          "kind": "ring",
+          "params": {
+            "rin": 0.00075,
+            "rout": 0.001
+          }
+        }
+      },
+      {
+        "id": "det",
+        "type": "sensor",
+        "pos": {
+          "x": 0.0,
+          "y": 0.0,
+          "z": 1.0
+        },
+        "label": "远场",
+        "yaw": 3.141592653589793,
+        "shape": {
+          "kind": "rectangle",
+          "params": {
+            "width": 0.019,
+            "height": 0.019
+          }
+        }
+      }
+    ]
+  },
+  "meta": {
+    "zod": {
+      "category": "衍射",
+      "difficulty": "高级",
+      "description": "半径端到端的单环孔（外半径 1.0 mm、环宽 250 µm）的远场；串接多个同心环即是「光子筛/环阵列」的简化模型。",
+      "expected": "环孔远场是 J₀ 型中心亮斑 + 同心环；环越窄中心斑越大（类似圆孔但缺少低频），第一暗环尺度 ≈1.22λz/(2r_out)=0.39 mm。与实心圆孔相比中心峰的旁瓣更强。",
+      "tags": [
+        "环形孔",
+        "光子筛",
+        "J₀"
+      ],
+      "theory": "环孔远场 ∝ 组合贝塞尔函数，环宽是新的特征尺度"
+    }
+  }
+}

@@ -1,0 +1,94 @@
+{
+  "name": "高 NA 矢量聚焦：NA=0.9（纵场 Ez）",
+  "grid": {
+    "size": 2048,
+    "width": 0.01
+  },
+  "wavelength": 6.328e-07,
+  "polarized": false,
+  "method": "vectorial",
+  "evanescent": "decay",
+  "evanescent_limit": 0,
+  "backward_regularize": false,
+  "tikhonov_alpha": 0,
+  "bandlimit": {
+    "fraction": 0.9,
+    "sigma": 0.05
+  },
+  "sources": [
+    {
+      "id": "src",
+      "type": "gaussian",
+      "params": {
+        "power": 0.001,
+        "waist": 2.1093333333333332e-07,
+        "polarization": "x"
+      },
+      "pos": {
+        "x": 0.0,
+        "y": 0.0,
+        "z": -0.05
+      },
+      "dir": {
+        "x": 0.0,
+        "y": 0.0,
+        "z": 1.0
+      },
+      "label": "x 偏振高斯光",
+      "wavelength": 6.328e-07
+    }
+  ],
+  "scene": {
+    "components": [
+      {
+        "id": "l",
+        "type": "lens",
+        "pos": {
+          "x": 0.0,
+          "y": 0.0,
+          "z": 0.0
+        },
+        "label": "高 NA 透镜 f=0.3 m",
+        "shape": {
+          "kind": "circle",
+          "params": {
+            "radius": 0.0045000000000000005
+          }
+        },
+        "params": {
+          "f": 0.3
+        }
+      },
+      {
+        "id": "det",
+        "type": "sensor",
+        "pos": {
+          "x": 0.0,
+          "y": 0.0,
+          "z": 0.3
+        },
+        "label": "焦点（可看 |Ez|²）",
+        "yaw": 3.141592653589793,
+        "params": {
+          "strehl_aperture": 0.0045000000000000005,
+          "strehl_distance": 0.3
+        }
+      }
+    ]
+  },
+  "meta": {
+    "zod": {
+      "category": "偏振",
+      "difficulty": "高级",
+      "description": "用**矢量角谱法**（method=vectorial）模拟 x 偏振光被高 NA 透镜（NA=0.9）聚焦：矢量模型会由散度条件重构纵分量 Ez 并把三分量一起传播。",
+      "expected": "焦斑沿 x 方向被压缩（偏振方向的聚焦更紧）、出现**纵向场 Ez**（在 field=ez 视图可见）；NA 越大纵场越强（NA→1 时 |Ez|² 的峰值可与横向相当）。艾里第一暗环 25.7 µm。标量模型完全看不到 Ez——这正是高 NA 聚焦必须用矢量理论的原因（超分辨、光镊、激光加工都要考虑它）。",
+      "tags": [
+        "矢量衍射",
+        "高NA",
+        "纵场Ez",
+        "角谱法"
+      ],
+      "theory": "矢量角谱：由 ∇·E=0 解出 Ez，三分量独立传播"
+    }
+  }
+}

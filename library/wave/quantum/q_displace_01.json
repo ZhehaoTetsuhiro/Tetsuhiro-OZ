@@ -1,0 +1,36 @@
+{
+  "name": "位移真空态 D(α)|0⟩：α=0.5",
+  "modes": 1,
+  "cutoff": 15,
+  "state": {
+    "type": "vacuum",
+    "params": {}
+  },
+  "gates": [
+    {
+      "type": "displacement",
+      "params": {
+        "mode": 0,
+        "alpha_re": 0.5,
+        "alpha_im": 0.0
+      }
+    }
+  ],
+  "meta": {
+    "name": "位移真空态 D(α)|0⟩：α=0.5",
+    "zod": {
+      "category": "量子",
+      "difficulty": "进阶",
+      "description": "对真空施加位移算符 D(α)=exp(αa†−α*a)：D(α)|0⟩ 就是相干态 |α⟩。",
+      "expected": "⟨n⟩=|α|²=0.25、g²(0)=1、正交分量方差仍为 1/4 —— 位移只是把真空的量子噪声球平移到相空间原点之外。",
+      "tags": [
+        "位移算符",
+        "真空态",
+        "相干态生成"
+      ],
+      "theory": "D(α)|0⟩ = |α⟩（相干态的标准生成方式）",
+      "protocol": "quantum"
+    },
+    "sample": true
+  }
+}

@@ -1,0 +1,119 @@
+{
+  "name": "自定义琼斯元件：45° 旋转（实矩阵）",
+  "grid": {
+    "size": 512,
+    "width": 0.01
+  },
+  "wavelength": 6.328e-07,
+  "polarized": true,
+  "method": "asm",
+  "evanescent": "decay",
+  "evanescent_limit": 0,
+  "backward_regularize": false,
+  "tikhonov_alpha": 0,
+  "bandlimit": {
+    "fraction": 0.9,
+    "sigma": 0.05
+  },
+  "sources": [
+    {
+      "id": "src",
+      "type": "plane",
+      "params": {
+        "power": 0.001,
+        "polarization": "x"
+      },
+      "pos": {
+        "x": 0.0,
+        "y": 0.0,
+        "z": -0.05
+      },
+      "dir": {
+        "x": 0.0,
+        "y": 0.0,
+        "z": 1.0
+      },
+      "label": "平面波（x 偏振）",
+      "wavelength": 6.328e-07
+    }
+  ],
+  "scene": {
+    "components": [
+      {
+        "id": "clip",
+        "type": "aperture",
+        "pos": {
+          "x": 0.0,
+          "y": 0.0,
+          "z": 0.0
+        },
+        "label": "限光阑（6.0 mm 方孔）",
+        "shape": {
+          "kind": "rectangle",
+          "params": {
+            "width": 0.006,
+            "height": 0.006
+          }
+        }
+      },
+      {
+        "id": "cj",
+        "type": "custom_jones",
+        "pos": {
+          "x": 0.0,
+          "y": 0.0,
+          "z": 0.03
+        },
+        "label": "自定义琼斯元件：45° 旋转（实矩阵）",
+        "shape": {
+          "kind": "circle",
+          "params": {
+            "radius": 0.0049
+          }
+        },
+        "params": {
+          "a_re": 0.7071067811865476,
+          "a_im": 0,
+          "b_re": 0.7071067811865475,
+          "b_im": 0,
+          "c_re": -0.7071067811865475,
+          "c_im": 0,
+          "d_re": 0.7071067811865476,
+          "d_im": 0
+        }
+      },
+      {
+        "id": "det",
+        "type": "sensor",
+        "pos": {
+          "x": 0.0,
+          "y": 0.0,
+          "z": 0.05
+        },
+        "label": "探测器",
+        "yaw": 3.141592653589793,
+        "shape": {
+          "kind": "rectangle",
+          "params": {
+            "width": 0.006,
+            "height": 0.006
+          }
+        }
+      }
+    ]
+  },
+  "meta": {
+    "zod": {
+      "category": "偏振",
+      "difficulty": "高级",
+      "description": "直接给出 2×2 复琼斯矩阵 [[a b],[c d]] = [[[0.7071067811865476, 0, 0.7071067811865475, 0]],[[-0.7071067811865475, 0, 0.7071067811865476, 0]]]，作用于 [Ex,Ey]ᵀ。",
+      "expected": "实旋转矩阵 R(45°)：x 偏振转 45°，功率不变但检偏器读数变 cos²45°=0.5。 理论透过率 0.50。",
+      "tags": [
+        "自定义琼斯",
+        "2×2 矩阵",
+        "偏振光学元件"
+      ],
+      "theory": "E_out = J·E_in，J 可为任意复矩阵（不必酉）"
+    }
+  }
+}

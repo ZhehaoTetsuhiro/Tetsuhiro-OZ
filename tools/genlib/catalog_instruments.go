@@ -50,7 +50,7 @@ func expander(l *lib, kepler bool, mag, semiIn, baseF float64, diff int) {
 		}
 	} else {
 		gs = []grp{
-			{name: "L1", curv: seedBic("N-BK7", -baseF), glasses: []string{"N-BK7", ""}, thick: 0.06 * baseF, after: baseF*(mag-1)},
+			{name: "L1", curv: seedBic("N-BK7", -baseF), glasses: []string{"N-BK7", ""}, thick: 0.06 * baseF, after: baseF * (mag - 1)},
 			{name: "L2", curv: seedConvPCX("N-BK7", mag*baseF), glasses: []string{"N-BK7", ""}, thick: 0.06 * mag * baseF, after: 0.5*mag*baseF + 20},
 		}
 	}

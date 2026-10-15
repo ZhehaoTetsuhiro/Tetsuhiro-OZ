@@ -1,0 +1,65 @@
+{
+  "name": "KLM 后选择门：非线性符号门雏形：后选择 + 相位",
+  "modes": 3,
+  "cutoff": 3,
+  "state": {
+    "type": "fock",
+    "params": {
+      "occupation": [
+        1,
+        1,
+        0
+      ]
+    }
+  },
+  "gates": [
+    {
+      "type": "beam_splitter",
+      "params": {
+        "mode0": 0,
+        "mode1": 1,
+        "reflectivity": 0.5
+      }
+    },
+    {
+      "type": "phase_shift",
+      "params": {
+        "mode": 1,
+        "phase": 1.5707963267948966
+      }
+    },
+    {
+      "type": "beam_splitter",
+      "params": {
+        "mode0": 0,
+        "mode1": 2,
+        "reflectivity": 0.5
+      }
+    }
+  ],
+  "postselect": {
+    "modes": [
+      2
+    ],
+    "counts": [
+      0
+    ]
+  },
+  "meta": {
+    "name": "KLM 后选择门：非线性符号门雏形：后选择 + 相位",
+    "zod": {
+      "category": "量子",
+      "difficulty": "高级",
+      "description": "线性光学量子计算的核心工具——**测量 + 后选择**：非线性符号门雏形：后选择 + 相位。线性光学本身没有非线性，但「测量到特定光子数」的事件会在剩余模式上诱导出非线性演化（KLM 方案）。",
+      "expected": "返回结果里除常规统计外还有 postselect_probability（该分支的概率）；剩余态已被重新归一化。本内核用 Postselect{modes, counts} 接口实现投影，这是 heralded 门、纠缠制备与量子纠错后选择的标准形式。",
+      "tags": [
+        "KLM",
+        "后选择",
+        "heralded",
+        "投影测量"
+      ],
+      "theory": "投影到指定模式光子数子空间并归一化；给出分支概率",
+      "protocol": "quantum"
+    }
+  }
+}

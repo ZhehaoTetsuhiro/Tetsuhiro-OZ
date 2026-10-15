@@ -1,0 +1,31 @@
+{
+  "name": "压缩真空态：r=1.00（8.7 dB）",
+  "modes": 1,
+  "cutoff": 25,
+  "state": {
+    "type": "squeezed_vacuum",
+    "params": {
+      "mode": 0,
+      "r": 1.0,
+      "phase": 0.0
+    }
+  },
+  "gates": [],
+  "meta": {
+    "name": "压缩真空态：r=1.00（8.7 dB）",
+    "zod": {
+      "category": "量子",
+      "difficulty": "进阶",
+      "description": "单模压缩真空 S(r)|0⟩：把一个正交分量的噪声压到散粒噪声以下，另一个分量相应放大。",
+      "expected": "var_x=e^{−2r}/4=0.0338（低于散粒噪声 1/4=0.25，即 8.7 dB 压缩）、var_p=e^{2r}/4=1.8473；乘积 var_x·var_p=1/16（最小不确定态，纯态取等号）。⟨n⟩=sinh²r=1.381（压缩会产生光子对）。压缩光是 LIGO 提高灵敏度的手段。",
+      "tags": [
+        "压缩态",
+        "正交分量",
+        "海森堡极限",
+        "LIGO"
+      ],
+      "theory": "var_x=e^{−2r}/4，var_p=e^{2r}/4，乘积 = 1/16",
+      "protocol": "quantum"
+    }
+  }
+}

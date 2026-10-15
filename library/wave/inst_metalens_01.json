@@ -1,0 +1,106 @@
+{
+  "name": "超表面透镜成像（色散）：设计 λ₀=633 nm，使用 λ=633 nm",
+  "grid": {
+    "size": 1024,
+    "width": 0.006
+  },
+  "wavelength": 6.328e-07,
+  "polarized": false,
+  "method": "asm",
+  "evanescent": "decay",
+  "evanescent_limit": 0,
+  "backward_regularize": false,
+  "tikhonov_alpha": 0,
+  "bandlimit": {
+    "fraction": 0.9,
+    "sigma": 0.05
+  },
+  "sources": [
+    {
+      "id": "src",
+      "type": "plane",
+      "params": {
+        "power": 0.001
+      },
+      "pos": {
+        "x": 0.0,
+        "y": 0.0,
+        "z": -0.05
+      },
+      "dir": {
+        "x": 0.0,
+        "y": 0.0,
+        "z": 1.0
+      },
+      "label": "平面波 633 nm",
+      "wavelength": 6.328e-07
+    }
+  ],
+  "scene": {
+    "components": [
+      {
+        "id": "ml",
+        "type": "metalens_native",
+        "pos": {
+          "x": 0.0,
+          "y": 0.0,
+          "z": 0.0
+        },
+        "label": "超表面透镜（设计 λ₀=633 nm，f=0.30 m）",
+        "shape": {
+          "kind": "circle",
+          "params": {
+            "radius": 0.0027
+          }
+        },
+        "params": {
+          "f": 0.3,
+          "wl0": 6.33e-07,
+          "sign": 1
+        }
+      },
+      {
+        "id": "det",
+        "type": "sensor",
+        "pos": {
+          "x": 0.0,
+          "y": 0.0,
+          "z": 0.300094816687737
+        },
+        "label": "实际焦点（300 mm）",
+        "yaw": 3.141592653589793,
+        "params": {
+          "strehl_aperture": 0.0027,
+          "strehl_distance": 0.300094816687737
+        }
+      },
+      {
+        "id": "det0",
+        "type": "sensor",
+        "pos": {
+          "x": 0.0,
+          "y": 0.0,
+          "z": 0.3
+        },
+        "label": "设计焦点位置（300 mm）",
+        "yaw": 3.141592653589793
+      }
+    ]
+  },
+  "meta": {
+    "zod": {
+      "category": "仪器",
+      "difficulty": "高级",
+      "description": "超表面（metasurface）透镜：把设计波长 λ₀=633 nm 下的双曲相位掩模 φ(r)=−(2π/λ₀)(√(r²+f²)−f) 直接写进元件；此处用 633 nm 照明，焦点按衍射规律移到 z=f·λ₀/λ。",
+      "expected": "实际焦点 z=f·λ₀/λ=300.1 mm（设计点 300 mm）；偏差 0.1 mm。设计点处的光斑明显弥散（离焦 + 球差混合）。超表面透镜最致命的短板就是**强色散**（焦点随波长移动 ∝1/λ），这也是「消色差超表面」研究的动机。",
+      "tags": [
+        "超表面",
+        "metasurface",
+        "色散",
+        "平面光学"
+      ],
+      "theory": "φ = −(2π/λ₀)(√(r²+f²)−f)；z_f = f λ₀/λ（衍射元件的强色散）"
+    },
+    "sample": true
+  }
+}

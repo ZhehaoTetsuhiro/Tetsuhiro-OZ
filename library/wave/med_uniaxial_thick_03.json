@@ -1,0 +1,134 @@
+{
+  "name": "双折射厚度扫描：d=0.50 mm → δ=94.82×2π",
+  "grid": {
+    "size": 512,
+    "width": 0.01
+  },
+  "wavelength": 6.328e-07,
+  "polarized": true,
+  "method": "asm",
+  "evanescent": "decay",
+  "evanescent_limit": 0,
+  "backward_regularize": false,
+  "tikhonov_alpha": 0,
+  "bandlimit": {
+    "fraction": 0.9,
+    "sigma": 0.05
+  },
+  "sources": [
+    {
+      "id": "src",
+      "type": "plane",
+      "params": {
+        "power": 0.001,
+        "polarization": "d"
+      },
+      "pos": {
+        "x": 0.0,
+        "y": 0.0,
+        "z": -0.05
+      },
+      "dir": {
+        "x": 0.0,
+        "y": 0.0,
+        "z": 1.0
+      },
+      "label": "45° 线偏振",
+      "wavelength": 6.328e-07
+    }
+  ],
+  "scene": {
+    "components": [
+      {
+        "id": "p45",
+        "type": "polarizer",
+        "pos": {
+          "x": 0.0,
+          "y": 0.0,
+          "z": 0.0
+        },
+        "label": "起偏器 45°",
+        "shape": {
+          "kind": "circle",
+          "params": {
+            "radius": 0.0049
+          }
+        },
+        "params": {
+          "angle": 0.7853981633974483
+        }
+      },
+      {
+        "id": "xtal",
+        "type": "uniaxial",
+        "pos": {
+          "x": 0.0,
+          "y": 0.0,
+          "z": 0.03
+        },
+        "label": "单轴晶体 d=0.50 mm",
+        "shape": {
+          "kind": "circle",
+          "params": {
+            "radius": 0.0049
+          }
+        },
+        "params": {
+          "distance": 0.0005,
+          "n_o": 1.5,
+          "n_e": 1.62
+        }
+      },
+      {
+        "id": "ana",
+        "type": "polarizer",
+        "pos": {
+          "x": 0.0,
+          "y": 0.0,
+          "z": 0.06
+        },
+        "label": "检偏器 135°（正交）",
+        "shape": {
+          "kind": "circle",
+          "params": {
+            "radius": 0.0049
+          }
+        },
+        "params": {
+          "angle": 2.356194490192345
+        }
+      },
+      {
+        "id": "det",
+        "type": "sensor",
+        "pos": {
+          "x": 0.0,
+          "y": 0.0,
+          "z": 0.08
+        },
+        "label": "读数",
+        "yaw": 3.141592653589793,
+        "shape": {
+          "kind": "circle",
+          "params": {
+            "radius": 0.0049
+          }
+        }
+      }
+    ]
+  },
+  "meta": {
+    "zod": {
+      "category": "介质",
+      "difficulty": "进阶",
+      "description": "Δn 固定 0.12，扫描晶体厚度——等价于「一块晶体切多厚就能当几分之一波片」。",
+      "expected": "相位差 δ=2πΔn·d/λ：厚度 0.50 mm 时 δ=94.817×2π。δ=0.5×2π 时相当于半波片（正交偏光下全透），δ=0.25×2π 时相当于四分之一波片（正交偏光下透过 50%）。石英/云母波片就是按厚度分级挑选的。",
+      "tags": [
+        "波片",
+        "厚度分级",
+        "双折射"
+      ],
+      "theory": "δ ∝ d；HWP: δ=π，QWP: δ=π/2"
+    }
+  }
+}

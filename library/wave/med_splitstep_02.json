@@ -1,0 +1,112 @@
+{
+  "name": "split-step 子步收敛：steps=2",
+  "grid": {
+    "size": 512,
+    "width": 0.01
+  },
+  "wavelength": 6.328e-07,
+  "polarized": false,
+  "method": "asm",
+  "evanescent": "decay",
+  "evanescent_limit": 0,
+  "backward_regularize": false,
+  "tikhonov_alpha": 0,
+  "bandlimit": {
+    "fraction": 0.9,
+    "sigma": 0.05
+  },
+  "sources": [
+    {
+      "id": "src",
+      "type": "gaussian",
+      "params": {
+        "power": 0.001,
+        "waist": 0.0006
+      },
+      "pos": {
+        "x": 0.0,
+        "y": 0.0,
+        "z": -0.05
+      },
+      "dir": {
+        "x": 0.0,
+        "y": 0.0,
+        "z": 1.0
+      },
+      "label": "高斯 w₀=0.6 mm",
+      "wavelength": 6.328e-07
+    }
+  ],
+  "scene": {
+    "components": [
+      {
+        "id": "l",
+        "type": "lens",
+        "pos": {
+          "x": 0.0,
+          "y": 0.0,
+          "z": 0.0
+        },
+        "label": "聚焦透镜 f=150 mm",
+        "shape": {
+          "kind": "circle",
+          "params": {
+            "radius": 0.004
+          }
+        },
+        "params": {
+          "f": 0.15
+        }
+      },
+      {
+        "id": "m",
+        "type": "medium",
+        "pos": {
+          "x": 0.0,
+          "y": 0.0,
+          "z": 0.05
+        },
+        "label": "介质（split-step 子步 2）",
+        "shape": {
+          "kind": "circle",
+          "params": {
+            "radius": 0.0049
+          }
+        },
+        "params": {
+          "distance": 0.01,
+          "index": 1.5,
+          "absorption": 0.0,
+          "steps": 2
+        }
+      },
+      {
+        "id": "det",
+        "type": "sensor",
+        "pos": {
+          "x": 0.0,
+          "y": 0.0,
+          "z": 0.15
+        },
+        "label": "焦点",
+        "yaw": 3.141592653589793
+      }
+    ]
+  },
+  "meta": {
+    "zod": {
+      "category": "介质",
+      "difficulty": "高级",
+      "description": "聚焦光束穿过均匀介质，改变 split-step 的子步数 steps=2：子步越少，「先衍射后加相位」的算子分裂误差越大。",
+      "expected": "均匀介质里没有非线性/不均匀折射率，理论上任意 steps 都给出同一结果（介质只是把 k·n·d 的相位与吸收施加到场上）——本实例用来验证算子分裂的收敛：steps=2 的焦斑峰值与 steps=40 的差异应在数值精度内。当介质换成强度相关（克尔）或分层折射率时，子步数才真正决定精度。",
+      "tags": [
+        "split-step",
+        "BPM",
+        "算子分裂",
+        "收敛"
+      ],
+      "theory": "对称分步傅里叶：exp(−iH₁h/2)exp(−iH₂h)exp(−iH₁h/2)"
+    },
+    "sample": true
+  }
+}

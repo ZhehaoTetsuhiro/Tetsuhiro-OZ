@@ -1,0 +1,91 @@
+{
+  "name": "可饱和吸收体：α₀=2000 /m、I_sat=1e+06 W/m²",
+  "grid": {
+    "size": 512,
+    "width": 0.008
+  },
+  "wavelength": 6.328e-07,
+  "polarized": false,
+  "method": "asm",
+  "evanescent": "decay",
+  "evanescent_limit": 0,
+  "backward_regularize": false,
+  "tikhonov_alpha": 0,
+  "bandlimit": {
+    "fraction": 0.9,
+    "sigma": 0.05
+  },
+  "sources": [
+    {
+      "id": "src",
+      "type": "gaussian",
+      "params": {
+        "power": 0.002,
+        "waist": 0.0006
+      },
+      "pos": {
+        "x": 0.0,
+        "y": 0.0,
+        "z": -0.05
+      },
+      "dir": {
+        "x": 0.0,
+        "y": 0.0,
+        "z": 1.0
+      },
+      "label": "高斯 w₀=0.6 mm、2 mW",
+      "wavelength": 6.328e-07
+    }
+  ],
+  "scene": {
+    "components": [
+      {
+        "id": "sa",
+        "type": "saturable_absorber",
+        "pos": {
+          "x": 0.0,
+          "y": 0.0,
+          "z": 0.02
+        },
+        "label": "可饱和吸收体 α₀=2000 /m",
+        "shape": {
+          "kind": "circle",
+          "params": {
+            "radius": 0.00392
+          }
+        },
+        "params": {
+          "alpha0": 2000,
+          "isat": 1000000.0,
+          "length": 0.001
+        }
+      },
+      {
+        "id": "det",
+        "type": "sensor",
+        "pos": {
+          "x": 0.0,
+          "y": 0.0,
+          "z": 0.3
+        },
+        "label": "输出",
+        "yaw": 3.141592653589793
+      }
+    ]
+  },
+  "meta": {
+    "zod": {
+      "category": "介质",
+      "difficulty": "高级",
+      "description": "可饱和吸收体 α(I)=α₀/(1+I/I_sat)：弱光被强吸收、强光几乎透明。输入为高斯光束，中心强、边缘弱。",
+      "expected": "输出剖面的中心透过率高于边缘（中心 exp(−α₀L/(1+I₀/I_sat))）：弱光极限透过率 exp(−α₀L)=0.135，中心（I₀≈1.8e+03 W/m²）处透过率提高到 0.136。结果是一个**中心鼓起的透过率剖面**——这就是被动调 Q / 可饱和吸收被动锁模（激光脉冲的自动整形与短脉冲产生）的核心机制。",
+      "tags": [
+        "可饱和吸收",
+        "被动调Q",
+        "锁模"
+      ],
+      "theory": "α(I) = α₀/(1+I/I_sat)：强度越高吸收越低"
+    },
+    "sample": true
+  }
+}

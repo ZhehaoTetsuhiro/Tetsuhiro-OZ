@@ -1,0 +1,158 @@
+{
+  "name": "相衬显微镜（泽尼克）：相移环 0.12×2π",
+  "grid": {
+    "size": 512,
+    "width": 0.008
+  },
+  "wavelength": 6.328e-07,
+  "polarized": false,
+  "method": "asm",
+  "evanescent": "decay",
+  "evanescent_limit": 0,
+  "backward_regularize": false,
+  "tikhonov_alpha": 0,
+  "bandlimit": {
+    "fraction": 0.9,
+    "sigma": 0.05
+  },
+  "sources": [
+    {
+      "id": "src",
+      "type": "plane",
+      "params": {
+        "power": 0.001
+      },
+      "pos": {
+        "x": 0.0,
+        "y": 0.0,
+        "z": -0.05
+      },
+      "dir": {
+        "x": 0.0,
+        "y": 0.0,
+        "z": 1.0
+      },
+      "wavelength": 6.328e-07
+    }
+  ],
+  "scene": {
+    "components": [
+      {
+        "id": "spec",
+        "type": "medium",
+        "pos": {
+          "x": 0.0,
+          "y": 0.0,
+          "z": 0.0
+        },
+        "label": "相位物体（0.2λ 相位延迟）",
+        "shape": {
+          "kind": "circle",
+          "params": {
+            "radius": 0.0024
+          }
+        },
+        "params": {
+          "distance": 0.005,
+          "index": 1.00000012656,
+          "absorption": 0.0,
+          "steps": 2
+        }
+      },
+      {
+        "id": "l1",
+        "type": "lens",
+        "pos": {
+          "x": 0.0,
+          "y": 0.0,
+          "z": 0.075
+        },
+        "label": "物镜（傅里叶透镜）f=75 mm",
+        "shape": {
+          "kind": "circle",
+          "params": {
+            "radius": 0.0036000000000000003
+          }
+        },
+        "params": {
+          "f": 0.075
+        }
+      },
+      {
+        "id": "phase_ring",
+        "type": "medium",
+        "pos": {
+          "x": 0.0,
+          "y": 0.0,
+          "z": 0.15
+        },
+        "label": "相衬环（在零级上加 0.12×2π 相位）",
+        "shape": {
+          "kind": "circle",
+          "params": {
+            "radius": 0.0005
+          }
+        },
+        "params": {
+          "distance": 0.005,
+          "index": 1.00001582,
+          "absorption": 0.0,
+          "steps": 2
+        }
+      },
+      {
+        "id": "l2",
+        "type": "lens",
+        "pos": {
+          "x": 0.0,
+          "y": 0.0,
+          "z": 0.22499999999999998
+        },
+        "label": "成像透镜",
+        "shape": {
+          "kind": "circle",
+          "params": {
+            "radius": 0.0036000000000000003
+          }
+        },
+        "params": {
+          "f": 0.075
+        }
+      },
+      {
+        "id": "det",
+        "type": "sensor",
+        "pos": {
+          "x": 0.0,
+          "y": 0.0,
+          "z": 0.3
+        },
+        "label": "像面",
+        "yaw": 3.141592653589793,
+        "shape": {
+          "kind": "rectangle",
+          "params": {
+            "width": 0.007200000000000001,
+            "height": 0.007200000000000001
+          }
+        }
+      }
+    ]
+  },
+  "meta": {
+    "zod": {
+      "category": "仪器",
+      "difficulty": "高级",
+      "description": "泽尼克相衬：样品是纯相位物体（0.20λ 相位、吸收为零，原本在明场下**看不见**），在频谱面的零级位置上加一个相位环（0.12×2π），使散射光与直射光之间产生固定的相位偏置 → 相位差转成强度差。",
+      "expected": "无相位环时像面强度均匀（相位物体不可见）；加上 0.12×2π 的相衬环后，样品区与背景区出现明显的明暗对比（相衬成像）。π/2 相移给出「正相衬」（光程长的区域更暗），β=3π/2 给出「负相衬」（明暗反转）——这正是 1953 年泽尼克诺贝尔奖的核心思想。",
+      "tags": [
+        "相衬显微镜",
+        "泽尼克",
+        "相位→强度",
+        "生物成像"
+      ],
+      "theory": "零级加 π/2 相位 → 散射光与直射光干涉，I ≈ 1 ± 2φ（φ 为样品相位）"
+    },
+    "sample": true
+  }
+}

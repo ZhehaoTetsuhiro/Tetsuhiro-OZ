@@ -1,0 +1,109 @@
+{
+  "name": "共聚焦针孔：针孔 0 µm、离焦 0.0 mm",
+  "grid": {
+    "size": 512,
+    "width": 0.01
+  },
+  "wavelength": 6.328e-07,
+  "polarized": false,
+  "method": "asm",
+  "evanescent": "decay",
+  "evanescent_limit": 0,
+  "backward_regularize": false,
+  "tikhonov_alpha": 0,
+  "bandlimit": {
+    "fraction": 0.9,
+    "sigma": 0.05
+  },
+  "sources": [
+    {
+      "id": "src",
+      "type": "plane",
+      "params": {
+        "power": 0.001
+      },
+      "pos": {
+        "x": 0.0,
+        "y": 0.0,
+        "z": -0.05
+      },
+      "dir": {
+        "x": 0.0,
+        "y": 0.0,
+        "z": 1.0
+      },
+      "wavelength": 6.328e-07
+    }
+  ],
+  "scene": {
+    "components": [
+      {
+        "id": "l1",
+        "type": "lens",
+        "pos": {
+          "x": 0.0,
+          "y": 0.0,
+          "z": 0.0
+        },
+        "label": "物镜 f=100 mm",
+        "shape": {
+          "kind": "circle",
+          "params": {
+            "radius": 0.004
+          }
+        },
+        "params": {
+          "f": 0.1
+        }
+      },
+      {
+        "id": "pin",
+        "type": "aperture",
+        "pos": {
+          "x": 0.0,
+          "y": 0.0,
+          "z": 0.1
+        },
+        "label": "共聚焦针孔 0 µm",
+        "shape": {
+          "kind": "circle",
+          "params": {
+            "radius": 5e-05
+          }
+        }
+      },
+      {
+        "id": "det",
+        "type": "sensor",
+        "pos": {
+          "x": 0.0,
+          "y": 0.0,
+          "z": 0.11
+        },
+        "label": "针孔后功率",
+        "yaw": 3.141592653589793,
+        "shape": {
+          "kind": "circle",
+          "params": {
+            "radius": 0.003
+          }
+        }
+      }
+    ]
+  },
+  "meta": {
+    "zod": {
+      "category": "仪器",
+      "difficulty": "高级",
+      "description": "共聚焦显微镜的核心：焦面处放针孔（0 µm），只收集来自焦平面的光。本例把针孔沿轴移动 0.0 mm 模拟**离焦**。",
+      "expected": "焦斑（艾里）半径 λf/D=9.7 µm：针孔 0 µm（5.2 个艾里半径）时收集到约 50% 的焦面光；离焦 0.0 mm 后光斑急剧膨胀（z 处光斑 ∝ 离焦量），针孔迅速把光挡掉 → 这就是共聚焦显微镜的**光学切片**能力（轴向分辨率由针孔尺寸与 NA 共同决定）。",
+      "tags": [
+        "共聚焦",
+        "针孔",
+        "光学切片",
+        "轴向分辨率"
+      ],
+      "theory": "针孔只收集焦面光；离焦光斑放大 → 被针孔拒绝"
+    }
+  }
+}

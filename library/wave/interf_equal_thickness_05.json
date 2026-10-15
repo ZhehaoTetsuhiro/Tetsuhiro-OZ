@@ -1,0 +1,190 @@
+{
+  "name": "等厚干涉（楔形相位）：α=10 mrad → 条纹间距 0.09 mm",
+  "grid": {
+    "size": 512,
+    "width": 0.01
+  },
+  "wavelength": 6.328e-07,
+  "polarized": false,
+  "method": "asm",
+  "evanescent": "decay",
+  "evanescent_limit": 0,
+  "backward_regularize": false,
+  "tikhonov_alpha": 0,
+  "bandlimit": {
+    "fraction": 0.9,
+    "sigma": 0.05
+  },
+  "sources": [
+    {
+      "id": "src",
+      "type": "plane",
+      "params": {
+        "power": 0.001
+      },
+      "pos": {
+        "x": 0.0,
+        "y": 0.0,
+        "z": -0.05
+      },
+      "dir": {
+        "x": 0.0,
+        "y": 0.0,
+        "z": 1.0
+      },
+      "wavelength": 6.328e-07
+    }
+  ],
+  "scene": {
+    "components": [
+      {
+        "id": "bs1",
+        "type": "beamsplitter",
+        "pos": {
+          "x": 0.0,
+          "y": 0.0,
+          "z": 0.0
+        },
+        "label": "分束器 1（50:50）",
+        "yaw": -0.7853981633974483,
+        "shape": {
+          "kind": "circle",
+          "params": {
+            "radius": 0.0034999999999999996
+          }
+        },
+        "params": {
+          "reflectivity": 0.5
+        }
+      },
+      {
+        "id": "wedge",
+        "type": "wedge",
+        "pos": {
+          "x": 0.0,
+          "y": 0.0,
+          "z": 0.04
+        },
+        "label": "楔形棱镜 α=10 mrad（n=1.7）",
+        "shape": {
+          "kind": "circle",
+          "params": {
+            "radius": 0.0034999999999999996
+          }
+        },
+        "params": {
+          "alpha": 0.01,
+          "index": 1.7
+        }
+      },
+      {
+        "id": "m1",
+        "type": "mirror",
+        "pos": {
+          "x": 0.0,
+          "y": 0.0,
+          "z": 0.08
+        },
+        "label": "折转镜 A（+z→+x）",
+        "yaw": -0.7853981633974483,
+        "shape": {
+          "kind": "circle",
+          "params": {
+            "radius": 0.0034999999999999996
+          }
+        },
+        "params": {
+          "reflectivity": 1.0
+        }
+      },
+      {
+        "id": "m2",
+        "type": "mirror",
+        "pos": {
+          "x": 0.08,
+          "y": 0.0,
+          "z": 0.0
+        },
+        "label": "折转镜 B（+x→+z）",
+        "yaw": 2.356194490192345,
+        "shape": {
+          "kind": "circle",
+          "params": {
+            "radius": 0.0034999999999999996
+          }
+        },
+        "params": {
+          "reflectivity": 1.0
+        }
+      },
+      {
+        "id": "bs2",
+        "type": "beamsplitter",
+        "pos": {
+          "x": 0.08,
+          "y": 0.0,
+          "z": 0.08
+        },
+        "label": "合束器（50:50）",
+        "yaw": -0.7853981633974483,
+        "shape": {
+          "kind": "circle",
+          "params": {
+            "radius": 0.0034999999999999996
+          }
+        },
+        "params": {
+          "reflectivity": 0.5
+        }
+      },
+      {
+        "id": "d1",
+        "type": "sensor",
+        "pos": {
+          "x": 0.08,
+          "y": 0.0,
+          "z": 0.16
+        },
+        "label": "输出端口",
+        "yaw": 3.141592653589793,
+        "shape": {
+          "kind": "circle",
+          "params": {
+            "radius": 0.0034999999999999996
+          }
+        }
+      },
+      {
+        "id": "d2",
+        "type": "sensor",
+        "pos": {
+          "x": 0.16,
+          "y": 0.0,
+          "z": 0.08
+        },
+        "label": "端口 2",
+        "yaw": -1.5707963267948966,
+        "shape": {
+          "kind": "circle",
+          "params": {
+            "radius": 0.0034999999999999996
+          }
+        }
+      }
+    ]
+  },
+  "meta": {
+    "zod": {
+      "category": "干涉",
+      "difficulty": "进阶",
+      "description": "马赫-曾德尔的一臂中插入楔形棱镜（夹角 α=10 mrad、n=1.7），产生线性相位 → 等厚干涉直条纹。",
+      "expected": "等间距直条纹，间距 Δx=λ/((n−1)α)=0.090 mm（条纹平行于楔棱）；α 越小条纹越疏，楔角增大则条纹变密。这就是「用条纹数测小角度」的原理：α=λ/((n−1)Δx)。",
+      "tags": [
+        "等厚干涉",
+        "楔形",
+        "小角测量"
+      ],
+      "theory": "Δx = λ/((n−1)α)"
+    }
+  }
+}

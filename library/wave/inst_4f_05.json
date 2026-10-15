@@ -1,0 +1,169 @@
+{
+  "name": "4f 相干图像处理：相位对比（λ/4 相位环）",
+  "grid": {
+    "size": 512,
+    "width": 0.008
+  },
+  "wavelength": 6.328e-07,
+  "polarized": false,
+  "method": "asm",
+  "evanescent": "decay",
+  "evanescent_limit": 0,
+  "backward_regularize": false,
+  "tikhonov_alpha": 0,
+  "bandlimit": {
+    "fraction": 0.9,
+    "sigma": 0.05
+  },
+  "sources": [
+    {
+      "id": "src",
+      "type": "plane",
+      "params": {
+        "power": 0.001
+      },
+      "pos": {
+        "x": 0.0,
+        "y": 0.0,
+        "z": -0.05
+      },
+      "dir": {
+        "x": 0.0,
+        "y": 0.0,
+        "z": 1.0
+      },
+      "wavelength": 6.328e-07
+    }
+  ],
+  "scene": {
+    "components": [
+      {
+        "id": "obj",
+        "type": "aperture",
+        "pos": {
+          "x": 0.0,
+          "y": 0.0,
+          "z": 0.0
+        },
+        "label": "物：方孔（含各种空间频率）",
+        "shape": {
+          "kind": "rectangle",
+          "params": {
+            "width": 0.004,
+            "height": 0.004
+          }
+        }
+      },
+      {
+        "id": "l1",
+        "type": "lens",
+        "pos": {
+          "x": 0.0,
+          "y": 0.0,
+          "z": 0.075
+        },
+        "label": "傅里叶透镜 f=75 mm",
+        "shape": {
+          "kind": "circle",
+          "params": {
+            "radius": 0.00392
+          }
+        },
+        "params": {
+          "f": 0.075
+        }
+      },
+      {
+        "id": "pc",
+        "type": "medium",
+        "pos": {
+          "x": 0.0,
+          "y": 0.0,
+          "z": 0.15
+        },
+        "label": "相位环（λ/4，只作用零级）",
+        "shape": {
+          "kind": "circle",
+          "params": {
+            "radius": 0.0012
+          }
+        },
+        "params": {
+          "distance": 0.005,
+          "index": 1.00003164,
+          "absorption": 0.0,
+          "steps": 2
+        }
+      },
+      {
+        "id": "stop",
+        "type": "aperture",
+        "pos": {
+          "x": 0.0,
+          "y": 0.0,
+          "z": 0.15
+        },
+        "label": "环形挡板（挡掉零级以外的区域）",
+        "shape": {
+          "kind": "ring",
+          "params": {
+            "rin": 0.0012,
+            "rout": 0.00392
+          }
+        }
+      },
+      {
+        "id": "l2",
+        "type": "lens",
+        "pos": {
+          "x": 0.0,
+          "y": 0.0,
+          "z": 0.22499999999999998
+        },
+        "label": "逆变换透镜 f=75 mm",
+        "shape": {
+          "kind": "circle",
+          "params": {
+            "radius": 0.00392
+          }
+        },
+        "params": {
+          "f": 0.075
+        }
+      },
+      {
+        "id": "det",
+        "type": "sensor",
+        "pos": {
+          "x": 0.0,
+          "y": 0.0,
+          "z": 0.3
+        },
+        "label": "像面",
+        "yaw": 3.141592653589793,
+        "shape": {
+          "kind": "rectangle",
+          "params": {
+            "width": 0.0076,
+            "height": 0.0076
+          }
+        }
+      }
+    ]
+  },
+  "meta": {
+    "zod": {
+      "category": "仪器",
+      "difficulty": "高级",
+      "description": "4f 系统（物 → 傅里叶透镜 → **频谱面处理** → 逆变换透镜 → 像）：相位对比（λ/4 相位环）。",
+      "expected": "零级加 π/2 相位 → 相位物体变成强度可见。物是 8 mm 方孔（频谱为二维 sinc，零级最大、高频向四周展开），在频谱面上做空间频率选择后，像面重建出对应的滤波结果——这就是 4f 相干光学图像处理（阿贝成像理论）的全部内容。",
+      "tags": [
+        "4f系统",
+        "傅里叶光学",
+        "图像处理",
+        "阿贝成像"
+      ],
+      "theory": "4f：物面 → 频谱面（傅里叶变换）→ 像面（逆变换）；滤波=乘传递函数"
+    }
+  }
+}

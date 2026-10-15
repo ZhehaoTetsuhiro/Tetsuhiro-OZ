@@ -1,0 +1,95 @@
+{
+  "name": "光学涡旋（l=4）的传播与甜甜圈",
+  "grid": {
+    "size": 512,
+    "width": 0.008
+  },
+  "wavelength": 6.328e-07,
+  "polarized": false,
+  "method": "asm",
+  "evanescent": "decay",
+  "evanescent_limit": 0,
+  "backward_regularize": false,
+  "tikhonov_alpha": 0,
+  "bandlimit": {
+    "fraction": 0.9,
+    "sigma": 0.05
+  },
+  "sources": [
+    {
+      "id": "src",
+      "type": "gaussian",
+      "params": {
+        "power": 0.001,
+        "waist": 0.0012
+      },
+      "pos": {
+        "x": 0.0,
+        "y": 0.0,
+        "z": -0.05
+      },
+      "dir": {
+        "x": 0.0,
+        "y": 0.0,
+        "z": 1.0
+      },
+      "label": "高斯光束 w₀=1.2 mm",
+      "wavelength": 6.328e-07
+    }
+  ],
+  "scene": {
+    "components": [
+      {
+        "id": "spp",
+        "type": "spiral_phase",
+        "pos": {
+          "x": 0.0,
+          "y": 0.0,
+          "z": 0.0
+        },
+        "label": "螺旋相位板 l=4",
+        "shape": {
+          "kind": "circle",
+          "params": {
+            "radius": 0.0036000000000000003
+          }
+        },
+        "params": {
+          "charge": 4
+        }
+      },
+      {
+        "id": "det",
+        "type": "sensor",
+        "pos": {
+          "x": 0.0,
+          "y": 0.0,
+          "z": 0.3
+        },
+        "label": "传播 0.3 m 后",
+        "yaw": 3.141592653589793,
+        "shape": {
+          "kind": "circle",
+          "params": {
+            "radius": 0.0036000000000000003
+          }
+        }
+      }
+    ]
+  },
+  "meta": {
+    "zod": {
+      "category": "衍射",
+      "difficulty": "进阶",
+      "description": "拓扑荷 l=4 的螺旋相位板作用在高斯光束上，传播 0.3 m 观察强度与相位结构。",
+      "expected": "轴上强度**严格为零**（相位奇点），光斑呈甜甜圈，环半径随 l 增大而增大；相位图绕轴一圈共 4 次 2π 跳变（拓扑荷的定义）。l=1 的环最紧凑。",
+      "tags": [
+        "光学涡旋",
+        "OAM",
+        "相位奇点",
+        "甜甜圈"
+      ],
+      "theory": "涡旋相位 exp(ilθ)；轴上强度 ∝ r^{2|l|} → 光轴处为零"
+    }
+  }
+}

@@ -1,0 +1,55 @@
+{
+  "name": "双光子符合计数 vs 相位：φ=4.71 rad",
+  "modes": 2,
+  "cutoff": 5,
+  "state": {
+    "type": "fock",
+    "params": {
+      "occupation": [
+        1,
+        1
+      ]
+    }
+  },
+  "gates": [
+    {
+      "type": "beam_splitter",
+      "params": {
+        "mode0": 0,
+        "mode1": 1,
+        "reflectivity": 0.5
+      }
+    },
+    {
+      "type": "phase_shift",
+      "params": {
+        "mode": 0,
+        "phase": 4.71238898038469
+      }
+    },
+    {
+      "type": "beam_splitter",
+      "params": {
+        "mode0": 0,
+        "mode1": 1,
+        "reflectivity": 0.5
+      }
+    }
+  ],
+  "meta": {
+    "name": "双光子符合计数 vs 相位：φ=4.71 rad",
+    "zod": {
+      "category": "量子",
+      "difficulty": "进阶",
+      "description": "两次 50:50 分束器构成的双光子干涉仪（中间加相位 φ=4.71）——两级 HOM 的复合结构，输出符合计数对相位敏感。",
+      "expected": "两级对称分束器的组合使两光子重新合束：输出 P(1,1) 随相位在 0 与 1 之间振荡（第二级分束器把已经聚束的光子对重新分开或者再次聚束）。从 joint_distributions['0,1'] 直接读 P(n₀,n₁)。",
+      "tags": [
+        "符合计数",
+        "联合分布",
+        "双光子干涉仪"
+      ],
+      "theory": "joint 分布随相位振荡",
+      "protocol": "quantum"
+    }
+  }
+}

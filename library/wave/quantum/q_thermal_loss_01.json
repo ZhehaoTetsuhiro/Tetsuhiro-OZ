@@ -1,0 +1,39 @@
+{
+  "name": "热态经过损耗：n̄=2.0、T=0.50",
+  "modes": 1,
+  "cutoff": 25,
+  "state": {
+    "type": "thermal",
+    "params": {
+      "mean_n": [
+        2.0
+      ]
+    }
+  },
+  "gates": [
+    {
+      "type": "loss",
+      "params": {
+        "mode": 0,
+        "transmittance": 0.5
+      }
+    }
+  ],
+  "meta": {
+    "name": "热态经过损耗：n̄=2.0、T=0.50",
+    "zod": {
+      "category": "量子",
+      "difficulty": "进阶",
+      "description": "热态经过透射率 0.50 的损耗信道：热态在分束器模型下**仍然是热态**（只是平均光子数乘以 T）。",
+      "expected": "⟨n⟩=T·n̄=1.00，g²(0) 仍为 2（热态在损耗下保持热态的统计特征）；迹守恒（Tr ρ=1）。这与 Fock 态完全不同（见 loss 系列），是「经典噪声无法用衰减消除」的量子表述。",
+      "tags": [
+        "热态",
+        "损耗信道",
+        "经典噪声"
+      ],
+      "theory": "热态经损耗仍为热态：⟨n⟩→T⟨n⟩",
+      "protocol": "quantum"
+    },
+    "sample": true
+  }
+}

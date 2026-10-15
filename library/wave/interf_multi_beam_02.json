@@ -1,0 +1,159 @@
+{
+  "name": "4 缝干涉：主极大变锐",
+  "grid": {
+    "size": 1024,
+    "width": 0.02
+  },
+  "wavelength": 6.328e-07,
+  "polarized": false,
+  "method": "asm",
+  "evanescent": "decay",
+  "evanescent_limit": 0,
+  "backward_regularize": false,
+  "tikhonov_alpha": 0,
+  "bandlimit": {
+    "fraction": 0.9,
+    "sigma": 0.05
+  },
+  "sources": [
+    {
+      "id": "src",
+      "type": "plane",
+      "params": {
+        "power": 0.001
+      },
+      "pos": {
+        "x": 0.0,
+        "y": 0.0,
+        "z": -0.05
+      },
+      "dir": {
+        "x": 0.0,
+        "y": 0.0,
+        "z": 1.0
+      },
+      "wavelength": 6.328e-07
+    }
+  ],
+  "scene": {
+    "components": [
+      {
+        "id": "s0",
+        "type": "aperture",
+        "pos": {
+          "x": 0.0,
+          "y": 0.0,
+          "z": 0.0
+        },
+        "label": "第 1 缝",
+        "shape": {
+          "kind": "rectangle",
+          "params": {
+            "width": 0.0001,
+            "height": 0.019
+          }
+        },
+        "params": {
+          "parallel": true,
+          "x": -0.0015
+        }
+      },
+      {
+        "id": "s1",
+        "type": "aperture",
+        "pos": {
+          "x": 0.0,
+          "y": 0.0,
+          "z": 0.0
+        },
+        "label": "第 2 缝",
+        "shape": {
+          "kind": "rectangle",
+          "params": {
+            "width": 0.0001,
+            "height": 0.019
+          }
+        },
+        "params": {
+          "parallel": true,
+          "x": -0.0005
+        }
+      },
+      {
+        "id": "s2",
+        "type": "aperture",
+        "pos": {
+          "x": 0.0,
+          "y": 0.0,
+          "z": 0.0
+        },
+        "label": "第 3 缝",
+        "shape": {
+          "kind": "rectangle",
+          "params": {
+            "width": 0.0001,
+            "height": 0.019
+          }
+        },
+        "params": {
+          "parallel": true,
+          "x": 0.0005
+        }
+      },
+      {
+        "id": "s3",
+        "type": "aperture",
+        "pos": {
+          "x": 0.0,
+          "y": 0.0,
+          "z": 0.0
+        },
+        "label": "第 4 缝",
+        "shape": {
+          "kind": "rectangle",
+          "params": {
+            "width": 0.0001,
+            "height": 0.019
+          }
+        },
+        "params": {
+          "parallel": true,
+          "x": 0.0015
+        }
+      },
+      {
+        "id": "det",
+        "type": "sensor",
+        "pos": {
+          "x": 0.0,
+          "y": 0.0,
+          "z": 1.0
+        },
+        "label": "干涉屏",
+        "yaw": 3.141592653589793,
+        "shape": {
+          "kind": "rectangle",
+          "params": {
+            "width": 0.019,
+            "height": 0.019
+          }
+        }
+      }
+    ]
+  },
+  "meta": {
+    "zod": {
+      "category": "干涉",
+      "difficulty": "进阶",
+      "description": "缝宽 0.10 mm、缝距 1.00 mm 的 4 缝阵列（同 z 上 parallel 并集）。",
+      "expected": "主极大间距仍为 λz/d=0.63 mm，但主极大随 N 增大而**变锐**（角宽度 ∝ 1/(N·d)）；N 缝时两主极大之间有 N−2=2 个次极大，强度上限约 1/N²=0.062 倍主极大。",
+      "tags": [
+        "多缝干涉",
+        "主极大",
+        "谱线宽度"
+      ],
+      "theory": "主极大宽度 ∝ 1/(N d)，次极大数 N−2"
+    },
+    "sample": true
+  }
+}

@@ -1,0 +1,90 @@
+{
+  "name": "泰伯效应：z=0.25·z_T（z_T/4（分数泰伯））",
+  "grid": {
+    "size": 1024,
+    "width": 0.002
+  },
+  "wavelength": 6.328e-07,
+  "polarized": false,
+  "method": "asm",
+  "evanescent": "decay",
+  "evanescent_limit": 0,
+  "backward_regularize": false,
+  "tikhonov_alpha": 0,
+  "bandlimit": {
+    "fraction": 0.9,
+    "sigma": 0.05
+  },
+  "sources": [
+    {
+      "id": "src",
+      "type": "plane",
+      "params": {
+        "power": 0.001
+      },
+      "pos": {
+        "x": 0.0,
+        "y": 0.0,
+        "z": -0.05
+      },
+      "dir": {
+        "x": 0.0,
+        "y": 0.0,
+        "z": 1.0
+      },
+      "wavelength": 6.328e-07
+    }
+  ],
+  "scene": {
+    "components": [
+      {
+        "id": "g",
+        "type": "grating",
+        "pos": {
+          "x": 0.0,
+          "y": 0.0,
+          "z": 0.0
+        },
+        "label": "振幅光栅 Λ=100 µm",
+        "params": {
+          "kind": "amplitude_binary",
+          "period": 0.0001,
+          "duty": 0.5
+        }
+      },
+      {
+        "id": "det",
+        "type": "sensor",
+        "pos": {
+          "x": 0.0,
+          "y": 0.0,
+          "z": 0.007901390644753477
+        },
+        "label": "z_T/4（分数泰伯）",
+        "yaw": 3.141592653589793,
+        "shape": {
+          "kind": "rectangle",
+          "params": {
+            "width": 0.0019,
+            "height": 0.0019
+          }
+        }
+      }
+    ]
+  },
+  "meta": {
+    "zod": {
+      "category": "衍射",
+      "difficulty": "高级",
+      "description": "周期 100 µm 的二元振幅光栅后自由传播 z=0.25·z_T（泰伯距离 z_T=2Λ²/λ=31.61 mm）——光栅的「自成像」现象（无透镜成像）。",
+      "expected": "z=z_T/4 处是 2 倍空间频率的中间态",
+      "tags": [
+        "泰伯效应",
+        "自成像",
+        "分数泰伯"
+      ],
+      "theory": "z_T = 2Λ²/λ；z_T/2 处半周期平移像，z_T/p·q 处出现 p 倍频结构"
+    },
+    "sample": true
+  }
+}

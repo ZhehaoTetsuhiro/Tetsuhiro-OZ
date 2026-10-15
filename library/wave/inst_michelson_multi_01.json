@@ -1,0 +1,156 @@
+{
+  "name": "迈克尔逊多波长干涉：2 个波长同时入射",
+  "grid": {
+    "size": 512,
+    "width": 0.01
+  },
+  "wavelength": 6.328e-07,
+  "polarized": false,
+  "method": "asm",
+  "evanescent": "decay",
+  "evanescent_limit": 0,
+  "backward_regularize": false,
+  "tikhonov_alpha": 0,
+  "bandlimit": {
+    "fraction": 0.9,
+    "sigma": 0.05
+  },
+  "sources": [
+    {
+      "id": "s0",
+      "type": "plane",
+      "params": {
+        "power": 0.0005
+      },
+      "pos": {
+        "x": 0.0,
+        "y": 0.0,
+        "z": -0.05
+      },
+      "dir": {
+        "x": 0.0,
+        "y": 0.0,
+        "z": 1.0
+      },
+      "label": "λ=633 nm",
+      "wavelength": 6.328e-07,
+      "group": "g0"
+    },
+    {
+      "id": "s1",
+      "type": "plane",
+      "params": {
+        "power": 0.0005
+      },
+      "pos": {
+        "x": 0.0,
+        "y": 0.0,
+        "z": -0.05
+      },
+      "dir": {
+        "x": 0.0,
+        "y": 0.0,
+        "z": 1.0
+      },
+      "label": "λ=532 nm",
+      "wavelength": 5.32e-07,
+      "group": "g1"
+    }
+  ],
+  "scene": {
+    "components": [
+      {
+        "id": "bs",
+        "type": "beamsplitter",
+        "pos": {
+          "x": 0.0,
+          "y": 0.0,
+          "z": 0.0
+        },
+        "label": "分束器 50:50",
+        "yaw": -0.7853981633974483,
+        "shape": {
+          "kind": "circle",
+          "params": {
+            "radius": 0.0034999999999999996
+          }
+        },
+        "params": {
+          "reflectivity": 0.5
+        }
+      },
+      {
+        "id": "m1",
+        "type": "mirror",
+        "pos": {
+          "x": 0.0,
+          "y": 0.0,
+          "z": 0.05
+        },
+        "label": "端镜 A",
+        "shape": {
+          "kind": "circle",
+          "params": {
+            "radius": 0.0034999999999999996
+          }
+        },
+        "params": {
+          "reflectivity": 1.0
+        }
+      },
+      {
+        "id": "m2",
+        "type": "mirror",
+        "pos": {
+          "x": 0.050000158200000006,
+          "y": 0.0,
+          "z": 0.0
+        },
+        "label": "端镜 B（微倾）",
+        "yaw": 1.5707963267948966,
+        "shape": {
+          "kind": "circle",
+          "params": {
+            "radius": 0.0034999999999999996
+          }
+        },
+        "params": {
+          "reflectivity": 1.0,
+          "tilt_y": 0.00015
+        }
+      },
+      {
+        "id": "d1",
+        "type": "sensor",
+        "pos": {
+          "x": 0.0,
+          "y": 0.0,
+          "z": -0.05
+        },
+        "label": "白光条纹端口",
+        "shape": {
+          "kind": "circle",
+          "params": {
+            "radius": 0.0034999999999999996
+          }
+        }
+      }
+    ]
+  },
+  "meta": {
+    "zod": {
+      "category": "仪器",
+      "difficulty": "高级",
+      "description": "迈克尔逊干涉仪同时输入 2 个不同波长（各自独立相干组）：波长不同 → 同一臂长差对应的相位不同 → 各色条纹错开叠加。",
+      "expected": "不同波长的条纹间距与相位都不同（相位差 2kΔL ∝ 1/λ），叠加后只有在光程差接近 0 处各色同时接近极大 → 出现「白/亮」的中心条纹，两侧被彩色条纹占据（相干长度决定能看清的条纹数）。这正是白光干涉测零光程差、以及傅里叶变换光谱仪的原理。",
+      "tags": [
+        "白光干涉",
+        "多波长",
+        "相干长度",
+        "FTIR"
+      ],
+      "theory": "各波长独立传播与叠加（不同相干组）；相位差 2kΔL 随 λ 变化"
+    },
+    "sample": true
+  }
+}

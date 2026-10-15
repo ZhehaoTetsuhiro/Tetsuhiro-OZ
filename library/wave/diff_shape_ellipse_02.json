@@ -1,0 +1,90 @@
+{
+  "name": "椭圆孔衍射：a=1.0 mm, b=0.4 mm",
+  "grid": {
+    "size": 1024,
+    "width": 0.02
+  },
+  "wavelength": 6.328e-07,
+  "polarized": false,
+  "method": "asm",
+  "evanescent": "decay",
+  "evanescent_limit": 0,
+  "backward_regularize": false,
+  "tikhonov_alpha": 0,
+  "bandlimit": {
+    "fraction": 0.9,
+    "sigma": 0.05
+  },
+  "sources": [
+    {
+      "id": "src",
+      "type": "plane",
+      "params": {
+        "power": 0.001
+      },
+      "pos": {
+        "x": 0.0,
+        "y": 0.0,
+        "z": -0.05
+      },
+      "dir": {
+        "x": 0.0,
+        "y": 0.0,
+        "z": 1.0
+      },
+      "wavelength": 6.328e-07
+    }
+  ],
+  "scene": {
+    "components": [
+      {
+        "id": "ap",
+        "type": "aperture",
+        "pos": {
+          "x": 0.0,
+          "y": 0.0,
+          "z": 0.0
+        },
+        "label": "椭圆孔 a=1.0 b=0.4 mm",
+        "shape": {
+          "kind": "ellipse",
+          "params": {
+            "a": 0.001,
+            "b": 0.0004
+          }
+        }
+      },
+      {
+        "id": "det",
+        "type": "sensor",
+        "pos": {
+          "x": 0.0,
+          "y": 0.0,
+          "z": 2.0
+        },
+        "label": "观察屏",
+        "yaw": 3.141592653589793,
+        "shape": {
+          "kind": "rectangle",
+          "params": {
+            "width": 0.018000000000000002,
+            "height": 0.018000000000000002
+          }
+        }
+      }
+    ]
+  },
+  "meta": {
+    "zod": {
+      "category": "衍射",
+      "difficulty": "进阶",
+      "description": "半轴 1.0×0.4 mm 的椭圆孔，远场 2 m。",
+      "expected": "中央亮斑沿两方向的角宽度反比于对应半轴：x 方向零点 λz/(2a)=0.63 mm、y 方向 λz/(2b)=1.58 mm；圆孔极限（a=b）退化为艾里图样。",
+      "tags": [
+        "椭圆孔",
+        "各向异性"
+      ],
+      "theory": "椭圆孔的远场是贝塞尔-傅里叶变换，尺度 ∝ 1/半轴"
+    }
+  }
+}

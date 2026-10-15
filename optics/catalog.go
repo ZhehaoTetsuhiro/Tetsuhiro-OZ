@@ -1,0 +1,977 @@
+package optics
+
+import (
+	"math"
+	"strings"
+)
+
+// ParamSpec describes one adjustable parameter of an element, source, or
+// global setting. The web GUI renders a keyboard-operable control for every
+// entry in this catalog, so new parameters appear automatically.
+type ParamSpec struct {
+	Key     string   `json:"key"`
+	Label   string   `json:"label"`
+	Unit    string   `json:"unit"`
+	Kind    string   `json:"kind"` // float | int | choice | bool | text | nested
+	Min     float64  `json:"min,omitempty"`
+	Max     float64  `json:"max,omitempty"`
+	Step    float64  `json:"step,omitempty"`
+	Default any      `json:"default"`
+	Choices []string `json:"choices,omitempty"`
+	Help    string   `json:"help,omitempty"`
+	// ShowIf is a simple visibility condition: a comma-separated AND list of
+	// "key=value" terms where value may be a "|"-separated OR list, e.g.
+	// "shape=circle|ring" or "shape=circle,kind=phase". The GUI hides the
+	// parameter unless every term matches the element's current params.
+	ShowIf string `json:"show_if,omitempty"`
+}
+
+// ShapeDoc documents one clear-aperture outline: the shape vocabulary shared by
+// the aperture element and by scene components.
+type ShapeDoc struct {
+	Kind   string      `json:"kind"`
+	Label  string      `json:"label"`
+	Params []ParamSpec `json:"params"`
+}
+
+// shapeLabels names each outline kind.
+var shapeLabels = map[string]string{
+	"circle": "圆孔", "square": "方孔", "rectangle": "矩孔", "ellipse": "椭圆孔",
+	"triangle": "三角孔", "ring": "环形孔", "polygon": "多边形孔", "double_slit": "双缝",
+	"cross": "十字孔", "star": "星形孔", "superellipse": "超椭圆孔", "custom": "自定义孔",
+	"slit": "狭缝",
+}
+
+// ShapeDocs derives the outline documentation from the aperture element so the
+// two cannot drift apart: each aperture parameter is assigned to the kinds its
+// show_if condition names.
+func ShapeDocs() []ShapeDoc {
+	var ap *ElementDoc
+	for i := range ElementDocs {
+		if ElementDocs[i].Type == "aperture" {
+			ap = &ElementDocs[i]
+			break
+		}
+	}
+	perKind := map[string][]ParamSpec{}
+	if ap != nil {
+		for _, p := range ap.Params {
+			switch p.Key {
+			case "shape", "x", "y", "aperture":
+				continue
+			}
+			for _, k := range shapeKindsOf(p.ShowIf) {
+				perKind[k] = append(perKind[k], p)
+			}
+		}
+	}
+	out := make([]ShapeDoc, 0, len(ShapeKinds))
+	for _, k := range ShapeKinds {
+		d := ShapeDoc{Kind: k, Label: shapeLabels[k], Params: perKind[k]}
+		if k == "custom" {
+			d.Params = []ParamSpec{{Key: "vertices", Label: "顶点列表", Kind: "text",
+				Default: "0,-0.001;0.001,0.001;-0.001,0.001",
+				Help:    "分号分隔的顶点 u,v（米），按顺序连成闭合多边形"}}
+		}
+		if k == "slit" {
+			d.Params = []ParamSpec{
+				fp("width", "缝宽", "m", 1e-6, 0.05, 1e-4, 1e-4, "沿 u 方向"),
+				fp("height", "缝高", "m", 1e-6, 0.05, 1e-4, 2e-2, "沿 v 方向"),
+			}
+		}
+		out = append(out, d)
+	}
+	return out
+}
+
+// shapeKindsOf extracts the kind list from a "shape=k1|k2" show_if condition.
+func shapeKindsOf(showIf string) []string {
+	for _, term := range strings.Split(showIf, ",") {
+		term = strings.TrimSpace(term)
+		if !strings.HasPrefix(term, "shape=") {
+			continue
+		}
+		var out []string
+		for _, k := range strings.Split(strings.TrimPrefix(term, "shape="), "|") {
+			if k = strings.TrimSpace(k); k != "" {
+				out = append(out, k)
+			}
+		}
+		return out
+	}
+	return nil
+}
+
+// ElementDoc documents one element (or source) type for the catalog API.
+type ElementDoc struct {
+	Type   string      `json:"type"`
+	Label  string      `json:"label"`
+	Help   string      `json:"help"`
+	Params []ParamSpec `json:"params"`
+	// Class is the GUI drawing class (lens/mirror/splitter/detector/stop/other)
+	// when the type declares one; classes omitted here fall back to the
+	// kernel's component classification.
+	Class string `json:"class,omitempty"`
+	// Custom marks an element that comes from a scripted definition file
+	// rather than from the kernel; Source is where it was loaded from.
+	Custom bool   `json:"custom,omitempty"`
+	Source string `json:"source,omitempty"`
+}
+
+// sourceDocFor returns the catalog entry of a source type, or nil.
+func sourceDocFor(t string) *ElementDoc {
+	for i := range SourceDocs {
+		if SourceDocs[i].Type == t {
+			return &SourceDocs[i]
+		}
+	}
+	return nil
+}
+
+// elementDocFor returns the catalog entry of an element type, or nil.
+func elementDocFor(t string) *ElementDoc {
+	for i := range ElementDocs {
+		if ElementDocs[i].Type == t {
+			return &ElementDocs[i]
+		}
+	}
+	return nil
+}
+
+func fp(key, label, unit string, min, max, step, def float64, help string) ParamSpec {
+	return ParamSpec{Key: key, Label: label, Unit: unit, Kind: "float", Min: min, Max: max, Step: step, Default: def, Help: help}
+}
+
+func ip(key, label, unit string, min, max, def int, help string) ParamSpec {
+	return ParamSpec{Key: key, Label: label, Unit: unit, Kind: "int", Min: float64(min), Max: float64(max), Step: 1, Default: def, Help: help}
+}
+
+func cp(key, label string, choices []string, def string, help string) ParamSpec {
+	return ParamSpec{Key: key, Label: label, Kind: "choice", Choices: choices, Default: def, Help: help}
+}
+
+func bp(key, label string, def bool, help string) ParamSpec {
+	return ParamSpec{Key: key, Label: label, Kind: "bool", Default: def, Help: help}
+}
+
+func tp(key, label, def, help string) ParamSpec {
+	return ParamSpec{Key: key, Label: label, Kind: "text", Default: def, Help: help}
+}
+
+// showIf attaches a visibility condition to a parameter (see ParamSpec.ShowIf).
+func showIf(spec ParamSpec, cond string) ParamSpec {
+	spec.ShowIf = cond
+	return spec
+}
+
+// SourceDocs documents the built-in source types.
+var SourceDocs = []ElementDoc{
+	{Type: "plane", Label: "平面波", Help: "振幅均匀的平面波，填满整个网格；可加倾角。",
+		Params: []ParamSpec{
+			fp("power", "光功率", "W", 1e-9, 10, 1e-4, 1e-3, "光源总功率，用于把强度归一化为 W/m^2"),
+			fp("tilt_x", "倾角 x", "rad", -0.5, 0.5, 1e-3, 0, "绕 y 轴倾斜角（精确方向余弦，非傍轴近似）"),
+			fp("tilt_y", "倾角 y", "rad", -0.5, 0.5, 1e-3, 0, "绕 x 轴倾斜角"),
+		}},
+	{Type: "gaussian", Label: "高斯光束", Help: "基模高斯光束，1/e^2 振幅半径（束腰）为 waist。",
+		Params: []ParamSpec{
+			fp("waist", "束腰半径", "m", 1e-6, 0.05, 1e-5, 1e-3, "1/e^2 振幅半径；束腰越小发散越大"),
+			fp("power", "光功率", "W", 1e-9, 10, 1e-4, 1e-3, ""),
+			fp("x", "中心 x", "m", -0.05, 0.05, 1e-4, 0, ""),
+			fp("y", "中心 y", "m", -0.05, 0.05, 1e-4, 0, ""),
+			fp("tilt_x", "倾角 x", "rad", -0.5, 0.5, 1e-3, 0, ""),
+			fp("tilt_y", "倾角 y", "rad", -0.5, 0.5, 1e-3, 0, ""),
+		}},
+	{Type: "laguerre_gaussian", Label: "拉盖尔-高斯光束", Help: "LG_p^l 模，携带轨道角动量 l*hbar。",
+		Params: []ParamSpec{
+			fp("waist", "束腰半径", "m", 1e-6, 0.05, 1e-5, 1e-3, ""),
+			ip("p", "径向阶数 p", "", 0, 5, 0, ""),
+			ip("l", "拓扑荷 l", "", -5, 5, 1, "相位螺旋 exp(i*l*theta)"),
+			fp("power", "光功率", "W", 1e-9, 10, 1e-4, 1e-3, ""),
+			fp("x", "中心 x", "m", -0.05, 0.05, 1e-4, 0, ""),
+			fp("y", "中心 y", "m", -0.05, 0.05, 1e-4, 0, ""),
+		}},
+	{Type: "hermite_gaussian", Label: "厄米-高斯光束", Help: "HG_mn 模。",
+		Params: []ParamSpec{
+			fp("waist", "束腰半径", "m", 1e-6, 0.05, 1e-5, 1e-3, ""),
+			ip("m", "阶数 m", "", 0, 5, 1, ""),
+			ip("n", "阶数 n", "", 0, 5, 0, ""),
+			fp("power", "光功率", "W", 1e-9, 10, 1e-4, 1e-3, ""),
+			fp("x", "中心 x", "m", -0.05, 0.05, 1e-4, 0, ""),
+			fp("y", "中心 y", "m", -0.05, 0.05, 1e-4, 0, ""),
+		}},
+	{Type: "bessel", Label: "贝塞尔光束", Help: "J0(kr sin(beta)) 截断贝塞尔光束（无衍射传播）。",
+		Params: []ParamSpec{
+			fp("beta", "锥角 beta", "rad", 1e-4, 0.3, 1e-3, 0.01, "决定中心亮斑尺度 ~2.405/(k sin beta)"),
+			fp("radius", "截断半径", "m", 1e-4, 0.05, 1e-4, 0.004, "真实贝塞尔光束无限延伸，这里做硬边截断"),
+			fp("power", "光功率", "W", 1e-9, 10, 1e-4, 1e-3, ""),
+		}},
+	{Type: "spherical", Label: "球面波（点光源）", Help: "发散或会聚球面波，等价于点光源位于光轴前方/后方 radius 处。",
+		Params: []ParamSpec{
+			fp("radius", "波面曲率半径", "m", 1e-4, 10, 1e-3, 0.1, "点源到网格平面的距离"),
+			bp("converging", "会聚", false, "勾选后为会聚球面波"),
+			fp("power", "光功率", "W", 1e-9, 10, 1e-4, 1e-3, ""),
+			fp("x", "中心 x", "m", -0.05, 0.05, 1e-4, 0, ""),
+			fp("y", "中心 y", "m", -0.05, 0.05, 1e-4, 0, ""),
+		}},
+}
+
+// ElementDocs documents the built-in element types (catalog order = GUI menu
+// order). Structural elements (propagate/sensor/beamsplitter/combiner) are
+// included so the GUI can insert them like any other element.
+var ElementDocs = []ElementDoc{
+	{Type: "propagate", Label: "自由传播", Help: "沿光束传播方向前进 distance 米；可单独指定传播算法。",
+		Params: []ParamSpec{
+			fp("distance", "距离", "m", 0, 100, 1e-3, 0.1, "沿光束方向的路程（反射后仍取正值，相位继续累加）"),
+			cp("method", "传播算法", []string{"auto", "asm", "asm_pad", "asm_shift", "asm_shift_pad", "vectorial", "fresnel_tf", "fresnel_ir", "fraunhofer"}, "auto", "留空/auto 使用全局算法"),
+		}},
+	{Type: "uniaxial", Label: "单轴晶体（双折射）", Help: "在光轴沿 x 的单轴晶体中传播：异常光(Ex)按 n_e、寻常光(Ey)按 n_o 色散。", Params: []ParamSpec{
+		fp("distance", "厚度", "m", 0, 1, 1e-4, 1e-3, ""),
+		fp("n_o", "寻常折射率 n_o", "", 1, 4, 0.01, 1.5, ""),
+		fp("n_e", "异常折射率 n_e", "", 1, 4, 0.01, 1.7, ""),
+	}},
+	{Type: "medium", Label: "均匀介质（吸收/增益）", Help: "在复折射率 n = index + i·absorption 的均匀介质中传播（split-step BPM）；absorption>0 吸收、<0 增益。", Params: []ParamSpec{
+		fp("distance", "厚度", "m", 0, 1, 1e-4, 1e-3, ""),
+		fp("index", "折射率", "", 1, 4, 0.01, 1.5, ""),
+		fp("absorption", "吸收系数 Im(n)", "", -1, 1, 1e-4, 0, ">0 吸收、<0 增益"),
+		ip("steps", "分步数", "", 1, 200, 20, "split-step 子步数（越大越准）"),
+	}},
+	{Type: "custom_medium", Label: "自定义不均匀介质（表达式 n(x,y,z,λ) + z 分层）",
+		Help: "用户自主设定的不均折射率介质：分层给定 n 与吸收/增益的表达式，沿 z 逐层传播（引用折射率 split-step）。" +
+			"层格式（\"layers\"，可为 JSON 数组或包含该数组的字符串）：" +
+			`[{"thickness":1e-3,"index":"1.5+1e-3*z/1e-3","absorption":"0.05*step(r-1e-3)","reference":1.5,"params":{"g":5},"steps":40}]` +
+			"；只有 \"distance\"+\"index\"（单层）与 \"layers\" 二选一。" +
+			"表达式变量：x,y,z（距介质入射面深度）,zl（距本层入射面深度）,r,th,wl,k,pi,e 与 params 常量；" +
+			"函数同脚本元件（sin/cos/exp/log/sqrt/abs/min/max/pow/hypot/clamp/if/step/rect/smoothstep/erf/sinc…）。" +
+			"index 为 n 实部（须 >0）；absorption 为 Im(n)（>0 吸收、<0 增益，可为空间分布）。" +
+			"reference 为该层衍射核的引用折射率（省略时取轴上中点 n：均匀层即被精确传播，平行玻璃板出现真实折射与 d(1−1/n) 焦点位移）。" +
+			"限制：层数 ≤64、切片总数 ≤4096、厚度总和 ≤1 m；层外为真空。详见 docs/PHYSICS.md §5.3。",
+		Params: []ParamSpec{
+			tp("layers", "分层定义（JSON 数组）", `[{"thickness":1e-3,"index":"1.5 + 0.02*x/1e-3","params":{}}]`,
+				"每层 {thickness, index, absorption?, reference?, params?, steps?}；层按给定顺序沿 z 堆叠，总厚度 = Σthickness，层外真空"),
+			fp("distance", "厚度（单层形式）", "m", 1e-6, 1, 1e-4, 1e-3, "仅单层形式：layers 为空时使用"),
+			tp("index", "单层折射率 n", "1.5", "单层形式的 n(x,y,z,zl,λ) 表达式；与 layers 二选一（如 \"1.5+3e-15/wl^2\" 表示色散）"),
+			tp("absorption", "单层吸收/增益 Im(n)", "", ">0 吸收、<0 增益；留空=无损耗；可为空间分布，如 \"0.05*step(1e-3-r)\""),
+			tp("params", "参数表（JSON 对象）", `{}`, "表达式里可用的命名常量，如 {\"n0\":1.5,\"g\":5}"),
+			ip("steps", "切片总数", "", 1, MaxCustomMediumSteps, DefaultCustomMediumSteps, "split-step 切片总数，按层厚比例分配（每层至少 1）；每层可用 steps 覆盖"),
+		}},
+	{Type: "biaxial", Label: "双轴晶体（Berreman 4×4）", Help: "主轴折射率 n_x/n_y/n_z 的双轴晶体，完整 Berreman 4×4 各向异性传播（含 o/e 耦合，较慢）。", Params: []ParamSpec{
+		fp("distance", "厚度", "m", 0, 1, 1e-4, 1e-3, ""),
+		fp("n_x", "n_x", "", 1, 4, 0.01, 1.6, ""),
+		fp("n_y", "n_y", "", 1, 4, 0.01, 1.5, ""),
+		fp("n_z", "n_z", "", 1, 4, 0.01, 1.4, ""),
+	}},
+	{Type: "kerr", Label: "克尔介质（强度相关折射率）", Help: "薄克尔片：相位 phi = k·n2·I·L 随局部强度 |E|² 变化（n = n0 + n2·I）；可选双光子吸收。非线性/腔迭代/双稳类实验的元件。", Params: []ParamSpec{
+		fp("n2", "非线性折射率 n2", "m²/W", -1e-2, 1e-2, 1e-6, 1e-6, "相位 = k·n2·I·L，I 单位 W/m²；真实介质 n2≈1e-14~1e-20，需极高强度才显著，可用有效值"),
+		fp("length", "有效厚度 L", "m", 0, 1, 1e-4, 1e-3, ""),
+		fp("tpa", "双光子吸收 beta", "m/W", 0, 1e-2, 1e-6, 0, ">0 时高强度区被额外吸收"),
+	}},
+	{Type: "saturable_absorber", Label: "可饱和吸收体", Help: "吸收 alpha(I)=alpha0/(1+I/I_sat) 随强度下降：弱光被吸收、强光透过（阈值/双稳的幅值原语）。", Params: []ParamSpec{
+		fp("alpha0", "小信号吸收 alpha0", "1/m", 0, 1e6, 1, 1000, "弱光吸收系数"),
+		fp("isat", "饱和强度 I_sat", "W/m²", 1, 1e12, 1e3, 1e6, "强度达到此处吸收减半"),
+		fp("length", "有效厚度 L", "m", 0, 1, 1e-4, 1e-3, ""),
+	}},
+	{Type: "lens", Label: "薄透镜", Help: "相位 exp(-i k r^2/(2f))；f>0 会聚，f<0 发散，可带圆形孔径。",
+		Params: []ParamSpec{
+			fp("f", "焦距", "m", -100, 100, 1e-3, 0.1, "f>0 会聚"),
+			fp("aperture", "孔径半径", "m", 0, 0.05, 1e-4, 0, "0 表示无孔径"),
+			fp("x", "中心 x", "m", -0.05, 0.05, 1e-4, 0, ""),
+			fp("y", "中心 y", "m", -0.05, 0.05, 1e-4, 0, ""),
+		}},
+	{Type: "cylindrical_lens", Label: "柱面透镜", Help: "只在一个方向聚焦：相位 exp(-i k u²/(2f))，u 为旋转角指定的平面方向，与之垂直的方向完全不改变（一维/柱面几何的原语：把光栅的色散方向聚焦成谱线，沟槽方向保持不变）。",
+		Params: []ParamSpec{
+			fp("f", "焦距", "m", -100, 100, 1e-3, 0.1, "沿 u 方向：f>0 会聚，f<0 发散"),
+			fp("rotation", "作用方向", "rad", -3.1416, 3.1416, 0.01, 0, "u = cosθ·x + sinθ·y；0 = 沿 x 聚焦（y 方向不变），π/2 = 沿 y 聚焦"),
+			fp("aperture", "孔径半径", "m", 0, 0.05, 1e-4, 0, "0 表示无孔径（圆孔半径）"),
+			fp("x", "中心 x", "m", -0.05, 0.05, 1e-4, 0, ""),
+			fp("y", "中心 y", "m", -0.05, 0.05, 1e-4, 0, ""),
+		}},
+	{Type: "aperture", Label: "孔径光阑", Help: "透射孔径：圆孔/方孔/矩孔/椭圆孔/三角孔/环形/多边形/双缝/十字/星形/超椭圆，亦可用顶点列表自定义；切换形状后仅显示该形状对应的参数。",
+		Params: []ParamSpec{
+			cp("shape", "形状", []string{"circle", "square", "rectangle", "ellipse", "triangle", "ring", "polygon", "double_slit", "cross", "star", "superellipse", "slit", "custom"}, "circle", "选择孔径形状；不同形状显示不同的参数"),
+			// 圆孔 / 三角孔 / 多边形 / 星形共用外接圆半径
+			showIf(fp("radius", "半径", "m", 1e-6, 0.05, 1e-4, 1e-3, "circle/triangle/polygon/star：外接圆半径"), "shape=circle|triangle|polygon|star"),
+			// 方孔 / 矩孔 / 双缝 / 十字共用宽度
+			showIf(fp("width", "宽度", "m", 1e-6, 0.05, 1e-4, 2e-3, "square=边长；rectangle/double_slit/cross=沿 u 方向的宽度"), "shape=square|rectangle|double_slit|cross"),
+			showIf(fp("height", "高度", "m", 1e-6, 0.05, 1e-4, 2e-3, "rectangle/double_slit/slit：沿 v 方向"), "shape=rectangle|double_slit|slit"),
+			// 椭圆 / 超椭圆共用半轴
+			showIf(fp("a", "半轴 a", "m", 1e-6, 0.05, 1e-4, 1e-3, "ellipse/superellipse：沿 u 方向半轴"), "shape=ellipse|superellipse"),
+			showIf(fp("b", "半轴 b", "m", 1e-6, 0.05, 1e-4, 2e-3, "ellipse/superellipse：沿 v 方向半轴"), "shape=ellipse|superellipse"),
+			showIf(fp("order", "幂次 m", "", 0.2, 10, 0.1, 2, "superellipse：(|u|/a)^m+(|v|/b)^m<=1；m=2 为椭圆，m 增大趋近矩形"), "shape=superellipse"),
+			// 环形
+			showIf(fp("rin", "内半径", "m", 1e-6, 0.05, 1e-4, 5e-4, "ring"), "shape=ring"),
+			showIf(fp("rout", "外半径", "m", 1e-6, 0.05, 1e-4, 1e-3, "ring"), "shape=ring"),
+			// 双缝
+			showIf(fp("separation", "缝间距", "m", 1e-6, 0.05, 1e-4, 1e-3, "double_slit：中心到中心"), "shape=double_slit"),
+			// 多边形
+			showIf(ip("sides", "边数", "", 3, 32, 6, "polygon：正多边形边数"), "shape=polygon"),
+			// 十字
+			showIf(fp("length", "臂长", "m", 1e-6, 0.05, 1e-4, 4e-3, "cross：十字臂全长（两臂端到端）"), "shape=cross"),
+			// 星形
+			showIf(fp("inner", "内半径", "m", 1e-6, 0.05, 1e-4, 5e-4, "star：尖角谷底到中心距离（须 < 半径）"), "shape=star"),
+			showIf(ip("points", "尖角数", "", 3, 32, 5, "star：星形尖角数量"), "shape=star"),
+			// 自定义多边形
+			showIf(tp("vertices", "顶点列表", "1e-3,0;0,1e-3;-1e-3,0;0,-1e-3", "custom：分号分隔的 x,y 顶点（至少 3 个，自动闭合）"), "shape=custom"),
+			// 公共参数
+			fp("rotation", "旋转角", "rad", -3.1416, 3.1416, 0.01, 0, "绕中心旋转整个孔径"),
+			fp("x", "中心 x", "m", -0.05, 0.05, 1e-4, 0, ""),
+			fp("y", "中心 y", "m", -0.05, 0.05, 1e-4, 0, ""),
+			bp("parallel", "与同平面元件并联合成", false, "同一 z 上的多个元件默认串联（透过率相乘）；置 true 则取并集（并排图案，如两条缝）"),
+			fp("edge_sigma", "边缘平滑", "m", 0, 1e-3, 1e-6, 0, "0=理想硬边；>0 用误差函数软化边缘以抑制混叠"),
+		}},
+	{Type: "apodizer", Label: "高斯切趾器", Help: "振幅透过率 exp(-r^2/waist^2)，用于软化硬边。",
+		Params: []ParamSpec{
+			fp("waist", "切趾半径", "m", 1e-6, 0.05, 1e-5, 1e-3, ""),
+			fp("amplitude", "透过率", "", 0, 1, 0.01, 1, ""),
+			fp("x", "中心 x", "m", -0.05, 0.05, 1e-4, 0, ""),
+			fp("y", "中心 y", "m", -0.05, 0.05, 1e-4, 0, ""),
+		}},
+	{Type: "grating", Label: "衍射光栅", Help: "正弦/二元振幅光栅、正弦/二元相位光栅与闪耀光栅（薄光栅标量模型）。",
+		Params: []ParamSpec{
+			cp("kind", "类型", []string{"amplitude_sin", "amplitude_binary", "phase_sin", "phase_binary", "blazed"}, "phase_sin", ""),
+			fp("period", "周期", "m", 1e-6, 1e-2, 1e-6, 2e-4, ""),
+			fp("modulation", "调制深度", "", 0, 2, 0.05, 1, "振幅光栅=对比度；相位光栅=峰峰值相位(rad)"),
+			fp("duty", "占空比", "", 0, 1, 0.05, 0.5, "binary 类型"),
+			fp("blaze_depth", "闪耀相位深度", "rad", 0, 6.2832, 0.05, 3.1416, "blazed 类型：锯齿相位峰峰值"),
+			fp("rotation", "旋转角", "rad", -3.1416, 3.1416, 0.01, 0, ""),
+			fp("offset", "相位偏移", "rad", 0, 6.2832, 0.05, 0, ""),
+		}},
+	{Type: "axicon", Label: "轴锥镜", Help: "锥形相位 exp(-i k (n-1) alpha r)，产生贝塞尔光束。",
+		Params: []ParamSpec{
+			fp("alpha", "锥角", "rad", 1e-4, 0.5, 1e-3, 0.02, "锥面与底面的夹角"),
+			fp("index", "折射率", "", 1, 4, 0.01, 1.5, ""),
+		}},
+	{Type: "spiral_phase", Label: "螺旋相位板", Help: "exp(i*l*theta)，产生光学涡旋；可叠加焦距 f。",
+		Params: []ParamSpec{
+			ip("charge", "拓扑荷 l", "", -10, 10, 1, "整数"),
+			fp("f", "叠加焦距", "m", -100, 100, 1e-3, 0, "0=不叠加透镜相位"),
+			fp("x", "中心 x", "m", -0.05, 0.05, 1e-4, 0, ""),
+			fp("y", "中心 y", "m", -0.05, 0.05, 1e-4, 0, ""),
+		}},
+	{Type: "wedge", Label: "楔形棱镜", Help: "线性相位 exp(-i k (n-1) alpha u)，使光束偏转。",
+		Params: []ParamSpec{
+			fp("alpha", "楔角", "rad", 1e-4, 0.5, 1e-3, 0.01, "偏转角 ~(n-1)*alpha"),
+			fp("index", "折射率", "", 1, 4, 0.01, 1.5, ""),
+			fp("rotation", "旋转角", "rad", -3.1416, 3.1416, 0.01, 0, "楔面方向"),
+		}},
+	{Type: "zone_plate", Label: "菲涅耳波带片", Help: "0/pi 交替相位或明暗交替的同心环，环半径 r_m^2 = m*lambda*f + (m*lambda/2)^2。",
+		Params: []ParamSpec{
+			fp("f", "焦距", "m", 1e-3, 10, 1e-3, 0.1, "一级焦点"),
+			fp("radius", "半径", "m", 1e-4, 0.05, 1e-4, 0.01, "波带片外半径"),
+			cp("kind", "类型", []string{"phase", "amplitude"}, "phase", ""),
+		}},
+	{Type: "diffuser", Label: "随机相位漫射体", Help: "高斯相关随机相位，相关长度 correlation，相位标准差 sigma。",
+		Params: []ParamSpec{
+			fp("sigma", "相位标准差", "rad", 0, 6.2832, 0.05, 3.1416, "pi=强漫射，产生完全散斑"),
+			fp("correlation", "相关长度", "m", 0, 1e-2, 1e-6, 2e-5, "0=白噪声相位"),
+			fp("amplitude", "透过率", "", 0, 1, 0.01, 1, ""),
+			ip("seed", "随机种子", "", 0, 100000, 1, "相同种子得到相同相位屏"),
+		}},
+	{Type: "mirror", Label: "反射镜", Help: "振幅反射率与球面曲率相位；之后光束折返，路程相位继续累加（往返 2L 相位 2kL）。",
+		Params: []ParamSpec{
+			fp("reflectivity", "振幅反射率", "", 0, 1, 0.01, 1, ""),
+			fp("curvature", "曲率 1/R", "1/m", -100, 100, 0.1, 0, "等效焦距 R/2；0=平面镜"),
+			fp("tilt_x", "倾斜 x", "rad", -0.5, 0.5, 1e-3, 0, "光束偏转 2*tilt_x"),
+			fp("tilt_y", "倾斜 y", "rad", -0.5, 0.5, 1e-3, 0, ""),
+		}},
+	{Type: "concave_mirror", Label: "凹面镜", Help: "会聚球面反射镜：等效焦距 f = R/2（半径 R>0）。",
+		Params: []ParamSpec{
+			fp("radius", "曲率半径 R", "m", 1e-3, 100, 1e-3, 0.5, "会聚，焦距 R/2"),
+			fp("reflectivity", "振幅反射率", "", 0, 1, 0.01, 1, ""),
+			fp("aperture", "孔径半径", "m", 0, 0.05, 1e-4, 0, "0 表示无孔径"),
+			fp("x", "中心 x", "m", -0.05, 0.05, 1e-4, 0, ""),
+			fp("y", "中心 y", "m", -0.05, 0.05, 1e-4, 0, ""),
+		}},
+	{Type: "convex_mirror", Label: "凸面镜", Help: "发散球面反射镜：等效焦距 f = -R/2（半径 R>0）。",
+		Params: []ParamSpec{
+			fp("radius", "曲率半径 R", "m", 1e-3, 100, 1e-3, 0.5, "发散，焦距 -R/2"),
+			fp("reflectivity", "振幅反射率", "", 0, 1, 0.01, 1, ""),
+			fp("aperture", "孔径半径", "m", 0, 0.05, 1e-4, 0, "0 表示无孔径"),
+			fp("x", "中心 x", "m", -0.05, 0.05, 1e-4, 0, ""),
+			fp("y", "中心 y", "m", -0.05, 0.05, 1e-4, 0, ""),
+		}},
+	{Type: "zernike", Label: "泽尼克像差板", Help: "Noll 序 1-21 项泽尼克波前像差（单位：波长，各系数为 RMS 归一化），用于研究像差。",
+		Params: zernikeParams()},
+	{Type: "polarizer", Label: "线偏振片", Help: "琼斯投影矩阵，透振方向 angle。",
+		Params: []ParamSpec{
+			fp("angle", "透振角", "rad", -3.1416, 3.1416, 0.01, 0, ""),
+			fp("transmission", "振幅透过率", "", 0, 1, 0.01, 1, ""),
+		}},
+	{Type: "retarder", Label: "相位延迟片", Help: "快轴 axis、相位延迟 retardance；pi/2=四分之一波片，pi=二分之一波片。",
+		Params: []ParamSpec{
+			fp("retardance", "相位延迟", "rad", 0, 6.2832, 0.01, 1.5708, "pi/2=QWP, pi=HWP"),
+			fp("axis", "快轴方位角", "rad", -3.1416, 3.1416, 0.01, 0, ""),
+		}},
+	{Type: "rotator", Label: "旋光片", Help: "琼斯旋转矩阵（旋光角 angle）。",
+		Params: []ParamSpec{
+			fp("angle", "旋光角", "rad", -3.1416, 3.1416, 0.01, 0, ""),
+		}},
+	{Type: "custom_jones", Label: "自定义琼斯元件", Help: "任意 2x2 琼斯矩阵 [[a b] [c d]]（复元素）。",
+		Params: []ParamSpec{
+			fp("a_re", "a 实部", "", -10, 10, 0.1, 1, ""), fp("a_im", "a 虚部", "", -10, 10, 0.1, 0, ""),
+			fp("b_re", "b 实部", "", -10, 10, 0.1, 0, ""), fp("b_im", "b 虚部", "", -10, 10, 0.1, 0, ""),
+			fp("c_re", "c 实部", "", -10, 10, 0.1, 0, ""), fp("c_im", "c 虚部", "", -10, 10, 0.1, 0, ""),
+			fp("d_re", "d 实部", "", -10, 10, 0.1, 1, ""), fp("d_im", "d 虚部", "", -10, 10, 0.1, 0, ""),
+		}},
+	{Type: "beamsplitter", Label: "分束器", Help: "对称分束器：透射臂继续主光路（t=sqrt(1-R)），反射臂（i*sqrt(R)）进入子光路，可在合束器中相干叠加。",
+		Params: []ParamSpec{
+			fp("reflectivity", "功率反射率 R", "", 0, 1, 0.01, 0.5, ""),
+			fp("phase", "反射相位", "rad", 0, 6.2832, 0.05, 0, "附加到反射臂的常数相位"),
+			ParamSpec{Key: "reflected_arm", Label: "反射臂光路", Kind: "nested", Default: map[string]any{}, Help: "反射臂内的元件列表（与主光路同格式）"},
+		}},
+	{Type: "combiner", Label: "合束器（干涉输出）", Help: "相干叠加各臂电场：out_j = sum_i w_ji * arm_i。必须位于光路末端。",
+		Params: []ParamSpec{
+			ParamSpec{Key: "outputs", Label: "输出端口", Kind: "nested", Default: []any{}, Help: "每端口：label + weights[{arm,re,im}]；arm 为 main 或 bs0/bs0.bs0 等臂标识"},
+		}},
+	{Type: "sensor", Label: "探测器（记录面）", Help: "记录该处光场：强度/相位/剖面与全部指标。passthrough=true 时成为无损监视器，记录后让光继续（一次运行读多个端口）。",
+		Params: []ParamSpec{
+			tp("label", "名称", "sensor", ""),
+			bp("passthrough", "监视（透射测量）", false, "true=记录后让光继续（无损监视，一次运行读多个端口）；false=吸收并终止光路"),
+			fp("strehl_aperture", "斯特列尔孔径", "m", 0, 0.05, 1e-4, 0, "计算 Strehl 用的参考光瞳半径，0=不计算"),
+			fp("strehl_distance", "斯特列尔距离", "m", 0, 100, 1e-3, 0, "参考聚焦距离，0=不计算"),
+		}},
+	// ---- 局部折射率不均匀元件（代理A：厚透镜 / 镀膜 / GRIN 板）----------------
+	// 物理模型与推导见 docs/PHYSICS.md §5.2，实现见 optics/elem_thicklens.go、
+	// elem_coating.go、elem_grin.go。三者都登记为普通透射薄元件。
+	{Type: "thick_lens", Label: "厚透镜（双面曲率 + 中心厚度）", Class: "lens",
+		Help: "两个球面（可选圆锥常数）与中心厚度 d 的透镜：按矢高相位 t(r)=exp(i·k0·(n(λ)−1)·thick(r)) 作用，thick 为 r 处的玻璃厚度（由两面矢高导出）。" +
+			"model=sag（默认）焦点在元件面外 f=1/((n−1)(1/R1−1/R2))；model=equivalent 直接按厚透镜几何焦距 f=1/((n−1)(1/R1−1/R2+(n−1)d/(n·R1·R2)))（主平面等效薄透镜）成像。" +
+			"符号约定：R>0 表示曲率中心在出射侧——双凸透镜 R1>0、R2<0；R=0 或 ±Inf 为平面。",
+		Params: []ParamSpec{
+			cp("material", "玻璃材料", []string{"N-BK7", "FusedSilica", "N-SF5", "N-SK16", "F2", "constant"}, "N-BK7",
+				"内置 Sellmeier 色散（系数与出处见 optics/elem_thicklens.go）：N-BK7/FusedSilica/N-SF5/N-SK16/F2；constant 用固定折射率 n"),
+			fp("n", "折射率 n（material=constant 时）", "", 1, 4, 0.01, 1.5, "material=constant 时使用；其余材料由 Sellmeier 表决定"),
+			fp("R1", "前表面曲率半径 R1", "m", -10, 10, 1e-3, 0.05, "R>0：曲率中心在出射侧；0 或 ±Inf = 平面；双凸：R1>0、R2<0"),
+			fp("R2", "后表面曲率半径 R2", "m", -10, 10, 1e-3, -0.05, ""),
+			fp("d", "中心厚度 d", "m", 0, 0.1, 1e-4, 4e-3, "两面顶点间距（玻璃最厚处）"),
+			fp("k1", "前表面圆锥常数 k1", "", -10, 10, 0.01, 0, "0=球面、−1=抛物面；非零时按圆锥矢高 exact sag"),
+			fp("k2", "后表面圆锥常数 k2", "", -10, 10, 0.01, 0, ""),
+			cp("model", "相位模型", []string{"sag", "equivalent"}, "sag",
+				"sag=矢高相位（薄元件近似，焦点在 f_mask）；equivalent=厚透镜几何焦距的等效薄透镜（含 (n−1)²d/(nR1R2) 功率叠加项）"),
+			fp("aperture", "半口径", "m", 0, 0.05, 1e-4, 0, "0 = 无口径限制"),
+			bp("block", "口径外挡光", true, "true=口径外 t=0（默认，相当于镜筒挡光）；false=口径外原样直通（不折射）"),
+			fp("edge_sigma", "边缘软化 σ", "m", 0, 1e-3, 1e-5, 0, "0=硬边；erf 软化抑制硬边频谱混叠（与光阑一致的数值正则化）"),
+			fp("x", "中心 x", "m", -0.05, 0.05, 1e-4, 0, ""),
+			fp("y", "中心 y", "m", -0.05, 0.05, 1e-4, 0, ""),
+		}},
+	{Type: "coating", Label: "镀膜（多层膜 TMM）", Class: "other",
+		Help: "各向同性多层膜：特征矩阵法（TMM）算出复透过/复反射，s 与 p 分别作用在 Ey/Ex 上（入射面默认取局部 x–z 面，可用 plane 翻转）。" +
+			"每层给材质 + 厚度（nm）；材质色散支持常数 n(,k)、Cauchy、Sellmeier、(λ,n,k) 插值表；θ0 是整个元件的设计入射角（标量，不随光斑位置变化）。" +
+			"作用幅值按功率归一（|t|²=T），因此透过率就是物理的 T；与 optics/berreman.go 的 4×4 各向异性传播互不重叠（各向同性膜堆 s/p 不耦合，2×2 已精确）。",
+		Params: []ParamSpec{
+			ParamSpec{Key: "layers", Label: "膜层列表", Kind: "nested", Default: []any{},
+				Help: "每层 {\"material\":\"MgF2\",\"thickness_nm\":99.7} 或 {\"n\":2.35,\"k\":0,\"thickness_nm\":60}、{\"cauchy\":[A,B,C]}（λ 以 µm 计）、{\"sellmeier\":[B1,B2,B3,C1,C2,C3]}、{\"table\":[[λ_nm,n,k],…]}；也可写成字符串 \"MgF2:99.7; Ta2O5:60\""},
+			tp("substrate", "衬底", "N-BK7", "内置材料名（N-BK7/FusedSilica/N-SF5/N-SK16/F2/MgF2/SiO2/Ta2O5/air）或与膜层相同的对象写法"),
+			tp("incident", "入射介质", "air", "默认 air（n=1）"),
+			fp("theta0", "设计入射角 θ0", "rad", -1.5, 1.5, 0.01, 0, "整体入射角（标量）；会聚/发散光束的角分布不建模"),
+			cp("plane", "入射面方位", []string{"x", "y"}, "x", "x：入射面为局部 x–z 面（s=局部 y→Ey，p=局部 x→Ex）；y：交换 s/p"),
+		}},
+	{Type: "grin_plate", Label: "GRIN 板（横向折射率梯度）", Class: "lens",
+		Help: "厚度 d、横向折射率 n(x,y)=n0+Δn 的平板：相位 = k0·d·(n0−1+Δn(x,y))，其中横向项 k0·Δn·d 就是本元件的主物理（(n0−1) 项是板在空气中的常相位）。" +
+			"Δn 取径向多项式 c2·r²+c4·r⁴+c6·r⁶（r 单位 m），或写表达式 expr（变量 x,y,r,th,wl,k 与元件参数）。纯 c2 项即薄透镜 f=−1/(2·c2·d)（c2<0 会聚）。",
+		Params: []ParamSpec{
+			fp("d", "厚度 d", "m", 1e-6, 0.05, 1e-4, 2e-3, ""),
+			fp("n0", "基础折射率 n0", "", 1, 4, 0.01, 1.5, "只贡献常相位 k0·(n0−1)·d；n0=1 时无此项"),
+			fp("c2", "二次项 c2", "1/m²", -1e4, 1e4, 1, -50, "Δn 含 c2·r²；等效焦距 f=−1/(2·c2·d)（c2<0 会聚）"),
+			fp("c4", "四次项 c4", "1/m⁴", -1e10, 1e10, 1e6, 0, "球差调节项"),
+			fp("c6", "六次项 c6", "1/m⁶", -1e16, 1e16, 1e12, 0, ""),
+			tp("expr", "Δn 表达式（可选）", "", "如 \"c2*r*r*(1-0.5*exp(-r*r/8e-7))\"；给了 expr 就忽略 c2/c4/c6 多项式（参数仍可引用）"),
+			fp("aperture", "半口径", "m", 0, 0.05, 1e-4, 0, "0 = 无口径限制"),
+			bp("block", "口径外挡光", true, "true=口径外 t=0（默认）；false=口径外原样直通"),
+			fp("edge_sigma", "边缘软化 σ", "m", 0, 1e-3, 1e-5, 0, "0=硬边；erf 软化"),
+			fp("x", "中心 x", "m", -0.05, 0.05, 1e-4, 0, ""),
+			fp("y", "中心 y", "m", -0.05, 0.05, 1e-4, 0, ""),
+		}},
+}
+
+func zernikeParams() []ParamSpec {
+	names := []string{"平移", "x 倾斜", "y 倾斜", "离焦", "斜像散", "竖像散", "竖彗差", "横彗差", "竖三叶", "斜三叶", "球差", "二级像散", "二级像散(45°)", "四叶", "四叶(45°)"}
+	out := []ParamSpec{fp("radius", "归一化半径", "m", 1e-4, 0.05, 1e-4, 0.01, "泽尼克多项式定义域 |r|<=radius")}
+	for i := 1; i <= 15; i++ {
+		out = append(out, fp("c"+itoa(i), "Z"+itoa(i)+" "+names[i-1], "λ", -2, 2, 0.05, 0, ""))
+	}
+	for i := 16; i <= 21; i++ {
+		out = append(out, fp("c"+itoa(i), "Z"+itoa(i), "λ", -2, 2, 0.05, 0, ""))
+	}
+	return out
+}
+
+func itoa(i int) string {
+	if i == 0 {
+		return "0"
+	}
+	b := [8]byte{}
+	p := len(b)
+	for i > 0 {
+		p--
+		b[p] = byte('0' + i%10)
+		i /= 10
+	}
+	return string(b[p:])
+}
+
+// MethodDocs documents the propagation algorithms.
+var MethodDocs = []struct {
+	Key, Label, Help string
+}{
+	{"auto", "自动（=角谱法）", "始终选择精确的角谱法"},
+	{"asm", "角谱法（精确）", "亥姆霍兹方程在均匀介质中的精确解；无傍轴近似，默认推荐"},
+	{"asm_pad", "角谱法（零填充 2×，高精度）", "2N×2N 零填充做线性卷积，消除光束超出窗口时的环绕混叠；内存/耗时约 4×"},
+	{"asm_shift", "角谱法（离轴频移）", "搬移倾斜光束的载频后再传播，抑制频谱贴边混叠；适合大倾角照明"},
+	{"asm_shift_pad", "角谱法（离轴频移 + 零填充 2×）", "同时消除频谱贴边混叠与窗口环绕，适合大倾角且走离/发散的光束；内存/耗时约 4×"},
+	{"vectorial", "矢量角谱法（含 Ez，非傍轴）", "由散度条件重构纵分量 Ez 并三分量传播；适合大 NA 聚焦（传感器可显示 |Ez|²）"},
+	{"fresnel_tf", "菲涅尔（传递函数）", "傍轴近似；|z| <= N*dx^2/lambda 时有效"},
+	{"fresnel_ir", "菲涅尔（冲激响应）", "傍轴近似；|z| >= N*dx^2/lambda 时有效"},
+	{"fraunhofer", "夫琅禾费（远场）", "输出像素变为 lambda*|z|/(N*dx)；要求菲涅耳数 D^2/(lambda*z) << 1"},
+}
+
+// PolarizationDocs documents the source polarization presets.
+var PolarizationDocs = []struct {
+	Key, Label string
+}{
+	{"x", "线偏振 x"}, {"y", "线偏振 y"}, {"d", "线偏振 45°"}, {"a", "线偏振 -45°"},
+	{"r", "右旋圆偏振"}, {"l", "左旋圆偏振"}, {"custom", "自定义琼斯矢量"},
+}
+
+// Example is a ready-to-run preset shown in the GUI.
+type Example struct {
+	Name   string `json:"name"`
+	Config Config `json:"config"`
+}
+
+// Examples returns the built-in preset configurations. Every preset is a
+// positioned scene: components carry a place and an outline, and the light
+// path is derived from that geometry — the same model the GUI edits and the
+// 3D view draws.
+func Examples() []Example {
+	bl := &BandlimitOpts{Fraction: 0.9, Sigma: 0.05}
+	return sceneExamples(bl)
+}
+
+// sceneExamples returns the built-in positioned-scene presets: every component
+// has a place and an outline, the light path is derived from the geometry.
+func sceneExamples(bl *BandlimitOpts) []Example {
+	pf := func(b bool) *bool { return &b }
+	pos := func(x, y, z float64) *Vec3 { return &Vec3{X: x, Y: y, Z: z} }
+	dir := func(x, y, z float64) *Vec3 { return &Vec3{X: x, Y: y, Z: z} }
+	base := func(size int, width float64, pol bool) Config {
+		return Config{
+			Grid: GridSpec{Size: size, Width: width}, Wavelength: 632.8e-9, Polarized: pf(pol),
+			Method: "asm", Evanescent: "decay", Bandlimit: bl,
+		}
+	}
+	// ---- Michelson interferometer -------------------------------------------
+	mi := base(512, 0.01, false)
+	mi.Sources = []SourceSpec{{
+		ID: "src", Label: "HeNe 光源", Type: "gaussian", Pos: pos(0, 0, -0.15), Dir: dir(0, 0, 1),
+		Params: map[string]any{"waist": 2e-3, "power": 1e-3},
+	}}
+	mi.Scene = &SceneSpec{Components: []ComponentSpec{
+		{ID: "bs", Type: "beamsplitter", Label: "分束器", Pos: v3(0, 0, 0), Yaw: -math.Pi / 4,
+			Shape: CircleOutline(6e-3), Params: map[string]any{"reflectivity": 0.5}},
+		{ID: "m1", Type: "mirror", Label: "端镜 A", Pos: v3(0, 0, 0.1), Yaw: 0,
+			Shape: CircleOutline(6e-3), Params: map[string]any{"reflectivity": 1.0}},
+		// A 0.5 mrad yaw offset on the second end mirror tilts the returning
+		// wavefront, which is what makes the classic wedge fringes appear.
+		{ID: "m2", Type: "mirror", Label: "端镜 B（微倾）", Pos: v3(0.1, 0, 0), Yaw: math.Pi/2 + 5e-4,
+			Shape: CircleOutline(6e-3), Params: map[string]any{"reflectivity": 1.0}},
+		{ID: "d1", Type: "sensor", Label: "探测器（回光源端口）", Pos: v3(0, 0, -0.05), Yaw: 0,
+			Shape: CircleOutline(5e-3)},
+		{ID: "d2", Type: "sensor", Label: "侧向端口", Pos: v3(-0.05, 0, 0), Yaw: math.Pi / 2,
+			Shape: CircleOutline(5e-3)},
+	}}
+
+	// ---- Mach-Zehnder interferometer ---------------------------------------
+	mz := base(512, 0.012, false)
+	mz.Sources = []SourceSpec{{
+		ID: "src", Label: "HeNe 光源", Type: "plane", Pos: pos(0, 0, -0.05), Dir: dir(0, 0, 1),
+		Params: map[string]any{"power": 1e-3},
+	}}
+	mz.Scene = &SceneSpec{Components: []ComponentSpec{
+		{ID: "bs1", Type: "beamsplitter", Label: "分束器 1", Pos: v3(0, 0, 0), Yaw: -math.Pi / 4,
+			Shape: CircleOutline(6e-3), Params: map[string]any{"reflectivity": 0.5}},
+		{ID: "m1", Type: "mirror", Label: "折转镜 A", Pos: v3(0, 0, 0.1), Yaw: -math.Pi / 4,
+			Shape: CircleOutline(6e-3), Params: map[string]any{"reflectivity": 1.0}},
+		{ID: "m2", Type: "mirror", Label: "折转镜 B", Pos: v3(0.1, 0, 0), Yaw: 3 * math.Pi / 4,
+			Shape: CircleOutline(6e-3), Params: map[string]any{"reflectivity": 1.0}},
+		{ID: "bs2", Type: "beamsplitter", Label: "合束器", Pos: v3(0.1, 0, 0.1), Yaw: -math.Pi / 4,
+			Shape: CircleOutline(6e-3), Params: map[string]any{"reflectivity": 0.5}},
+		{ID: "d1", Type: "sensor", Label: "端口 1", Pos: v3(0.1, 0, 0.2), Yaw: math.Pi,
+			Shape: CircleOutline(5e-3)},
+		{ID: "d2", Type: "sensor", Label: "端口 2", Pos: v3(0.2, 0, 0.1), Yaw: -math.Pi / 2,
+			Shape: CircleOutline(5e-3)},
+	}}
+
+	// ---- two sources: coherent fringes and two colours ----------------------
+	ts := base(512, 0.02, false)
+	ts.Sources = []SourceSpec{
+		{ID: "s1", Label: "红光（组 A，+倾斜）", Type: "plane", Pos: pos(0, 0, -0.05), Dir: dir(0, 0, 1),
+			Group: "A", Params: map[string]any{"power": 5e-4, "tilt_x": 1e-4}},
+		{ID: "s2", Label: "红光（组 A，-倾斜）", Type: "plane", Pos: pos(0, 0, -0.05), Dir: dir(0, 0, 1),
+			Group: "A", Params: map[string]any{"power": 5e-4, "tilt_x": -1e-4}},
+		{ID: "s3", Label: "绿光（独立光源）", Type: "plane", Pos: pos(0, 0, -0.05), Dir: dir(0, 0, 1),
+			Wavelength: 532e-9, Params: map[string]any{"power": 5e-4}},
+	}
+	ts.Scene = &SceneSpec{Components: []ComponentSpec{
+		{ID: "slit", Type: "aperture", Label: "双缝", Pos: v3(0, 0, 0),
+			Shape:  &ShapeSpec{Kind: "double_slit", Params: map[string]any{"width": 1e-4, "height": 1e-2, "separation": 1e-3}},
+			Params: map[string]any{}},
+		{ID: "det", Type: "sensor", Label: "观察屏", Pos: v3(0, 0, 0.5), Yaw: math.Pi,
+			Shape: CircleOutline(9e-3)},
+	}}
+
+	// ---- polarization and phase --------------------------------------------
+	pol := base(512, 0.01, true)
+	pol.Sources = []SourceSpec{{
+		ID: "src", Label: "45° 线偏振光源", Type: "gaussian", Pos: pos(0, 0, -0.05), Dir: dir(0, 0, 1),
+		Params: map[string]any{"waist": 2e-3, "power": 1e-3, "polarization": "d"},
+	}}
+	pol.Scene = &SceneSpec{Components: []ComponentSpec{
+		{ID: "lens", Type: "lens", Label: "聚焦透镜", Pos: v3(0, 0, 0), Shape: CircleOutline(3e-3),
+			Params: map[string]any{"f": 0.3}},
+		{ID: "pol", Type: "polarizer", Label: "偏振片 45°", Pos: v3(0, 0, 0.05), Shape: CircleOutline(4e-3),
+			Params: map[string]any{"angle": math.Pi / 4}},
+		{ID: "qwp", Type: "retarder", Label: "四分之一波片", Pos: v3(0, 0, 0.1), Shape: CircleOutline(4e-3),
+			Params: map[string]any{"retardance": math.Pi / 2, "axis": 0}},
+		{ID: "det", Type: "sensor", Label: "焦面", Pos: v3(0, 0, 0.3), Yaw: math.Pi,
+			Shape: CircleOutline(6e-3), Params: map[string]any{"strehl_aperture": 3e-3, "strehl_distance": 0.3}},
+	}}
+
+	// ---- straight relay: the simplest positioned layout --------------------
+	line := base(512, 0.01, false)
+	line.Sources = []SourceSpec{{
+		ID: "src", Label: "高斯光源", Type: "gaussian", Pos: pos(0, 0, -0.05), Dir: dir(0, 0, 1),
+		Params: map[string]any{"waist": 1e-3, "power": 1e-3},
+	}}
+	line.Scene = &SceneSpec{Components: []ComponentSpec{
+		{ID: "ap", Type: "aperture", Label: "光阑", Pos: v3(0, 0, 0), Shape: CircleOutline(2e-3),
+			Params: map[string]any{}},
+		{ID: "lens", Type: "lens", Label: "透镜", Pos: v3(0, 0, 0.05), Shape: CircleOutline(4e-3),
+			Params: map[string]any{"f": 0.5}},
+		{ID: "det", Type: "sensor", Label: "焦面", Pos: v3(0, 0, 0.55), Yaw: math.Pi,
+			Shape: CircleOutline(5e-3), Params: map[string]any{"strehl_aperture": 2e-3, "strehl_distance": 0.5}},
+	}}
+
+	// ---- grating spectrum ---------------------------------------------------
+	// The orders are formed in the focal plane of a Fourier lens. Propagating a
+	// distance z straight onto the fixed grid cannot show this: the ±1 orders
+	// sit at z·λ/Λ (31.6 mm for Λ = 20 µm and z = 1 m), far outside the 8 mm
+	// window, so the circular ASM wraps them back as a structureless beat
+	// pattern, and the far-field spot λz/D = 79 µm is unresolvable once the
+	// window is the aperture. A lens maps the orders to the focal plane at
+	// f·λ/Λ, where they are both inside the window and resolved.
+	//
+	// The lens is *cylindrical* (power along x only): a spherical lens focuses
+	// the y direction too, which would squeeze every order into a point of
+	// λf/W_y ≈ 40 µm — the 1-D pattern of a grating is invariant along the
+	// grooves, so each order must be drawn out into a line perpendicular to the
+	// dispersion instead (the cylindrical lens leaves y untouched, and the
+	// y-invariance of plane-wave illumination survives to the focal plane).
+	//
+	// A single monochromatic wave gives one line per order — that is what a
+	// laser and a grating really do — so the preset carries seven wavelengths
+	// (405…700 nm, 1/7 of the power each, independent units) and every order
+	// is drawn out into a coloured strip: f·(λmax−λmin)/Λ = 0.89 mm wide, blue
+	// at 1.215 mm, red at 2.10 mm.
+	gs := base(1024, 0.008, false)
+	for _, w := range []struct {
+		id, label string
+		nm        float64
+	}{
+		{"src405", "405 nm", 405}, {"src450", "450 nm", 450}, {"src500", "500 nm", 500},
+		{"src550", "550 nm", 550}, {"src600", "600 nm", 600}, {"src650", "650 nm", 650},
+		{"src700", "700 nm", 700},
+	} {
+		gs.Sources = append(gs.Sources, SourceSpec{
+			ID: w.id, Label: w.label, Type: "plane", Pos: pos(0, 0, -0.05), Dir: dir(0, 0, 1),
+			Wavelength: w.nm * 1e-9,
+			Params:     map[string]any{"power": 1e-3 / 7},
+		})
+	}
+	gs.Scene = &SceneSpec{Components: []ComponentSpec{
+		{ID: "grating", Type: "grating", Label: "衍射光栅", Pos: v3(0, 0, 0),
+			Params: map[string]any{"kind": "phase_sin", "period": 1e-4, "modulation": 2.0}},
+		{ID: "lens", Type: "cylindrical_lens", Label: "柱面傅里叶透镜", Pos: v3(0, 0, 0.02),
+			Params: map[string]any{"f": 0.3, "rotation": 0}},
+		{ID: "det", Type: "sensor", Label: "衍射级（焦面）", Pos: v3(0, 0, 0.32), Yaw: math.Pi,
+			Shape: &ShapeSpec{Kind: "rectangle", Params: map[string]any{"width": 0.008, "height": 0.008}}},
+	}}
+
+	// ---- Airy disk: a circular stop imaged by a lens ------------------------
+	// A 4 mm aperture is not in the far field at any distance this grid can
+	// hold (F = D²/(λz) = 12.6 at z = 2 m), so the stop is placed in front of a
+	// lens and the Airy pattern is taken in the focal plane: first zero at
+	// 1.22·λf/D, first ring at 1.6·λf/D with ~1.7% of the peak.
+	ai := base(1024, 0.008, false)
+	ai.Sources = []SourceSpec{{
+		ID: "src", Label: "平面波光源", Type: "plane", Pos: pos(0, 0, -0.05), Dir: dir(0, 0, 1),
+		Params: map[string]any{"power": 1e-3},
+	}}
+	ai.Scene = &SceneSpec{Components: []ComponentSpec{
+		{ID: "stop", Type: "aperture", Label: "圆孔光阑（D=2 mm）", Pos: v3(0, 0, 0),
+			Shape: CircleOutline(1e-3)},
+		{ID: "lens", Type: "lens", Label: "傅里叶透镜（f=0.3 m）", Pos: v3(0, 0, 0.02),
+			Params: map[string]any{"f": 0.3}},
+		{ID: "det", Type: "sensor", Label: "焦面（艾里斑）", Pos: v3(0, 0, 0.32), Yaw: math.Pi,
+			Shape: CircleOutline(5e-4)},
+	}}
+
+	// ---- single slit: genuinely far field, a = 0.2 mm ≪ √(λz) = 0.8 mm ------
+	sl := base(1024, 0.02, false)
+	sl.Sources = []SourceSpec{{
+		ID: "src", Label: "平面波光源", Type: "plane", Pos: pos(0, 0, -0.05), Dir: dir(0, 0, 1),
+		Params: map[string]any{"power": 1e-3},
+	}}
+	sl.Scene = &SceneSpec{Components: []ComponentSpec{
+		{ID: "slit", Type: "aperture", Label: "单缝（宽 0.4 mm）", Pos: v3(0, 0, 0),
+			Shape: RectOutline(4e-4, 0.02)},
+		{ID: "det", Type: "sensor", Label: "远场", Pos: v3(0, 0, 1.0), Yaw: math.Pi,
+			Shape: RectOutline(0.018, 0.018)},
+	}}
+
+	// ---- double slit: fringe spacing λz/d ----------------------------------
+	ds := base(1024, 0.02, false)
+	ds.Sources = []SourceSpec{{
+		ID: "src", Label: "平面波光源", Type: "plane", Pos: pos(0, 0, -0.05), Dir: dir(0, 0, 1),
+		Params: map[string]any{"power": 1e-3},
+	}}
+	ds.Scene = &SceneSpec{Components: []ComponentSpec{
+		{ID: "slits", Type: "aperture", Label: "双缝（缝距 1 mm）", Pos: v3(0, 0, 0),
+			Shape: &ShapeSpec{Kind: "double_slit", Params: map[string]any{
+				"width": 1e-4, "height": 0.02, "separation": 1e-3}}},
+		{ID: "det", Type: "sensor", Label: "干涉条纹", Pos: v3(0, 0, 1.0), Yaw: math.Pi,
+			Shape: RectOutline(0.018, 0.018)},
+	}}
+
+	// ---- lens focus: the diffraction-limited Airy spot ----------------------
+	le := base(1024, 0.01, false)
+	le.Sources = []SourceSpec{{
+		ID: "src", Label: "平面波光源", Type: "plane", Pos: pos(0, 0, -0.05), Dir: dir(0, 0, 1),
+		Params: map[string]any{"power": 1e-3},
+	}}
+	le.Scene = &SceneSpec{Components: []ComponentSpec{
+		{ID: "lens", Type: "lens", Label: "聚焦透镜（f=0.5 m）", Pos: v3(0, 0, 0),
+			Shape: CircleOutline(2.5e-3), Params: map[string]any{"f": 0.5}},
+		// The detector spans the pupil: the Strehl ratio compares the recorded
+		// power against the ideal focus of a clear pupil of that radius, so a
+		// detector smaller than the beam would deflate it.
+		{ID: "det", Type: "sensor", Label: "焦面", Pos: v3(0, 0, 0.5), Yaw: math.Pi,
+			Shape: CircleOutline(5e-3), Params: map[string]any{
+				"strehl_aperture": 2.5e-3, "strehl_distance": 0.5}},
+	}}
+
+	// ---- Fresnel zone plate: focus at f, spot ~ λf/(2R) ---------------------
+	zp := base(1024, 0.004, false)
+	zp.Sources = []SourceSpec{{
+		ID: "src", Label: "平面波光源", Type: "plane", Pos: pos(0, 0, -0.05), Dir: dir(0, 0, 1),
+		Params: map[string]any{"power": 1e-3},
+	}}
+	zp.Scene = &SceneSpec{Components: []ComponentSpec{
+		{ID: "zp", Type: "zone_plate", Label: "菲涅耳波带片（f=50 mm）", Pos: v3(0, 0, 0),
+			Shape: CircleOutline(2e-3), Params: map[string]any{"f": 0.05, "kind": "phase"}},
+		{ID: "det", Type: "sensor", Label: "焦点", Pos: v3(0, 0, 0.05), Yaw: math.Pi,
+			Shape: CircleOutline(1e-4)},
+	}}
+
+	// ---- aberrations: Zernike spherical + defocus, Strehl drops -------------
+	ab := base(1024, 0.01, false)
+	ab.Sources = []SourceSpec{{
+		ID: "src", Label: "平面波光源", Type: "plane", Pos: pos(0, 0, -0.05), Dir: dir(0, 0, 1),
+		Params: map[string]any{"power": 1e-3},
+	}}
+	ab.Scene = &SceneSpec{Components: []ComponentSpec{
+		{ID: "lens", Type: "lens", Label: "理想透镜（f=0.3 m）", Pos: v3(0, 0, 0),
+			Shape: CircleOutline(3e-3), Params: map[string]any{"f": 0.3}},
+		// The coefficients are in waves (Noll-normalized: |c| is the RMS of
+		// that mode), so 离焦 0.15λ + 球差 0.20λ is σ ≈ 0.25λ and the focus
+		// drops to Strehl ≈ 0.4. The detector sits exactly f from the lens:
+		// the Zernike plate is thin and does not move the focus.
+		{ID: "ab", Type: "zernike", Label: "泽尼克像差（离焦 0.15λ、球差 0.20λ）",
+			Pos: v3(0, 0, 0.02), Shape: CircleOutline(3e-3),
+			Params: map[string]any{"radius": 3e-3, "c4": 0.15, "c11": 0.20}},
+		{ID: "det", Type: "sensor", Label: "像差焦斑", Pos: v3(0, 0, 0.3), Yaw: math.Pi,
+			Shape: CircleOutline(6e-3), Params: map[string]any{
+				"strehl_aperture": 3e-3, "strehl_distance": 0.3}},
+	}}
+
+	// ---- optical vortex: the on-axis null of a charge-3 spiral plate --------
+	vo := base(512, 0.01, false)
+	vo.Sources = []SourceSpec{{
+		ID: "src", Label: "高斯光源", Type: "gaussian", Pos: pos(0, 0, -0.05), Dir: dir(0, 0, 1),
+		Params: map[string]any{"waist": 2e-3, "power": 1e-3},
+	}}
+	vo.Scene = &SceneSpec{Components: []ComponentSpec{
+		{ID: "spp", Type: "spiral_phase", Label: "螺旋相位板（l=3）", Pos: v3(0, 0, 0),
+			Shape: CircleOutline(4e-3), Params: map[string]any{"charge": 3}},
+		{ID: "det", Type: "sensor", Label: "涡旋光束", Pos: v3(0, 0, 0.25), Yaw: math.Pi,
+			Shape: CircleOutline(4e-3)},
+	}}
+
+	// ---- Bessel beam: axicon core 2.405λ/(2π(n-1)α) = 24 µm -----------------
+	be := base(1024, 0.004, false)
+	be.Sources = []SourceSpec{{
+		ID: "src", Label: "高斯光源", Type: "gaussian", Pos: pos(0, 0, -0.05), Dir: dir(0, 0, 1),
+		Params: map[string]any{"waist": 1.5e-3, "power": 1e-3},
+	}}
+	be.Scene = &SceneSpec{Components: []ComponentSpec{
+		{ID: "ax", Type: "axicon", Label: "轴锥镜（α=20 mrad）", Pos: v3(0, 0, 0),
+			Shape: CircleOutline(2e-3), Params: map[string]any{"alpha": 0.02, "index": 1.5}},
+		{ID: "det", Type: "sensor", Label: "贝塞尔区", Pos: v3(0, 0, 0.15), Yaw: math.Pi,
+			Shape: CircleOutline(2e-3)},
+	}}
+
+	// ---- Gaussian beam: two planes of the same free-space evolution --------
+	// A sensor ends the beam, so two planes of one free-space run are taken on
+	// the two arms of a 50/50 splitter. w₀ = 0.2 mm gives z_R = 0.2 m, so the
+	// waist really does grow between the two arms (0.21 mm -> 0.36 mm).
+	gb := base(512, 0.008, false)
+	gb.Sources = []SourceSpec{{
+		ID: "src", Label: "高斯光源（w₀=0.2 mm）", Type: "gaussian", Pos: pos(0, 0, -0.05), Dir: dir(0, 0, 1),
+		Params: map[string]any{"waist": 2e-4, "power": 1e-3},
+	}}
+	gb.Scene = &SceneSpec{Components: []ComponentSpec{
+		{ID: "bs", Type: "beamsplitter", Label: "分束器（50/50）", Pos: v3(0, 0, 0), Yaw: -math.Pi / 4,
+			Shape: CircleOutline(2e-3), Params: map[string]any{"reflectivity": 0.5}},
+		// Reflected arm: 50 mm from the waist.
+		{ID: "d1", Type: "sensor", Label: "距腰 50 mm", Pos: v3(0.05, 0, 0), Yaw: -math.Pi / 2,
+			Shape: CircleOutline(2e-3)},
+		// Transmitted arm: 300 mm from the waist.
+		{ID: "d2", Type: "sensor", Label: "距腰 300 mm", Pos: v3(0, 0, 0.3), Yaw: math.Pi,
+			Shape: CircleOutline(2e-3)},
+	}}
+
+	// ---- polarizer + quarter-wave plate: 45° linear -> circular ------------
+	pw := base(512, 0.01, true)
+	pw.Sources = []SourceSpec{{
+		ID: "src", Label: "线偏振 45° 光源", Type: "gaussian", Pos: pos(0, 0, -0.05), Dir: dir(0, 0, 1),
+		Params: map[string]any{"waist": 2e-3, "power": 1e-3, "polarization": "d"},
+	}}
+	pw.Scene = &SceneSpec{Components: []ComponentSpec{
+		{ID: "pol", Type: "polarizer", Label: "线偏振片（0°）", Pos: v3(0, 0, 0),
+			Shape: CircleOutline(4e-3), Params: map[string]any{"angle": 0.0}},
+		{ID: "qwp", Type: "retarder", Label: "四分之一波片（快轴 45°）", Pos: v3(0, 0, 0.02),
+			Shape: CircleOutline(4e-3), Params: map[string]any{"retardance": math.Pi / 2, "axis": math.Pi / 4}},
+		{ID: "det", Type: "sensor", Label: "圆偏振光", Pos: v3(0, 0, 0.04), Yaw: math.Pi,
+			Shape: CircleOutline(4e-3)},
+	}}
+
+	return []Example{
+		{Name: "迈克尔逊干涉仪", Config: mi},
+		{Name: "马赫-曾德尔干涉仪", Config: mz},
+		{Name: "衍射光栅光谱", Config: gs},
+		{Name: "圆孔衍射（远场艾里斑）", Config: ai},
+		{Name: "单缝夫琅禾费衍射", Config: sl},
+		{Name: "双缝干涉", Config: ds},
+		{Name: "透镜聚焦（艾里斑）", Config: le},
+		{Name: "波带片聚焦", Config: zp},
+		{Name: "像差研究（泽尼克球差+离焦）", Config: ab},
+		{Name: "光学涡旋", Config: vo},
+		{Name: "贝塞尔光束（轴锥镜）", Config: be},
+		{Name: "高斯光束传播", Config: gb},
+		{Name: "双光源：相干条纹与双波长颜色", Config: ts},
+		{Name: "偏振与相位：线偏振→波片→焦面", Config: pol},
+		{Name: "偏振片与波片", Config: pw},
+		{Name: "直线光路：光阑+透镜聚焦", Config: line},
+	}
+}
+
+// Catalog is the full documentation payload served to the GUI.
+type Catalog struct {
+	Sources       []ElementDoc      `json:"sources"`
+	Elements      []ElementDoc      `json:"elements"`
+	Shapes        []ShapeDoc        `json:"shapes"`
+	Methods       []any             `json:"methods"`
+	Polarizations []any             `json:"polarizations"`
+	Quantum       QuantumCatalog    `json:"quantum"`
+	Examples      []Example         `json:"examples"`
+	Classes       map[string]string `json:"classes,omitempty"`
+}
+
+// QuantumCatalog documents the quantum-optics states and gates.
+type QuantumCatalog struct {
+	States []ElementDoc `json:"states"`
+	Gates  []ElementDoc `json:"gates"`
+}
+
+// QuantumStateDocs documents the built-in quantum initial states.
+var QuantumStateDocs = []ElementDoc{
+	{Type: "vacuum", Label: "真空态", Help: "全模式 |0…0⟩ 真空态。",
+		Params: []ParamSpec{}},
+	{Type: "fock", Label: "Fock 光子数态", Help: "多模光子数态 |n0,n1,…⟩；occupation 用逗号分隔（如 1,1）。",
+		Params: []ParamSpec{
+			tp("occupation", "光子数（逗号分隔）", "1,1", "每模光子数，如 1,1 表示 |1,1⟩"),
+		}},
+	{Type: "coherent", Label: "相干态", Help: "单模相干态 |α⟩（其余模式为真空）。",
+		Params: []ParamSpec{
+			ip("mode", "模式", "", 0, MaxQuantumModes-1, 0, "施加到哪个模式"),
+			fp("alpha_re", "α 实部", "", -10, 10, 0.1, 1, ""),
+			fp("alpha_im", "α 虚部", "", -10, 10, 0.1, 0, ""),
+		}},
+	{Type: "squeezed_vacuum", Label: "压缩真空态", Help: "单模压缩真空 S(z)|0⟩，z = r·e^{iθ}。",
+		Params: []ParamSpec{
+			ip("mode", "模式", "", 0, MaxQuantumModes-1, 0, ""),
+			fp("r", "压缩参数 r", "", 0, 3, 0.1, 0.5, "越大压缩越强"),
+			fp("phase", "压缩角 θ", "rad", 0, 6.2832, 0.1, 0, ""),
+		}},
+	{Type: "two_mode_squeezed", Label: "双模压缩真空（EPR）", Help: "模式 0、1 的纠缠双模压缩真空态。",
+		Params: []ParamSpec{
+			fp("r", "压缩参数 r", "", 0, 3, 0.1, 0.5, ""),
+		}},
+	{Type: "thermal", Label: "热态", Help: "每模热态（几何光子数分布），mean_n 用逗号分隔（如 1,0.5）。混合态，走密度矩阵后端。",
+		Params: []ParamSpec{
+			tp("mean_n", "平均光子数（逗号分隔）", "1", "每模平均光子数，如 1 或 1,0.5"),
+		}},
+}
+
+// QuantumGateDocs documents the built-in linear-optical gates.
+var QuantumGateDocs = []ElementDoc{
+	{Type: "phase_shift", Label: "相移", Help: "exp(i·φ·n) 作用到单模。",
+		Params: []ParamSpec{
+			ip("mode", "模式", "", 0, MaxQuantumModes-1, 0, ""),
+			fp("phase", "相位 φ", "rad", 0, 6.2832, 0.1, 0, ""),
+		}},
+	{Type: "beam_splitter", Label: "分束器", Help: "对称分束器 U=exp(iθ(a0†a1+a0a1†))，θ=asin(√R)。",
+		Params: []ParamSpec{
+			ip("mode0", "模式 0", "", 0, MaxQuantumModes-1, 0, ""),
+			ip("mode1", "模式 1", "", 0, MaxQuantumModes-1, 1, ""),
+			fp("reflectivity", "反射率 R", "", 0, 1, 0.05, 0.5, ""),
+		}},
+	{Type: "displacement", Label: "位移", Help: "位移算符 D(α)=exp(αa†−α*a)。",
+		Params: []ParamSpec{
+			ip("mode", "模式", "", 0, MaxQuantumModes-1, 0, ""),
+			fp("alpha_re", "α 实部", "", -10, 10, 0.1, 1, ""),
+			fp("alpha_im", "α 虚部", "", -10, 10, 0.1, 0, ""),
+		}},
+	{Type: "squeeze", Label: "压缩", Help: "单模压缩 S(z)=exp(½(z*a²−za†²))。",
+		Params: []ParamSpec{
+			ip("mode", "模式", "", 0, MaxQuantumModes-1, 0, ""),
+			fp("r", "压缩参数 r", "", 0, 3, 0.1, 0.5, ""),
+			fp("phase", "压缩角 θ", "rad", 0, 6.2832, 0.1, 0, ""),
+		}},
+	{Type: "loss", Label: "损耗信道", Help: "透射率 T 的损耗信道（振幅阻尼 Kraus 算符），产生混合态。",
+		Params: []ParamSpec{
+			ip("mode", "模式", "", 0, MaxQuantumModes-1, 0, ""),
+			fp("transmittance", "透射率 T", "", 0, 1, 0.05, 0.5, "存活概率；Fock |n⟩ 经损耗变为二项分布"),
+		}},
+}
+
+// BuildQuantumCatalog assembles the quantum catalog document.
+func BuildQuantumCatalog() QuantumCatalog {
+	return QuantumCatalog{States: QuantumStateDocs, Gates: QuantumGateDocs}
+}
+
+// BuildCatalog assembles the catalog document.
+func BuildCatalog() Catalog {
+	elements := append([]ElementDoc(nil), ElementDocs...)
+	elements = append(elements, GeneratedElementDocs()...)
+	elements = append(elements, ScriptedElementDocs()...)
+	cat := Catalog{Sources: SourceDocs, Elements: elements, Shapes: ShapeDocs(),
+		Quantum: BuildQuantumCatalog(), Examples: Examples(),
+		Classes: ComponentClasses()}
+	for _, m := range MethodDocs {
+		cat.Methods = append(cat.Methods, map[string]string{"key": m.Key, "label": m.Label, "help": m.Help})
+	}
+	for _, p := range PolarizationDocs {
+		cat.Polarizations = append(cat.Polarizations, map[string]string{"key": p.Key, "label": p.Label})
+	}
+	return cat
+}

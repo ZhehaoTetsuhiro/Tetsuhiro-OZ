@@ -138,9 +138,9 @@ func main() {
 // signature would be the same lens under two file names.
 func signature(p *lens.Prescription) (string, error) {
 	type sig struct {
-		Object float64      `json:"object"`
-		Stop   int          `json:"stop"`
-		Cards  []lens.Card  `json:"cards"`
+		Object float64     `json:"object"`
+		Stop   int         `json:"stop"`
+		Cards  []lens.Card `json:"cards"`
 	}
 	buf, err := json.Marshal(sig{Object: p.ObjectZMM, Stop: p.Stop, Cards: p.Cards})
 	if err != nil {

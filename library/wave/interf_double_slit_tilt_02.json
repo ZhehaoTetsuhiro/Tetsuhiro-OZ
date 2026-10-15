@@ -1,0 +1,94 @@
+{
+  "name": "双缝干涉：照明倾角 0.2 mrad → 条纹平移 0.20 mm",
+  "grid": {
+    "size": 512,
+    "width": 0.02
+  },
+  "wavelength": 6.328e-07,
+  "polarized": false,
+  "method": "asm",
+  "evanescent": "decay",
+  "evanescent_limit": 0,
+  "backward_regularize": false,
+  "tikhonov_alpha": 0,
+  "bandlimit": {
+    "fraction": 0.9,
+    "sigma": 0.05
+  },
+  "sources": [
+    {
+      "id": "src",
+      "type": "plane",
+      "params": {
+        "power": 0.001,
+        "tilt_x": 0.0002
+      },
+      "pos": {
+        "x": 0.0,
+        "y": 0.0,
+        "z": -0.05
+      },
+      "dir": {
+        "x": 0.0,
+        "y": 0.0,
+        "z": 1.0
+      },
+      "label": "倾斜平面波 0.2 mrad",
+      "wavelength": 6.328e-07
+    }
+  ],
+  "scene": {
+    "components": [
+      {
+        "id": "ds",
+        "type": "aperture",
+        "pos": {
+          "x": 0.0,
+          "y": 0.0,
+          "z": 0.0
+        },
+        "label": "双缝 d=1.00 mm a=0.20 mm",
+        "shape": {
+          "kind": "double_slit",
+          "params": {
+            "separation": 0.001,
+            "width": 0.0002,
+            "height": 0.019
+          }
+        }
+      },
+      {
+        "id": "det",
+        "type": "sensor",
+        "pos": {
+          "x": 0.0,
+          "y": 0.0,
+          "z": 1.0
+        },
+        "label": "干涉屏",
+        "yaw": 3.141592653589793,
+        "shape": {
+          "kind": "rectangle",
+          "params": {
+            "width": 0.019,
+            "height": 0.019
+          }
+        }
+      }
+    ]
+  },
+  "meta": {
+    "zod": {
+      "category": "干涉",
+      "difficulty": "进阶",
+      "description": "双缝不变，把照明平面波倾斜 0.2 mrad（等价于把点光源横向移动）。",
+      "expected": "条纹**间距不变**（仍为 λz/d=0.633 mm），但整体平移 Δx=z·θ=0.200 mm——条纹的相位由两条缝的光程差决定，倾斜照明给两条缝加了额外光程差。这是「干涉仪对光源指向敏感」的根源。",
+      "tags": [
+        "双缝",
+        "倾斜照明",
+        "条纹平移"
+      ],
+      "theory": "倾斜 θ 使条纹平移 z·θ（零级位于 sinθ = Δ/... 方向）"
+    }
+  }
+}

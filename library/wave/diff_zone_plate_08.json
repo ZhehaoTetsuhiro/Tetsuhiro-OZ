@@ -1,0 +1,94 @@
+{
+  "name": "菲涅耳波带片（相位型 0/π）：f=150 mm，7 个波带",
+  "grid": {
+    "size": 1024,
+    "width": 0.004
+  },
+  "wavelength": 6.328e-07,
+  "polarized": false,
+  "method": "asm",
+  "evanescent": "decay",
+  "evanescent_limit": 0,
+  "backward_regularize": false,
+  "tikhonov_alpha": 0,
+  "bandlimit": {
+    "fraction": 0.9,
+    "sigma": 0.05
+  },
+  "sources": [
+    {
+      "id": "src",
+      "type": "plane",
+      "params": {
+        "power": 0.001
+      },
+      "pos": {
+        "x": 0.0,
+        "y": 0.0,
+        "z": -0.05
+      },
+      "dir": {
+        "x": 0.0,
+        "y": 0.0,
+        "z": 1.0
+      },
+      "wavelength": 6.328e-07
+    }
+  ],
+  "scene": {
+    "components": [
+      {
+        "id": "zp",
+        "type": "zone_plate",
+        "pos": {
+          "x": 0.0,
+          "y": 0.0,
+          "z": 0.0
+        },
+        "label": "波带片 f=150 mm",
+        "shape": {
+          "kind": "circle",
+          "params": {
+            "radius": 0.0008714163224162374
+          }
+        },
+        "params": {
+          "f": 0.15,
+          "radius": 0.0008714163224162374,
+          "kind": "phase"
+        }
+      },
+      {
+        "id": "det",
+        "type": "sensor",
+        "pos": {
+          "x": 0.0,
+          "y": 0.0,
+          "z": 0.15
+        },
+        "label": "一级焦点",
+        "yaw": 3.141592653589793,
+        "shape": {
+          "kind": "circle",
+          "params": {
+            "radius": 0.00010892612125603594
+          }
+        }
+      }
+    ]
+  },
+  "meta": {
+    "zod": {
+      "category": "衍射",
+      "difficulty": "进阶",
+      "description": "环半径 r_m²=mλf+(mλ/2)² 的相位波带片，共 7 个波带（外半径 0.87 mm，最外环宽 54 µm）。",
+      "expected": "光严格汇聚到 **f=150 mm** 处（一级焦点，不是 2f）：焦斑尺度 λf/(2r_out)≈54.5 µm。相位型（0/π）效率理论值 ≈40.5%，振幅型（明暗交替）≈10%——两者焦点位置相同但亮度差 4 倍。",
+      "tags": [
+        "波带片",
+        "菲涅耳环",
+        "X射线光学"
+      ],
+      "theory": "r_m² = mλf + (mλ/2)²；相位型一级效率 4/π²≈40.5%"
+    }
+  }
+}

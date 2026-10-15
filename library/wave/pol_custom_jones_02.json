@@ -1,0 +1,119 @@
+{
+  "name": "自定义琼斯元件：正交投影（透 y 挡 x）",
+  "grid": {
+    "size": 512,
+    "width": 0.01
+  },
+  "wavelength": 6.328e-07,
+  "polarized": true,
+  "method": "asm",
+  "evanescent": "decay",
+  "evanescent_limit": 0,
+  "backward_regularize": false,
+  "tikhonov_alpha": 0,
+  "bandlimit": {
+    "fraction": 0.9,
+    "sigma": 0.05
+  },
+  "sources": [
+    {
+      "id": "src",
+      "type": "plane",
+      "params": {
+        "power": 0.001,
+        "polarization": "x"
+      },
+      "pos": {
+        "x": 0.0,
+        "y": 0.0,
+        "z": -0.05
+      },
+      "dir": {
+        "x": 0.0,
+        "y": 0.0,
+        "z": 1.0
+      },
+      "label": "平面波（x 偏振）",
+      "wavelength": 6.328e-07
+    }
+  ],
+  "scene": {
+    "components": [
+      {
+        "id": "clip",
+        "type": "aperture",
+        "pos": {
+          "x": 0.0,
+          "y": 0.0,
+          "z": 0.0
+        },
+        "label": "限光阑（6.0 mm 方孔）",
+        "shape": {
+          "kind": "rectangle",
+          "params": {
+            "width": 0.006,
+            "height": 0.006
+          }
+        }
+      },
+      {
+        "id": "cj",
+        "type": "custom_jones",
+        "pos": {
+          "x": 0.0,
+          "y": 0.0,
+          "z": 0.03
+        },
+        "label": "自定义琼斯元件：正交投影（透 y 挡 x）",
+        "shape": {
+          "kind": "circle",
+          "params": {
+            "radius": 0.0049
+          }
+        },
+        "params": {
+          "a_re": 0,
+          "a_im": 0,
+          "b_re": 0,
+          "b_im": 0,
+          "c_re": 0,
+          "c_im": 0,
+          "d_re": 1,
+          "d_im": 0
+        }
+      },
+      {
+        "id": "det",
+        "type": "sensor",
+        "pos": {
+          "x": 0.0,
+          "y": 0.0,
+          "z": 0.05
+        },
+        "label": "探测器",
+        "yaw": 3.141592653589793,
+        "shape": {
+          "kind": "rectangle",
+          "params": {
+            "width": 0.006,
+            "height": 0.006
+          }
+        }
+      }
+    ]
+  },
+  "meta": {
+    "zod": {
+      "category": "偏振",
+      "difficulty": "高级",
+      "description": "直接给出 2×2 复琼斯矩阵 [[a b],[c d]] = [[[0, 0, 0, 0]],[[0, 0, 1, 0]]]，作用于 [Ex,Ey]ᵀ。",
+      "expected": "只透 y：对 x 入射完全消光。 理论透过率 0.00。",
+      "tags": [
+        "自定义琼斯",
+        "2×2 矩阵",
+        "偏振光学元件"
+      ],
+      "theory": "E_out = J·E_in，J 可为任意复矩阵（不必酉）"
+    }
+  }
+}

@@ -1,0 +1,94 @@
+{
+  "name": "扫掠·拓扑荷 l=3",
+  "grid": {
+    "size": 512,
+    "width": 0.008
+  },
+  "wavelength": 6.328e-07,
+  "polarized": false,
+  "method": "asm",
+  "evanescent": "decay",
+  "evanescent_limit": 0,
+  "backward_regularize": false,
+  "tikhonov_alpha": 0,
+  "bandlimit": {
+    "fraction": 0.9,
+    "sigma": 0.05
+  },
+  "sources": [
+    {
+      "id": "src",
+      "type": "gaussian",
+      "params": {
+        "power": 0.001,
+        "waist": 0.0012
+      },
+      "pos": {
+        "x": 0.0,
+        "y": 0.0,
+        "z": -0.05
+      },
+      "dir": {
+        "x": 0.0,
+        "y": 0.0,
+        "z": 1.0
+      },
+      "label": "高斯 w₀=1.2 mm",
+      "wavelength": 6.328e-07
+    }
+  ],
+  "scene": {
+    "components": [
+      {
+        "id": "spp",
+        "type": "spiral_phase",
+        "pos": {
+          "x": 0.0,
+          "y": 0.0,
+          "z": 0.0
+        },
+        "label": "螺旋相位板 l=3",
+        "shape": {
+          "kind": "circle",
+          "params": {
+            "radius": 0.0036000000000000003
+          }
+        },
+        "params": {
+          "charge": 3
+        }
+      },
+      {
+        "id": "det",
+        "type": "sensor",
+        "pos": {
+          "x": 0.0,
+          "y": 0.0,
+          "z": 0.3
+        },
+        "label": "传播 0.3 m 后",
+        "yaw": 3.141592653589793
+      }
+    ]
+  },
+  "meta": {
+    "zod": {
+      "category": "参数扫掠",
+      "difficulty": "进阶",
+      "description": "把螺旋相位板的拓扑荷从 −5 扫到 +5（第 7 条）：l 是相位绕轴一周的 2π 圈数。",
+      "expected": "l=3：轴上强度为零（相位奇点），环状光斑半径随 |l| 增大；相位图绕轴 3 圈 2π。l 的符号只改变螺旋旋向（±OAM），强度分布相同。",
+      "tags": [
+        "拓扑荷扫掠",
+        "光学涡旋",
+        "OAM"
+      ],
+      "theory": "相位 exp(ilθ)；轴上 ∝ r^{2|l|}",
+      "sweep": {
+        "param": "l",
+        "value": 3,
+        "index": 7,
+        "of": 8
+      }
+    }
+  }
+}

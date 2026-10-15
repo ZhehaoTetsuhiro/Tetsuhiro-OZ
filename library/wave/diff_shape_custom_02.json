@@ -1,0 +1,90 @@
+{
+  "name": "自定义顶点孔径衍射：十角星",
+  "grid": {
+    "size": 1024,
+    "width": 0.02
+  },
+  "wavelength": 6.328e-07,
+  "polarized": false,
+  "method": "asm",
+  "evanescent": "decay",
+  "evanescent_limit": 0,
+  "backward_regularize": false,
+  "tikhonov_alpha": 0,
+  "bandlimit": {
+    "fraction": 0.9,
+    "sigma": 0.05
+  },
+  "sources": [
+    {
+      "id": "src",
+      "type": "plane",
+      "params": {
+        "power": 0.001
+      },
+      "pos": {
+        "x": 0.0,
+        "y": 0.0,
+        "z": -0.05
+      },
+      "dir": {
+        "x": 0.0,
+        "y": 0.0,
+        "z": 1.0
+      },
+      "wavelength": 6.328e-07
+    }
+  ],
+  "scene": {
+    "components": [
+      {
+        "id": "ap",
+        "type": "aperture",
+        "pos": {
+          "x": 0.0,
+          "y": 0.0,
+          "z": 0.0
+        },
+        "label": "自定义孔径：十角星",
+        "shape": {
+          "kind": "custom",
+          "params": {
+            "vertices": "0,1e-3;0.3e-3,0.3e-3;1e-3,0.3e-3;0.5e-3,-0.2e-3;0.7e-3,-1e-3;0,-0.5e-3;-0.7e-3,-1e-3;-0.5e-3,-0.2e-3;-1e-3,0.3e-3;-0.3e-3,0.3e-3"
+          }
+        }
+      },
+      {
+        "id": "det",
+        "type": "sensor",
+        "pos": {
+          "x": 0.0,
+          "y": 0.0,
+          "z": 2.0
+        },
+        "label": "观察屏",
+        "yaw": 3.141592653589793,
+        "shape": {
+          "kind": "rectangle",
+          "params": {
+            "width": 0.018000000000000002,
+            "height": 0.018000000000000002
+          }
+        }
+      }
+    ]
+  },
+  "meta": {
+    "zod": {
+      "category": "衍射",
+      "difficulty": "高级",
+      "description": "用顶点列表手工定义的十角星孔径（自动闭合），远场 2 m——演示「任意形状孔径」的衍射计算。",
+      "expected": "衍射图样是第一类贝塞尔型线积分的结果，其对称性由顶点表决定；十角星 产生对应旋向的星芒。改变顶点即改变图样，可用于逆向设计孔径。",
+      "tags": [
+        "自定义孔径",
+        "顶点列表",
+        "自由曲面"
+      ],
+      "theory": "孔径函数 A(x,y) 的二维傅里叶变换，任意多边形顶点可用格林公式解析给出"
+    }
+  }
+}

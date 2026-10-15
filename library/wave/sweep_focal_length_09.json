@@ -1,0 +1,113 @@
+{
+  "name": "扫掠·焦距 f=750 mm → 艾里半径 144.8 µm",
+  "grid": {
+    "size": 512,
+    "width": 0.006
+  },
+  "wavelength": 6.328e-07,
+  "polarized": false,
+  "method": "asm",
+  "evanescent": "decay",
+  "evanescent_limit": 0,
+  "backward_regularize": false,
+  "tikhonov_alpha": 0,
+  "bandlimit": {
+    "fraction": 0.9,
+    "sigma": 0.05
+  },
+  "sources": [
+    {
+      "id": "src",
+      "type": "plane",
+      "params": {
+        "power": 0.001
+      },
+      "pos": {
+        "x": 0.0,
+        "y": 0.0,
+        "z": -0.05
+      },
+      "dir": {
+        "x": 0.0,
+        "y": 0.0,
+        "z": 1.0
+      },
+      "wavelength": 6.328e-07
+    }
+  ],
+  "scene": {
+    "components": [
+      {
+        "id": "ap",
+        "type": "aperture",
+        "pos": {
+          "x": 0.0,
+          "y": 0.0,
+          "z": 0.0
+        },
+        "label": "光瞳 D=4 mm",
+        "shape": {
+          "kind": "circle",
+          "params": {
+            "radius": 0.002
+          }
+        }
+      },
+      {
+        "id": "l",
+        "type": "lens",
+        "pos": {
+          "x": 0.0,
+          "y": 0.0,
+          "z": 0.01
+        },
+        "label": "透镜 f=750 mm",
+        "shape": {
+          "kind": "circle",
+          "params": {
+            "radius": 0.00294
+          }
+        },
+        "params": {
+          "f": 0.75
+        }
+      },
+      {
+        "id": "det",
+        "type": "sensor",
+        "pos": {
+          "x": 0.0,
+          "y": 0.0,
+          "z": 0.76
+        },
+        "label": "焦面",
+        "yaw": 3.141592653589793,
+        "params": {
+          "strehl_aperture": 0.002,
+          "strehl_distance": 0.75
+        }
+      }
+    ]
+  },
+  "meta": {
+    "zod": {
+      "category": "参数扫掠",
+      "difficulty": "入门",
+      "description": "固定光瞳直径 4 mm（F 数随焦距变化），把焦距从 50 mm 扫到 1 m（第 9 条）。",
+      "expected": "艾里半径 r₁=1.22λf/D=144.8 µm ∝ f；F 数 F#=f/D=187.5，焦深 ≈±2λF#²=44494 µm。长焦系统的焦斑大但焦深长——这是「分辨率 vs 焦深」的基本取舍。",
+      "tags": [
+        "焦距扫掠",
+        "艾里斑",
+        "焦深",
+        "F数"
+      ],
+      "theory": "r₁ = 1.22λF#；焦深 ∝ F#²",
+      "sweep": {
+        "param": "f_mm",
+        "value": 750.0,
+        "index": 9,
+        "of": 10
+      }
+    }
+  }
+}

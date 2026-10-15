@@ -1,0 +1,99 @@
+{
+  "name": "双光束干涉：两束夹角 0.1 mrad → 条纹间距 6.33 mm",
+  "grid": {
+    "size": 512,
+    "width": 0.02
+  },
+  "wavelength": 6.328e-07,
+  "polarized": false,
+  "method": "asm",
+  "evanescent": "decay",
+  "evanescent_limit": 0,
+  "backward_regularize": false,
+  "tikhonov_alpha": 0,
+  "bandlimit": {
+    "fraction": 0.9,
+    "sigma": 0.05
+  },
+  "sources": [
+    {
+      "id": "s1",
+      "type": "plane",
+      "params": {
+        "power": 0.0005,
+        "tilt_x": 5e-05
+      },
+      "pos": {
+        "x": 0.0,
+        "y": 0.0,
+        "z": -0.05
+      },
+      "dir": {
+        "x": 0.0,
+        "y": 0.0,
+        "z": 1.0
+      },
+      "label": "光束 1（+0.05 mrad）",
+      "wavelength": 6.328e-07,
+      "group": "A"
+    },
+    {
+      "id": "s2",
+      "type": "plane",
+      "params": {
+        "power": 0.0005,
+        "tilt_x": -5e-05
+      },
+      "pos": {
+        "x": 0.0,
+        "y": 0.0,
+        "z": -0.05
+      },
+      "dir": {
+        "x": 0.0,
+        "y": 0.0,
+        "z": 1.0
+      },
+      "label": "光束 2（−0.05 mrad）",
+      "wavelength": 6.328e-07,
+      "group": "A"
+    }
+  ],
+  "scene": {
+    "components": [
+      {
+        "id": "det",
+        "type": "sensor",
+        "pos": {
+          "x": 0.0,
+          "y": 0.0,
+          "z": 0.5
+        },
+        "label": "干涉平面",
+        "yaw": 3.141592653589793,
+        "shape": {
+          "kind": "rectangle",
+          "params": {
+            "width": 0.019,
+            "height": 0.019
+          }
+        }
+      }
+    ]
+  },
+  "meta": {
+    "zod": {
+      "category": "干涉",
+      "difficulty": "进阶",
+      "description": "两个**同组同波长**的倾斜平面波（夹角 0.1 mrad）在 0.5 m 处叠加——最纯粹的双光束干涉（不需要任何分束器）。",
+      "expected": "等间距直条纹，间距 Δx=λ/(2sinθ)≈λ/(2θ)=6.328 mm，对比度接近 1（两束等功率）；条纹方向垂直于两波矢之差。把其中之一换成不同波长或不同 group，条纹立刻消失（只看强度相加）——相干性的定义。",
+      "tags": [
+        "双光束",
+        "相干叠加",
+        "相干组"
+      ],
+      "theory": "两平面波夹角 θ：Δx = λ/(2 sin(θ/2)) ≈ λ/θ；相干组决定是否叠加振幅"
+    },
+    "sample": true
+  }
+}

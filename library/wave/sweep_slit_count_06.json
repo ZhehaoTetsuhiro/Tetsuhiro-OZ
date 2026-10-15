@@ -1,0 +1,240 @@
+{
+  "name": "扫掠·缝数 N=8 → 主极大宽度 ∝ 1/N",
+  "grid": {
+    "size": 512,
+    "width": 0.02
+  },
+  "wavelength": 6.328e-07,
+  "polarized": false,
+  "method": "asm",
+  "evanescent": "decay",
+  "evanescent_limit": 0,
+  "backward_regularize": false,
+  "tikhonov_alpha": 0,
+  "bandlimit": {
+    "fraction": 0.9,
+    "sigma": 0.05
+  },
+  "sources": [
+    {
+      "id": "src",
+      "type": "plane",
+      "params": {
+        "power": 0.001
+      },
+      "pos": {
+        "x": 0.0,
+        "y": 0.0,
+        "z": -0.05
+      },
+      "dir": {
+        "x": 0.0,
+        "y": 0.0,
+        "z": 1.0
+      },
+      "wavelength": 6.328e-07
+    }
+  ],
+  "scene": {
+    "components": [
+      {
+        "id": "s0",
+        "type": "aperture",
+        "pos": {
+          "x": 0.0,
+          "y": 0.0,
+          "z": 0.0
+        },
+        "shape": {
+          "kind": "rectangle",
+          "params": {
+            "width": 0.00015,
+            "height": 0.019
+          }
+        },
+        "params": {
+          "parallel": true,
+          "x": -0.0035
+        }
+      },
+      {
+        "id": "s1",
+        "type": "aperture",
+        "pos": {
+          "x": 0.0,
+          "y": 0.0,
+          "z": 0.0
+        },
+        "shape": {
+          "kind": "rectangle",
+          "params": {
+            "width": 0.00015,
+            "height": 0.019
+          }
+        },
+        "params": {
+          "parallel": true,
+          "x": -0.0025
+        }
+      },
+      {
+        "id": "s2",
+        "type": "aperture",
+        "pos": {
+          "x": 0.0,
+          "y": 0.0,
+          "z": 0.0
+        },
+        "shape": {
+          "kind": "rectangle",
+          "params": {
+            "width": 0.00015,
+            "height": 0.019
+          }
+        },
+        "params": {
+          "parallel": true,
+          "x": -0.0015
+        }
+      },
+      {
+        "id": "s3",
+        "type": "aperture",
+        "pos": {
+          "x": 0.0,
+          "y": 0.0,
+          "z": 0.0
+        },
+        "shape": {
+          "kind": "rectangle",
+          "params": {
+            "width": 0.00015,
+            "height": 0.019
+          }
+        },
+        "params": {
+          "parallel": true,
+          "x": -0.0005
+        }
+      },
+      {
+        "id": "s4",
+        "type": "aperture",
+        "pos": {
+          "x": 0.0,
+          "y": 0.0,
+          "z": 0.0
+        },
+        "shape": {
+          "kind": "rectangle",
+          "params": {
+            "width": 0.00015,
+            "height": 0.019
+          }
+        },
+        "params": {
+          "parallel": true,
+          "x": 0.0005
+        }
+      },
+      {
+        "id": "s5",
+        "type": "aperture",
+        "pos": {
+          "x": 0.0,
+          "y": 0.0,
+          "z": 0.0
+        },
+        "shape": {
+          "kind": "rectangle",
+          "params": {
+            "width": 0.00015,
+            "height": 0.019
+          }
+        },
+        "params": {
+          "parallel": true,
+          "x": 0.0015
+        }
+      },
+      {
+        "id": "s6",
+        "type": "aperture",
+        "pos": {
+          "x": 0.0,
+          "y": 0.0,
+          "z": 0.0
+        },
+        "shape": {
+          "kind": "rectangle",
+          "params": {
+            "width": 0.00015,
+            "height": 0.019
+          }
+        },
+        "params": {
+          "parallel": true,
+          "x": 0.0025
+        }
+      },
+      {
+        "id": "s7",
+        "type": "aperture",
+        "pos": {
+          "x": 0.0,
+          "y": 0.0,
+          "z": 0.0
+        },
+        "shape": {
+          "kind": "rectangle",
+          "params": {
+            "width": 0.00015,
+            "height": 0.019
+          }
+        },
+        "params": {
+          "parallel": true,
+          "x": 0.0035
+        }
+      },
+      {
+        "id": "det",
+        "type": "sensor",
+        "pos": {
+          "x": 0.0,
+          "y": 0.0,
+          "z": 1.0
+        },
+        "label": "屏（1 m）",
+        "yaw": 3.141592653589793,
+        "shape": {
+          "kind": "rectangle",
+          "params": {
+            "width": 0.019,
+            "height": 0.019
+          }
+        }
+      }
+    ]
+  },
+  "meta": {
+    "zod": {
+      "category": "参数扫掠",
+      "difficulty": "进阶",
+      "description": "固定缝距 1.0 mm、缝宽 0.15 mm，把缝数从 2 增到 16（第 6 条）。",
+      "expected": "主极大位置仍是 Δx=λL/d=0.63 mm，但角宽度压缩到 ∝1/N=1/8（比双缝锐 4 倍），次极大数 N−2=6、次极大强度上限约 1/N²=0.0156。缝数越多「谱线」越锐利——这就是光栅分辨率 ∝ 刻线数 N 的来源。",
+      "tags": [
+        "缝数扫掠",
+        "主极大锐度",
+        "光栅分辨率"
+      ],
+      "theory": "主极大宽度 ∝ 1/(N d)",
+      "sweep": {
+        "param": "N",
+        "value": 8,
+        "index": 6,
+        "of": 8
+      }
+    }
+  }
+}

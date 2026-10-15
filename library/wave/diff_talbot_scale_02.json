@@ -1,0 +1,90 @@
+{
+  "name": "泰伯距离 ∝ Λ²：Λ=80 µm → z_T=20.23 mm",
+  "grid": {
+    "size": 1024,
+    "width": 0.002
+  },
+  "wavelength": 6.328e-07,
+  "polarized": false,
+  "method": "asm",
+  "evanescent": "decay",
+  "evanescent_limit": 0,
+  "backward_regularize": false,
+  "tikhonov_alpha": 0,
+  "bandlimit": {
+    "fraction": 0.9,
+    "sigma": 0.05
+  },
+  "sources": [
+    {
+      "id": "src",
+      "type": "plane",
+      "params": {
+        "power": 0.001
+      },
+      "pos": {
+        "x": 0.0,
+        "y": 0.0,
+        "z": -0.05
+      },
+      "dir": {
+        "x": 0.0,
+        "y": 0.0,
+        "z": 1.0
+      },
+      "wavelength": 6.328e-07
+    }
+  ],
+  "scene": {
+    "components": [
+      {
+        "id": "g",
+        "type": "grating",
+        "pos": {
+          "x": 0.0,
+          "y": 0.0,
+          "z": 0.0
+        },
+        "label": "相位光栅 Λ=80 µm",
+        "params": {
+          "kind": "phase_binary",
+          "period": 8e-05,
+          "duty": 0.5,
+          "modulation": 2.0
+        }
+      },
+      {
+        "id": "det",
+        "type": "sensor",
+        "pos": {
+          "x": 0.0,
+          "y": 0.0,
+          "z": 0.020227560050568902
+        },
+        "label": "z_T 处",
+        "yaw": 3.141592653589793,
+        "shape": {
+          "kind": "rectangle",
+          "params": {
+            "width": 0.0019,
+            "height": 0.0019
+          }
+        }
+      }
+    ]
+  },
+  "meta": {
+    "zod": {
+      "category": "衍射",
+      "difficulty": "高级",
+      "description": "相位光栅（0/π）的泰伯自成像：周期 80 µm，z_T=2Λ²/λ=20.23 mm。",
+      "expected": "相位光栅在 z_T 处形成振幅型的自成像（相位结构转成强度可见），周期仍为 80 µm；z_T 与 Λ² 成正比——周期缩小一半，泰伯距离缩到 1/4（5.06 mm）。",
+      "tags": [
+        "泰伯效应",
+        "相位光栅",
+        "Λ² 标度"
+      ],
+      "theory": "z_T = 2Λ²/λ，强烈依赖周期"
+    }
+  }
+}

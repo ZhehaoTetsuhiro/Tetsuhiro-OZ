@@ -1,0 +1,38 @@
+{
+  "name": "相干态经损耗：α=2、T=0.25",
+  "modes": 1,
+  "cutoff": 25,
+  "state": {
+    "type": "coherent",
+    "params": {
+      "mode": 0,
+      "alpha_re": 2.0,
+      "alpha_im": 0.0
+    }
+  },
+  "gates": [
+    {
+      "type": "loss",
+      "params": {
+        "mode": 0,
+        "transmittance": 0.25
+      }
+    }
+  ],
+  "meta": {
+    "name": "相干态经损耗：α=2、T=0.25",
+    "zod": {
+      "category": "量子",
+      "difficulty": "进阶",
+      "description": "相干态 |α=2⟩ 经过损耗：经典光衰减时**保持相干**（只是幅度变小）。",
+      "expected": "⟨n⟩=T|α|²=1.00、g²(0)=1（仍是泊松/相干光）。与热态、Fock 态对比：损耗对不同量子态的「伤害」完全不同——这是量子光学中「经典态最鲁棒」的原因。",
+      "tags": [
+        "相干态",
+        "损耗",
+        "鲁棒性"
+      ],
+      "theory": "相干态经损耗仍是相干态 α→√T·α",
+      "protocol": "quantum"
+    }
+  }
+}

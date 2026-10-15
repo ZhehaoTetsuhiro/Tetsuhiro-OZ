@@ -1,0 +1,109 @@
+{
+  "name": "高阶贝塞尔光束：螺旋相位 + 轴锥镜（l=3）",
+  "grid": {
+    "size": 1024,
+    "width": 0.008
+  },
+  "wavelength": 6.328e-07,
+  "polarized": false,
+  "method": "asm",
+  "evanescent": "decay",
+  "evanescent_limit": 0,
+  "backward_regularize": false,
+  "tikhonov_alpha": 0,
+  "bandlimit": {
+    "fraction": 0.9,
+    "sigma": 0.05
+  },
+  "sources": [
+    {
+      "id": "src",
+      "type": "gaussian",
+      "params": {
+        "power": 0.001,
+        "waist": 0.0015
+      },
+      "pos": {
+        "x": 0.0,
+        "y": 0.0,
+        "z": -0.05
+      },
+      "dir": {
+        "x": 0.0,
+        "y": 0.0,
+        "z": 1.0
+      },
+      "label": "高斯 w₀=1.5 mm",
+      "wavelength": 6.328e-07
+    }
+  ],
+  "scene": {
+    "components": [
+      {
+        "id": "spp",
+        "type": "spiral_phase",
+        "pos": {
+          "x": 0.0,
+          "y": 0.0,
+          "z": 0.0
+        },
+        "label": "螺旋相位板 l=3",
+        "shape": {
+          "kind": "circle",
+          "params": {
+            "radius": 0.0036000000000000003
+          }
+        },
+        "params": {
+          "charge": 3
+        }
+      },
+      {
+        "id": "ax",
+        "type": "axicon",
+        "pos": {
+          "x": 0.0,
+          "y": 0.0,
+          "z": 0.01
+        },
+        "label": "轴锥镜 α=30 mrad",
+        "shape": {
+          "kind": "circle",
+          "params": {
+            "radius": 0.0036000000000000003
+          }
+        },
+        "params": {
+          "alpha": 0.03,
+          "index": 1.5
+        }
+      },
+      {
+        "id": "det",
+        "type": "sensor",
+        "pos": {
+          "x": 0.0,
+          "y": 0.0,
+          "z": 0.15
+        },
+        "label": "贝塞尔区",
+        "yaw": 3.141592653589793
+      }
+    ]
+  },
+  "meta": {
+    "zod": {
+      "category": "传播/光束",
+      "difficulty": "高级",
+      "description": "螺旋相位板（l=3）与轴锥镜串联：产生**高阶贝塞尔光束**（涡旋 + 无衍射）。",
+      "expected": "中心是**暗核**（拓扑荷 l=3），外围是无衍射的同心环；高阶贝塞尔光束的中心暗核尺寸比 l=1 更大，环结构在无衍射区内不变形。可用于「无衍射光镊」与超分辨光片照明。",
+      "tags": [
+        "高阶贝塞尔",
+        "涡旋",
+        "无衍射",
+        "光镊"
+      ],
+      "theory": "exp(ilθ)·J_l(k_r r)：径向为 l 阶贝塞尔函数"
+    }
+  }
+}

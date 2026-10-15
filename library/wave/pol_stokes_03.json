@@ -1,0 +1,113 @@
+{
+  "name": "斯托克斯参数读数：椭圆偏振（QWP 30°）",
+  "grid": {
+    "size": 512,
+    "width": 0.01
+  },
+  "wavelength": 6.328e-07,
+  "polarized": true,
+  "method": "asm",
+  "evanescent": "decay",
+  "evanescent_limit": 0,
+  "backward_regularize": false,
+  "tikhonov_alpha": 0,
+  "bandlimit": {
+    "fraction": 0.9,
+    "sigma": 0.05
+  },
+  "sources": [
+    {
+      "id": "src",
+      "type": "plane",
+      "params": {
+        "power": 0.001,
+        "polarization": "x"
+      },
+      "pos": {
+        "x": 0.0,
+        "y": 0.0,
+        "z": -0.05
+      },
+      "dir": {
+        "x": 0.0,
+        "y": 0.0,
+        "z": 1.0
+      },
+      "label": "平面波（x 偏振）",
+      "wavelength": 6.328e-07
+    }
+  ],
+  "scene": {
+    "components": [
+      {
+        "id": "clip",
+        "type": "aperture",
+        "pos": {
+          "x": 0.0,
+          "y": 0.0,
+          "z": 0.0
+        },
+        "label": "限光阑（6.0 mm 方孔）",
+        "shape": {
+          "kind": "rectangle",
+          "params": {
+            "width": 0.006,
+            "height": 0.006
+          }
+        }
+      },
+      {
+        "id": "xq",
+        "type": "retarder",
+        "pos": {
+          "x": 0.0,
+          "y": 0.0,
+          "z": 0.03
+        },
+        "label": "QWP 快轴 30°",
+        "shape": {
+          "kind": "circle",
+          "params": {
+            "radius": 0.0049
+          }
+        },
+        "params": {
+          "retardance": 1.5707963267948966,
+          "axis": 0.5235987755982988
+        }
+      },
+      {
+        "id": "det",
+        "type": "sensor",
+        "pos": {
+          "x": 0.0,
+          "y": 0.0,
+          "z": 0.05
+        },
+        "label": "偏振读数面",
+        "yaw": 3.141592653589793,
+        "shape": {
+          "kind": "rectangle",
+          "params": {
+            "width": 0.006,
+            "height": 0.006
+          }
+        }
+      }
+    ]
+  },
+  "meta": {
+    "zod": {
+      "category": "偏振",
+      "difficulty": "高级",
+      "description": "生成 椭圆偏振（QWP 30°），在探测面上用 /api/runs/{id}/inspect/{pid} 读取该像素的琼斯矢量、斯托克斯参数 (s0,s1,s2,s3)、偏振方位角、椭率与偏振度。",
+      "expected": "各偏振态的斯托克斯参数：线偏振 45° → (1,0,±1,0)（s3=0）；圆偏振 → (1,0,0,±1)；椭圆偏振 → s3 介于 0 与 ±1 之间；自然光/部分偏振 → s0²>s1²+s2²+s3²。方位角 ψ=½atan(s2/s1)，椭率 χ=½asin(s3/s0)。GUI 在偏振视图叠加椭圆阵列。",
+      "tags": [
+        "斯托克斯参数",
+        "偏振椭圆",
+        "偏振度"
+      ],
+      "theory": "S=(s0,s1,s2,s3) 由琼斯矢量算得；纯态 s0²=s1²+s2²+s3²"
+    }
+  }
+}

@@ -1,0 +1,108 @@
+{
+  "name": "闪耀光栅：锯齿相位深度 1.57 rad",
+  "grid": {
+    "size": 1024,
+    "width": 0.008
+  },
+  "wavelength": 6.328e-07,
+  "polarized": false,
+  "method": "asm",
+  "evanescent": "decay",
+  "evanescent_limit": 0,
+  "backward_regularize": false,
+  "tikhonov_alpha": 0,
+  "bandlimit": {
+    "fraction": 0.9,
+    "sigma": 0.05
+  },
+  "sources": [
+    {
+      "id": "src",
+      "type": "plane",
+      "params": {
+        "power": 0.001
+      },
+      "pos": {
+        "x": 0.0,
+        "y": 0.0,
+        "z": -0.05
+      },
+      "dir": {
+        "x": 0.0,
+        "y": 0.0,
+        "z": 1.0
+      },
+      "wavelength": 6.328e-07
+    }
+  ],
+  "scene": {
+    "components": [
+      {
+        "id": "g",
+        "type": "grating",
+        "pos": {
+          "x": 0.0,
+          "y": 0.0,
+          "z": 0.0
+        },
+        "label": "闪耀光栅 深度 1.57 rad",
+        "params": {
+          "kind": "blazed",
+          "period": 0.0001,
+          "blaze_depth": 1.5707963267948966
+        }
+      },
+      {
+        "id": "fl",
+        "type": "lens",
+        "pos": {
+          "x": 0.0,
+          "y": 0.0,
+          "z": 0.02
+        },
+        "label": "傅里叶透镜 f=0.30 m",
+        "shape": {
+          "kind": "circle",
+          "params": {
+            "radius": 0.00392
+          }
+        },
+        "params": {
+          "f": 0.3
+        }
+      },
+      {
+        "id": "det",
+        "type": "sensor",
+        "pos": {
+          "x": 0.0,
+          "y": 0.0,
+          "z": 0.32
+        },
+        "label": "焦面（衍射级）",
+        "yaw": 3.141592653589793,
+        "shape": {
+          "kind": "rectangle",
+          "params": {
+            "width": 0.0076,
+            "height": 0.0076
+          }
+        }
+      }
+    ]
+  },
+  "meta": {
+    "zod": {
+      "category": "衍射",
+      "difficulty": "进阶",
+      "description": "锯齿（blazed）相位光栅，周期 100 µm、峰峰相位 1.57 rad = 0.25×2π；闪耀角把 0 级能量整体搬向 +1 级。",
+      "expected": "峰峰相位 2π 时 +1 级拿到 ~100% 的功率（其余级次为零）——「闪耀」的本质是让每个周期的相位斜坡恰好补偿 +1 级在该方向的相位差；深度偏离 2π 时能量按 sinc² 泄漏到零级与其它级。本实例深度 1.57 rad（25% of 2π），+1 级位于 x=+1.90 mm。",
+      "tags": [
+        "闪耀光栅",
+        "blaze",
+        "光栅光谱仪核心"
+      ],
+      "theory": "闪耀条件：相位斜坡 2πp 时全部能量进入 +1 级"
+    }
+  }
+}

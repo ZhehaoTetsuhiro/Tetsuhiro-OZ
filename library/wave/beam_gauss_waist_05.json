@@ -1,0 +1,69 @@
+{
+  "name": "高斯光束传播：w₀=0.80 mm（0.5 m 后展宽 0.81 mm）",
+  "grid": {
+    "size": 512,
+    "width": 0.004
+  },
+  "wavelength": 6.328e-07,
+  "polarized": false,
+  "method": "asm",
+  "evanescent": "decay",
+  "evanescent_limit": 0,
+  "backward_regularize": false,
+  "tikhonov_alpha": 0,
+  "bandlimit": {
+    "fraction": 0.9,
+    "sigma": 0.05
+  },
+  "sources": [
+    {
+      "id": "src",
+      "type": "gaussian",
+      "params": {
+        "power": 0.001,
+        "waist": 0.0008
+      },
+      "pos": {
+        "x": 0.0,
+        "y": 0.0,
+        "z": -0.05
+      },
+      "dir": {
+        "x": 0.0,
+        "y": 0.0,
+        "z": 1.0
+      },
+      "label": "高斯 w₀=0.80 mm",
+      "wavelength": 6.328e-07
+    }
+  ],
+  "scene": {
+    "components": [
+      {
+        "id": "det",
+        "type": "sensor",
+        "pos": {
+          "x": 0.0,
+          "y": 0.0,
+          "z": 0.5
+        },
+        "label": "观察面",
+        "yaw": 3.141592653589793
+      }
+    ]
+  },
+  "meta": {
+    "zod": {
+      "category": "传播/光束",
+      "difficulty": "入门",
+      "description": "基模高斯光束（束腰 0.80 mm）自由传播 0.50 m。瑞利长度 z_R=πw₀²/λ=3.177 m。",
+      "expected": "束腰处最窄，之后按 w(z)=w₀√(1+(z/z_R)²) 展宽到 0.81 mm（为 w₀ 的 1.01 倍）；束腰越小发散越快（θ=λ/πw₀=0.25 mrad）——这是「小光斑 ⇔ 大发散角」的测不准关系式表达。",
+      "tags": [
+        "高斯光束",
+        "瑞利长度",
+        "束腰演化"
+      ],
+      "theory": "w(z)=w₀√(1+(z/z_R)²)，z_R=πw₀²/λ"
+    }
+  }
+}

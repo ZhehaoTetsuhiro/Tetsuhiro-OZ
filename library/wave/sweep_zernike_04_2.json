@@ -1,0 +1,116 @@
+{
+  "name": "扫掠·球差 Z11 = 0.25 λ",
+  "grid": {
+    "size": 512,
+    "width": 0.006
+  },
+  "wavelength": 6.328e-07,
+  "polarized": false,
+  "method": "asm",
+  "evanescent": "decay",
+  "evanescent_limit": 0,
+  "backward_regularize": false,
+  "tikhonov_alpha": 0,
+  "bandlimit": {
+    "fraction": 0.9,
+    "sigma": 0.05
+  },
+  "sources": [
+    {
+      "id": "src",
+      "type": "plane",
+      "params": {
+        "power": 0.001
+      },
+      "pos": {
+        "x": 0.0,
+        "y": 0.0,
+        "z": -0.05
+      },
+      "dir": {
+        "x": 0.0,
+        "y": 0.0,
+        "z": 1.0
+      },
+      "wavelength": 6.328e-07
+    }
+  ],
+  "scene": {
+    "components": [
+      {
+        "id": "l",
+        "type": "lens",
+        "pos": {
+          "x": 0.0,
+          "y": 0.0,
+          "z": 0.0
+        },
+        "label": "理想透镜 f=0.3 m",
+        "shape": {
+          "kind": "circle",
+          "params": {
+            "radius": 0.002
+          }
+        },
+        "params": {
+          "f": 0.3
+        }
+      },
+      {
+        "id": "ab",
+        "type": "zernike",
+        "pos": {
+          "x": 0.0,
+          "y": 0.0,
+          "z": 0.02
+        },
+        "label": "球差 Z11 = 0.25 λ",
+        "shape": {
+          "kind": "circle",
+          "params": {
+            "radius": 0.002
+          }
+        },
+        "params": {
+          "radius": 0.002,
+          "c11": 0.25
+        }
+      },
+      {
+        "id": "det",
+        "type": "sensor",
+        "pos": {
+          "x": 0.0,
+          "y": 0.0,
+          "z": 0.3
+        },
+        "label": "焦面",
+        "yaw": 3.141592653589793,
+        "params": {
+          "strehl_aperture": 0.002,
+          "strehl_distance": 0.3
+        }
+      }
+    ]
+  },
+  "meta": {
+    "zod": {
+      "category": "参数扫掠",
+      "difficulty": "高级",
+      "description": "在理想透镜后加入 球差 Z11=0.25 λ 的泽尼克像差（Noll 序、RMS 归一化）。",
+      "expected": "波前 RMS = 0.25 λ → 理论 Strehl≈exp(−(2πσ)²)=0.085；焦面 PSF 按该像差的特征变形（离焦→同心环、像散→十字/焦线、彗差→彗尾、球差→中心亮环）。无像差时艾里半径 r₁=57.9 µm。",
+      "tags": [
+        "泽尼克扫掠",
+        "像差",
+        "Strehl"
+      ],
+      "theory": "Strehl ≈ exp(−(2πσ)²)",
+      "sweep": {
+        "param": "c11",
+        "value_lambda": 0.25,
+        "index": 674,
+        "of": 16
+      }
+    }
+  }
+}

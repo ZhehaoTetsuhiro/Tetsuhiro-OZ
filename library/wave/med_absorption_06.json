@@ -1,0 +1,95 @@
+{
+  "name": "均匀介质吸收：透过率 1%（α=461 /m）",
+  "grid": {
+    "size": 512,
+    "width": 0.01
+  },
+  "wavelength": 6.328e-07,
+  "polarized": false,
+  "method": "asm",
+  "evanescent": "decay",
+  "evanescent_limit": 0,
+  "backward_regularize": false,
+  "tikhonov_alpha": 0,
+  "bandlimit": {
+    "fraction": 0.9,
+    "sigma": 0.05
+  },
+  "sources": [
+    {
+      "id": "src",
+      "type": "plane",
+      "params": {
+        "power": 0.001
+      },
+      "pos": {
+        "x": 0.0,
+        "y": 0.0,
+        "z": -0.05
+      },
+      "dir": {
+        "x": 0.0,
+        "y": 0.0,
+        "z": 1.0
+      },
+      "wavelength": 6.328e-07
+    }
+  ],
+  "scene": {
+    "components": [
+      {
+        "id": "m",
+        "type": "medium",
+        "pos": {
+          "x": 0.0,
+          "y": 0.0,
+          "z": 0.02
+        },
+        "label": "吸收介质 d=10 mm、n''=2.319e-05",
+        "shape": {
+          "kind": "circle",
+          "params": {
+            "radius": 0.0049
+          }
+        },
+        "params": {
+          "distance": 0.01,
+          "index": 1.5,
+          "absorption": 2.319008234854509e-05,
+          "steps": 10
+        }
+      },
+      {
+        "id": "det",
+        "type": "sensor",
+        "pos": {
+          "x": 0.0,
+          "y": 0.0,
+          "z": 0.1
+        },
+        "label": "透过功率",
+        "yaw": 3.141592653589793,
+        "shape": {
+          "kind": "circle",
+          "params": {
+            "radius": 0.0049
+          }
+        }
+      }
+    ]
+  },
+  "meta": {
+    "zod": {
+      "category": "介质",
+      "difficulty": "入门",
+      "description": "平面波穿过 10 mm 厚的吸收介质（复折射率实部 1.5、虚部 2.319e-05）。",
+      "expected": "比尔-朗伯定律：I/I₀=exp(−2k n''d)=exp(−αd)=0.010（α=2kn''=461 /m）。虚部与强度的关系是「2k n''」，因为强度 ∝ |E|²。本内核用 split-step 实现：吸收在子步里逐段施加，与解析结果一致。",
+      "tags": [
+        "吸收",
+        "比尔-朗伯",
+        "复折射率"
+      ],
+      "theory": "I(z) = I₀ exp(−2 k n'' z)"
+    }
+  }
+}

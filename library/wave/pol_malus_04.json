@@ -1,0 +1,131 @@
+{
+  "name": "马吕斯定律：检偏器 30° → I/I₀=0.750",
+  "grid": {
+    "size": 512,
+    "width": 0.01
+  },
+  "wavelength": 6.328e-07,
+  "polarized": true,
+  "method": "asm",
+  "evanescent": "decay",
+  "evanescent_limit": 0,
+  "backward_regularize": false,
+  "tikhonov_alpha": 0,
+  "bandlimit": {
+    "fraction": 0.9,
+    "sigma": 0.05
+  },
+  "sources": [
+    {
+      "id": "src",
+      "type": "plane",
+      "params": {
+        "power": 0.001,
+        "polarization": "x"
+      },
+      "pos": {
+        "x": 0.0,
+        "y": 0.0,
+        "z": -0.05
+      },
+      "dir": {
+        "x": 0.0,
+        "y": 0.0,
+        "z": 1.0
+      },
+      "label": "平面波（x 偏振）",
+      "wavelength": 6.328e-07
+    }
+  ],
+  "scene": {
+    "components": [
+      {
+        "id": "clip",
+        "type": "aperture",
+        "pos": {
+          "x": 0.0,
+          "y": 0.0,
+          "z": 0.0
+        },
+        "label": "限光阑（6.0 mm 方孔）",
+        "shape": {
+          "kind": "rectangle",
+          "params": {
+            "width": 0.006,
+            "height": 0.006
+          }
+        }
+      },
+      {
+        "id": "xp1",
+        "type": "polarizer",
+        "pos": {
+          "x": 0.0,
+          "y": 0.0,
+          "z": 0.02
+        },
+        "label": "起偏器 0°",
+        "shape": {
+          "kind": "circle",
+          "params": {
+            "radius": 0.0049
+          }
+        },
+        "params": {
+          "angle": 0.0
+        }
+      },
+      {
+        "id": "xp2",
+        "type": "polarizer",
+        "pos": {
+          "x": 0.0,
+          "y": 0.0,
+          "z": 0.04
+        },
+        "label": "检偏器 30°",
+        "shape": {
+          "kind": "circle",
+          "params": {
+            "radius": 0.0049
+          }
+        },
+        "params": {
+          "angle": 0.5235987755982988
+        }
+      },
+      {
+        "id": "det",
+        "type": "sensor",
+        "pos": {
+          "x": 0.0,
+          "y": 0.0,
+          "z": 0.06
+        },
+        "label": "探测器",
+        "yaw": 3.141592653589793,
+        "shape": {
+          "kind": "rectangle",
+          "params": {
+            "width": 0.006,
+            "height": 0.006
+          }
+        }
+      }
+    ]
+  },
+  "meta": {
+    "zod": {
+      "category": "偏振",
+      "difficulty": "入门",
+      "description": "线偏振（x）先经 0° 起偏器，再经转角的检偏器——经典的**马吕斯定律**实验。",
+      "expected": "透过率 I/I₀=cos²θ：θ=0° 全透、45° 半透（0.500）、90° 全消光。本实例 θ=30° → 理论 cos²θ=0.7500。检偏器转到 90° 时视场完全变暗，这是判断线偏振方向的标准方法。",
+      "tags": [
+        "马吕斯定律",
+        "检偏器",
+        "线偏振"
+      ],
+      "theory": "I = I₀ cos²θ（琼斯投影矩阵）"
+    }
+  }
+}

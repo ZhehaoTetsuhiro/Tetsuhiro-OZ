@@ -1,0 +1,212 @@
+{
+  "name": "偏振干涉：两臂正交偏振 + 检偏器 0°",
+  "grid": {
+    "size": 512,
+    "width": 0.01
+  },
+  "wavelength": 6.328e-07,
+  "polarized": true,
+  "method": "asm",
+  "evanescent": "decay",
+  "evanescent_limit": 0,
+  "backward_regularize": false,
+  "tikhonov_alpha": 0,
+  "bandlimit": {
+    "fraction": 0.9,
+    "sigma": 0.05
+  },
+  "sources": [
+    {
+      "id": "src",
+      "type": "plane",
+      "params": {
+        "power": 0.001
+      },
+      "pos": {
+        "x": 0.0,
+        "y": 0.0,
+        "z": -0.05
+      },
+      "dir": {
+        "x": 0.0,
+        "y": 0.0,
+        "z": 1.0
+      },
+      "label": "x 偏振平面波",
+      "wavelength": 6.328e-07
+    }
+  ],
+  "scene": {
+    "components": [
+      {
+        "id": "bs1",
+        "type": "beamsplitter",
+        "pos": {
+          "x": 0.0,
+          "y": 0.0,
+          "z": 0.0
+        },
+        "label": "分束器 1",
+        "yaw": -0.7853981633974483,
+        "shape": {
+          "kind": "circle",
+          "params": {
+            "radius": 0.0034999999999999996
+          }
+        },
+        "params": {
+          "reflectivity": 0.5
+        }
+      },
+      {
+        "id": "xpA",
+        "type": "polarizer",
+        "pos": {
+          "x": 0.0,
+          "y": 0.0,
+          "z": 0.04
+        },
+        "label": "臂 A：偏振片 0°",
+        "shape": {
+          "kind": "circle",
+          "params": {
+            "radius": 0.004
+          }
+        },
+        "params": {
+          "angle": 0.0
+        }
+      },
+      {
+        "id": "m1",
+        "type": "mirror",
+        "pos": {
+          "x": 0.0,
+          "y": 0.0,
+          "z": 0.08
+        },
+        "label": "折转镜 A",
+        "yaw": -0.7853981633974483,
+        "shape": {
+          "kind": "circle",
+          "params": {
+            "radius": 0.0034999999999999996
+          }
+        },
+        "params": {
+          "reflectivity": 1.0
+        }
+      },
+      {
+        "id": "xpB",
+        "type": "polarizer",
+        "pos": {
+          "x": 0.0,
+          "y": 0.0,
+          "z": 0.04
+        },
+        "label": "臂 B：偏振片 90°",
+        "shape": {
+          "kind": "circle",
+          "params": {
+            "radius": 0.004
+          }
+        },
+        "params": {
+          "angle": 1.5707963267948966
+        }
+      },
+      {
+        "id": "m2",
+        "type": "mirror",
+        "pos": {
+          "x": 0.08,
+          "y": 0.0,
+          "z": 0.0
+        },
+        "label": "折转镜 B",
+        "yaw": 2.356194490192345,
+        "shape": {
+          "kind": "circle",
+          "params": {
+            "radius": 0.0034999999999999996
+          }
+        },
+        "params": {
+          "reflectivity": 1.0
+        }
+      },
+      {
+        "id": "bs2",
+        "type": "beamsplitter",
+        "pos": {
+          "x": 0.08,
+          "y": 0.0,
+          "z": 0.08
+        },
+        "label": "合束器",
+        "yaw": -0.7853981633974483,
+        "shape": {
+          "kind": "circle",
+          "params": {
+            "radius": 0.0034999999999999996
+          }
+        },
+        "params": {
+          "reflectivity": 0.5
+        }
+      },
+      {
+        "id": "xana",
+        "type": "polarizer",
+        "pos": {
+          "x": 0.0,
+          "y": 0.0,
+          "z": 0.1
+        },
+        "label": "检偏器 0°",
+        "shape": {
+          "kind": "circle",
+          "params": {
+            "radius": 0.004
+          }
+        },
+        "params": {
+          "angle": 0.0
+        }
+      },
+      {
+        "id": "d1",
+        "type": "sensor",
+        "pos": {
+          "x": 0.08,
+          "y": 0.0,
+          "z": 0.18
+        },
+        "label": "端口 1",
+        "yaw": 3.141592653589793,
+        "shape": {
+          "kind": "circle",
+          "params": {
+            "radius": 0.004
+          }
+        }
+      }
+    ]
+  },
+  "meta": {
+    "zod": {
+      "category": "偏振",
+      "difficulty": "高级",
+      "description": "马赫-曾德尔的两条臂分别放 0° 与 90° 偏振片，使两臂偏振**正交**——正交偏振不能干涉（经典意义下）。在合束后加一个 0° 检偏器把两者投影到同一方向，干涉条纹重新出现。",
+      "expected": "检偏器 0° 使两臂投影振幅分别为 cos0° 与 sin0°，可见度随之变化；45° 时两臂等权、对比度最大。",
+      "tags": [
+        "偏振干涉",
+        "正交偏振",
+        "检偏器",
+        "可见度"
+      ],
+      "theory": "正交偏振态的相干叠加需先投影到同一基；可见度 ∝ |cosθ·sinθ|"
+    }
+  }
+}

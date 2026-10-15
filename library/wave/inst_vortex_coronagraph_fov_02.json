@@ -1,0 +1,149 @@
+{
+  "name": "涡旋日冕仪视场点：倾角 0.20 mrad",
+  "grid": {
+    "size": 512,
+    "width": 0.008
+  },
+  "wavelength": 6.328e-07,
+  "polarized": false,
+  "method": "asm",
+  "evanescent": "decay",
+  "evanescent_limit": 0,
+  "backward_regularize": false,
+  "tikhonov_alpha": 0,
+  "bandlimit": {
+    "fraction": 0.9,
+    "sigma": 0.05
+  },
+  "sources": [
+    {
+      "id": "src",
+      "type": "plane",
+      "params": {
+        "power": 0.001,
+        "tilt_x": 0.0002
+      },
+      "pos": {
+        "x": 0.0,
+        "y": 0.0,
+        "z": -0.05
+      },
+      "dir": {
+        "x": 0.0,
+        "y": 0.0,
+        "z": 1.0
+      },
+      "label": "视场点（倾角 0.20 mrad）",
+      "wavelength": 6.328e-07
+    }
+  ],
+  "scene": {
+    "components": [
+      {
+        "id": "spp",
+        "type": "spiral_phase",
+        "pos": {
+          "x": 0.0,
+          "y": 0.0,
+          "z": 0.0
+        },
+        "label": "涡旋相位板 l=2",
+        "shape": {
+          "kind": "circle",
+          "params": {
+            "radius": 0.0032
+          }
+        },
+        "params": {
+          "charge": 2
+        }
+      },
+      {
+        "id": "l1",
+        "type": "lens",
+        "pos": {
+          "x": 0.0,
+          "y": 0.0,
+          "z": 0.075
+        },
+        "label": "傅里叶透镜",
+        "shape": {
+          "kind": "circle",
+          "params": {
+            "radius": 0.00392
+          }
+        },
+        "params": {
+          "f": 0.075
+        }
+      },
+      {
+        "id": "lyot",
+        "type": "aperture",
+        "pos": {
+          "x": 0.0,
+          "y": 0.0,
+          "z": 0.15
+        },
+        "label": "Lyot 光阑 60%",
+        "shape": {
+          "kind": "circle",
+          "params": {
+            "radius": 0.002352
+          }
+        }
+      },
+      {
+        "id": "l2",
+        "type": "lens",
+        "pos": {
+          "x": 0.0,
+          "y": 0.0,
+          "z": 0.22499999999999998
+        },
+        "label": "逆变换透镜",
+        "shape": {
+          "kind": "circle",
+          "params": {
+            "radius": 0.00392
+          }
+        },
+        "params": {
+          "f": 0.075
+        }
+      },
+      {
+        "id": "det",
+        "type": "sensor",
+        "pos": {
+          "x": 0.0,
+          "y": 0.0,
+          "z": 0.3
+        },
+        "label": "像面",
+        "yaw": 3.141592653589793,
+        "shape": {
+          "kind": "rectangle",
+          "params": {
+            "width": 0.0076,
+            "height": 0.0076
+          }
+        }
+      }
+    ]
+  },
+  "meta": {
+    "zod": {
+      "category": "仪器",
+      "difficulty": "高级",
+      "description": "涡旋日冕仪的离轴视场点（倾角 0.20 mrad）：星光的焦点偏离涡旋奇点，抑制效果随之下降。",
+      "expected": "倾角 0.20 mrad 时焦点离开奇点，涡旋不再把光全部搬进环里 → 残余光穿透 Lyot 光阑、像面出现明显的残差（对比度下降）。因此「日冕仪的有效视场」由奇点对准精度决定。",
+      "tags": [
+        "涡旋日冕仪",
+        "视场",
+        "对准误差"
+      ],
+      "theory": "轴外点偏离奇点 → 抑制比下降，有效视场受限"
+    }
+  }
+}

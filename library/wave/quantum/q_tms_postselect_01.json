@@ -1,0 +1,38 @@
+{
+  "name": "双模压缩后选择（heralded 单光子）：r=0.5",
+  "modes": 2,
+  "cutoff": 20,
+  "state": {
+    "type": "two_mode_squeezed",
+    "params": {
+      "r": 0.5
+    }
+  },
+  "gates": [],
+  "postselect": {
+    "modes": [
+      1
+    ],
+    "counts": [
+      1
+    ]
+  },
+  "meta": {
+    "name": "双模压缩后选择（heralded 单光子）：r=0.5",
+    "zod": {
+      "category": "量子",
+      "difficulty": "进阶",
+      "description": "对双模压缩态的模式 1 做**后选择**（只保留恰好 1 个光子），模式 0 就被预报为单光子态。",
+      "expected": "后选择概率 p=Σ_n |c_n|²·n·... ≈ sech²r·tanh²r/(1−tanh⁴r)（该分支的概率），条件态接近 |1⟩；r 越小纯度越高但概率越低。这就是「预报式单光子源」（heralded single photon）的量子光学原型，也是 KLM 线性光学量子计算的基础资源。",
+      "tags": [
+        "后选择",
+        "预报单光子",
+        "herald",
+        "KLM"
+      ],
+      "theory": "Postselect 模式 1 = 1 光子 → 模式 0 的条件态 ≈ |1⟩",
+      "protocol": "quantum"
+    },
+    "sample": true
+  }
+}

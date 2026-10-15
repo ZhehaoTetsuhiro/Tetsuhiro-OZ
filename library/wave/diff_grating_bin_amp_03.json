@@ -1,0 +1,108 @@
+{
+  "name": "二元振幅光栅：占空比 0.50",
+  "grid": {
+    "size": 1024,
+    "width": 0.008
+  },
+  "wavelength": 6.328e-07,
+  "polarized": false,
+  "method": "asm",
+  "evanescent": "decay",
+  "evanescent_limit": 0,
+  "backward_regularize": false,
+  "tikhonov_alpha": 0,
+  "bandlimit": {
+    "fraction": 0.9,
+    "sigma": 0.05
+  },
+  "sources": [
+    {
+      "id": "src",
+      "type": "plane",
+      "params": {
+        "power": 0.001
+      },
+      "pos": {
+        "x": 0.0,
+        "y": 0.0,
+        "z": -0.05
+      },
+      "dir": {
+        "x": 0.0,
+        "y": 0.0,
+        "z": 1.0
+      },
+      "wavelength": 6.328e-07
+    }
+  ],
+  "scene": {
+    "components": [
+      {
+        "id": "g",
+        "type": "grating",
+        "pos": {
+          "x": 0.0,
+          "y": 0.0,
+          "z": 0.0
+        },
+        "label": "二元振幅光栅 占空比 0.50",
+        "params": {
+          "kind": "amplitude_binary",
+          "period": 0.0001,
+          "duty": 0.5
+        }
+      },
+      {
+        "id": "fl",
+        "type": "lens",
+        "pos": {
+          "x": 0.0,
+          "y": 0.0,
+          "z": 0.02
+        },
+        "label": "傅里叶透镜 f=0.30 m",
+        "shape": {
+          "kind": "circle",
+          "params": {
+            "radius": 0.00392
+          }
+        },
+        "params": {
+          "f": 0.3
+        }
+      },
+      {
+        "id": "det",
+        "type": "sensor",
+        "pos": {
+          "x": 0.0,
+          "y": 0.0,
+          "z": 0.32
+        },
+        "label": "焦面（衍射级）",
+        "yaw": 3.141592653589793,
+        "shape": {
+          "kind": "rectangle",
+          "params": {
+            "width": 0.0076,
+            "height": 0.0076
+          }
+        }
+      }
+    ]
+  },
+  "meta": {
+    "zod": {
+      "category": "衍射",
+      "difficulty": "进阶",
+      "description": "占空比 0.50 的方波振幅光栅（周期 100 µm、缝宽 50.0 µm），傅里叶透镜焦面观察级次。",
+      "expected": "第 q 级强度 ∝ sinc²(q·duty)：偶数级（±2、±4…）全部缺失。±1 级在 x=±1.90 mm，零级最亮（占 25%）。占空比即「缝宽/周期」，因此光栅的缺级规律可以直接由它控制。",
+      "tags": [
+        "二元光栅",
+        "占空比",
+        "缺级"
+      ],
+      "theory": "I_q ∝ sinc²(q·duty)，duty=1/2 时偶数级缺失"
+    }
+  }
+}

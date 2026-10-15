@@ -1,0 +1,108 @@
+{
+  "name": "正弦相位光栅（Raman-Nath）：峰峰相位 2.0 rad",
+  "grid": {
+    "size": 1024,
+    "width": 0.008
+  },
+  "wavelength": 6.328e-07,
+  "polarized": false,
+  "method": "asm",
+  "evanescent": "decay",
+  "evanescent_limit": 0,
+  "backward_regularize": false,
+  "tikhonov_alpha": 0,
+  "bandlimit": {
+    "fraction": 0.9,
+    "sigma": 0.05
+  },
+  "sources": [
+    {
+      "id": "src",
+      "type": "plane",
+      "params": {
+        "power": 0.001
+      },
+      "pos": {
+        "x": 0.0,
+        "y": 0.0,
+        "z": -0.05
+      },
+      "dir": {
+        "x": 0.0,
+        "y": 0.0,
+        "z": 1.0
+      },
+      "wavelength": 6.328e-07
+    }
+  ],
+  "scene": {
+    "components": [
+      {
+        "id": "g",
+        "type": "grating",
+        "pos": {
+          "x": 0.0,
+          "y": 0.0,
+          "z": 0.0
+        },
+        "label": "正弦相位光栅 m=2.0 rad",
+        "params": {
+          "kind": "phase_sin",
+          "period": 0.0001,
+          "modulation": 2.0
+        }
+      },
+      {
+        "id": "fl",
+        "type": "lens",
+        "pos": {
+          "x": 0.0,
+          "y": 0.0,
+          "z": 0.02
+        },
+        "label": "傅里叶透镜 f=0.30 m",
+        "shape": {
+          "kind": "circle",
+          "params": {
+            "radius": 0.00392
+          }
+        },
+        "params": {
+          "f": 0.3
+        }
+      },
+      {
+        "id": "det",
+        "type": "sensor",
+        "pos": {
+          "x": 0.0,
+          "y": 0.0,
+          "z": 0.32
+        },
+        "label": "焦面（衍射级）",
+        "yaw": 3.141592653589793,
+        "shape": {
+          "kind": "rectangle",
+          "params": {
+            "width": 0.0076,
+            "height": 0.0076
+          }
+        }
+      }
+    ]
+  },
+  "meta": {
+    "zod": {
+      "category": "衍射",
+      "difficulty": "进阶",
+      "description": "薄相位光栅 t(x)=exp[i(m/2)sin(2πx/Λ)]，峰峰相位 m=2.0 rad、周期 100 µm。",
+      "expected": "与振幅光栅不同，相位光栅有**多级**衍射：第 q 级振幅为贝塞尔函数 J_q(m/2)。理论比 I₁/I₀=(J₁/J₀)²=0.331、I₂/I₁=(J₂/J₁)²=0.068。m=2.0 rad 时 0 级仍最强；m→2.405 rad 时 J₀=0，零级完全消失（光栅「点亮」）。",
+      "tags": [
+        "相位光栅",
+        "Raman-Nath",
+        "贝塞尔级次"
+      ],
+      "theory": "第 q 级振幅 = J_q(m/2)，能量守恒 Σ J_q² = 1"
+    }
+  }
+}

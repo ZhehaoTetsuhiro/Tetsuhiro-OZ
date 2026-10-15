@@ -4,4 +4,5 @@
 /oz
 *.test
 *.out
-*.svg
+
+# 注意：docs/**/*.svg 是文档资产，需入库

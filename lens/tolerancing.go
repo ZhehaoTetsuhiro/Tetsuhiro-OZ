@@ -81,12 +81,12 @@ type ToleranceReport struct {
 
 // ToleranceOptions tunes the run.
 type ToleranceOptions struct {
-	Runs    int      // default 2000
-	Seed    int64    // default 1 (deterministic; change to draw another sample)
-	Workers int      // default min(8, GOMAXPROCS)
-	Fields  []Field  // default on-axis + 0.5° (same as the design drivers)
-	Samples []Sample // default UnitDiskSamples(2, 6) (19 rays per field)
-	LambdaNm float64 // default geo.Wavelengthd
+	Runs     int      // default 2000
+	Seed     int64    // default 1 (deterministic; change to draw another sample)
+	Workers  int      // default min(8, GOMAXPROCS)
+	Fields   []Field  // default on-axis + 0.5° (same as the design drivers)
+	Samples  []Sample // default UnitDiskSamples(2, 6) (19 rays per field)
+	LambdaNm float64  // default geo.Wavelengthd
 }
 
 func (o *ToleranceOptions) applyDefaults() {
@@ -127,15 +127,15 @@ func (m meltMedium) Name() string { return fmt.Sprintf("%s%+.5f", m.base.Name(),
 
 // toleranceRunResult is one perturbed evaluation, tagged for aggregation.
 type toleranceRunResult struct {
-	failed     bool
-	focal      float64 // |EFL(d) − target|, NaN when unavailable
-	color      float64 // |EFL(F) − EFL(C)|
-	onAxis     float64
-	offAxis    float64
-	okFocal    bool
-	okColor    bool
-	okOn       bool
-	okOff      bool
+	failed  bool
+	focal   float64 // |EFL(d) − target|, NaN when unavailable
+	color   float64 // |EFL(F) − EFL(C)|
+	onAxis  float64
+	offAxis float64
+	okFocal bool
+	okColor bool
+	okOn    bool
+	okOff   bool
 }
 
 // RunTolerances performs a deterministic Monte-Carlo tolerance analysis of

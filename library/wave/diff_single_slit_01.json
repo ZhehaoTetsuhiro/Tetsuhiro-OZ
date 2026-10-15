@@ -1,0 +1,93 @@
+{
+  "name": "单缝夫琅禾费衍射：缝宽 a=0.10 mm",
+  "grid": {
+    "size": 512,
+    "width": 0.02
+  },
+  "wavelength": 6.328e-07,
+  "polarized": false,
+  "method": "asm",
+  "evanescent": "decay",
+  "evanescent_limit": 0,
+  "backward_regularize": false,
+  "tikhonov_alpha": 0,
+  "bandlimit": {
+    "fraction": 0.9,
+    "sigma": 0.05
+  },
+  "sources": [
+    {
+      "id": "src",
+      "type": "plane",
+      "params": {
+        "power": 0.001
+      },
+      "pos": {
+        "x": 0.0,
+        "y": 0.0,
+        "z": -0.05
+      },
+      "dir": {
+        "x": 0.0,
+        "y": 0.0,
+        "z": 1.0
+      },
+      "label": "平面波 633 nm",
+      "wavelength": 6.328e-07
+    }
+  ],
+  "scene": {
+    "components": [
+      {
+        "id": "slit",
+        "type": "aperture",
+        "pos": {
+          "x": 0.0,
+          "y": 0.0,
+          "z": 0.0
+        },
+        "label": "单缝 a=0.10 mm",
+        "shape": {
+          "kind": "rectangle",
+          "params": {
+            "width": 0.0001,
+            "height": 0.019
+          }
+        }
+      },
+      {
+        "id": "det",
+        "type": "sensor",
+        "pos": {
+          "x": 0.0,
+          "y": 0.0,
+          "z": 1.5
+        },
+        "label": "观察屏",
+        "yaw": 3.141592653589793,
+        "shape": {
+          "kind": "rectangle",
+          "params": {
+            "width": 0.018000000000000002,
+            "height": 0.018000000000000002
+          }
+        }
+      }
+    ]
+  },
+  "meta": {
+    "zod": {
+      "category": "衍射",
+      "difficulty": "入门",
+      "description": "平面波照明宽 0.10 mm 的单缝，传播 1.5 m 后记录远场分布（菲涅耳数 N_F=a²/(λz)=0.0105≪1，属夫琅禾费区）。",
+      "expected": "沿 x 为 sinc² 图样：第一暗点 x₁=λz/a=9.49 mm，其后暗点等间距 9.49 mm，窗口内可见约 0 个亮纹；缝越宽中央峰越窄（反比）。缝方向的 y 几乎不变。",
+      "tags": [
+        "单缝",
+        "夫琅禾费",
+        "sinc²"
+      ],
+      "theory": "I(θ) ∝ sinc²(π a sinθ/λ)，第一暗点 x = λz/a"
+    },
+    "sample": true
+  }
+}

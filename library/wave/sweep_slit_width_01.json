@@ -1,0 +1,97 @@
+{
+  "name": "扫掠·单缝宽度 a=0.10 mm → 第一暗点 9.49 mm",
+  "grid": {
+    "size": 1024,
+    "width": 0.02
+  },
+  "wavelength": 6.328e-07,
+  "polarized": false,
+  "method": "asm",
+  "evanescent": "decay",
+  "evanescent_limit": 0,
+  "backward_regularize": false,
+  "tikhonov_alpha": 0,
+  "bandlimit": {
+    "fraction": 0.9,
+    "sigma": 0.05
+  },
+  "sources": [
+    {
+      "id": "src",
+      "type": "plane",
+      "params": {
+        "power": 0.001
+      },
+      "pos": {
+        "x": 0.0,
+        "y": 0.0,
+        "z": -0.05
+      },
+      "dir": {
+        "x": 0.0,
+        "y": 0.0,
+        "z": 1.0
+      },
+      "wavelength": 6.328e-07
+    }
+  ],
+  "scene": {
+    "components": [
+      {
+        "id": "slit",
+        "type": "aperture",
+        "pos": {
+          "x": 0.0,
+          "y": 0.0,
+          "z": 0.0
+        },
+        "label": "单缝 a=0.10 mm",
+        "shape": {
+          "kind": "rectangle",
+          "params": {
+            "width": 0.0001,
+            "height": 0.019
+          }
+        }
+      },
+      {
+        "id": "det",
+        "type": "sensor",
+        "pos": {
+          "x": 0.0,
+          "y": 0.0,
+          "z": 1.5
+        },
+        "label": "远场屏",
+        "yaw": 3.141592653589793,
+        "shape": {
+          "kind": "rectangle",
+          "params": {
+            "width": 0.019,
+            "height": 0.019
+          }
+        }
+      }
+    ]
+  },
+  "meta": {
+    "zod": {
+      "category": "参数扫掠",
+      "difficulty": "入门",
+      "description": "固定波长与屏距 1.5 m，把单缝宽度从 0.10 mm 扫到 1.20 mm（第 1 条）。",
+      "expected": "中央亮纹宽度 2x₁=2λL/a=%.3f mm（反比于缝宽）；缝宽加倍 → 图样减半。",
+      "tags": [
+        "缝宽扫掠",
+        "衍射展宽"
+      ],
+      "theory": "x₁ = λL/a",
+      "sweep": {
+        "param": "a",
+        "value_mm": 0.1,
+        "index": 1,
+        "of": 10
+      }
+    },
+    "sample": true
+  }
+}

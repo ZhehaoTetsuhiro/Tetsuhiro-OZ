@@ -1,0 +1,99 @@
+{
+  "name": "相干性对比：两束光的 分属两组（强度相加）",
+  "grid": {
+    "size": 512,
+    "width": 0.02
+  },
+  "wavelength": 6.328e-07,
+  "polarized": false,
+  "method": "asm",
+  "evanescent": "decay",
+  "evanescent_limit": 0,
+  "backward_regularize": false,
+  "tikhonov_alpha": 0,
+  "bandlimit": {
+    "fraction": 0.9,
+    "sigma": 0.05
+  },
+  "sources": [
+    {
+      "id": "s1",
+      "type": "plane",
+      "params": {
+        "power": 0.0005,
+        "tilt_x": 0.0001
+      },
+      "pos": {
+        "x": 0.0,
+        "y": 0.0,
+        "z": -0.05
+      },
+      "dir": {
+        "x": 0.0,
+        "y": 0.0,
+        "z": 1.0
+      },
+      "label": "光束 1（组 A）",
+      "wavelength": 6.328e-07,
+      "group": "A"
+    },
+    {
+      "id": "s2",
+      "type": "plane",
+      "params": {
+        "power": 0.0005,
+        "tilt_x": -0.0001
+      },
+      "pos": {
+        "x": 0.0,
+        "y": 0.0,
+        "z": -0.05
+      },
+      "dir": {
+        "x": 0.0,
+        "y": 0.0,
+        "z": 1.0
+      },
+      "label": "光束 2（组 B）",
+      "wavelength": 6.328e-07,
+      "group": "B"
+    }
+  ],
+  "scene": {
+    "components": [
+      {
+        "id": "det",
+        "type": "sensor",
+        "pos": {
+          "x": 0.0,
+          "y": 0.0,
+          "z": 0.5
+        },
+        "label": "观察面",
+        "yaw": 3.141592653589793,
+        "shape": {
+          "kind": "rectangle",
+          "params": {
+            "width": 0.019,
+            "height": 0.019
+          }
+        }
+      }
+    ]
+  },
+  "meta": {
+    "zod": {
+      "category": "干涉",
+      "difficulty": "进阶",
+      "description": "几何完全相同（两束夹角 0.2 mrad 的平面波），只有**相干组**不同：分属两组（强度相加）。",
+      "expected": "条纹完全消失，只剩均匀的强度相加（互不相干的光只叠加强度，不产生干涉项）。",
+      "tags": [
+        "相干性",
+        "相干组",
+        "强度叠加"
+      ],
+      "theory": "同组同波长 → 相干叠加；否则只叠加强度"
+    },
+    "sample": true
+  }
+}

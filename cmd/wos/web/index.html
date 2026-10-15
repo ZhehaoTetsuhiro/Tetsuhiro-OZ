@@ -1,0 +1,179 @@
+<!DOCTYPE html>
+<html lang="zh-CN">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>Tetsuhiro WOS 波动光学模拟器</title>
+<link rel="icon" type="image/svg+xml" href="/favicon.svg">
+<link rel="stylesheet" href="style.css">
+</head>
+<body>
+<div id="splash" class="splash" aria-label="启动画面">
+  <div class="splashInner">
+    <div class="splashMast">
+      <p class="splashSub">波动光学模拟器 · Wave Optics Simulator</p>
+      <h1 class="splashTitle">Tetsuhiro WOS</h1>
+    </div>
+    <div class="splashRule" aria-hidden="true"></div>
+    <div class="splashFoot">
+      <p class="splashQuote">光走过每一条可能的路径，干涉图样是它们彼此相认的证据。</p>
+    </div>
+  </div>
+</div>
+<header>
+  <h1>Tetsuhiro WOS <span class="version">v1.4.0</span></h1>
+  <div class="status" id="status" role="status" aria-live="polite">加载中…</div>
+  <button id="newBtn" title="新建空白光路 (n)">新建 (n)</button>
+  <button id="openBtn" title="打开 JSON 配置文件 (o)">打开 (o)</button>
+  <button id="saveBtn" title="把当前配置保存为 JSON 文件 (s)">保存 (s)</button>
+  <input type="file" id="fileOpen" accept=".json,application/json" hidden aria-hidden="true">
+  <span class="modeSwitch" role="group" aria-label="模拟模式">
+    <button id="waveModeBtn" class="active" title="波动光学模式">波动光学</button>
+    <button id="quantumModeBtn" title="量子光学模式">量子光学</button>
+  </span>
+  <button id="runBtn" title="运行模拟 (空格)">▶ 运行</button>
+  <button id="helpBtn" title="快捷键帮助 (?)">? 帮助</button>
+  <label class="themeToggle" title="主题：浅色＝天蓝色主色调，暗色＝黑底 + 蓝色系（选择会记住，下次打开沿用）">
+    <input type="checkbox" id="themeSwitch" role="switch" aria-label="暗色模式">
+    <span class="track" aria-hidden="true"><span class="knob"></span></span>
+    <span class="themeToggleText">暗色</span>
+  </label>
+</header>
+
+<main>
+  <aside id="left">
+    <section>
+      <h2>光路场景（元件与位置）</h2>
+      <div id="waveEditor">
+        <div class="row">
+          <select id="presetSel" title="载入内置光路模板">
+            <option value="">模板…</option>
+            <option value="empty">空白场景</option>
+            <option value="line">直线光路</option>
+            <option value="michelson">迈克尔逊干涉仪</option>
+            <option value="mach_zehnder">马赫-曾德尔干涉仪</option>
+            <option value="polarization">偏振与相位演示</option>
+            <option value="twosource">双光源（相干/非相干）</option>
+          </select>
+        </div>
+        <div id="sceneList" role="list" aria-label="元件列表"></div>
+        <div class="row">
+          <button id="insertBtn">+ 元件 (i)</button>
+          <button id="dupBtn" title="复制当前元件">复制</button>
+          <button id="deleteBtn">删除 (d)</button>
+          <button id="reloadElemsBtn" class="mini" title="重新扫描元件定义目录（elements/*.json，加 -elements 可指定别的目录）：新增或改好的脚本元件立刻出现在插入列表里">↻ 定义</button>
+        </div>
+        <div id="paramPanel" aria-label="元件参数">
+          <p class="hint">元件带有位置与朝向：z 沿光轴、x 横向、y 竖直。用 ↑/↓ 选择元件，f 逐个定位参数，数字框直接输入（支持 1e-3 科学计数法）、Enter 确认。</p>
+        </div>
+      </div>
+      <div id="quantumEditor" hidden>
+        <div id="qConfigPanel"></div>
+        <h2 style="margin-top:12px">门序列</h2>
+        <div id="qGatesPanel"></div>
+        <div class="row">
+          <button id="qAddGate">+ 增加门</button>
+          <button id="qExportPng">导出 PNG</button>
+          <button id="qExportSvg">导出 SVG</button>
+        </div>
+        <p class="hint">Fock 基线性光学：Fock/相干/压缩/热态光子数分布、g²(0)、正交分量与联合分布。</p>
+      </div>
+    </section>
+    <section id="waveGlobals">
+      <h2>光源（可多个）</h2>
+      <div id="sourceList" role="list" aria-label="光源列表"></div>
+      <div class="row">
+        <button id="addSrcBtn">+ 光源</button>
+        <button id="dupSrcBtn">复制</button>
+        <button id="delSrcBtn">删除</button>
+      </div>
+      <div id="sourcePanel"></div>
+      <h2 style="margin-top:10px">全局参数</h2>
+      <div id="globalPanel"></div>
+      <h2 style="margin-top:10px">警告与信息</h2>
+      <div id="warnings"></div>
+    </section>
+  </aside>
+
+  <section id="center" aria-label="输出">
+    <div id="waveOutput">
+      <div id="viewTabs" role="tablist" aria-label="显示视图">
+        <button role="tab" data-view="color">1 图像</button>
+        <button role="tab" data-view="phase_u">2 相位</button>
+        <button role="tab" data-view="pol">3 偏振</button>
+        <button role="tab" data-view="ex">4 |Ex|²</button>
+        <button role="tab" data-view="ey">5 |Ey|²</button>
+        <button role="tab" data-view="ez">6 |Ez|²</button>
+        <button role="tab" data-view="phase_x">7 相位Ex</button>
+        <button role="tab" data-view="phase_y">8 相位Ey</button>
+        <button role="tab" data-view="scene3d">0 立体视图</button>
+        <button id="profBtn">p 剖面</button>
+        <button id="scaleBtn">l 对数</button>
+        <button id="exportSvgBtn" title="导出 X/Y 两个剖面曲线为矢量 SVG">导出 SVG</button>
+        <button id="hidePatternBtn" title="仅隐藏/显示中心图案 (h)，不影响剖面曲线">隐藏图案</button>
+      </div>
+      <div id="channelBar">
+        <label for="channelSel">通道</label>
+        <select id="channelSel" title="选择某个光源（通道）单独查看，或查看全部光源的合成结果"></select>
+        <label for="exposure">曝光</label>
+        <input type="range" id="exposure" min="-3" max="3" step="0.1" value="0"
+               title="图像视图的亮度曝光（±3 档，每档 2 倍）">
+        <span id="viewNote" class="hint"></span>
+      </div>
+      <div id="canvasWrap">
+        <canvas id="view" width="512" height="512"></canvas>
+        <canvas id="view3d" width="640" height="480" hidden aria-label="光路立体视图"></canvas>
+        <canvas id="prof" width="512" height="512"></canvas>
+        <div id="planeNav">
+          <button id="prevPlane">◀ q</button>
+          <span id="planeLabel">—</span>
+          <button id="nextPlane">e ▶</button>
+        </div>
+        <div id="view3dHint" hidden>拖动旋转 · 滚轮缩放 · 右键/Shift 拖动平移 · 双击复位<button id="invRotBtn" class="mini" title="反转立体视图的拖动旋转方向（默认“反向”：画面跟着指针走）"
+                aria-pressed="true">拖动方向：反向</button></div>
+      </div>
+      <div id="stats" aria-label="当前平面指标"></div>
+      <div id="inspectBox" aria-label="光标处偏振与相位读取"></div>
+    </div>
+    <div id="quantumOutput" hidden>
+      <div id="qResults"></div>
+    </div>
+  </section>
+</main>
+
+<footer>
+  <span id="footerKeys">Tab 移动焦点 · f 定位参数 · ↑↓ 选择元件 · i 插入 · d 删除 · ▶ 空格运行 · q/e 切换平面 · 1-8/0 视图 · 点击图像读取偏振相位 · p 剖面 · h 隐藏图案 · l 对数 · j JSON · n 新建 · o 打开 · s 保存 · Esc 返回 · m 模式 · ? 帮助</span>
+</footer>
+
+<div id="helpOverlay" class="overlay" hidden>
+  <div class="dialog" role="dialog" aria-modal="true" aria-labelledby="helpTitle">
+    <h2 id="helpTitle">键盘与鼠标操作指南</h2>
+    <div id="helpTable"></div>
+    <button id="helpClose">关闭 (Esc)</button>
+  </div>
+</div>
+
+<div id="insertOverlay" class="overlay" hidden>
+  <div class="dialog" role="dialog" aria-modal="true" aria-labelledby="insTitle">
+    <h2 id="insTitle">插入元件（输入过滤，Enter 插入）</h2>
+    <input id="insFilter" type="text" placeholder="输入元件名称过滤…" aria-label="过滤元件">
+    <div id="insList" role="listbox" aria-label="可选元件"></div>
+    <button id="insClose">取消 (Esc)</button>
+  </div>
+</div>
+
+<div id="jsonOverlay" class="overlay" hidden>
+  <div class="dialog wide" role="dialog" aria-modal="true" aria-labelledby="jsonTitle">
+    <h2 id="jsonTitle">高级：直接编辑配置 JSON（Ctrl+Enter 应用，Esc 关闭）</h2>
+    <textarea id="jsonText" spellcheck="false" aria-label="配置 JSON"></textarea>
+    <div id="jsonMsg" role="alert"></div>
+    <div class="row">
+      <button id="jsonApply">应用 (Ctrl+Enter)</button>
+      <button id="jsonClose">关闭 (Esc)</button>
+    </div>
+  </div>
+</div>
+
+<script src="app.js"></script>
+</body>
+</html>

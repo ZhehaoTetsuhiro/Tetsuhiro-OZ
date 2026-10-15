@@ -1,0 +1,64 @@
+{
+  "name": "单光子 MZ + 后选择：φ=π/2 时的条件态",
+  "modes": 3,
+  "cutoff": 4,
+  "state": {
+    "type": "fock",
+    "params": {
+      "occupation": [
+        1,
+        0,
+        0
+      ]
+    }
+  },
+  "gates": [
+    {
+      "type": "beam_splitter",
+      "params": {
+        "mode0": 0,
+        "mode1": 1,
+        "reflectivity": 0.5
+      }
+    },
+    {
+      "type": "phase_shift",
+      "params": {
+        "mode": 1,
+        "phase": 1.5707963267948966
+      }
+    },
+    {
+      "type": "beam_splitter",
+      "params": {
+        "mode0": 0,
+        "mode1": 2,
+        "reflectivity": 0.5
+      }
+    }
+  ],
+  "postselect": {
+    "modes": [
+      2
+    ],
+    "counts": [
+      0
+    ]
+  },
+  "meta": {
+    "name": "单光子 MZ + 后选择：φ=π/2 时的条件态",
+    "zod": {
+      "category": "量子",
+      "difficulty": "高级",
+      "description": "单光子 MZ 的输出再与第三个模式干涉，并后选择模式 2 为空。",
+      "expected": "后选择把连续变量型的干涉转换为离散的条件态：只保留「模式 2 为真空」的分支后，模式 0、1 的条件分布与无条件分布在定义上完全不同（这是量子态制备/过滤的常用技巧）。",
+      "tags": [
+        "后选择",
+        "态制备",
+        "条件分布"
+      ],
+      "theory": "Postselect 之后的态为条件态",
+      "protocol": "quantum"
+    }
+  }
+}

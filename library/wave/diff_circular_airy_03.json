@@ -1,0 +1,108 @@
+{
+  "name": "圆孔衍射（艾里斑）：口径 D=1.0 mm",
+  "grid": {
+    "size": 512,
+    "width": 0.008
+  },
+  "wavelength": 6.328e-07,
+  "polarized": false,
+  "method": "asm",
+  "evanescent": "decay",
+  "evanescent_limit": 0,
+  "backward_regularize": false,
+  "tikhonov_alpha": 0,
+  "bandlimit": {
+    "fraction": 0.9,
+    "sigma": 0.05
+  },
+  "sources": [
+    {
+      "id": "src",
+      "type": "plane",
+      "params": {
+        "power": 0.001
+      },
+      "pos": {
+        "x": 0.0,
+        "y": 0.0,
+        "z": -0.05
+      },
+      "dir": {
+        "x": 0.0,
+        "y": 0.0,
+        "z": 1.0
+      },
+      "wavelength": 6.328e-07
+    }
+  ],
+  "scene": {
+    "components": [
+      {
+        "id": "ap",
+        "type": "aperture",
+        "pos": {
+          "x": 0.0,
+          "y": 0.0,
+          "z": 0.0
+        },
+        "label": "圆孔 D=1.0 mm",
+        "shape": {
+          "kind": "circle",
+          "params": {
+            "radius": 0.0005
+          }
+        }
+      },
+      {
+        "id": "fl",
+        "type": "lens",
+        "pos": {
+          "x": 0.0,
+          "y": 0.0,
+          "z": 0.02
+        },
+        "label": "傅里叶透镜 f=0.3 m",
+        "shape": {
+          "kind": "circle",
+          "params": {
+            "radius": 0.004
+          }
+        },
+        "params": {
+          "f": 0.3
+        }
+      },
+      {
+        "id": "det",
+        "type": "sensor",
+        "pos": {
+          "x": 0.0,
+          "y": 0.0,
+          "z": 0.32
+        },
+        "label": "焦面",
+        "yaw": 3.141592653589793,
+        "shape": {
+          "kind": "circle",
+          "params": {
+            "radius": 0.0038
+          }
+        }
+      }
+    ]
+  },
+  "meta": {
+    "zod": {
+      "category": "衍射",
+      "difficulty": "入门",
+      "description": "直径 1.0 mm 圆孔 + 焦距 0.3 m 傅里叶透镜，焦面即孔径的二维傅里叶变换（艾里图样）。",
+      "expected": "中央艾里斑 + 同心暗环：第一暗环半径 r₁=1.22λf/D=0.232 mm，第二暗环 2.23r₁、第三 3.24r₁；口径越大光斑越小（r₁∝1/D），中央峰约占总功率 84%。",
+      "tags": [
+        "艾里斑",
+        "圆孔",
+        "衍射极限"
+      ],
+      "theory": "r₁ = 1.22 λ f / D"
+    }
+  }
+}

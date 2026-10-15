@@ -1,0 +1,114 @@
+{
+  "name": "双孔干涉（圆孔版杨氏）：孔径 0.25 mm、孔距 2.5 mm",
+  "grid": {
+    "size": 1024,
+    "width": 0.02
+  },
+  "wavelength": 6.328e-07,
+  "polarized": false,
+  "method": "asm",
+  "evanescent": "decay",
+  "evanescent_limit": 0,
+  "backward_regularize": false,
+  "tikhonov_alpha": 0,
+  "bandlimit": {
+    "fraction": 0.9,
+    "sigma": 0.05
+  },
+  "sources": [
+    {
+      "id": "src",
+      "type": "plane",
+      "params": {
+        "power": 0.001
+      },
+      "pos": {
+        "x": 0.0,
+        "y": 0.0,
+        "z": -0.05
+      },
+      "dir": {
+        "x": 0.0,
+        "y": 0.0,
+        "z": 1.0
+      },
+      "wavelength": 6.328e-07
+    }
+  ],
+  "scene": {
+    "components": [
+      {
+        "id": "h1",
+        "type": "aperture",
+        "pos": {
+          "x": 0.0,
+          "y": 0.0,
+          "z": 0.0
+        },
+        "label": "孔 1",
+        "shape": {
+          "kind": "circle",
+          "params": {
+            "radius": 0.00025
+          }
+        },
+        "params": {
+          "parallel": true,
+          "x": -0.00125
+        }
+      },
+      {
+        "id": "h2",
+        "type": "aperture",
+        "pos": {
+          "x": 0.0,
+          "y": 0.0,
+          "z": 0.0
+        },
+        "label": "孔 2",
+        "shape": {
+          "kind": "circle",
+          "params": {
+            "radius": 0.00025
+          }
+        },
+        "params": {
+          "parallel": true,
+          "x": 0.00125
+        }
+      },
+      {
+        "id": "det",
+        "type": "sensor",
+        "pos": {
+          "x": 0.0,
+          "y": 0.0,
+          "z": 1.0
+        },
+        "label": "干涉屏",
+        "yaw": 3.141592653589793,
+        "shape": {
+          "kind": "rectangle",
+          "params": {
+            "width": 0.019,
+            "height": 0.019
+          }
+        }
+      }
+    ]
+  },
+  "meta": {
+    "zod": {
+      "category": "衍射",
+      "difficulty": "进阶",
+      "description": "两个半径 0.25 mm 的圆孔（中心距 2.5 mm）替代狭缝，观察二维干涉图样（用同 z 的parallel 并集实现）。",
+      "expected": "干涉条纹间距 Δx=λz/d=0.25 mm，条纹方向垂直于两孔连线；整体被圆孔的艾里包络调制（艾里第一暗环 1.5 mm）。孔越大条纹越少、孔距越大条纹越密。",
+      "tags": [
+        "双孔",
+        "杨氏实验",
+        "二维干涉"
+      ],
+      "theory": "Δx = λz/d，包络为圆孔艾里图样"
+    }
+  }
+}

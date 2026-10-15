@@ -224,19 +224,19 @@ func runLens(path string) {
 		objZ = "inf"
 	}
 	out := map[string]any{
-		"surfaces":      surfs,
-		"object_z_mm":   objZ,
-		"object_distance_mm": objDist,
-		"wavelength_nm": geo.Wavelengthd,
-		"efl_d_mm":      par.EFL,
-		"bfl_d_mm":      par.BFL,
-		"fno_d":         par.FNumber,
-		"pupil_radius":  pup.Radius,
-		"pupil_z_mm":    pup.Z,
-		"marginal_radius_mm":     hUsed,
+		"surfaces":                surfs,
+		"object_z_mm":             objZ,
+		"object_distance_mm":      objDist,
+		"wavelength_nm":           geo.Wavelengthd,
+		"efl_d_mm":                par.EFL,
+		"bfl_d_mm":                par.BFL,
+		"fno_d":                   par.FNumber,
+		"pupil_radius":            pup.Radius,
+		"pupil_z_mm":              pup.Z,
+		"marginal_radius_mm":      hUsed,
 		"marginal_pupil_fraction": fracUsed,
-		"marginal_status":        mStatus,
-		"marginal_y_at_focus_mm": marginalY,
+		"marginal_status":         mStatus,
+		"marginal_y_at_focus_mm":  marginalY,
 	}
 	enc := json.NewEncoder(os.Stdout)
 	enc.SetIndent("", " ")

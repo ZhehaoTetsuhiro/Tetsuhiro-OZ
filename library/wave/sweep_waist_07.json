@@ -1,0 +1,75 @@
+{
+  "name": "扫掠·束腰 w₀=1.00 mm → 0.5 m 后 1.01 mm",
+  "grid": {
+    "size": 512,
+    "width": 0.006
+  },
+  "wavelength": 6.328e-07,
+  "polarized": false,
+  "method": "asm",
+  "evanescent": "decay",
+  "evanescent_limit": 0,
+  "backward_regularize": false,
+  "tikhonov_alpha": 0,
+  "bandlimit": {
+    "fraction": 0.9,
+    "sigma": 0.05
+  },
+  "sources": [
+    {
+      "id": "src",
+      "type": "gaussian",
+      "params": {
+        "power": 0.001,
+        "waist": 0.001
+      },
+      "pos": {
+        "x": 0.0,
+        "y": 0.0,
+        "z": -0.05
+      },
+      "dir": {
+        "x": 0.0,
+        "y": 0.0,
+        "z": 1.0
+      },
+      "label": "高斯 w₀=1.00 mm",
+      "wavelength": 6.328e-07
+    }
+  ],
+  "scene": {
+    "components": [
+      {
+        "id": "det",
+        "type": "sensor",
+        "pos": {
+          "x": 0.0,
+          "y": 0.0,
+          "z": 0.5
+        },
+        "label": "z=0.5 m 处",
+        "yaw": 3.141592653589793
+      }
+    ]
+  },
+  "meta": {
+    "zod": {
+      "category": "参数扫掠",
+      "difficulty": "入门",
+      "description": "把高斯光束的束腰从 0.05 mm 扫到 1.5 mm（第 7 条），都在 0.5 m 处观察。",
+      "expected": "w(0.5)=1.005 mm；瑞利长度 z_R=πw₀²/λ=4.965 m，发散半角 θ=λ/(πw₀)=0.20 mrad。束腰小 → 展宽剧烈（本条的 w/w₀=1.01）。",
+      "tags": [
+        "束腰扫掠",
+        "发散角",
+        "瑞利长度"
+      ],
+      "theory": "z_R=πw₀²/λ，θ=λ/(πw₀)",
+      "sweep": {
+        "param": "w0_um",
+        "value": 1000.0,
+        "index": 7,
+        "of": 8
+      }
+    }
+  }
+}

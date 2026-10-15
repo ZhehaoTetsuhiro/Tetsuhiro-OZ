@@ -1,0 +1,71 @@
+{
+  "name": "球面波（发散）：曲率半径 R=0.20 m",
+  "grid": {
+    "size": 512,
+    "width": 0.01
+  },
+  "wavelength": 6.328e-07,
+  "polarized": false,
+  "method": "asm",
+  "evanescent": "decay",
+  "evanescent_limit": 0,
+  "backward_regularize": false,
+  "tikhonov_alpha": 0,
+  "bandlimit": {
+    "fraction": 0.9,
+    "sigma": 0.05
+  },
+  "sources": [
+    {
+      "id": "src",
+      "type": "spherical",
+      "params": {
+        "power": 0.001,
+        "radius": 0.2,
+        "converging": false
+      },
+      "pos": {
+        "x": 0.0,
+        "y": 0.0,
+        "z": -0.05
+      },
+      "dir": {
+        "x": 0.0,
+        "y": 0.0,
+        "z": 1.0
+      },
+      "label": "球面波 R=0.20 m",
+      "wavelength": 6.328e-07
+    }
+  ],
+  "scene": {
+    "components": [
+      {
+        "id": "det",
+        "type": "sensor",
+        "pos": {
+          "x": 0.0,
+          "y": 0.0,
+          "z": 0.2
+        },
+        "label": "观察面",
+        "yaw": 3.141592653589793
+      }
+    ]
+  },
+  "meta": {
+    "zod": {
+      "category": "传播/光束",
+      "difficulty": "入门",
+      "description": "发散球面波，等价于点光源位于光源面后方（或前方）0.20 m 处。",
+      "expected": "强度沿半径按 1/r² 衰减（越靠边缘越暗），等相位面为同心球面（phase_u 上是同心环）；发散波的高斯相位导数为正、曲率半径向外扩大。",
+      "tags": [
+        "球面波",
+        "点光源",
+        "波前曲率"
+      ],
+      "theory": "U ∝ exp(ikr)/r；会聚/发散由二次相位符号区分"
+    },
+    "sample": true
+  }
+}

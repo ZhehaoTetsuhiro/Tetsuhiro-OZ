@@ -1,0 +1,159 @@
+{
+  "name": "偏振 DIC 显微镜：剪切量 0.40 mm",
+  "grid": {
+    "size": 512,
+    "width": 0.01
+  },
+  "wavelength": 6.328e-07,
+  "polarized": true,
+  "method": "asm",
+  "evanescent": "decay",
+  "evanescent_limit": 0,
+  "backward_regularize": false,
+  "tikhonov_alpha": 0,
+  "bandlimit": {
+    "fraction": 0.9,
+    "sigma": 0.05
+  },
+  "sources": [
+    {
+      "id": "src",
+      "type": "plane",
+      "params": {
+        "power": 0.001,
+        "polarization": "d"
+      },
+      "pos": {
+        "x": 0.0,
+        "y": 0.0,
+        "z": -0.05
+      },
+      "dir": {
+        "x": 0.0,
+        "y": 0.0,
+        "z": 1.0
+      },
+      "label": "45° 线偏振",
+      "wavelength": 6.328e-07
+    }
+  ],
+  "scene": {
+    "components": [
+      {
+        "id": "xpol1",
+        "type": "polarizer",
+        "pos": {
+          "x": 0.0,
+          "y": 0.0,
+          "z": 0.0
+        },
+        "label": "起偏器 45°",
+        "shape": {
+          "kind": "circle",
+          "params": {
+            "radius": 0.0045000000000000005
+          }
+        },
+        "params": {
+          "angle": 0.0
+        }
+      },
+      {
+        "id": "obj",
+        "type": "medium",
+        "pos": {
+          "x": 0.0,
+          "y": 0.0,
+          "z": 0.02
+        },
+        "label": "相位物体（方孔，0.2λ）",
+        "shape": {
+          "kind": "rectangle",
+          "params": {
+            "width": 0.001,
+            "height": 0.001
+          }
+        },
+        "params": {
+          "distance": 0.005,
+          "index": 1.00000012656,
+          "absorption": 0.0,
+          "steps": 2
+        }
+      },
+      {
+        "id": "prism",
+        "type": "uniaxial",
+        "pos": {
+          "x": 0.0,
+          "y": 0.0,
+          "z": 0.04
+        },
+        "label": "DIC 棱镜（剪切 0.40 mm）",
+        "shape": {
+          "kind": "circle",
+          "params": {
+            "radius": 0.0045000000000000005
+          }
+        },
+        "params": {
+          "distance": 0.0004,
+          "n_o": 1.5,
+          "n_e": 1.500791
+        }
+      },
+      {
+        "id": "xpol2",
+        "type": "polarizer",
+        "pos": {
+          "x": 0.0,
+          "y": 0.0,
+          "z": 0.06
+        },
+        "label": "检偏器 135°（与起偏正交）",
+        "shape": {
+          "kind": "circle",
+          "params": {
+            "radius": 0.0045000000000000005
+          }
+        },
+        "params": {
+          "angle": 2.356194490192345
+        }
+      },
+      {
+        "id": "det",
+        "type": "sensor",
+        "pos": {
+          "x": 0.0,
+          "y": 0.0,
+          "z": 0.09
+        },
+        "label": "像面",
+        "yaw": 3.141592653589793,
+        "shape": {
+          "kind": "rectangle",
+          "params": {
+            "width": 0.009000000000000001,
+            "height": 0.009000000000000001
+          }
+        }
+      }
+    ]
+  },
+  "meta": {
+    "zod": {
+      "category": "仪器",
+      "difficulty": "高级",
+      "description": "微分干涉对比（DIC）：45° 线偏振 → 样品 → **双折射剪切棱镜**（把一束光剪成两束偏振正交、横向错开 0.40 mm 的光）→ 正交检偏器。",
+      "expected": "样品被「剪开」的两点相减后成像，得到**浮雕状**的强度图（强度 ∝ 相位的一阶导数）——无染色即可看到透明样品的边缘与厚度梯度，这是 DIC 相对相衬的优势（无光晕、可做光学切片）。剪切量 0.40 mm 决定浮雕的感知厚度：过大会出现两个分离的像。",
+      "tags": [
+        "DIC",
+        "微分干涉",
+        "双折射棱镜",
+        "偏振显微"
+      ],
+      "theory": "DIC：正交偏振的剪切光束之差 → 强度 ∝ dφ/dx（相位梯度成像）"
+    }
+  }
+}

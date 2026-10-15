@@ -1,0 +1,136 @@
+{
+  "name": "双轴晶体（Berreman 4×4）：n=(1.60, 1.58, 1.56)",
+  "grid": {
+    "size": 512,
+    "width": 0.01
+  },
+  "wavelength": 6.328e-07,
+  "polarized": true,
+  "method": "asm",
+  "evanescent": "decay",
+  "evanescent_limit": 0,
+  "backward_regularize": false,
+  "tikhonov_alpha": 0,
+  "bandlimit": {
+    "fraction": 0.9,
+    "sigma": 0.05
+  },
+  "sources": [
+    {
+      "id": "src",
+      "type": "plane",
+      "params": {
+        "power": 0.001,
+        "polarization": "d"
+      },
+      "pos": {
+        "x": 0.0,
+        "y": 0.0,
+        "z": -0.05
+      },
+      "dir": {
+        "x": 0.0,
+        "y": 0.0,
+        "z": 1.0
+      },
+      "label": "45° 线偏振",
+      "wavelength": 6.328e-07
+    }
+  ],
+  "scene": {
+    "components": [
+      {
+        "id": "p45",
+        "type": "polarizer",
+        "pos": {
+          "x": 0.0,
+          "y": 0.0,
+          "z": 0.0
+        },
+        "label": "起偏器 45°",
+        "shape": {
+          "kind": "circle",
+          "params": {
+            "radius": 0.0049
+          }
+        },
+        "params": {
+          "angle": 0.7853981633974483
+        }
+      },
+      {
+        "id": "xtal",
+        "type": "biaxial",
+        "pos": {
+          "x": 0.0,
+          "y": 0.0,
+          "z": 0.03
+        },
+        "label": "双轴晶体 d=1 mm",
+        "shape": {
+          "kind": "circle",
+          "params": {
+            "radius": 0.0049
+          }
+        },
+        "params": {
+          "distance": 0.001,
+          "n_x": 1.6,
+          "n_y": 1.58,
+          "n_z": 1.56
+        }
+      },
+      {
+        "id": "ana",
+        "type": "polarizer",
+        "pos": {
+          "x": 0.0,
+          "y": 0.0,
+          "z": 0.06
+        },
+        "label": "检偏器 135°",
+        "shape": {
+          "kind": "circle",
+          "params": {
+            "radius": 0.0049
+          }
+        },
+        "params": {
+          "angle": 2.356194490192345
+        }
+      },
+      {
+        "id": "det",
+        "type": "sensor",
+        "pos": {
+          "x": 0.0,
+          "y": 0.0,
+          "z": 0.08
+        },
+        "label": "读数",
+        "yaw": 3.141592653589793,
+        "shape": {
+          "kind": "circle",
+          "params": {
+            "radius": 0.0049
+          }
+        }
+      }
+    ]
+  },
+  "meta": {
+    "zod": {
+      "category": "介质",
+      "difficulty": "高级",
+      "description": "三主轴折射率互不相等的**双轴晶体**（n_x=1.60, n_y=1.58, n_z=1.56），用完整 Berreman 4×4 各向异性传播求解（含 o/e 耦合，比单轴模型慢）。",
+      "expected": "双轴晶体的两个本征偏振态都不是纯 o/e 光，偏振态随传播连续演化（含 o↔e 能量交换），正交检偏器下的透过率不再是简单的 sin²(kΔnd/2) 而是 4×4 特征值问题的结果。本实例 Δn 约 0.040，δ≈397.17 rad——与同 Δn 的单轴晶体相比，透过率会略有差别。",
+      "tags": [
+        "双轴晶体",
+        "Berreman",
+        "4×4",
+        "各向异性"
+      ],
+      "theory": "Berreman 4×4 传递矩阵：求解 [Ex,Ey,Hx,Hy] 的本征模"
+    }
+  }
+}

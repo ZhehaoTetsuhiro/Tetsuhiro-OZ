@@ -1,0 +1,152 @@
+{
+  "name": "椭圆偏振测量：检偏器 30°（对圆偏振）",
+  "grid": {
+    "size": 512,
+    "width": 0.01
+  },
+  "wavelength": 6.328e-07,
+  "polarized": true,
+  "method": "asm",
+  "evanescent": "decay",
+  "evanescent_limit": 0,
+  "backward_regularize": false,
+  "tikhonov_alpha": 0,
+  "bandlimit": {
+    "fraction": 0.9,
+    "sigma": 0.05
+  },
+  "sources": [
+    {
+      "id": "src",
+      "type": "plane",
+      "params": {
+        "power": 0.001,
+        "polarization": "x"
+      },
+      "pos": {
+        "x": 0.0,
+        "y": 0.0,
+        "z": -0.05
+      },
+      "dir": {
+        "x": 0.0,
+        "y": 0.0,
+        "z": 1.0
+      },
+      "label": "平面波（x 偏振）",
+      "wavelength": 6.328e-07
+    }
+  ],
+  "scene": {
+    "components": [
+      {
+        "id": "clip",
+        "type": "aperture",
+        "pos": {
+          "x": 0.0,
+          "y": 0.0,
+          "z": 0.0
+        },
+        "label": "限光阑（6.0 mm 方孔）",
+        "shape": {
+          "kind": "rectangle",
+          "params": {
+            "width": 0.006,
+            "height": 0.006
+          }
+        }
+      },
+      {
+        "id": "xp0",
+        "type": "polarizer",
+        "pos": {
+          "x": 0.0,
+          "y": 0.0,
+          "z": 0.02
+        },
+        "label": "起偏器 0°",
+        "shape": {
+          "kind": "circle",
+          "params": {
+            "radius": 0.0049
+          }
+        },
+        "params": {
+          "angle": 0.0
+        }
+      },
+      {
+        "id": "xq",
+        "type": "retarder",
+        "pos": {
+          "x": 0.0,
+          "y": 0.0,
+          "z": 0.04
+        },
+        "label": "QWP 快轴 45°（产生圆偏振）",
+        "shape": {
+          "kind": "circle",
+          "params": {
+            "radius": 0.0049
+          }
+        },
+        "params": {
+          "retardance": 1.5707963267948966,
+          "axis": 0.7853981633974483
+        }
+      },
+      {
+        "id": "xa",
+        "type": "polarizer",
+        "pos": {
+          "x": 0.0,
+          "y": 0.0,
+          "z": 0.06
+        },
+        "label": "检偏器 30°",
+        "shape": {
+          "kind": "circle",
+          "params": {
+            "radius": 0.0049
+          }
+        },
+        "params": {
+          "angle": 0.5235987755982988
+        }
+      },
+      {
+        "id": "det",
+        "type": "sensor",
+        "pos": {
+          "x": 0.0,
+          "y": 0.0,
+          "z": 0.08
+        },
+        "label": "探测器",
+        "yaw": 3.141592653589793,
+        "shape": {
+          "kind": "rectangle",
+          "params": {
+            "width": 0.006,
+            "height": 0.006
+          }
+        }
+      }
+    ]
+  },
+  "meta": {
+    "zod": {
+      "category": "偏振",
+      "difficulty": "进阶",
+      "description": "x 偏振 → QWP 快轴 45° → **圆偏振** → 检偏器 30°。转动检偏器读强度。",
+      "expected": "圆偏振的判据：检偏器转到任何角度透过率都相同（0.500，与 45° 处一致）。对照 pol_qwp_* 系列（椭圆偏振）会看到明显的 cos² 型调制——「转一圈强度不变」是区分圆偏振与椭圆/线偏振的实验判据。",
+      "tags": [
+        "椭圆偏振",
+        "圆偏振",
+        "检偏"
+      ],
+      "theory": "圆偏振 |E|² 与检偏方向无关；椭圆偏振随检偏角调制"
+    },
+    "sample": true
+  }
+}

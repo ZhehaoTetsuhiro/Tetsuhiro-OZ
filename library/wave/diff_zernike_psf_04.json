@@ -1,0 +1,117 @@
+{
+  "name": "像差 PSF：像散 Z6（0.30 λ）",
+  "grid": {
+    "size": 512,
+    "width": 0.006
+  },
+  "wavelength": 6.328e-07,
+  "polarized": false,
+  "method": "asm",
+  "evanescent": "decay",
+  "evanescent_limit": 0,
+  "backward_regularize": false,
+  "tikhonov_alpha": 0,
+  "bandlimit": {
+    "fraction": 0.9,
+    "sigma": 0.05
+  },
+  "sources": [
+    {
+      "id": "src",
+      "type": "plane",
+      "params": {
+        "power": 0.001
+      },
+      "pos": {
+        "x": 0.0,
+        "y": 0.0,
+        "z": -0.05
+      },
+      "dir": {
+        "x": 0.0,
+        "y": 0.0,
+        "z": 1.0
+      },
+      "wavelength": 6.328e-07
+    }
+  ],
+  "scene": {
+    "components": [
+      {
+        "id": "l1",
+        "type": "lens",
+        "pos": {
+          "x": 0.0,
+          "y": 0.0,
+          "z": 0.0
+        },
+        "label": "理想透镜 f=0.3 m",
+        "shape": {
+          "kind": "circle",
+          "params": {
+            "radius": 0.002
+          }
+        },
+        "params": {
+          "f": 0.3
+        }
+      },
+      {
+        "id": "ab",
+        "type": "zernike",
+        "pos": {
+          "x": 0.0,
+          "y": 0.0,
+          "z": 0.02
+        },
+        "label": "像散 Z6",
+        "shape": {
+          "kind": "circle",
+          "params": {
+            "radius": 0.002
+          }
+        },
+        "params": {
+          "c6": 0.3,
+          "radius": 0.002
+        }
+      },
+      {
+        "id": "det",
+        "type": "sensor",
+        "pos": {
+          "x": 0.0,
+          "y": 0.0,
+          "z": 0.3
+        },
+        "label": "焦面",
+        "yaw": 3.141592653589793,
+        "shape": {
+          "kind": "circle",
+          "params": {
+            "radius": 0.0027
+          }
+        },
+        "params": {
+          "strehl_aperture": 0.002,
+          "strehl_distance": 0.3
+        }
+      }
+    ]
+  },
+  "meta": {
+    "zod": {
+      "category": "衍射",
+      "difficulty": "高级",
+      "description": "在理想透镜后加入 像散 Z6 像差（Noll 序，系数 0.30 λ，RMS 归一化），观察焦面 PSF 的退化。",
+      "expected": "无像差时是艾里图样（Strehl≈1，第一暗环 57.9 µm）；加入 像散 Z6 后峰值下降、图样按像差类型变形：离焦→同心环能量外流、像散→焦点分裂成两条正交焦线、彗差→单向彗尾不对称、球差→中心亮斑变小但光环变强。Strehl 指标在结果里给出（本实例为 0.30 λ 的像差，Strehl 明显低于 1）。",
+      "tags": [
+        "泽尼克",
+        "像差",
+        "PSF",
+        "Strehl"
+      ],
+      "theory": "Strehl ≈ exp(-(2πσ)²)，σ 为波前 RMS（单位 λ）"
+    }
+  }
+}

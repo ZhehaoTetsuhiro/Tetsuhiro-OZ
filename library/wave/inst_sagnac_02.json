@@ -1,0 +1,193 @@
+{
+  "name": "萨格纳克环干涉仪：环内插入双折射元件（非互易）",
+  "grid": {
+    "size": 512,
+    "width": 0.04
+  },
+  "wavelength": 6.328e-07,
+  "polarized": true,
+  "method": "asm",
+  "evanescent": "decay",
+  "evanescent_limit": 0,
+  "backward_regularize": false,
+  "tikhonov_alpha": 0,
+  "bandlimit": {
+    "fraction": 0.9,
+    "sigma": 0.05
+  },
+  "sources": [
+    {
+      "id": "src",
+      "type": "plane",
+      "params": {
+        "power": 0.001
+      },
+      "pos": {
+        "x": 0.0,
+        "y": 0.0,
+        "z": -0.05
+      },
+      "dir": {
+        "x": 0.0,
+        "y": 0.0,
+        "z": 1.0
+      },
+      "label": "平面波 633 nm",
+      "wavelength": 6.328e-07
+    }
+  ],
+  "scene": {
+    "components": [
+      {
+        "id": "bs",
+        "type": "beamsplitter",
+        "pos": {
+          "x": 0.0,
+          "y": 0.0,
+          "z": 0.0
+        },
+        "label": "分束器 50:50",
+        "yaw": -0.7853981633974483,
+        "shape": {
+          "kind": "circle",
+          "params": {
+            "radius": 0.006
+          }
+        },
+        "params": {
+          "reflectivity": 0.5
+        }
+      },
+      {
+        "id": "m1",
+        "type": "mirror",
+        "pos": {
+          "x": 0.0,
+          "y": 0.0,
+          "z": 0.1
+        },
+        "label": "环镜 1（+z→+x）",
+        "yaw": -0.7853981633974483,
+        "shape": {
+          "kind": "circle",
+          "params": {
+            "radius": 0.005
+          }
+        },
+        "params": {
+          "reflectivity": 1.0
+        }
+      },
+      {
+        "id": "m2",
+        "type": "mirror",
+        "pos": {
+          "x": 0.1,
+          "y": 0.0,
+          "z": 0.1
+        },
+        "label": "环镜 2（+x→−z）",
+        "yaw": -2.356194490192345,
+        "shape": {
+          "kind": "circle",
+          "params": {
+            "radius": 0.005
+          }
+        },
+        "params": {
+          "reflectivity": 1.0
+        }
+      },
+      {
+        "id": "m3",
+        "type": "mirror",
+        "pos": {
+          "x": 0.1,
+          "y": 0.0,
+          "z": 0.0
+        },
+        "label": "环镜 3（−z→−x，回到分束器）",
+        "yaw": -0.7853981633974483,
+        "shape": {
+          "kind": "circle",
+          "params": {
+            "radius": 0.005
+          }
+        },
+        "params": {
+          "reflectivity": 1.0
+        }
+      },
+      {
+        "id": "xtal",
+        "type": "uniaxial",
+        "pos": {
+          "x": 0.0,
+          "y": 0.0,
+          "z": 0.05
+        },
+        "label": "环内单轴晶体（打破互易对称）",
+        "shape": {
+          "kind": "circle",
+          "params": {
+            "radius": 0.006
+          }
+        },
+        "params": {
+          "distance": 0.005,
+          "n_o": 1.5,
+          "n_e": 1.6
+        }
+      },
+      {
+        "id": "dout",
+        "type": "sensor",
+        "pos": {
+          "x": -0.06,
+          "y": 0.0,
+          "z": 0.0
+        },
+        "label": "输出端口",
+        "yaw": 1.5707963267948966,
+        "shape": {
+          "kind": "circle",
+          "params": {
+            "radius": 0.006
+          }
+        }
+      },
+      {
+        "id": "dback",
+        "type": "sensor",
+        "pos": {
+          "x": 0.0,
+          "y": 0.0,
+          "z": -0.05
+        },
+        "label": "回光源端口",
+        "shape": {
+          "kind": "circle",
+          "params": {
+            "radius": 0.006
+          }
+        }
+      }
+    ]
+  },
+  "meta": {
+    "zod": {
+      "category": "仪器",
+      "difficulty": "高级",
+      "description": "方形萨格纳克环（100×100 mm，3 个环镜 + 1 个分束器）：光从分束器分成顺时针与逆时针两束，沿同一环路反向传播后在分束器处重新合束。环内插入双折射元件（非互易）",
+      "expected": "环内的非互易元件（双折射/楔形）使顺逆两束的偏振或相位演化不同 → 输出端口重新出现信号（非零功率）。真实萨格纳克陀螺正是用旋转引入的光程差 Δφ=8πNA/(λc)·Ω，本内核没有旋转参考系，因此只能用「非互易元件」模拟这一效应。",
+      "tags": [
+        "萨格纳克",
+        "环形干涉仪",
+        "互易性",
+        "非互易"
+      ],
+      "theory": "互易环输出为零；旋转引入 Δφ = 8πNAΩ/(λc)"
+    },
+    "sample": true
+  }
+}

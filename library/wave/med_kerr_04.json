@@ -1,0 +1,90 @@
+{
+  "name": "克尔介质：n₂=1e-06 m²/W、L=10 mm",
+  "grid": {
+    "size": 512,
+    "width": 0.008
+  },
+  "wavelength": 6.328e-07,
+  "polarized": false,
+  "method": "asm",
+  "evanescent": "decay",
+  "evanescent_limit": 0,
+  "backward_regularize": false,
+  "tikhonov_alpha": 0,
+  "bandlimit": {
+    "fraction": 0.9,
+    "sigma": 0.05
+  },
+  "sources": [
+    {
+      "id": "src",
+      "type": "gaussian",
+      "params": {
+        "power": 0.001,
+        "waist": 0.0006
+      },
+      "pos": {
+        "x": 0.0,
+        "y": 0.0,
+        "z": -0.05
+      },
+      "dir": {
+        "x": 0.0,
+        "y": 0.0,
+        "z": 1.0
+      },
+      "label": "高斯 w₀=0.6 mm、1 mW",
+      "wavelength": 6.328e-07
+    }
+  ],
+  "scene": {
+    "components": [
+      {
+        "id": "kerr",
+        "type": "kerr",
+        "pos": {
+          "x": 0.0,
+          "y": 0.0,
+          "z": 0.02
+        },
+        "label": "克尔片 n₂=1e-06 m²/W L=10 mm",
+        "shape": {
+          "kind": "circle",
+          "params": {
+            "radius": 0.00392
+          }
+        },
+        "params": {
+          "n2": 1e-06,
+          "length": 0.01
+        }
+      },
+      {
+        "id": "det",
+        "type": "sensor",
+        "pos": {
+          "x": 0.0,
+          "y": 0.0,
+          "z": 0.3
+        },
+        "label": "远场",
+        "yaw": 3.141592653589793
+      }
+    ]
+  },
+  "meta": {
+    "zod": {
+      "category": "介质",
+      "difficulty": "高级",
+      "description": "薄克尔片：折射率 n=n₀+n₂·I 随局部强度变化，因此中心（强度高）与边缘（强度低）获得不同相位 φ=k·n₂·I·L —— 光束自己给自己写了一块透镜。",
+      "expected": "相位剖面 φ(r)=k·n₂·I(r)·L，中心峰值相位 175.586 rad（I_peak≈1.77e+03 W/m²，n₂ 为「有效值」：真实介质 n₂~1e-14–1e-20 m²/W，需要 GW/cm² 级峰值功率）。n₂>0 时中心相位滞后最多 → 等效**自聚焦**透镜（远场光斑收缩）；n₂<0 则自散焦。这是 Kerr 透镜模式锁定、自聚焦成丝与光限幅的物理内核。",
+      "tags": [
+        "克尔效应",
+        "自聚焦",
+        "非线性",
+        "n₂"
+      ],
+      "theory": "φ = k·n₂·I·L；B 积分 = k∫n₂I dz"
+    }
+  }
+}

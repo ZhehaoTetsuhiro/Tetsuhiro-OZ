@@ -1,0 +1,95 @@
+{
+  "name": "波带片显微镜：相位型 f=50 mm、λ=780 nm",
+  "grid": {
+    "size": 1024,
+    "width": 0.004
+  },
+  "wavelength": 7.8e-07,
+  "polarized": false,
+  "method": "asm",
+  "evanescent": "decay",
+  "evanescent_limit": 0,
+  "backward_regularize": false,
+  "tikhonov_alpha": 0,
+  "bandlimit": {
+    "fraction": 0.9,
+    "sigma": 0.05
+  },
+  "sources": [
+    {
+      "id": "src",
+      "type": "plane",
+      "params": {
+        "power": 0.001
+      },
+      "pos": {
+        "x": 0.0,
+        "y": 0.0,
+        "z": -0.05
+      },
+      "dir": {
+        "x": 0.0,
+        "y": 0.0,
+        "z": 1.0
+      },
+      "wavelength": 7.8e-07
+    }
+  ],
+  "scene": {
+    "components": [
+      {
+        "id": "zp",
+        "type": "zone_plate",
+        "pos": {
+          "x": 0.0,
+          "y": 0.0,
+          "z": 0.0
+        },
+        "label": "波带片（8 波带、外半径 0.56 mm）",
+        "shape": {
+          "kind": "circle",
+          "params": {
+            "radius": 0.0005585783153685792
+          }
+        },
+        "params": {
+          "f": 0.05,
+          "radius": 0.0005585783153685792,
+          "kind": "phase"
+        }
+      },
+      {
+        "id": "det",
+        "type": "sensor",
+        "pos": {
+          "x": 0.0,
+          "y": 0.0,
+          "z": 0.05
+        },
+        "label": "焦点（成像面）",
+        "yaw": 3.141592653589793,
+        "shape": {
+          "kind": "circle",
+          "params": {
+            "radius": 6.982011103360818e-05
+          }
+        }
+      }
+    ]
+  },
+  "meta": {
+    "zod": {
+      "category": "仪器",
+      "difficulty": "进阶",
+      "description": "把波带片当作「透镜」用于成像/聚焦：设计波长 780 nm、一级焦距 50 mm、8 个波带、最外环宽 34.9 µm（这是加工精度的关键指标）。",
+      "expected": "光汇聚到 50 mm 的一级焦点，焦斑 ≈λf/(2r_out)=34.9 µm（接近衍射极限 λf/D）；相位型（0/π）效率理论 40.5%，振幅型（明暗交替）≈10%。波带片是 X 射线/极紫外（无合适透镜材料）与软 X 射线显微术的关键元件，也是「光子筛」（把环换成环形排列的小孔）的前身。",
+      "tags": [
+        "波带片",
+        "显微术",
+        "X射线光学",
+        "衍射效率"
+      ],
+      "theory": "r_m²=mλf+(mλ/2)²；效率：相位型 4/π²≈40.5%、振幅型 1/π²≈10%"
+    }
+  }
+}

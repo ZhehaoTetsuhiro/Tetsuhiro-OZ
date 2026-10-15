@@ -1,0 +1,194 @@
+{
+  "name": "马赫-曾德尔相位扫描：相位板 0.50×2π",
+  "grid": {
+    "size": 512,
+    "width": 0.01
+  },
+  "wavelength": 6.328e-07,
+  "polarized": false,
+  "method": "asm",
+  "evanescent": "decay",
+  "evanescent_limit": 0,
+  "backward_regularize": false,
+  "tikhonov_alpha": 0,
+  "bandlimit": {
+    "fraction": 0.9,
+    "sigma": 0.05
+  },
+  "sources": [
+    {
+      "id": "src",
+      "type": "plane",
+      "params": {
+        "power": 0.001
+      },
+      "pos": {
+        "x": 0.0,
+        "y": 0.0,
+        "z": -0.05
+      },
+      "dir": {
+        "x": 0.0,
+        "y": 0.0,
+        "z": 1.0
+      },
+      "wavelength": 6.328e-07
+    }
+  ],
+  "scene": {
+    "components": [
+      {
+        "id": "bs1",
+        "type": "beamsplitter",
+        "pos": {
+          "x": 0.0,
+          "y": 0.0,
+          "z": 0.0
+        },
+        "label": "分束器 1（50:50）",
+        "yaw": -0.7853981633974483,
+        "shape": {
+          "kind": "circle",
+          "params": {
+            "radius": 0.0034999999999999996
+          }
+        },
+        "params": {
+          "reflectivity": 0.5
+        }
+      },
+      {
+        "id": "plate",
+        "type": "medium",
+        "pos": {
+          "x": 0.0,
+          "y": 0.0,
+          "z": 0.04
+        },
+        "label": "相位板（额外相位 0.50×2π）",
+        "shape": {
+          "kind": "circle",
+          "params": {
+            "radius": 0.004
+          }
+        },
+        "params": {
+          "distance": 0.01,
+          "index": 1.00003164,
+          "absorption": 0.0,
+          "steps": 4
+        }
+      },
+      {
+        "id": "m1",
+        "type": "mirror",
+        "pos": {
+          "x": 0.0,
+          "y": 0.0,
+          "z": 0.08
+        },
+        "label": "折转镜 A（+z→+x）",
+        "yaw": -0.7853981633974483,
+        "shape": {
+          "kind": "circle",
+          "params": {
+            "radius": 0.0034999999999999996
+          }
+        },
+        "params": {
+          "reflectivity": 1.0
+        }
+      },
+      {
+        "id": "m2",
+        "type": "mirror",
+        "pos": {
+          "x": 0.08,
+          "y": 0.0,
+          "z": 0.0
+        },
+        "label": "折转镜 B（+x→+z）",
+        "yaw": 2.356194490192345,
+        "shape": {
+          "kind": "circle",
+          "params": {
+            "radius": 0.0034999999999999996
+          }
+        },
+        "params": {
+          "reflectivity": 1.0
+        }
+      },
+      {
+        "id": "bs2",
+        "type": "beamsplitter",
+        "pos": {
+          "x": 0.08,
+          "y": 0.0,
+          "z": 0.08
+        },
+        "label": "合束器（50:50）",
+        "yaw": -0.7853981633974483,
+        "shape": {
+          "kind": "circle",
+          "params": {
+            "radius": 0.0034999999999999996
+          }
+        },
+        "params": {
+          "reflectivity": 0.5
+        }
+      },
+      {
+        "id": "d1",
+        "type": "sensor",
+        "pos": {
+          "x": 0.08,
+          "y": 0.0,
+          "z": 0.16
+        },
+        "label": "端口 1",
+        "yaw": 3.141592653589793,
+        "shape": {
+          "kind": "circle",
+          "params": {
+            "radius": 0.0034999999999999996
+          }
+        }
+      },
+      {
+        "id": "d2",
+        "type": "sensor",
+        "pos": {
+          "x": 0.16,
+          "y": 0.0,
+          "z": 0.08
+        },
+        "label": "端口 2",
+        "yaw": -1.5707963267948966,
+        "shape": {
+          "kind": "circle",
+          "params": {
+            "radius": 0.0034999999999999996
+          }
+        }
+      }
+    ]
+  },
+  "meta": {
+    "zod": {
+      "category": "干涉",
+      "difficulty": "进阶",
+      "description": "平衡马赫-曾德尔干涉仪，在一条臂中插入厚度 10 mm 的相位板（折射率 n=1.0000316），使两臂相差 0.50×2π。",
+      "expected": "端口功率按 cos²(φ/2) 与 sin²(φ/2) 分配：相差 0 时端口 1 全亮、端口 2 全暗；相差 π（0.5×2π）时两端口反转；两个端口功率之和恒等于输入功率（能量守恒）。本实例相差 0.50×2π，端口 1 应为全暗。",
+      "tags": [
+        "马赫-曾德尔",
+        "相位扫描",
+        "能量守恒",
+        "互补端口"
+      ],
+      "theory": "相差 φ 时端口功率 = (1±cosφ)/2；两端口互补"
+    },
+    "sample": true
+  }
+}

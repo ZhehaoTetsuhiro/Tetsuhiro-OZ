@@ -1,0 +1,171 @@
+{
+  "name": "萨格纳克环干涉仪：分束比 30:70 的环",
+  "grid": {
+    "size": 512,
+    "width": 0.04
+  },
+  "wavelength": 6.328e-07,
+  "polarized": false,
+  "method": "asm",
+  "evanescent": "decay",
+  "evanescent_limit": 0,
+  "backward_regularize": false,
+  "tikhonov_alpha": 0,
+  "bandlimit": {
+    "fraction": 0.9,
+    "sigma": 0.05
+  },
+  "sources": [
+    {
+      "id": "src",
+      "type": "plane",
+      "params": {
+        "power": 0.001
+      },
+      "pos": {
+        "x": 0.0,
+        "y": 0.0,
+        "z": -0.05
+      },
+      "dir": {
+        "x": 0.0,
+        "y": 0.0,
+        "z": 1.0
+      },
+      "label": "平面波 633 nm",
+      "wavelength": 6.328e-07
+    }
+  ],
+  "scene": {
+    "components": [
+      {
+        "id": "bs",
+        "type": "beamsplitter",
+        "pos": {
+          "x": 0.0,
+          "y": 0.0,
+          "z": 0.0
+        },
+        "label": "分束器 30:70",
+        "yaw": -0.7853981633974483,
+        "shape": {
+          "kind": "circle",
+          "params": {
+            "radius": 0.006
+          }
+        },
+        "params": {
+          "reflectivity": 0.3
+        }
+      },
+      {
+        "id": "m1",
+        "type": "mirror",
+        "pos": {
+          "x": 0.0,
+          "y": 0.0,
+          "z": 0.1
+        },
+        "label": "环镜 1（+z→+x）",
+        "yaw": -0.7853981633974483,
+        "shape": {
+          "kind": "circle",
+          "params": {
+            "radius": 0.005
+          }
+        },
+        "params": {
+          "reflectivity": 1.0
+        }
+      },
+      {
+        "id": "m2",
+        "type": "mirror",
+        "pos": {
+          "x": 0.1,
+          "y": 0.0,
+          "z": 0.1
+        },
+        "label": "环镜 2（+x→−z）",
+        "yaw": -2.356194490192345,
+        "shape": {
+          "kind": "circle",
+          "params": {
+            "radius": 0.005
+          }
+        },
+        "params": {
+          "reflectivity": 1.0
+        }
+      },
+      {
+        "id": "m3",
+        "type": "mirror",
+        "pos": {
+          "x": 0.1,
+          "y": 0.0,
+          "z": 0.0
+        },
+        "label": "环镜 3（−z→−x，回到分束器）",
+        "yaw": -0.7853981633974483,
+        "shape": {
+          "kind": "circle",
+          "params": {
+            "radius": 0.005
+          }
+        },
+        "params": {
+          "reflectivity": 1.0
+        }
+      },
+      {
+        "id": "dout",
+        "type": "sensor",
+        "pos": {
+          "x": -0.06,
+          "y": 0.0,
+          "z": 0.0
+        },
+        "label": "输出端口",
+        "yaw": 1.5707963267948966,
+        "shape": {
+          "kind": "circle",
+          "params": {
+            "radius": 0.006
+          }
+        }
+      },
+      {
+        "id": "dback",
+        "type": "sensor",
+        "pos": {
+          "x": 0.0,
+          "y": 0.0,
+          "z": -0.05
+        },
+        "label": "回光源端口",
+        "shape": {
+          "kind": "circle",
+          "params": {
+            "radius": 0.006
+          }
+        }
+      }
+    ]
+  },
+  "meta": {
+    "zod": {
+      "category": "仪器",
+      "difficulty": "高级",
+      "description": "方形萨格纳克环（100×100 mm，3 个环镜 + 1 个分束器）：光从分束器分成顺时针与逆时针两束，沿同一环路反向传播后在分束器处重新合束。分束比 30:70 的环",
+      "expected": "互易光路的萨格纳克输出端口**严格为零**：两束反向光走过的光程完全相同 → 相位差恒为 0 → 在输出端口相消、功率全部回到入射端口（这是萨格纳克环抗击振动/温度扰动的根本原因，也是它被用作反射镜的原因）。",
+      "tags": [
+        "萨格纳克",
+        "环形干涉仪",
+        "互易性",
+        "非互易"
+      ],
+      "theory": "互易环输出为零；旋转引入 Δφ = 8πNAΩ/(λc)"
+    }
+  }
+}

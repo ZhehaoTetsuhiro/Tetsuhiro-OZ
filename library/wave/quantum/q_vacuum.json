@@ -1,0 +1,27 @@
+{
+  "name": "真空态基线：⟨n⟩=0、var=1/4",
+  "modes": 1,
+  "cutoff": 4,
+  "state": {
+    "type": "vacuum",
+    "params": {}
+  },
+  "gates": [],
+  "meta": {
+    "name": "真空态基线：⟨n⟩=0、var=1/4",
+    "zod": {
+      "category": "量子",
+      "difficulty": "入门",
+      "description": "全真空态 |0⟩：量子光学的基线（没有任何光子，但存在零点涨落）。",
+      "expected": "⟨n⟩=0，光子数分布 P(0)=1；正交分量 var_x=var_p=1/4（零点/散粒噪声基线，不是零！）。真空涨落是压缩、Casimir 效应与自发辐射的根源。",
+      "tags": [
+        "真空态",
+        "零点涨落",
+        "散粒噪声"
+      ],
+      "theory": "var(x_θ)=1/4",
+      "protocol": "quantum"
+    },
+    "sample": true
+  }
+}

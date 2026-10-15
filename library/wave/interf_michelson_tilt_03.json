@@ -1,0 +1,150 @@
+{
+  "name": "迈克尔逊等厚条纹：端镜微倾 0.5 mrad → 间距 0.63 mm",
+  "grid": {
+    "size": 512,
+    "width": 0.01
+  },
+  "wavelength": 6.328e-07,
+  "polarized": false,
+  "method": "asm",
+  "evanescent": "decay",
+  "evanescent_limit": 0,
+  "backward_regularize": false,
+  "tikhonov_alpha": 0,
+  "bandlimit": {
+    "fraction": 0.9,
+    "sigma": 0.05
+  },
+  "sources": [
+    {
+      "id": "src",
+      "type": "plane",
+      "params": {
+        "power": 0.001
+      },
+      "pos": {
+        "x": 0.0,
+        "y": 0.0,
+        "z": -0.05
+      },
+      "dir": {
+        "x": 0.0,
+        "y": 0.0,
+        "z": 1.0
+      },
+      "wavelength": 6.328e-07
+    }
+  ],
+  "scene": {
+    "components": [
+      {
+        "id": "bs",
+        "type": "beamsplitter",
+        "pos": {
+          "x": 0.0,
+          "y": 0.0,
+          "z": 0.0
+        },
+        "label": "分束器 50:50",
+        "yaw": -0.7853981633974483,
+        "shape": {
+          "kind": "circle",
+          "params": {
+            "radius": 0.0034999999999999996
+          }
+        },
+        "params": {
+          "reflectivity": 0.5
+        }
+      },
+      {
+        "id": "m1",
+        "type": "mirror",
+        "pos": {
+          "x": 0.0,
+          "y": 0.0,
+          "z": 0.05
+        },
+        "label": "端镜 A",
+        "shape": {
+          "kind": "circle",
+          "params": {
+            "radius": 0.0034999999999999996
+          }
+        },
+        "params": {
+          "reflectivity": 1.0
+        }
+      },
+      {
+        "id": "m2",
+        "type": "mirror",
+        "pos": {
+          "x": 0.05,
+          "y": 0.0,
+          "z": 0.0
+        },
+        "label": "端镜 B（微倾 0.5 mrad）",
+        "yaw": 1.5707963267948966,
+        "shape": {
+          "kind": "circle",
+          "params": {
+            "radius": 0.0034999999999999996
+          }
+        },
+        "params": {
+          "reflectivity": 1.0,
+          "tilt_y": 0.0005
+        }
+      },
+      {
+        "id": "d1",
+        "type": "sensor",
+        "pos": {
+          "x": 0.0,
+          "y": 0.0,
+          "z": -0.05
+        },
+        "label": "回光源端口",
+        "shape": {
+          "kind": "circle",
+          "params": {
+            "radius": 0.0034999999999999996
+          }
+        }
+      },
+      {
+        "id": "d2",
+        "type": "sensor",
+        "pos": {
+          "x": -0.05,
+          "y": 0.0,
+          "z": 0.0
+        },
+        "label": "侧端口",
+        "yaw": 1.5707963267948966,
+        "shape": {
+          "kind": "circle",
+          "params": {
+            "radius": 0.0034999999999999996
+          }
+        }
+      }
+    ]
+  },
+  "meta": {
+    "zod": {
+      "category": "干涉",
+      "difficulty": "进阶",
+      "description": "迈克尔逊干涉仪，两臂等长但端镜 B 倾斜 0.5 mrad——两束回射光之间有 2θ 的夹角，形成等厚（等倾）直条纹。",
+      "expected": "直条纹间距 Δx=λ/(2θ)=0.633 mm；倾角越大条纹越密。两个输出端口互补：一个端口亮条纹的位置在另一端口是暗条纹（能量守恒）。折返光路的相位按 2kL 累加（往返 = 两倍臂长）。",
+      "tags": [
+        "迈克尔逊",
+        "微倾",
+        "等厚条纹",
+        "互补端口"
+      ],
+      "theory": "Δx = λ/(2θ)；折返相位 2kL"
+    }
+  }
+}

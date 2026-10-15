@@ -1,0 +1,91 @@
+{
+  "name": "正 5 边形孔衍射：R=1.0 mm",
+  "grid": {
+    "size": 1024,
+    "width": 0.02
+  },
+  "wavelength": 6.328e-07,
+  "polarized": false,
+  "method": "asm",
+  "evanescent": "decay",
+  "evanescent_limit": 0,
+  "backward_regularize": false,
+  "tikhonov_alpha": 0,
+  "bandlimit": {
+    "fraction": 0.9,
+    "sigma": 0.05
+  },
+  "sources": [
+    {
+      "id": "src",
+      "type": "plane",
+      "params": {
+        "power": 0.001
+      },
+      "pos": {
+        "x": 0.0,
+        "y": 0.0,
+        "z": -0.05
+      },
+      "dir": {
+        "x": 0.0,
+        "y": 0.0,
+        "z": 1.0
+      },
+      "wavelength": 6.328e-07
+    }
+  ],
+  "scene": {
+    "components": [
+      {
+        "id": "ap",
+        "type": "aperture",
+        "pos": {
+          "x": 0.0,
+          "y": 0.0,
+          "z": 0.0
+        },
+        "label": "正 5 边形孔",
+        "shape": {
+          "kind": "polygon",
+          "params": {
+            "radius": 0.001,
+            "sides": 5
+          }
+        }
+      },
+      {
+        "id": "det",
+        "type": "sensor",
+        "pos": {
+          "x": 0.0,
+          "y": 0.0,
+          "z": 2.0
+        },
+        "label": "观察屏",
+        "yaw": 3.141592653589793,
+        "shape": {
+          "kind": "rectangle",
+          "params": {
+            "width": 0.018000000000000002,
+            "height": 0.018000000000000002
+          }
+        }
+      }
+    ]
+  },
+  "meta": {
+    "zod": {
+      "category": "衍射",
+      "difficulty": "进阶",
+      "description": "外接圆半径 1.0 mm 的正 5 边形孔，远场 2 m。",
+      "expected": "5 重对称的星芒图样：边数越多越接近圆孔的艾里斑（5 边形已有明显同心环结构，第一暗环尺度 ≈1.22λz/(2R)=0.77 mm）。",
+      "tags": [
+        "多边形孔",
+        "对称性",
+        "趋近圆孔"
+      ],
+      "theory": "正多边形孔 → 边数 →∞ 时退化为圆孔的 2J₁(x)/x"
+    }
+  }
+}

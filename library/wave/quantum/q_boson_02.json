@@ -1,0 +1,58 @@
+{
+  "name": "线性光学网络：3 模 2 光子（HOM 扩展）",
+  "modes": 3,
+  "cutoff": 4,
+  "state": {
+    "type": "fock",
+    "params": {
+      "occupation": [
+        1,
+        1,
+        0
+      ]
+    }
+  },
+  "gates": [
+    {
+      "type": "beam_splitter",
+      "params": {
+        "mode0": 0,
+        "mode1": 1,
+        "reflectivity": 0.5
+      }
+    },
+    {
+      "type": "beam_splitter",
+      "params": {
+        "mode0": 1,
+        "mode1": 2,
+        "reflectivity": 0.5
+      }
+    },
+    {
+      "type": "phase_shift",
+      "params": {
+        "mode": 2,
+        "phase": 1.0
+      }
+    }
+  ],
+  "meta": {
+    "name": "线性光学网络：3 模 2 光子（HOM 扩展）",
+    "zod": {
+      "category": "量子",
+      "difficulty": "进阶",
+      "description": "3 模 2 光子（HOM 扩展）：2 个不可分辨光子进入 3 模线性光学网络（分束器 + 相位）。",
+      "expected": "输出必须从**全模式联合分布 joint_full**（长度 (cutoff+1)^M，little-endian 下标）读取：两两联合分布只是它的边缘。玻色子的聚束（boson bunching）使输出分布与「把光子当成经典小球独立随机走」的预言显著不同——这正是玻色采样的计算能力来源（也是「量子优越性」实验的核心）。",
+      "tags": [
+        "玻色采样",
+        "多模干涉",
+        "联合分布",
+        "聚束"
+      ],
+      "theory": "输出概率 = |Perm(U_S)|²（子矩阵的积和式）",
+      "protocol": "quantum"
+    },
+    "sample": true
+  }
+}

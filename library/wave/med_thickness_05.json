@@ -1,0 +1,95 @@
+{
+  "name": "吸收介质厚度扫描：d=50 mm → T=3.1%",
+  "grid": {
+    "size": 512,
+    "width": 0.01
+  },
+  "wavelength": 6.328e-07,
+  "polarized": false,
+  "method": "asm",
+  "evanescent": "decay",
+  "evanescent_limit": 0,
+  "backward_regularize": false,
+  "tikhonov_alpha": 0,
+  "bandlimit": {
+    "fraction": 0.9,
+    "sigma": 0.05
+  },
+  "sources": [
+    {
+      "id": "src",
+      "type": "plane",
+      "params": {
+        "power": 0.001
+      },
+      "pos": {
+        "x": 0.0,
+        "y": 0.0,
+        "z": -0.05
+      },
+      "dir": {
+        "x": 0.0,
+        "y": 0.0,
+        "z": 1.0
+      },
+      "wavelength": 6.328e-07
+    }
+  ],
+  "scene": {
+    "components": [
+      {
+        "id": "m",
+        "type": "medium",
+        "pos": {
+          "x": 0.0,
+          "y": 0.0,
+          "z": 0.02
+        },
+        "label": "吸收介质 d=50 mm",
+        "shape": {
+          "kind": "circle",
+          "params": {
+            "radius": 0.0049
+          }
+        },
+        "params": {
+          "distance": 0.05,
+          "index": 1.5,
+          "absorption": 3.490455194414948e-06,
+          "steps": 10
+        }
+      },
+      {
+        "id": "det",
+        "type": "sensor",
+        "pos": {
+          "x": 0.0,
+          "y": 0.0,
+          "z": 0.1
+        },
+        "label": "透过功率",
+        "yaw": 3.141592653589793,
+        "shape": {
+          "kind": "circle",
+          "params": {
+            "radius": 0.0049
+          }
+        }
+      }
+    ]
+  },
+  "meta": {
+    "zod": {
+      "category": "介质",
+      "difficulty": "入门",
+      "description": "吸收系数固定（n''=3.490e-06，即 α=69 /m），只改厚度。",
+      "expected": "透过率按指数随厚度下降：T=exp(−αd)。10 mm 时 50%，20 mm 时 25%——指数衰减律（朗伯定律）是浓度/厚度测量（分光光度计）的基础。",
+      "tags": [
+        "吸收",
+        "厚度",
+        "朗伯定律"
+      ],
+      "theory": "T = exp(−αd)"
+    }
+  }
+}

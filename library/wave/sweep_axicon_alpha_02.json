@@ -1,0 +1,96 @@
+{
+  "name": "扫掠·轴锥镜 α=8.0 mrad → 中心斑 60.6 µm",
+  "grid": {
+    "size": 1024,
+    "width": 0.008
+  },
+  "wavelength": 6.328e-07,
+  "polarized": false,
+  "method": "asm",
+  "evanescent": "decay",
+  "evanescent_limit": 0,
+  "backward_regularize": false,
+  "tikhonov_alpha": 0,
+  "bandlimit": {
+    "fraction": 0.9,
+    "sigma": 0.05
+  },
+  "sources": [
+    {
+      "id": "src",
+      "type": "gaussian",
+      "params": {
+        "power": 0.001,
+        "waist": 0.0015
+      },
+      "pos": {
+        "x": 0.0,
+        "y": 0.0,
+        "z": -0.05
+      },
+      "dir": {
+        "x": 0.0,
+        "y": 0.0,
+        "z": 1.0
+      },
+      "label": "高斯 w₀=1.5 mm",
+      "wavelength": 6.328e-07
+    }
+  ],
+  "scene": {
+    "components": [
+      {
+        "id": "ax",
+        "type": "axicon",
+        "pos": {
+          "x": 0.0,
+          "y": 0.0,
+          "z": 0.0
+        },
+        "label": "轴锥镜 α=8.0 mrad",
+        "shape": {
+          "kind": "circle",
+          "params": {
+            "radius": 0.0036000000000000003
+          }
+        },
+        "params": {
+          "alpha": 0.008,
+          "index": 1.5
+        }
+      },
+      {
+        "id": "det",
+        "type": "sensor",
+        "pos": {
+          "x": 0.0,
+          "y": 0.0,
+          "z": 0.15
+        },
+        "label": "贝塞尔区",
+        "yaw": 3.141592653589793
+      }
+    ]
+  },
+  "meta": {
+    "zod": {
+      "category": "参数扫掠",
+      "difficulty": "进阶",
+      "description": "把轴锥镜的锥角从 5 mrad 扫到 80 mrad（第 2 条）：锥角决定贝塞尔光束的「锥面波矢」。",
+      "expected": "中心亮斑半径 2.405/(k sinβ)=60.6 µm（反比于锥角 β≈(n−1)α）；无衍射区长度 z_max=w₀/tanβ=375 mm（也反比于锥角）。锥角越大 → 光斑越小、无衍射区越短——这就是「亚波长光斑」的另一条路线。",
+      "tags": [
+        "轴锥镜扫掠",
+        "贝塞尔光束",
+        "无衍射区"
+      ],
+      "theory": "核心半径 ≈2.405/(k sinβ)，z_max=w₀/tanβ",
+      "sweep": {
+        "param": "alpha_mrad",
+        "value": 8.0,
+        "index": 2,
+        "of": 8
+      }
+    },
+    "sample": true
+  }
+}

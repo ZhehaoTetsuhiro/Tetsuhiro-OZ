@@ -1,0 +1,47 @@
+{
+  "name": "HOM 干涉臂相位扫描：φ=0.79 rad",
+  "modes": 2,
+  "cutoff": 4,
+  "state": {
+    "type": "fock",
+    "params": {
+      "occupation": [
+        1,
+        1
+      ]
+    }
+  },
+  "gates": [
+    {
+      "type": "phase_shift",
+      "params": {
+        "mode": 0,
+        "phase": 0.7853981633974483
+      }
+    },
+    {
+      "type": "beam_splitter",
+      "params": {
+        "mode0": 0,
+        "mode1": 1,
+        "reflectivity": 0.5
+      }
+    }
+  ],
+  "meta": {
+    "name": "HOM 干涉臂相位扫描：φ=0.79 rad",
+    "zod": {
+      "category": "量子",
+      "difficulty": "高级",
+      "description": "在 HOM 干涉仪的入射臂上加 φ=0.79 rad 的相位（模拟两光子的延迟/相位不匹配）。",
+      "expected": "相位差在**两光子之间**只影响不可分辨性；理想分束器上的 HOM 相消由分束器本身（对称性）保证，因此即使加相位 P(0,2)=P(2,0)=1/2、P(1,1)=0 仍然成立——这是 HOM 干涉与经典干涉最本质的区别（相消来自交换对称性，不来自相位）。",
+      "tags": [
+        "HOM",
+        "相位",
+        "交换对称性"
+      ],
+      "theory": "HOM 相消与单光子相位无关（对称 BS 约定）",
+      "protocol": "quantum"
+    }
+  }
+}

@@ -1,0 +1,92 @@
+{
+  "name": "高斯光束经薄透镜的束腰变换：w₀=0.5 mm, f=250 mm → w₁=100.7 µm",
+  "grid": {
+    "size": 512,
+    "width": 0.008
+  },
+  "wavelength": 6.328e-07,
+  "polarized": false,
+  "method": "asm",
+  "evanescent": "decay",
+  "evanescent_limit": 0,
+  "backward_regularize": false,
+  "tikhonov_alpha": 0,
+  "bandlimit": {
+    "fraction": 0.9,
+    "sigma": 0.05
+  },
+  "sources": [
+    {
+      "id": "src",
+      "type": "gaussian",
+      "params": {
+        "power": 0.001,
+        "waist": 0.0005
+      },
+      "pos": {
+        "x": 0.0,
+        "y": 0.0,
+        "z": -0.05
+      },
+      "dir": {
+        "x": 0.0,
+        "y": 0.0,
+        "z": 1.0
+      },
+      "label": "高斯 w₀=0.5 mm",
+      "wavelength": 6.328e-07
+    }
+  ],
+  "scene": {
+    "components": [
+      {
+        "id": "l",
+        "type": "lens",
+        "pos": {
+          "x": 0.0,
+          "y": 0.0,
+          "z": 0.0
+        },
+        "label": "薄透镜 f=250 mm",
+        "shape": {
+          "kind": "circle",
+          "params": {
+            "radius": 0.0036000000000000003
+          }
+        },
+        "params": {
+          "f": 0.25
+        }
+      },
+      {
+        "id": "det",
+        "type": "sensor",
+        "pos": {
+          "x": 0.0,
+          "y": 0.0,
+          "z": 0.25
+        },
+        "label": "焦点附近",
+        "yaw": 3.141592653589793,
+        "params": {
+          "strehl_aperture": 0.00125,
+          "strehl_distance": 0.25
+        }
+      }
+    ]
+  },
+  "meta": {
+    "zod": {
+      "category": "传播/光束",
+      "difficulty": "进阶",
+      "description": "束腰 0.5 mm 的高斯光束经焦距 250 mm 的薄透镜聚焦（束腰在透镜上）。",
+      "expected": "新束腰 w₁≈λf/(πw₀)=100.7 µm，位于透镜后 ≈250 mm；入射束腰越大焦斑越小（反过来成像时 w₁·w₀ = λf/π 恒定）。入射瑞利长度 z_R=1.24 m，透镜后焦深 ≈2z_R₁=2πw₁²/λ=100.71 mm。",
+      "tags": [
+        "束腰变换",
+        "聚焦",
+        "高斯光学"
+      ],
+      "theory": "w₁ = λf/(πw₀)（束腰在透镜上时），共轭关系 w₁w₀ = λf/π"
+    }
+  }
+}

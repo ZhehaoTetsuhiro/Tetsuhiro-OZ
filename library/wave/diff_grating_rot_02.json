@@ -1,0 +1,109 @@
+{
+  "name": "光栅方位旋转 30°：级次方向随光栅转动",
+  "grid": {
+    "size": 1024,
+    "width": 0.008
+  },
+  "wavelength": 6.328e-07,
+  "polarized": false,
+  "method": "asm",
+  "evanescent": "decay",
+  "evanescent_limit": 0,
+  "backward_regularize": false,
+  "tikhonov_alpha": 0,
+  "bandlimit": {
+    "fraction": 0.9,
+    "sigma": 0.05
+  },
+  "sources": [
+    {
+      "id": "src",
+      "type": "plane",
+      "params": {
+        "power": 0.001
+      },
+      "pos": {
+        "x": 0.0,
+        "y": 0.0,
+        "z": -0.05
+      },
+      "dir": {
+        "x": 0.0,
+        "y": 0.0,
+        "z": 1.0
+      },
+      "wavelength": 6.328e-07
+    }
+  ],
+  "scene": {
+    "components": [
+      {
+        "id": "g",
+        "type": "grating",
+        "pos": {
+          "x": 0.0,
+          "y": 0.0,
+          "z": 0.0
+        },
+        "label": "光栅旋转 30°",
+        "params": {
+          "kind": "phase_sin",
+          "period": 0.0001,
+          "modulation": 1.6,
+          "rotation": 0.5235987755982988
+        }
+      },
+      {
+        "id": "fl",
+        "type": "lens",
+        "pos": {
+          "x": 0.0,
+          "y": 0.0,
+          "z": 0.02
+        },
+        "label": "傅里叶透镜 f=0.30 m",
+        "shape": {
+          "kind": "circle",
+          "params": {
+            "radius": 0.00392
+          }
+        },
+        "params": {
+          "f": 0.3
+        }
+      },
+      {
+        "id": "det",
+        "type": "sensor",
+        "pos": {
+          "x": 0.0,
+          "y": 0.0,
+          "z": 0.32
+        },
+        "label": "焦面（衍射级）",
+        "yaw": 3.141592653589793,
+        "shape": {
+          "kind": "rectangle",
+          "params": {
+            "width": 0.0076,
+            "height": 0.0076
+          }
+        }
+      }
+    ]
+  },
+  "meta": {
+    "zod": {
+      "category": "衍射",
+      "difficulty": "入门",
+      "description": "相位光栅绕光轴旋转 30°（沟槽方向随之转动），傅里叶透镜焦面观察。",
+      "expected": "衍射级次始终沿**垂直于沟槽**的方向展开：光栅转 30°，级次连线也转 30°；±1 级到中心的距离不变（1.90 mm）——这决定了光谱仪中「色散方向」与「沟槽方向」正交的几何。",
+      "tags": [
+        "光栅旋转",
+        "色散方向",
+        "沟槽方向"
+      ],
+      "theory": "色散方向 ⟂ 沟槽方向；级次位置只取决于周期与方向"
+    }
+  }
+}

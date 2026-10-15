@@ -1,0 +1,29 @@
+{
+  "name": "双模压缩真空（EPR）：r=1.5",
+  "modes": 2,
+  "cutoff": 20,
+  "state": {
+    "type": "two_mode_squeezed",
+    "params": {
+      "r": 1.5
+    }
+  },
+  "gates": [],
+  "meta": {
+    "name": "双模压缩真空（EPR）：r=1.5",
+    "zod": {
+      "category": "量子",
+      "difficulty": "进阶",
+      "description": "双模压缩真空 sech(r)Σtanh(r)ⁿ|n,n⟩：模式 0 与 1 的光子数**完全关联**（EPR 纠缠源）。",
+      "expected": "⟨n₀⟩=⟨n₁⟩=sinh²r=4.534；P(n,m) 只在 n=m 上非零（完美关联）；单模约化态是热态（g²=2）。这是连续变量量子信息（量子隐形传态、EPR 判据）的标准资源。",
+      "tags": [
+        "双模压缩",
+        "EPR",
+        "纠缠",
+        "光子数关联"
+      ],
+      "theory": "|ψ⟩=sech r Σ tanhⁿr |n,n⟩",
+      "protocol": "quantum"
+    }
+  }
+}

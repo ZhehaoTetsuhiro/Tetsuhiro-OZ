@@ -1,0 +1,115 @@
+{
+  "name": "扫掠·光栅周期 Λ=60 µm → ±1 级在 3.16 mm",
+  "grid": {
+    "size": 1024,
+    "width": 0.008
+  },
+  "wavelength": 6.328e-07,
+  "polarized": false,
+  "method": "asm",
+  "evanescent": "decay",
+  "evanescent_limit": 0,
+  "backward_regularize": false,
+  "tikhonov_alpha": 0,
+  "bandlimit": {
+    "fraction": 0.9,
+    "sigma": 0.05
+  },
+  "sources": [
+    {
+      "id": "src",
+      "type": "plane",
+      "params": {
+        "power": 0.001
+      },
+      "pos": {
+        "x": 0.0,
+        "y": 0.0,
+        "z": -0.05
+      },
+      "dir": {
+        "x": 0.0,
+        "y": 0.0,
+        "z": 1.0
+      },
+      "wavelength": 6.328e-07
+    }
+  ],
+  "scene": {
+    "components": [
+      {
+        "id": "g",
+        "type": "grating",
+        "pos": {
+          "x": 0.0,
+          "y": 0.0,
+          "z": 0.0
+        },
+        "label": "相位光栅 Λ=60 µm",
+        "params": {
+          "kind": "phase_sin",
+          "period": 6e-05,
+          "modulation": 1.6
+        }
+      },
+      {
+        "id": "fl",
+        "type": "lens",
+        "pos": {
+          "x": 0.0,
+          "y": 0.0,
+          "z": 0.02
+        },
+        "label": "傅里叶透镜 f=0.3 m",
+        "shape": {
+          "kind": "circle",
+          "params": {
+            "radius": 0.00392
+          }
+        },
+        "params": {
+          "f": 0.3
+        }
+      },
+      {
+        "id": "det",
+        "type": "sensor",
+        "pos": {
+          "x": 0.0,
+          "y": 0.0,
+          "z": 0.32
+        },
+        "label": "焦面",
+        "yaw": 3.141592653589793,
+        "shape": {
+          "kind": "rectangle",
+          "params": {
+            "width": 0.0076,
+            "height": 0.0076
+          }
+        }
+      }
+    ]
+  },
+  "meta": {
+    "zod": {
+      "category": "参数扫掠",
+      "difficulty": "进阶",
+      "description": "同焦距 0.3 m，把光栅周期从 60 µm 扫到 400 µm（第 1 条）。",
+      "expected": "级次位置 x₁=fλ/Λ=3.164 mm，反比于周期；窗口内可见约 ±1 级。周期越小色散越大（但各级越稀疏）。",
+      "tags": [
+        "光栅周期",
+        "级次位置",
+        "色散"
+      ],
+      "theory": "x_q = q f λ/Λ",
+      "sweep": {
+        "param": "period_um",
+        "value": 60.0,
+        "index": 1,
+        "of": 10
+      }
+    },
+    "sample": true
+  }
+}

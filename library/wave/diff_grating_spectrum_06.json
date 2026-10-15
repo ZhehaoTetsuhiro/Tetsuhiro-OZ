@@ -1,0 +1,105 @@
+{
+  "name": "光栅光谱仪（柱面傅里叶透镜）：Λ=100 µm、λ=405 nm",
+  "grid": {
+    "size": 1024,
+    "width": 0.008
+  },
+  "wavelength": 4.05e-07,
+  "polarized": false,
+  "method": "asm",
+  "evanescent": "decay",
+  "evanescent_limit": 0,
+  "backward_regularize": false,
+  "tikhonov_alpha": 0,
+  "bandlimit": {
+    "fraction": 0.9,
+    "sigma": 0.05
+  },
+  "sources": [
+    {
+      "id": "src",
+      "type": "plane",
+      "params": {
+        "power": 0.001
+      },
+      "pos": {
+        "x": 0.0,
+        "y": 0.0,
+        "z": -0.05
+      },
+      "dir": {
+        "x": 0.0,
+        "y": 0.0,
+        "z": 1.0
+      },
+      "label": "平面波 405 nm",
+      "wavelength": 4.05e-07
+    }
+  ],
+  "scene": {
+    "components": [
+      {
+        "id": "g",
+        "type": "grating",
+        "pos": {
+          "x": 0.0,
+          "y": 0.0,
+          "z": 0.0
+        },
+        "label": "光栅 Λ=100 µm",
+        "params": {
+          "kind": "phase_sin",
+          "period": 0.0001,
+          "modulation": 2.0
+        }
+      },
+      {
+        "id": "cl",
+        "type": "cylindrical_lens",
+        "pos": {
+          "x": 0.0,
+          "y": 0.0,
+          "z": 0.02
+        },
+        "label": "柱面傅里叶透镜 f=0.30 m（只沿 x 聚焦）",
+        "params": {
+          "f": 0.3,
+          "rotation": 0.0
+        }
+      },
+      {
+        "id": "det",
+        "type": "sensor",
+        "pos": {
+          "x": 0.0,
+          "y": 0.0,
+          "z": 0.32
+        },
+        "label": "焦面：衍射级成谱线",
+        "yaw": 3.141592653589793,
+        "shape": {
+          "kind": "rectangle",
+          "params": {
+            "width": 0.0076,
+            "height": 0.0076
+          }
+        }
+      }
+    ]
+  },
+  "meta": {
+    "zod": {
+      "category": "衍射",
+      "difficulty": "进阶",
+      "description": "光栅后接柱面透镜：只沿色散方向（x）聚焦、沟槽方向（y）完全不变，因此每个级次是一条垂直于色散轴的谱线，而不是一个点。",
+      "expected": "级次是**谱线**：I(y)/I(0)=1 在整行上成立（y 方向严格不变），x 方向位置 x_q=q·fλ/Λ；±1 级位于 ±1.215 mm（λ=405 nm）。用球面透镜会把 y 也聚焦，级次退化成 λf/W_y≈16 µm 的点。",
+      "tags": [
+        "柱面透镜",
+        "光谱仪",
+        "谱线",
+        "一维几何"
+      ],
+      "theory": "x_q = q f λ / Λ；柱面透镜对 y 不做任何事"
+    }
+  }
+}

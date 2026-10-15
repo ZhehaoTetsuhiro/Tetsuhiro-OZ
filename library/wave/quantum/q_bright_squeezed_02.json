@@ -1,0 +1,43 @@
+{
+  "name": "明亮压缩光：S(1.0) 后 D(2.0)",
+  "modes": 1,
+  "cutoff": 30,
+  "state": {
+    "type": "vacuum",
+    "params": {}
+  },
+  "gates": [
+    {
+      "type": "squeeze",
+      "params": {
+        "mode": 0,
+        "r": 1.0,
+        "phase": 0.0
+      }
+    },
+    {
+      "type": "displacement",
+      "params": {
+        "mode": 0,
+        "alpha_re": 2.0,
+        "alpha_im": 0.0
+      }
+    }
+  ],
+  "meta": {
+    "name": "明亮压缩光：S(1.0) 后 D(2.0)",
+    "zod": {
+      "category": "量子",
+      "difficulty": "进阶",
+      "description": "先压缩真空再位移 → 「明亮压缩光」（有经典幅度但某分量噪声低于散粒噪声）。",
+      "expected": "⟨n⟩≈|α|²+sinh²r=5.38，var_x 仍为 e^{−2r}/4=0.0338 —— 位移不改变压缩量，这就是实验上产生压缩光的标准方案（光学参量放大 + 强本振）。",
+      "tags": [
+        "明亮压缩光",
+        "压缩+位移",
+        "连续变量"
+      ],
+      "theory": "D(α)S(r)|0⟩：位移不改变压缩方差",
+      "protocol": "quantum"
+    }
+  }
+}

@@ -1,0 +1,145 @@
+{
+  "name": "4f 傅里叶滤波系统：高通（挡掉零级）",
+  "grid": {
+    "size": 512,
+    "width": 0.008
+  },
+  "wavelength": 6.328e-07,
+  "polarized": false,
+  "method": "asm",
+  "evanescent": "decay",
+  "evanescent_limit": 0,
+  "backward_regularize": false,
+  "tikhonov_alpha": 0,
+  "bandlimit": {
+    "fraction": 0.9,
+    "sigma": 0.05
+  },
+  "sources": [
+    {
+      "id": "src",
+      "type": "plane",
+      "params": {
+        "power": 0.001
+      },
+      "pos": {
+        "x": 0.0,
+        "y": 0.0,
+        "z": -0.05
+      },
+      "dir": {
+        "x": 0.0,
+        "y": 0.0,
+        "z": 1.0
+      },
+      "wavelength": 6.328e-07
+    }
+  ],
+  "scene": {
+    "components": [
+      {
+        "id": "g",
+        "type": "grating",
+        "pos": {
+          "x": 0.0,
+          "y": 0.0,
+          "z": 0.0
+        },
+        "label": "物：正弦振幅光栅 Λ=100 µm",
+        "params": {
+          "kind": "amplitude_sin",
+          "period": 0.0002,
+          "modulation": 0.8
+        }
+      },
+      {
+        "id": "l1",
+        "type": "lens",
+        "pos": {
+          "x": 0.0,
+          "y": 0.0,
+          "z": 0.075
+        },
+        "label": "傅里叶透镜 f₁=75 mm",
+        "shape": {
+          "kind": "circle",
+          "params": {
+            "radius": 0.0036000000000000003
+          }
+        },
+        "params": {
+          "f": 0.075
+        }
+      },
+      {
+        "id": "flt",
+        "type": "aperture",
+        "pos": {
+          "x": 0.0,
+          "y": 0.0,
+          "z": 0.15
+        },
+        "label": "频谱面滤波：高通（挡掉零级）",
+        "shape": {
+          "kind": "ring",
+          "params": {
+            "rin": 0.00011864999999999998,
+            "rout": 0.0032
+          }
+        }
+      },
+      {
+        "id": "l2",
+        "type": "lens",
+        "pos": {
+          "x": 0.0,
+          "y": 0.0,
+          "z": 0.22499999999999998
+        },
+        "label": "逆变换透镜 f₂=75 mm",
+        "shape": {
+          "kind": "circle",
+          "params": {
+            "radius": 0.0036000000000000003
+          }
+        },
+        "params": {
+          "f": 0.075
+        }
+      },
+      {
+        "id": "det",
+        "type": "sensor",
+        "pos": {
+          "x": 0.0,
+          "y": 0.0,
+          "z": 0.3
+        },
+        "label": "输出面（4f 像面）",
+        "yaw": 3.141592653589793,
+        "shape": {
+          "kind": "rectangle",
+          "params": {
+            "width": 0.0076,
+            "height": 0.0076
+          }
+        }
+      }
+    ]
+  },
+  "meta": {
+    "zod": {
+      "category": "衍射",
+      "difficulty": "高级",
+      "description": "经典 4f 系统：物（正弦光栅）→ 傅里叶透镜 → **频谱面插入滤波器** → 逆变换透镜 → 像面；滤波器规格 高通（挡掉零级）（±1 级位于 x=±0.24 mm）。",
+      "expected": "频谱面上的三个光点（0、±1 级）被滤波器裁剪后，像面重建出对应的空间频率成分：挡掉零级 → 只剩 ±1 级干涉，输出是纯正弦条纹（边缘增强）。这正是「4f 相干光学图像处理」的物理内核——滤波即空间频率选择。",
+      "tags": [
+        "4f 系统",
+        "傅里叶光学",
+        "空间滤波"
+      ],
+      "theory": "4f：物面→频谱面→像面，滤波即乘传递函数"
+    },
+    "sample": true
+  }
+}

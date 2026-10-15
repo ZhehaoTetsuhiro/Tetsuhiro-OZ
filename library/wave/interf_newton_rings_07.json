@@ -1,0 +1,150 @@
+{
+  "name": "牛顿环：曲率半径 R=1.50 m（33 条环）",
+  "grid": {
+    "size": 1024,
+    "width": 0.016
+  },
+  "wavelength": 6.328e-07,
+  "polarized": false,
+  "method": "asm",
+  "evanescent": "decay",
+  "evanescent_limit": 0,
+  "backward_regularize": false,
+  "tikhonov_alpha": 0,
+  "bandlimit": {
+    "fraction": 0.9,
+    "sigma": 0.05
+  },
+  "sources": [
+    {
+      "id": "src",
+      "type": "plane",
+      "params": {
+        "power": 0.001
+      },
+      "pos": {
+        "x": 0.0,
+        "y": 0.0,
+        "z": -0.05
+      },
+      "dir": {
+        "x": 0.0,
+        "y": 0.0,
+        "z": 1.0
+      },
+      "label": "平面波 633 nm",
+      "wavelength": 6.328e-07
+    }
+  ],
+  "scene": {
+    "components": [
+      {
+        "id": "bs",
+        "type": "beamsplitter",
+        "pos": {
+          "x": 0.0,
+          "y": 0.0,
+          "z": 0.0
+        },
+        "label": "分束器 50:50",
+        "yaw": -0.7853981633974483,
+        "shape": {
+          "kind": "circle",
+          "params": {
+            "radius": 0.0056
+          }
+        },
+        "params": {
+          "reflectivity": 0.5
+        }
+      },
+      {
+        "id": "m1",
+        "type": "mirror",
+        "pos": {
+          "x": 0.0,
+          "y": 0.0,
+          "z": 0.06
+        },
+        "label": "端镜 A",
+        "shape": {
+          "kind": "circle",
+          "params": {
+            "radius": 0.0056
+          }
+        },
+        "params": {
+          "reflectivity": 1.0
+        }
+      },
+      {
+        "id": "m2",
+        "type": "mirror",
+        "pos": {
+          "x": 0.06,
+          "y": 0.0,
+          "z": 0.0
+        },
+        "label": "球面镜 R=1.50 m（等效空气隙 r²/2R）",
+        "yaw": 1.5707963267948966,
+        "shape": {
+          "kind": "circle",
+          "params": {
+            "radius": 0.0056
+          }
+        },
+        "params": {
+          "reflectivity": 1.0,
+          "curvature": -0.6666666666666666
+        }
+      },
+      {
+        "id": "d1",
+        "type": "sensor",
+        "pos": {
+          "x": 0.0,
+          "y": 0.0,
+          "z": -0.05
+        },
+        "label": "反射端口：牛顿环",
+        "shape": {
+          "kind": "circle",
+          "params": {
+            "radius": 0.0056
+          }
+        }
+      },
+      {
+        "id": "d2",
+        "type": "sensor",
+        "pos": {
+          "x": -0.06,
+          "y": 0.0,
+          "z": 0.0
+        },
+        "label": "侧端口",
+        "yaw": 1.5707963267948966,
+        "shape": {
+          "kind": "circle",
+          "params": {
+            "radius": 0.0056
+          }
+        }
+      }
+    ]
+  },
+  "meta": {
+    "zod": {
+      "category": "干涉",
+      "difficulty": "进阶",
+      "description": "迈克尔逊结构：参考臂是平面镜，另一臂是曲率半径 R=1.50 m 的球面镜——两臂反射波前的曲率差等价于厚度 t(r)=r²/(2R) 的空气楔，即牛顿环的标准模型。",
+      "expected": "同心圆环：第 m 个环半径 r_m=√(mλR)，本实例 r₁=0.97 mm、r₂=1.38 mm、r₃=1.69 mm；环越往外越密（相邻环间距 Δr=λR/(2r) 随 r 减小）。窗口内约 33 条环。中心是亮斑或暗斑取决于半波损失（本内核的镜面是实振幅反射，不含附加 π 相移）。",
+      "tags": [
+        "牛顿环",
+        "等厚干涉",
+        "曲率镜"
+      ],
+      "theory": "r_m² = mλR（空气隙 t=r²/2R，2t=mλ）；相邻环间距 Δr=λR/(2r)"
+    }
+  }
+}

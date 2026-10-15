@@ -1,0 +1,90 @@
+{
+  "name": "克尔介质 + 双光子吸收：β=1e-08 m/W",
+  "grid": {
+    "size": 512,
+    "width": 0.008
+  },
+  "wavelength": 6.328e-07,
+  "polarized": false,
+  "method": "asm",
+  "evanescent": "decay",
+  "evanescent_limit": 0,
+  "backward_regularize": false,
+  "tikhonov_alpha": 0,
+  "bandlimit": {
+    "fraction": 0.9,
+    "sigma": 0.05
+  },
+  "sources": [
+    {
+      "id": "src",
+      "type": "gaussian",
+      "params": {
+        "power": 0.001,
+        "waist": 0.0006
+      },
+      "pos": {
+        "x": 0.0,
+        "y": 0.0,
+        "z": -0.05
+      },
+      "dir": {
+        "x": 0.0,
+        "y": 0.0,
+        "z": 1.0
+      },
+      "label": "高斯 w₀=0.6 mm",
+      "wavelength": 6.328e-07
+    }
+  ],
+  "scene": {
+    "components": [
+      {
+        "id": "kerr",
+        "type": "kerr",
+        "pos": {
+          "x": 0.0,
+          "y": 0.0,
+          "z": 0.02
+        },
+        "label": "克尔片（含双光子吸收 β=1e-08 m/W）",
+        "shape": {
+          "kind": "circle",
+          "params": {
+            "radius": 0.00392
+          }
+        },
+        "params": {
+          "n2": 2e-06,
+          "length": 0.002,
+          "tpa": 1e-08
+        }
+      },
+      {
+        "id": "det",
+        "type": "sensor",
+        "pos": {
+          "x": 0.0,
+          "y": 0.0,
+          "z": 0.3
+        },
+        "label": "远场",
+        "yaw": 3.141592653589793
+      }
+    ]
+  },
+  "meta": {
+    "zod": {
+      "category": "介质",
+      "difficulty": "高级",
+      "description": "克尔片再加**双光子吸收**（β=1e-08 m/W）：高强度区被额外吸收，与自聚焦的「光强越集中越聚焦」形成竞争。",
+      "expected": "β=0 时只有自聚焦；β>0 时中心衰减、光斑剖面变平甚至出现「反饱和」形变（强度越高吸收越强 → 峰值被削平）。双光子吸收是自相关仪、光限幅器与双光子显微镜的基础；它与克尔自聚焦的竞争决定成丝阈值。",
+      "tags": [
+        "双光子吸收",
+        "克尔",
+        "光限幅"
+      ],
+      "theory": "dI/dz = −βI²（双光子）+ n₂I 相位"
+    }
+  }
+}

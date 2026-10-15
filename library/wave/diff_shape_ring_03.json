@@ -1,0 +1,109 @@
+{
+  "name": "环孔（环形光阑）衍射：内径/外径 = 0.2/1.0",
+  "grid": {
+    "size": 1024,
+    "width": 0.008
+  },
+  "wavelength": 6.328e-07,
+  "polarized": false,
+  "method": "asm",
+  "evanescent": "decay",
+  "evanescent_limit": 0,
+  "backward_regularize": false,
+  "tikhonov_alpha": 0,
+  "bandlimit": {
+    "fraction": 0.9,
+    "sigma": 0.05
+  },
+  "sources": [
+    {
+      "id": "src",
+      "type": "plane",
+      "params": {
+        "power": 0.001
+      },
+      "pos": {
+        "x": 0.0,
+        "y": 0.0,
+        "z": -0.05
+      },
+      "dir": {
+        "x": 0.0,
+        "y": 0.0,
+        "z": 1.0
+      },
+      "wavelength": 6.328e-07
+    }
+  ],
+  "scene": {
+    "components": [
+      {
+        "id": "ap",
+        "type": "aperture",
+        "pos": {
+          "x": 0.0,
+          "y": 0.0,
+          "z": 0.0
+        },
+        "label": "环形孔 rin=0.20 mm",
+        "shape": {
+          "kind": "ring",
+          "params": {
+            "rin": 0.0002,
+            "rout": 0.001
+          }
+        }
+      },
+      {
+        "id": "fl",
+        "type": "lens",
+        "pos": {
+          "x": 0.0,
+          "y": 0.0,
+          "z": 0.02
+        },
+        "label": "傅里叶透镜",
+        "shape": {
+          "kind": "circle",
+          "params": {
+            "radius": 0.004
+          }
+        },
+        "params": {
+          "f": 0.3
+        }
+      },
+      {
+        "id": "det",
+        "type": "sensor",
+        "pos": {
+          "x": 0.0,
+          "y": 0.0,
+          "z": 0.32
+        },
+        "label": "焦面",
+        "yaw": 3.141592653589793,
+        "shape": {
+          "kind": "circle",
+          "params": {
+            "radius": 0.0038
+          }
+        }
+      }
+    ]
+  },
+  "meta": {
+    "zod": {
+      "category": "衍射",
+      "difficulty": "进阶",
+      "description": "外径 1.0 mm 的环形孔径，内径 0.20 mm（遮挡比 0.2），经焦距 0.3 m 透镜到焦面。",
+      "expected": "遮挡比越大中央亮斑越窄（环形孔径等效口径变大），但旁瓣能量升高：遮挡比 0.5 时中央峰宽约缩小 80%，第一暗环位置 r≈1.22λf/(2·rout)=0.116 mm。",
+      "tags": [
+        "环形孔",
+        "环形光阑",
+        "超分辨"
+      ],
+      "theory": "环形瞳 → 中央峰变窄、斯特列尔比下降（旁瓣增强）"
+    }
+  }
+}

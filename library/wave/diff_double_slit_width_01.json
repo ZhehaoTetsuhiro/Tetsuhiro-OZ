@@ -1,0 +1,92 @@
+{
+  "name": "双缝衍射：缝宽 a=0.10 mm 的包络调制",
+  "grid": {
+    "size": 1024,
+    "width": 0.02
+  },
+  "wavelength": 6.328e-07,
+  "polarized": false,
+  "method": "asm",
+  "evanescent": "decay",
+  "evanescent_limit": 0,
+  "backward_regularize": false,
+  "tikhonov_alpha": 0,
+  "bandlimit": {
+    "fraction": 0.9,
+    "sigma": 0.05
+  },
+  "sources": [
+    {
+      "id": "src",
+      "type": "plane",
+      "params": {
+        "power": 0.001
+      },
+      "pos": {
+        "x": 0.0,
+        "y": 0.0,
+        "z": -0.05
+      },
+      "dir": {
+        "x": 0.0,
+        "y": 0.0,
+        "z": 1.0
+      },
+      "wavelength": 6.328e-07
+    }
+  ],
+  "scene": {
+    "components": [
+      {
+        "id": "ds",
+        "type": "aperture",
+        "pos": {
+          "x": 0.0,
+          "y": 0.0,
+          "z": 0.0
+        },
+        "label": "双缝 a=0.10 mm",
+        "shape": {
+          "kind": "double_slit",
+          "params": {
+            "separation": 0.001,
+            "width": 0.0001,
+            "height": 0.019
+          }
+        }
+      },
+      {
+        "id": "det",
+        "type": "sensor",
+        "pos": {
+          "x": 0.0,
+          "y": 0.0,
+          "z": 1.5
+        },
+        "label": "观察屏",
+        "yaw": 3.141592653589793,
+        "shape": {
+          "kind": "rectangle",
+          "params": {
+            "width": 0.018000000000000002,
+            "height": 0.018000000000000002
+          }
+        }
+      }
+    ]
+  },
+  "meta": {
+    "zod": {
+      "category": "衍射",
+      "difficulty": "进阶",
+      "description": "缝距固定 1.0 mm，缝宽取 0.10 mm——只有衍射包络随缝宽改变，条纹间距不变。",
+      "expected": "条纹间距仍为 λz/d=0.949 mm；包络零点移到 λz/a=9.49 mm，包络内干涉条纹数约为 2a/d 的倒数×2：缝越窄包络越宽、可见条纹越多。",
+      "tags": [
+        "双缝",
+        "缝宽",
+        "包络宽度"
+      ],
+      "theory": "包络第一零点由缝宽 a 决定，条纹间距由缝距 d 决定"
+    }
+  }
+}

@@ -1,0 +1,192 @@
+{
+  "name": "介质相位板：折射率 n=1.0000633（额外相位 1.00×2π）",
+  "grid": {
+    "size": 512,
+    "width": 0.01
+  },
+  "wavelength": 6.328e-07,
+  "polarized": false,
+  "method": "asm",
+  "evanescent": "decay",
+  "evanescent_limit": 0,
+  "backward_regularize": false,
+  "tikhonov_alpha": 0,
+  "bandlimit": {
+    "fraction": 0.9,
+    "sigma": 0.05
+  },
+  "sources": [
+    {
+      "id": "src",
+      "type": "plane",
+      "params": {
+        "power": 0.001
+      },
+      "pos": {
+        "x": 0.0,
+        "y": 0.0,
+        "z": -0.05
+      },
+      "dir": {
+        "x": 0.0,
+        "y": 0.0,
+        "z": 1.0
+      },
+      "wavelength": 6.328e-07
+    }
+  ],
+  "scene": {
+    "components": [
+      {
+        "id": "bs1",
+        "type": "beamsplitter",
+        "pos": {
+          "x": 0.0,
+          "y": 0.0,
+          "z": 0.0
+        },
+        "label": "分束器 1（50:50）",
+        "yaw": -0.7853981633974483,
+        "shape": {
+          "kind": "circle",
+          "params": {
+            "radius": 0.0034999999999999996
+          }
+        },
+        "params": {
+          "reflectivity": 0.5
+        }
+      },
+      {
+        "id": "plate",
+        "type": "medium",
+        "pos": {
+          "x": 0.0,
+          "y": 0.0,
+          "z": 0.04
+        },
+        "label": "介质板 d=10 mm、n=1.0000633",
+        "shape": {
+          "kind": "circle",
+          "params": {
+            "radius": 0.004
+          }
+        },
+        "params": {
+          "distance": 0.01,
+          "index": 1.00006328,
+          "absorption": 0.0,
+          "steps": 8
+        }
+      },
+      {
+        "id": "m1",
+        "type": "mirror",
+        "pos": {
+          "x": 0.0,
+          "y": 0.0,
+          "z": 0.08
+        },
+        "label": "折转镜 A（+z→+x）",
+        "yaw": -0.7853981633974483,
+        "shape": {
+          "kind": "circle",
+          "params": {
+            "radius": 0.0034999999999999996
+          }
+        },
+        "params": {
+          "reflectivity": 1.0
+        }
+      },
+      {
+        "id": "m2",
+        "type": "mirror",
+        "pos": {
+          "x": 0.08,
+          "y": 0.0,
+          "z": 0.0
+        },
+        "label": "折转镜 B（+x→+z）",
+        "yaw": 2.356194490192345,
+        "shape": {
+          "kind": "circle",
+          "params": {
+            "radius": 0.0034999999999999996
+          }
+        },
+        "params": {
+          "reflectivity": 1.0
+        }
+      },
+      {
+        "id": "bs2",
+        "type": "beamsplitter",
+        "pos": {
+          "x": 0.08,
+          "y": 0.0,
+          "z": 0.08
+        },
+        "label": "合束器（50:50）",
+        "yaw": -0.7853981633974483,
+        "shape": {
+          "kind": "circle",
+          "params": {
+            "radius": 0.0034999999999999996
+          }
+        },
+        "params": {
+          "reflectivity": 0.5
+        }
+      },
+      {
+        "id": "d1",
+        "type": "sensor",
+        "pos": {
+          "x": 0.08,
+          "y": 0.0,
+          "z": 0.16
+        },
+        "label": "端口 1（干涉读出相位）",
+        "yaw": 3.141592653589793,
+        "shape": {
+          "kind": "circle",
+          "params": {
+            "radius": 0.0034999999999999996
+          }
+        }
+      },
+      {
+        "id": "d2",
+        "type": "sensor",
+        "pos": {
+          "x": 0.16,
+          "y": 0.0,
+          "z": 0.08
+        },
+        "label": "端口 2",
+        "yaw": -1.5707963267948966,
+        "shape": {
+          "kind": "circle",
+          "params": {
+            "radius": 0.0034999999999999996
+          }
+        }
+      }
+    ]
+  },
+  "meta": {
+    "zod": {
+      "category": "介质",
+      "difficulty": "进阶",
+      "description": "马赫-曾德尔的一臂插入厚度 10 mm 的均匀介质（复折射率 n=1.0000633 + i·0），用干涉读出它引入的相位 k(n−1)d。",
+      "expected": "介质引起的相位 = k(n−1)d = 1.00×2π：端口功率 = cos²(φ/2)，因此折射率每变化 Δn=λ/d=63 ppm，端口就在亮暗之间走一格——这就是干涉式折射率计（灵敏度可达 1e-7 量级）的原理。",
+      "tags": [
+        "折射率",
+        "相位",
+        "干涉式测量"
+      ],
+      "theory": "φ = k(n−1)d；周期 Δn = λ/d"
+    }
+  }
+}

@@ -1,0 +1,97 @@
+{
+  "name": "扫掠·双缝缝距 d=2.00 mm → 条纹间距 0.316 mm",
+  "grid": {
+    "size": 1024,
+    "width": 0.02
+  },
+  "wavelength": 6.328e-07,
+  "polarized": false,
+  "method": "asm",
+  "evanescent": "decay",
+  "evanescent_limit": 0,
+  "backward_regularize": false,
+  "tikhonov_alpha": 0,
+  "bandlimit": {
+    "fraction": 0.9,
+    "sigma": 0.05
+  },
+  "sources": [
+    {
+      "id": "src",
+      "type": "plane",
+      "params": {
+        "power": 0.001
+      },
+      "pos": {
+        "x": 0.0,
+        "y": 0.0,
+        "z": -0.05
+      },
+      "dir": {
+        "x": 0.0,
+        "y": 0.0,
+        "z": 1.0
+      },
+      "wavelength": 6.328e-07
+    }
+  ],
+  "scene": {
+    "components": [
+      {
+        "id": "ds",
+        "type": "aperture",
+        "pos": {
+          "x": 0.0,
+          "y": 0.0,
+          "z": 0.0
+        },
+        "label": "双缝 d=2.00 mm a=0.15 mm",
+        "shape": {
+          "kind": "double_slit",
+          "params": {
+            "separation": 0.002,
+            "width": 0.00015,
+            "height": 0.019
+          }
+        }
+      },
+      {
+        "id": "det",
+        "type": "sensor",
+        "pos": {
+          "x": 0.0,
+          "y": 0.0,
+          "z": 1.0
+        },
+        "label": "屏（1 m）",
+        "yaw": 3.141592653589793,
+        "shape": {
+          "kind": "rectangle",
+          "params": {
+            "width": 0.019,
+            "height": 0.019
+          }
+        }
+      }
+    ]
+  },
+  "meta": {
+    "zod": {
+      "category": "参数扫掠",
+      "difficulty": "入门",
+      "description": "固定缝宽与屏距，把双缝间距从 0.20 mm 扫到 3.00 mm（本条第 10 条）。",
+      "expected": "条纹间距 Δx=λL/d=0.3164 mm，窗口内约占 3.2 条/mm；d 加倍则条纹密度加倍（严格反比）。",
+      "tags": [
+        "缝距扫掠",
+        "条纹密度"
+      ],
+      "theory": "Δx = λL/d",
+      "sweep": {
+        "param": "d",
+        "value_mm": 2.0,
+        "index": 10,
+        "of": 12
+      }
+    }
+  }
+}

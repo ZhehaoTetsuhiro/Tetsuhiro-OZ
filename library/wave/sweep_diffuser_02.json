@@ -1,0 +1,101 @@
+{
+  "name": "扫掠·漫射体相位标准差 σ=0.50 rad",
+  "grid": {
+    "size": 512,
+    "width": 0.008
+  },
+  "wavelength": 6.328e-07,
+  "polarized": false,
+  "method": "asm",
+  "evanescent": "decay",
+  "evanescent_limit": 0,
+  "backward_regularize": false,
+  "tikhonov_alpha": 0,
+  "bandlimit": {
+    "fraction": 0.9,
+    "sigma": 0.05
+  },
+  "sources": [
+    {
+      "id": "src",
+      "type": "plane",
+      "params": {
+        "power": 0.001
+      },
+      "pos": {
+        "x": 0.0,
+        "y": 0.0,
+        "z": -0.05
+      },
+      "dir": {
+        "x": 0.0,
+        "y": 0.0,
+        "z": 1.0
+      },
+      "wavelength": 6.328e-07
+    }
+  ],
+  "scene": {
+    "components": [
+      {
+        "id": "d",
+        "type": "diffuser",
+        "pos": {
+          "x": 0.0,
+          "y": 0.0,
+          "z": 0.0
+        },
+        "label": "漫射体 σ=0.50 rad、相关长度 20 µm",
+        "shape": {
+          "kind": "circle",
+          "params": {
+            "radius": 0.0036000000000000003
+          }
+        },
+        "params": {
+          "sigma": 0.5,
+          "correlation": 2e-05,
+          "seed": 7
+        }
+      },
+      {
+        "id": "det",
+        "type": "sensor",
+        "pos": {
+          "x": 0.0,
+          "y": 0.0,
+          "z": 0.2
+        },
+        "label": "散斑场",
+        "yaw": 3.141592653589793,
+        "shape": {
+          "kind": "circle",
+          "params": {
+            "radius": 0.0036000000000000003
+          }
+        }
+      }
+    ]
+  },
+  "meta": {
+    "zod": {
+      "category": "参数扫掠",
+      "difficulty": "进阶",
+      "description": "把漫射体的相位标准差从 0.2 rad 扫到 4.5 rad（第 2 条）：σ 是相位屏的「粗糙程度」。",
+      "expected": "散斑对比度 V=σ_I/⟨I⟩ 随 σ 增大从接近 0 单调升到 1（σ≳π 时饱和为完全散斑）；散斑颗粒尺度 ≈λz/D=18 µm（D 为照明口径 7 mm）。σ=π 是本内核默认的「强漫射」值（测试实测对比度≈1）。",
+      "tags": [
+        "散斑扫掠",
+        "漫射体",
+        "对比度"
+      ],
+      "theory": "σ_I/⟨I⟩ → 1（强漫射）；散斑尺度 λz/D",
+      "sweep": {
+        "param": "sigma_rad",
+        "value": 0.5,
+        "index": 2,
+        "of": 6
+      }
+    },
+    "sample": true
+  }
+}

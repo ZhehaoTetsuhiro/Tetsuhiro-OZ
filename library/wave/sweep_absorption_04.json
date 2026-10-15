@@ -1,0 +1,101 @@
+{
+  "name": "扫掠·吸收介质透过率 80% → n''=1.124e-06",
+  "grid": {
+    "size": 512,
+    "width": 0.01
+  },
+  "wavelength": 6.328e-07,
+  "polarized": false,
+  "method": "asm",
+  "evanescent": "decay",
+  "evanescent_limit": 0,
+  "backward_regularize": false,
+  "tikhonov_alpha": 0,
+  "bandlimit": {
+    "fraction": 0.9,
+    "sigma": 0.05
+  },
+  "sources": [
+    {
+      "id": "src",
+      "type": "plane",
+      "params": {
+        "power": 0.001
+      },
+      "pos": {
+        "x": 0.0,
+        "y": 0.0,
+        "z": -0.05
+      },
+      "dir": {
+        "x": 0.0,
+        "y": 0.0,
+        "z": 1.0
+      },
+      "wavelength": 6.328e-07
+    }
+  ],
+  "scene": {
+    "components": [
+      {
+        "id": "m",
+        "type": "medium",
+        "pos": {
+          "x": 0.0,
+          "y": 0.0,
+          "z": 0.0
+        },
+        "label": "吸收介质 d=10 mm",
+        "shape": {
+          "kind": "circle",
+          "params": {
+            "radius": 0.0049
+          }
+        },
+        "params": {
+          "distance": 0.01,
+          "index": 1.5,
+          "absorption": 1.123675591027702e-06,
+          "steps": 10
+        }
+      },
+      {
+        "id": "det",
+        "type": "sensor",
+        "pos": {
+          "x": 0.0,
+          "y": 0.0,
+          "z": 0.1
+        },
+        "label": "透过功率",
+        "yaw": 3.141592653589793,
+        "shape": {
+          "kind": "circle",
+          "params": {
+            "radius": 0.0049
+          }
+        }
+      }
+    ]
+  },
+  "meta": {
+    "zod": {
+      "category": "参数扫掠",
+      "difficulty": "入门",
+      "description": "固定 10 mm 厚度，把目标透过率从 99% 扫到 10%（第 4 条）。",
+      "expected": "复折射率虚部 n''=1.1237e-06（α=2kn''=22 /m）；强度透过 T=exp(−αd)=0.800。强度与场的关系是「2k n''」而不是「k n''」——这是复折射率的定义 n=n′+iκ、E∝exp(iknd) 的直接结果。",
+      "tags": [
+        "吸收扫掠",
+        "复折射率",
+        "比尔-朗伯"
+      ],
+      "theory": "T = exp(−2 k n'' d)",
+      "sweep": {
+        "param": "T",
+        "value": 0.8,
+        "index": 4,
+        "of": 8
+      }
+    }
+  }
+}

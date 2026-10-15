@@ -1,0 +1,95 @@
+{
+  "name": "增益介质：小信号增益 4.0×",
+  "grid": {
+    "size": 512,
+    "width": 0.01
+  },
+  "wavelength": 6.328e-07,
+  "polarized": false,
+  "method": "asm",
+  "evanescent": "decay",
+  "evanescent_limit": 0,
+  "backward_regularize": false,
+  "tikhonov_alpha": 0,
+  "bandlimit": {
+    "fraction": 0.9,
+    "sigma": 0.05
+  },
+  "sources": [
+    {
+      "id": "src",
+      "type": "plane",
+      "params": {
+        "power": 0.0001
+      },
+      "pos": {
+        "x": 0.0,
+        "y": 0.0,
+        "z": -0.05
+      },
+      "dir": {
+        "x": 0.0,
+        "y": 0.0,
+        "z": 1.0
+      },
+      "wavelength": 6.328e-07
+    }
+  ],
+  "scene": {
+    "components": [
+      {
+        "id": "m",
+        "type": "medium",
+        "pos": {
+          "x": 0.0,
+          "y": 0.0,
+          "z": 0.02
+        },
+        "label": "增益介质 d=10 mm、n''=6.981e-06（负虚部）",
+        "shape": {
+          "kind": "circle",
+          "params": {
+            "radius": 0.0049
+          }
+        },
+        "params": {
+          "distance": 0.01,
+          "index": 1.5,
+          "absorption": 6.980910388829896e-06,
+          "steps": 10
+        }
+      },
+      {
+        "id": "det",
+        "type": "sensor",
+        "pos": {
+          "x": 0.0,
+          "y": 0.0,
+          "z": 0.1
+        },
+        "label": "输出功率",
+        "yaw": 3.141592653589793,
+        "shape": {
+          "kind": "circle",
+          "params": {
+            "radius": 0.0049
+          }
+        }
+      }
+    ]
+  },
+  "meta": {
+    "zod": {
+      "category": "介质",
+      "difficulty": "进阶",
+      "description": "复折射率虚部取负（n''=6.981e-06）→ 介质提供**增益**而不是吸收；输入功率取 1e-4 W 以避免非物理的无限放大。",
+      "expected": "输出功率按 exp(+2k|n''|d)=exp(α_g d)=4.0× 放大（小信号增益）。这是激光增益介质（掺铒光纤、半导体光放大器）的最简模型；真实器件还有增益饱和（见可饱和吸收体/克尔元件）。",
+      "tags": [
+        "增益",
+        "负吸收",
+        "光放大"
+      ],
+      "theory": "负虚部 → exp(+2k|n''|d) 放大（本模型不含饱和）"
+    }
+  }
+}

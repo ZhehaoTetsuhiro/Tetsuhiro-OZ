@@ -1,0 +1,57 @@
+{
+  "name": "单光子马赫-曾德尔：φ=0.12×2π",
+  "modes": 2,
+  "cutoff": 4,
+  "state": {
+    "type": "fock",
+    "params": {
+      "occupation": [
+        1,
+        0
+      ]
+    }
+  },
+  "gates": [
+    {
+      "type": "beam_splitter",
+      "params": {
+        "mode0": 0,
+        "mode1": 1,
+        "reflectivity": 0.5
+      }
+    },
+    {
+      "type": "phase_shift",
+      "params": {
+        "mode": 1,
+        "phase": 0.7853981633974483
+      }
+    },
+    {
+      "type": "beam_splitter",
+      "params": {
+        "mode0": 0,
+        "mode1": 1,
+        "reflectivity": 0.5
+      }
+    }
+  ],
+  "meta": {
+    "name": "单光子马赫-曾德尔：φ=0.12×2π",
+    "zod": {
+      "category": "量子",
+      "difficulty": "进阶",
+      "description": "单个光子进入马赫-曾德尔干涉仪（|1,0⟩ → BS → 相位 φ → BS）：每个端口探测到的是概率，但**概率本身**随相位呈现干涉。",
+      "expected": "P(1,0)=(1−cosφ)/2=0.146、P(0,1)=(1+cosφ)/2=0.854；φ=0 时光子确定地回到输入端（相消）、φ=π 时确定地出现在另一个端口。单光子的干涉是「一个光子与自己干涉」：实验中降低到单光子级仍能看到完整干涉条纹，这排除了「两个光子相互干涉」的经典解释。",
+      "tags": [
+        "单光子干涉",
+        "马赫-曾德尔",
+        "概率",
+        "波粒二象性"
+      ],
+      "theory": "P(1,0)=(1−cosφ)/2，P(0,1)=(1+cosφ)/2",
+      "protocol": "quantum"
+    },
+    "sample": true
+  }
+}

@@ -1,0 +1,149 @@
+{
+  "name": "条纹可见度 vs 分束比：R=0.9 → V=0.60",
+  "grid": {
+    "size": 512,
+    "width": 0.01
+  },
+  "wavelength": 6.328e-07,
+  "polarized": false,
+  "method": "asm",
+  "evanescent": "decay",
+  "evanescent_limit": 0,
+  "backward_regularize": false,
+  "tikhonov_alpha": 0,
+  "bandlimit": {
+    "fraction": 0.9,
+    "sigma": 0.05
+  },
+  "sources": [
+    {
+      "id": "src",
+      "type": "plane",
+      "params": {
+        "power": 0.001
+      },
+      "pos": {
+        "x": 0.0,
+        "y": 0.0,
+        "z": -0.05
+      },
+      "dir": {
+        "x": 0.0,
+        "y": 0.0,
+        "z": 1.0
+      },
+      "wavelength": 6.328e-07
+    }
+  ],
+  "scene": {
+    "components": [
+      {
+        "id": "bs",
+        "type": "beamsplitter",
+        "pos": {
+          "x": 0.0,
+          "y": 0.0,
+          "z": 0.0
+        },
+        "label": "分束器 90:10",
+        "yaw": -0.7853981633974483,
+        "shape": {
+          "kind": "circle",
+          "params": {
+            "radius": 0.0034999999999999996
+          }
+        },
+        "params": {
+          "reflectivity": 0.9
+        }
+      },
+      {
+        "id": "m1",
+        "type": "mirror",
+        "pos": {
+          "x": 0.0,
+          "y": 0.0,
+          "z": 0.05
+        },
+        "label": "端镜 A",
+        "shape": {
+          "kind": "circle",
+          "params": {
+            "radius": 0.0034999999999999996
+          }
+        },
+        "params": {
+          "reflectivity": 1.0
+        }
+      },
+      {
+        "id": "m2",
+        "type": "mirror",
+        "pos": {
+          "x": 0.05,
+          "y": 0.0,
+          "z": 0.0
+        },
+        "label": "端镜 B（微倾 0.15 mrad）",
+        "yaw": 1.5707963267948966,
+        "shape": {
+          "kind": "circle",
+          "params": {
+            "radius": 0.0034999999999999996
+          }
+        },
+        "params": {
+          "reflectivity": 1.0,
+          "tilt_y": 0.00015
+        }
+      },
+      {
+        "id": "d1",
+        "type": "sensor",
+        "pos": {
+          "x": 0.0,
+          "y": 0.0,
+          "z": -0.05
+        },
+        "label": "条纹（回光源端口）",
+        "shape": {
+          "kind": "circle",
+          "params": {
+            "radius": 0.0034999999999999996
+          }
+        }
+      },
+      {
+        "id": "d2",
+        "type": "sensor",
+        "pos": {
+          "x": -0.05,
+          "y": 0.0,
+          "z": 0.0
+        },
+        "label": "侧端口",
+        "yaw": 1.5707963267948966,
+        "shape": {
+          "kind": "circle",
+          "params": {
+            "radius": 0.0034999999999999996
+          }
+        }
+      }
+    ]
+  },
+  "meta": {
+    "zod": {
+      "category": "干涉",
+      "difficulty": "高级",
+      "description": "迈克尔逊干涉仪，分束器反射率 R=0.9（两臂功率比 0.9:0.1）——研究**条纹可见度** V=(Imax−Imin)/(Imax+Imin) 与臂功率比的关系。",
+      "expected": "理论可见度 V=2√(I₁I₂)/(I₁+I₂)=0.600；R=0.5（等功率）时 V=1（条纹最清晰），臂功率比越悬殊可见度越低，但当 I₂→0 时条纹消失而背景仍在。注意分束器功率互补（R+(1−R)=1），能量守恒。",
+      "tags": [
+        "可见度",
+        "分束比",
+        "能量守恒"
+      ],
+      "theory": "V = 2√(I₁I₂)/(I₁+I₂)；R=0.5 时 V=1"
+    }
+  }
+}

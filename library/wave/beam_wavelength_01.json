@@ -1,0 +1,70 @@
+{
+  "name": "波长对高斯光束发散的影响：λ=405 nm",
+  "grid": {
+    "size": 512,
+    "width": 0.008
+  },
+  "wavelength": 4.05e-07,
+  "polarized": false,
+  "method": "asm",
+  "evanescent": "decay",
+  "evanescent_limit": 0,
+  "backward_regularize": false,
+  "tikhonov_alpha": 0,
+  "bandlimit": {
+    "fraction": 0.9,
+    "sigma": 0.05
+  },
+  "sources": [
+    {
+      "id": "src",
+      "type": "gaussian",
+      "params": {
+        "power": 0.001,
+        "waist": 0.0003
+      },
+      "pos": {
+        "x": 0.0,
+        "y": 0.0,
+        "z": -0.05
+      },
+      "dir": {
+        "x": 0.0,
+        "y": 0.0,
+        "z": 1.0
+      },
+      "label": "高斯 w₀=0.30 mm @ 405 nm",
+      "wavelength": 4.05e-07
+    }
+  ],
+  "scene": {
+    "components": [
+      {
+        "id": "det",
+        "type": "sensor",
+        "pos": {
+          "x": 0.0,
+          "y": 0.0,
+          "z": 0.5
+        },
+        "label": "观察面",
+        "yaw": 3.141592653589793
+      }
+    ]
+  },
+  "meta": {
+    "zod": {
+      "category": "传播/光束",
+      "difficulty": "入门",
+      "description": "同一束腰 0.30 mm、同一距离 0.5 m，只改波长。",
+      "expected": "z 处半径 w(z)=0.369 mm（z_R=πw₀²/λ=0.70 m 随 λ 反比变化）；波长越长瑞利长度越短、同距离展宽越大（θ=λ/(πw₀)=0.43 mrad）。",
+      "tags": [
+        "波长",
+        "发散角",
+        "瑞利长度"
+      ],
+      "theory": "z_R ∝ 1/λ，θ ∝ λ"
+    },
+    "sample": true
+  }
+}

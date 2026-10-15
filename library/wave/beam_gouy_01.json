@@ -1,0 +1,69 @@
+{
+  "name": "高斯光束的古伊相位：z/z_R=0.22 → ζ=12.6°",
+  "grid": {
+    "size": 512,
+    "width": 0.01
+  },
+  "wavelength": 6.328e-07,
+  "polarized": false,
+  "method": "asm",
+  "evanescent": "decay",
+  "evanescent_limit": 0,
+  "backward_regularize": false,
+  "tikhonov_alpha": 0,
+  "bandlimit": {
+    "fraction": 0.9,
+    "sigma": 0.05
+  },
+  "sources": [
+    {
+      "id": "src",
+      "type": "gaussian",
+      "params": {
+        "power": 0.001,
+        "waist": 0.0003
+      },
+      "pos": {
+        "x": 0.0,
+        "y": 0.0,
+        "z": -0.05
+      },
+      "dir": {
+        "x": 0.0,
+        "y": 0.0,
+        "z": 1.0
+      },
+      "label": "高斯 w₀=0.30 mm",
+      "wavelength": 6.328e-07
+    }
+  ],
+  "scene": {
+    "components": [
+      {
+        "id": "det",
+        "type": "sensor",
+        "pos": {
+          "x": 0.0,
+          "y": 0.0,
+          "z": 0.1
+        },
+        "label": "观察面",
+        "yaw": 3.141592653589793
+      }
+    ]
+  },
+  "meta": {
+    "zod": {
+      "category": "传播/光束",
+      "difficulty": "高级",
+      "description": "束腰 0.30 mm 的高斯光束传播到 z=0.10 m；用 phase_u（二维去包裹）视图读波前，观察**古伊相位**——高斯光束相对平面波多出的轴向相位。",
+      "expected": "弯折的等相位面在轴上累积 ζ(z)=atan(z/z_R)=12.6°（本处）。z 从 0 到 ∞ 时 ζ 从 0 单调增到 90°；这是高斯光束与平面波的全部相位差（焦点附近波前是平的、远场是球面的）。",
+      "tags": [
+        "古伊相位",
+        "波前",
+        "相位分析"
+      ],
+      "theory": "ζ(z)=atan(z/z_R)，总古伊相移 π（各半面 π/2）"
+    }
+  }
+}

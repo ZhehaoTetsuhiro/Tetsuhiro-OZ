@@ -1,0 +1,93 @@
+{
+  "name": "杨氏双缝干涉：缝距 d=3.00 mm（条纹间距 0.32 mm）",
+  "grid": {
+    "size": 512,
+    "width": 0.02
+  },
+  "wavelength": 6.328e-07,
+  "polarized": false,
+  "method": "asm",
+  "evanescent": "decay",
+  "evanescent_limit": 0,
+  "backward_regularize": false,
+  "tikhonov_alpha": 0,
+  "bandlimit": {
+    "fraction": 0.9,
+    "sigma": 0.05
+  },
+  "sources": [
+    {
+      "id": "src",
+      "type": "plane",
+      "params": {
+        "power": 0.001
+      },
+      "pos": {
+        "x": 0.0,
+        "y": 0.0,
+        "z": -0.05
+      },
+      "dir": {
+        "x": 0.0,
+        "y": 0.0,
+        "z": 1.0
+      },
+      "label": "平面波 633 nm",
+      "wavelength": 6.328e-07
+    }
+  ],
+  "scene": {
+    "components": [
+      {
+        "id": "ds",
+        "type": "aperture",
+        "pos": {
+          "x": 0.0,
+          "y": 0.0,
+          "z": 0.0
+        },
+        "label": "双缝 d=3.00 mm a=0.20 mm",
+        "shape": {
+          "kind": "double_slit",
+          "params": {
+            "separation": 0.003,
+            "width": 0.0002,
+            "height": 0.019
+          }
+        }
+      },
+      {
+        "id": "det",
+        "type": "sensor",
+        "pos": {
+          "x": 0.0,
+          "y": 0.0,
+          "z": 1.5
+        },
+        "label": "干涉屏（1.5 m 处）",
+        "yaw": 3.141592653589793,
+        "shape": {
+          "kind": "rectangle",
+          "params": {
+            "width": 0.019,
+            "height": 0.019
+          }
+        }
+      }
+    ]
+  },
+  "meta": {
+    "zod": {
+      "category": "干涉",
+      "difficulty": "入门",
+      "description": "双缝（缝宽 0.20 mm、缝距 3.00 mm）被平面波照明，屏距 1.5 m；缝宽远小于缝距，属纯双光束干涉。",
+      "expected": "等间距直条纹：Δx=λz/d=0.316 mm，窗口内约 56 条；缝距越小条纹越疏。远处被单缝衍射包络（第一零点 λz/a=4.75 mm）调制——这是「干涉 × 衍射」的经典组合。",
+      "tags": [
+        "杨氏双缝",
+        "条纹间距",
+        "干涉"
+      ],
+      "theory": "Δx = λL/d"
+    }
+  }
+}

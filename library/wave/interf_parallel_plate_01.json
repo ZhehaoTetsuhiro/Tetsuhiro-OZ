@@ -1,0 +1,153 @@
+{
+  "name": "平行平板（菲索）条纹：间距 10 µm、部分反射镜 R=0.5",
+  "grid": {
+    "size": 512,
+    "width": 0.01
+  },
+  "wavelength": 6.328e-07,
+  "polarized": false,
+  "method": "asm",
+  "evanescent": "decay",
+  "evanescent_limit": 0,
+  "backward_regularize": false,
+  "tikhonov_alpha": 0,
+  "bandlimit": {
+    "fraction": 0.9,
+    "sigma": 0.05
+  },
+  "sources": [
+    {
+      "id": "src",
+      "type": "plane",
+      "params": {
+        "power": 0.001
+      },
+      "pos": {
+        "x": 0.0,
+        "y": 0.0,
+        "z": -0.05
+      },
+      "dir": {
+        "x": 0.0,
+        "y": 0.0,
+        "z": 1.0
+      },
+      "wavelength": 6.328e-07
+    }
+  ],
+  "scene": {
+    "components": [
+      {
+        "id": "bs",
+        "type": "beamsplitter",
+        "pos": {
+          "x": 0.0,
+          "y": 0.0,
+          "z": 0.0
+        },
+        "label": "分束器 50:50",
+        "yaw": -0.7853981633974483,
+        "shape": {
+          "kind": "circle",
+          "params": {
+            "radius": 0.0034999999999999996
+          }
+        },
+        "params": {
+          "reflectivity": 0.5
+        }
+      },
+      {
+        "id": "mflat",
+        "type": "mirror",
+        "pos": {
+          "x": 0.0,
+          "y": 0.0,
+          "z": 0.05
+        },
+        "label": "参考臂端镜（平面）",
+        "shape": {
+          "kind": "circle",
+          "params": {
+            "radius": 0.0034999999999999996
+          }
+        },
+        "params": {
+          "reflectivity": 1.0
+        }
+      },
+      {
+        "id": "mpart",
+        "type": "mirror",
+        "pos": {
+          "x": 0.05,
+          "y": 0.0,
+          "z": 0.0
+        },
+        "label": "部分反射镜 ρ=0.707（功率 R=0.5）",
+        "yaw": 1.5707963267948966,
+        "shape": {
+          "kind": "circle",
+          "params": {
+            "radius": 0.0034999999999999996
+          }
+        },
+        "params": {
+          "reflectivity": 0.7071067811865476
+        }
+      },
+      {
+        "id": "mback",
+        "type": "mirror",
+        "pos": {
+          "x": 0.050010000000000006,
+          "y": 0.0,
+          "z": 0.0
+        },
+        "label": "后置全反镜（微倾 0.1 mrad、间距 10 µm）",
+        "yaw": 1.5707963267948966,
+        "shape": {
+          "kind": "circle",
+          "params": {
+            "radius": 0.0034999999999999996
+          }
+        },
+        "params": {
+          "reflectivity": 1.0,
+          "tilt_y": 0.00015
+        }
+      },
+      {
+        "id": "d1",
+        "type": "sensor",
+        "pos": {
+          "x": 0.0,
+          "y": 0.0,
+          "z": -0.05
+        },
+        "label": "反射端口",
+        "shape": {
+          "kind": "circle",
+          "params": {
+            "radius": 0.0034999999999999996
+          }
+        }
+      }
+    ]
+  },
+  "meta": {
+    "zod": {
+      "category": "干涉",
+      "difficulty": "高级",
+      "description": "一臂中放两块平行镜（前镜部分反射 ρ=√R、后镜全反），间距 10 µm —— 这一臂返回两束光（前镜直接反射 + 后镜折返后透射），等价于**平行平板/菲索干涉仪**。",
+      "expected": "两束光的光程差 2ngap=31.6λ 与后镜微倾共同决定条纹：直条纹间距 λ/(2θ)=2.11 mm，对比度由部分反射镜的反射率决定（R=0.5 时两束振幅比大致 0.71）；板间距每变化 λ/2 相位差变化 2π（可用来做波长计/厚度计）。本内核只计首次往返（两光束近似），高反射率的 Airy 多光束条纹不在结果中。",
+      "tags": [
+        "平行平板",
+        "菲索",
+        "部分反射镜",
+        "两光束近似"
+      ],
+      "theory": "平行平板两光束近似：光程差 2ngap；多光束 Airy 条纹需多次往返（本内核只算首次往返）"
+    }
+  }
+}

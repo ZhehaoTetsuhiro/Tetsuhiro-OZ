@@ -1,0 +1,89 @@
+{
+  "name": "三角孔衍射：外接圆半径 0.8 mm",
+  "grid": {
+    "size": 1024,
+    "width": 0.02
+  },
+  "wavelength": 6.328e-07,
+  "polarized": false,
+  "method": "asm",
+  "evanescent": "decay",
+  "evanescent_limit": 0,
+  "backward_regularize": false,
+  "tikhonov_alpha": 0,
+  "bandlimit": {
+    "fraction": 0.9,
+    "sigma": 0.05
+  },
+  "sources": [
+    {
+      "id": "src",
+      "type": "plane",
+      "params": {
+        "power": 0.001
+      },
+      "pos": {
+        "x": 0.0,
+        "y": 0.0,
+        "z": -0.05
+      },
+      "dir": {
+        "x": 0.0,
+        "y": 0.0,
+        "z": 1.0
+      },
+      "wavelength": 6.328e-07
+    }
+  ],
+  "scene": {
+    "components": [
+      {
+        "id": "ap",
+        "type": "aperture",
+        "pos": {
+          "x": 0.0,
+          "y": 0.0,
+          "z": 0.0
+        },
+        "label": "三角孔 R=0.8 mm",
+        "shape": {
+          "kind": "triangle",
+          "params": {
+            "radius": 0.0008
+          }
+        }
+      },
+      {
+        "id": "det",
+        "type": "sensor",
+        "pos": {
+          "x": 0.0,
+          "y": 0.0,
+          "z": 2.0
+        },
+        "label": "观察屏",
+        "yaw": 3.141592653589793,
+        "shape": {
+          "kind": "rectangle",
+          "params": {
+            "width": 0.018000000000000002,
+            "height": 0.018000000000000002
+          }
+        }
+      }
+    ]
+  },
+  "meta": {
+    "zod": {
+      "category": "衍射",
+      "difficulty": "进阶",
+      "description": "等边三角孔径（外接圆半径 0.8 mm），远场 2 m。",
+      "expected": "六角形对称的衍射星芒（三角孔的三重对称在强度图样上表现为六重对称），第一零点尺度 λz/(2R)=0.79 mm；旋转孔径会让图样整体旋转。",
+      "tags": [
+        "三角孔",
+        "对称性"
+      ],
+      "theory": "孔径的夫琅禾费图样带孔径的旋转对称性（三次对称 → 图样六重对称）"
+    }
+  }
+}

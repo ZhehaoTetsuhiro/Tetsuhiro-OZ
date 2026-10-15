@@ -1,0 +1,69 @@
+{
+  "name": "高斯光束距离扫掠：z=1.50 m（z/z_R=3.36）",
+  "grid": {
+    "size": 512,
+    "width": 0.006
+  },
+  "wavelength": 6.328e-07,
+  "polarized": false,
+  "method": "asm",
+  "evanescent": "decay",
+  "evanescent_limit": 0,
+  "backward_regularize": false,
+  "tikhonov_alpha": 0,
+  "bandlimit": {
+    "fraction": 0.9,
+    "sigma": 0.05
+  },
+  "sources": [
+    {
+      "id": "src",
+      "type": "gaussian",
+      "params": {
+        "power": 0.001,
+        "waist": 0.0003
+      },
+      "pos": {
+        "x": 0.0,
+        "y": 0.0,
+        "z": -0.05
+      },
+      "dir": {
+        "x": 0.0,
+        "y": 0.0,
+        "z": 1.0
+      },
+      "label": "高斯 w₀=0.30 mm",
+      "wavelength": 6.328e-07
+    }
+  ],
+  "scene": {
+    "components": [
+      {
+        "id": "det",
+        "type": "sensor",
+        "pos": {
+          "x": 0.0,
+          "y": 0.0,
+          "z": 1.5
+        },
+        "label": "观察面",
+        "yaw": 3.141592653589793
+      }
+    ]
+  },
+  "meta": {
+    "zod": {
+      "category": "传播/光束",
+      "difficulty": "入门",
+      "description": "束腰 0.30 mm 的高斯光束，观察面从 50 mm 移到 1500 mm（z_R=0.447 m）。",
+      "expected": "z≪z_R 时几乎不展宽（准直区），z≫z_R 后按 z·θ=z·λ/(πw₀) 线性发散：本处 z/z_R=3.36，光斑半径 1.05 mm。远场半角 θ=0.67 mrad。",
+      "tags": [
+        "高斯光束",
+        "准直区",
+        "远场发散"
+      ],
+      "theory": "近场准直 / 远场线性发散，转折点即 z_R"
+    }
+  }
+}

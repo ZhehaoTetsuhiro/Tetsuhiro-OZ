@@ -1,0 +1,116 @@
+{
+  "name": "望远镜：开普勒望远镜 f1=300 f2=50（放大 6×）",
+  "grid": {
+    "size": 512,
+    "width": 0.01
+  },
+  "wavelength": 6.328e-07,
+  "polarized": false,
+  "method": "asm",
+  "evanescent": "decay",
+  "evanescent_limit": 0,
+  "backward_regularize": false,
+  "tikhonov_alpha": 0,
+  "bandlimit": {
+    "fraction": 0.9,
+    "sigma": 0.05
+  },
+  "sources": [
+    {
+      "id": "src",
+      "type": "plane",
+      "params": {
+        "power": 0.001,
+        "tilt_x": 0.0002
+      },
+      "pos": {
+        "x": 0.0,
+        "y": 0.0,
+        "z": -0.05
+      },
+      "dir": {
+        "x": 0.0,
+        "y": 0.0,
+        "z": 1.0
+      },
+      "label": "轴上点（倾角 0.2 mrad）",
+      "wavelength": 6.328e-07
+    }
+  ],
+  "scene": {
+    "components": [
+      {
+        "id": "obj",
+        "type": "lens",
+        "pos": {
+          "x": 0.0,
+          "y": 0.0,
+          "z": 0.0
+        },
+        "label": "物镜 f=300 mm",
+        "shape": {
+          "kind": "circle",
+          "params": {
+            "radius": 0.004
+          }
+        },
+        "params": {
+          "f": 0.3
+        }
+      },
+      {
+        "id": "eye",
+        "type": "lens",
+        "pos": {
+          "x": 0.0,
+          "y": 0.0,
+          "z": 0.35
+        },
+        "label": "目镜 f=50 mm",
+        "shape": {
+          "kind": "circle",
+          "params": {
+            "radius": 0.004
+          }
+        },
+        "params": {
+          "f": 0.05
+        }
+      },
+      {
+        "id": "det",
+        "type": "sensor",
+        "pos": {
+          "x": 0.0,
+          "y": 0.0,
+          "z": 0.45
+        },
+        "label": "出瞳后",
+        "yaw": 3.141592653589793,
+        "shape": {
+          "kind": "rectangle",
+          "params": {
+            "width": 0.009000000000000001,
+            "height": 0.009000000000000001
+          }
+        }
+      }
+    ]
+  },
+  "meta": {
+    "zod": {
+      "category": "仪器",
+      "difficulty": "进阶",
+      "description": "开普勒望远镜 f1=300 f2=50（放大 6×）：物镜与目镜间距 = f₁+f₂ = 350 mm（两透镜共焦）。物镜口径 8 mm。",
+      "expected": "角放大率 M=−f₁/f₂=-6.0：入射 0.2 mrad 的平行光出射为 1.20 mrad。开普勒式在两透镜间有实焦点（可放十字丝/视场光阑），伽利略式（f₂<0）为短筒正像系统。出射光束直径 = D·|f₂/f₁| = 1.33 mm（这就是「出瞳」）。",
+      "tags": [
+        "望远镜",
+        "开普勒",
+        "伽利略",
+        "角放大率"
+      ],
+      "theory": "M = −f₁/f₂；两透镜共焦 → 平行光进、平行光出"
+    },
+    "sample": true
+  }
+}

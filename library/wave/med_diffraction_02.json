@@ -1,0 +1,106 @@
+{
+  "name": "介质中的衍射：n=1.33（介质内波长 476 nm）",
+  "grid": {
+    "size": 512,
+    "width": 0.01
+  },
+  "wavelength": 6.328e-07,
+  "polarized": false,
+  "method": "asm",
+  "evanescent": "decay",
+  "evanescent_limit": 0,
+  "backward_regularize": false,
+  "tikhonov_alpha": 0,
+  "bandlimit": {
+    "fraction": 0.9,
+    "sigma": 0.05
+  },
+  "sources": [
+    {
+      "id": "src",
+      "type": "plane",
+      "params": {
+        "power": 0.001
+      },
+      "pos": {
+        "x": 0.0,
+        "y": 0.0,
+        "z": -0.05
+      },
+      "dir": {
+        "x": 0.0,
+        "y": 0.0,
+        "z": 1.0
+      },
+      "wavelength": 6.328e-07
+    }
+  ],
+  "scene": {
+    "components": [
+      {
+        "id": "m",
+        "type": "medium",
+        "pos": {
+          "x": 0.0,
+          "y": 0.0,
+          "z": 0.0
+        },
+        "label": "介质 d=20 mm、n=1.33",
+        "shape": {
+          "kind": "circle",
+          "params": {
+            "radius": 0.0049
+          }
+        },
+        "params": {
+          "distance": 0.02,
+          "index": 1.33,
+          "absorption": 0.0,
+          "steps": 20
+        }
+      },
+      {
+        "id": "slit",
+        "type": "aperture",
+        "pos": {
+          "x": 0.0,
+          "y": 0.0,
+          "z": 0.001
+        },
+        "label": "单缝 0.3 mm",
+        "shape": {
+          "kind": "rectangle",
+          "params": {
+            "width": 0.0003,
+            "height": 0.0095
+          }
+        }
+      },
+      {
+        "id": "det",
+        "type": "sensor",
+        "pos": {
+          "x": 0.0,
+          "y": 0.0,
+          "z": 1.5
+        },
+        "label": "远场（介质之后）",
+        "yaw": 3.141592653589793
+      }
+    ]
+  },
+  "meta": {
+    "zod": {
+      "category": "介质",
+      "difficulty": "高级",
+      "description": "先把平面波送进 20 mm 厚的介质（n=1.33）再加单缝衍射——介质内的波长为 λ/n=476 nm，出射后回到空气中的 λ。",
+      "expected": "介质内传播只改变相位（k·n·d）与吸收，不改变场的横向分布，因此出射后的**衍射图样与真空完全一致**（第一暗点仍为 λz/a=3.16 mm，λ 用真空波长）。这与「介质中波长缩短、衍射角变小」的常见误解形成对照：衍射角由光在**外部介质**（出射侧）中的波长决定，只要出射到空气就是 λ。",
+      "tags": [
+        "介质中的衍射",
+        "波长",
+        "相位"
+      ],
+      "theory": "均匀介质只乘 exp(iknd) 与吸收；横向分布不变"
+    }
+  }
+}

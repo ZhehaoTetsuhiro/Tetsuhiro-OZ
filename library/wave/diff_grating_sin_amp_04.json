@@ -1,0 +1,108 @@
+{
+  "name": "正弦振幅光栅：周期 Λ=150 µm",
+  "grid": {
+    "size": 1024,
+    "width": 0.008
+  },
+  "wavelength": 6.328e-07,
+  "polarized": false,
+  "method": "asm",
+  "evanescent": "decay",
+  "evanescent_limit": 0,
+  "backward_regularize": false,
+  "tikhonov_alpha": 0,
+  "bandlimit": {
+    "fraction": 0.9,
+    "sigma": 0.05
+  },
+  "sources": [
+    {
+      "id": "src",
+      "type": "plane",
+      "params": {
+        "power": 0.001
+      },
+      "pos": {
+        "x": 0.0,
+        "y": 0.0,
+        "z": -0.05
+      },
+      "dir": {
+        "x": 0.0,
+        "y": 0.0,
+        "z": 1.0
+      },
+      "wavelength": 6.328e-07
+    }
+  ],
+  "scene": {
+    "components": [
+      {
+        "id": "g",
+        "type": "grating",
+        "pos": {
+          "x": 0.0,
+          "y": 0.0,
+          "z": 0.0
+        },
+        "label": "正弦振幅光栅 Λ=150 µm",
+        "params": {
+          "kind": "amplitude_sin",
+          "period": 0.00015,
+          "modulation": 0.8
+        }
+      },
+      {
+        "id": "fl",
+        "type": "lens",
+        "pos": {
+          "x": 0.0,
+          "y": 0.0,
+          "z": 0.02
+        },
+        "label": "傅里叶透镜 f=0.30 m",
+        "shape": {
+          "kind": "circle",
+          "params": {
+            "radius": 0.00392
+          }
+        },
+        "params": {
+          "f": 0.3
+        }
+      },
+      {
+        "id": "det",
+        "type": "sensor",
+        "pos": {
+          "x": 0.0,
+          "y": 0.0,
+          "z": 0.32
+        },
+        "label": "焦面（衍射级）",
+        "yaw": 3.141592653589793,
+        "shape": {
+          "kind": "rectangle",
+          "params": {
+            "width": 0.0076,
+            "height": 0.0076
+          }
+        }
+      }
+    ]
+  },
+  "meta": {
+    "zod": {
+      "category": "衍射",
+      "difficulty": "入门",
+      "description": "透过率 t(x)=[1+m·cos(2πx/Λ)]/(1+m) 的连续振幅光栅（Λ=150 µm，对比度 m=0.80），经焦距 0.30 m 的傅里叶透镜到焦面读数。",
+      "expected": "只有 0 级与 ±1 级：±1 级位于 x=±fλ/Λ=±1.27 mm，级次间强度比 I₁:I₀ = (m/2)²:1，归一化后各级份额 0 级 ≈75.8%、±1 级各 ≈12.1%；±2 级及以上严格为零（正弦光栅只有三束衍射光）。",
+      "tags": [
+        "正弦振幅光栅",
+        "三束衍射",
+        "傅里叶光学"
+      ],
+      "theory": "正弦振幅光栅 → 仅 0、±1 三束；I±1/I0 = (m/2)²"
+    }
+  }
+}

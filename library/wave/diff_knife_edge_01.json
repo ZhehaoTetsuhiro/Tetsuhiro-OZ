@@ -1,0 +1,95 @@
+{
+  "name": "直边（刀口）菲涅耳衍射：z=50 mm，N_F=126.4",
+  "grid": {
+    "size": 512,
+    "width": 0.01
+  },
+  "wavelength": 6.328e-07,
+  "polarized": false,
+  "method": "asm",
+  "evanescent": "decay",
+  "evanescent_limit": 0,
+  "backward_regularize": false,
+  "tikhonov_alpha": 0,
+  "bandlimit": {
+    "fraction": 0.9,
+    "sigma": 0.05
+  },
+  "sources": [
+    {
+      "id": "src",
+      "type": "plane",
+      "params": {
+        "power": 0.001
+      },
+      "pos": {
+        "x": 0.0,
+        "y": 0.0,
+        "z": -0.05
+      },
+      "dir": {
+        "x": 0.0,
+        "y": 0.0,
+        "z": 1.0
+      },
+      "wavelength": 6.328e-07
+    }
+  ],
+  "scene": {
+    "components": [
+      {
+        "id": "knife",
+        "type": "aperture",
+        "pos": {
+          "x": 0.0,
+          "y": 0.0,
+          "z": 0.0
+        },
+        "label": "半平面挡板（边缘过光轴）",
+        "shape": {
+          "kind": "rectangle",
+          "params": {
+            "width": 0.0098,
+            "height": 0.0098
+          }
+        },
+        "params": {
+          "x": -0.0049
+        }
+      },
+      {
+        "id": "det",
+        "type": "sensor",
+        "pos": {
+          "x": 0.0,
+          "y": 0.0,
+          "z": 0.05
+        },
+        "label": "近场屏",
+        "yaw": 3.141592653589793,
+        "shape": {
+          "kind": "rectangle",
+          "params": {
+            "width": 0.0095,
+            "height": 0.0095
+          }
+        }
+      }
+    ]
+  },
+  "meta": {
+    "zod": {
+      "category": "衍射",
+      "difficulty": "进阶",
+      "description": "用矩形挡板遮住半个视场（边缘位于 x=0）→ 直边衍射（刀口实验）；传播到 z=50 mm。",
+      "expected": "几何亮区一侧出现**明暗相间的条纹**，条纹尺度 ~√(λz/2)=126 µm；紧贴几何阴影边界处强度为入射的 1/4（不是 1/2），阴影区指数衰减但很快趋零。z 越大条纹越粗、越多（菲涅耳数 N_F=126.4）。",
+      "tags": [
+        "直边衍射",
+        "刀口",
+        "菲涅耳积分"
+      ],
+      "theory": "菲涅耳积分：I(0)=I₀/4 在几何边界上；条纹尺度 √(λz/2)"
+    },
+    "sample": true
+  }
+}

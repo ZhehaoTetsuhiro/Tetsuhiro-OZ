@@ -1,0 +1,93 @@
+{
+  "name": "双缝干涉：波长 450 nm（条纹间距 0.84 mm）",
+  "grid": {
+    "size": 512,
+    "width": 0.02
+  },
+  "wavelength": 4.5e-07,
+  "polarized": false,
+  "method": "asm",
+  "evanescent": "decay",
+  "evanescent_limit": 0,
+  "backward_regularize": false,
+  "tikhonov_alpha": 0,
+  "bandlimit": {
+    "fraction": 0.9,
+    "sigma": 0.05
+  },
+  "sources": [
+    {
+      "id": "src",
+      "type": "plane",
+      "params": {
+        "power": 0.001
+      },
+      "pos": {
+        "x": 0.0,
+        "y": 0.0,
+        "z": -0.05
+      },
+      "dir": {
+        "x": 0.0,
+        "y": 0.0,
+        "z": 1.0
+      },
+      "label": "平面波 450 nm",
+      "wavelength": 4.5e-07
+    }
+  ],
+  "scene": {
+    "components": [
+      {
+        "id": "ds",
+        "type": "aperture",
+        "pos": {
+          "x": 0.0,
+          "y": 0.0,
+          "z": 0.0
+        },
+        "label": "双缝 d=0.80 mm a=0.20 mm",
+        "shape": {
+          "kind": "double_slit",
+          "params": {
+            "separation": 0.0008,
+            "width": 0.0002,
+            "height": 0.019
+          }
+        }
+      },
+      {
+        "id": "det",
+        "type": "sensor",
+        "pos": {
+          "x": 0.0,
+          "y": 0.0,
+          "z": 1.5
+        },
+        "label": "干涉屏",
+        "yaw": 3.141592653589793,
+        "shape": {
+          "kind": "rectangle",
+          "params": {
+            "width": 0.019,
+            "height": 0.019
+          }
+        }
+      }
+    ]
+  },
+  "meta": {
+    "zod": {
+      "category": "干涉",
+      "difficulty": "入门",
+      "description": "缝距固定 0.80 mm，只改波长（450 nm）——条纹间距与波长成正比。",
+      "expected": "Δx=λz/d=0.844 mm：红光条纹比紫光宽 1.11 倍。用白光照明时各波长条纹错开叠加，只有零级（光程差为 0 处）是白的，两侧出现彩色——这就是白光干涉条纹的成因。",
+      "tags": [
+        "双缝",
+        "波长",
+        "白光条纹"
+      ],
+      "theory": "Δx = λz/d 与 λ 成正比"
+    }
+  }
+}

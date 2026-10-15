@@ -1,0 +1,72 @@
+{
+  "name": "拉盖尔-高斯模 LG(0,2)：1 个同心环 + 螺旋相位 2",
+  "grid": {
+    "size": 512,
+    "width": 0.008
+  },
+  "wavelength": 6.328e-07,
+  "polarized": false,
+  "method": "asm",
+  "evanescent": "decay",
+  "evanescent_limit": 0,
+  "backward_regularize": false,
+  "tikhonov_alpha": 0,
+  "bandlimit": {
+    "fraction": 0.9,
+    "sigma": 0.05
+  },
+  "sources": [
+    {
+      "id": "src",
+      "type": "laguerre_gaussian",
+      "params": {
+        "power": 0.001,
+        "waist": 0.00035,
+        "p": 0,
+        "l": 2
+      },
+      "pos": {
+        "x": 0.0,
+        "y": 0.0,
+        "z": -0.05
+      },
+      "dir": {
+        "x": 0.0,
+        "y": 0.0,
+        "z": 1.0
+      },
+      "label": "LG(0,2)",
+      "wavelength": 6.328e-07
+    }
+  ],
+  "scene": {
+    "components": [
+      {
+        "id": "det",
+        "type": "sensor",
+        "pos": {
+          "x": 0.0,
+          "y": 0.0,
+          "z": 0.3
+        },
+        "label": "观察面",
+        "yaw": 3.141592653589793
+      }
+    ]
+  },
+  "meta": {
+    "zod": {
+      "category": "传播/光束",
+      "difficulty": "进阶",
+      "description": "拉盖尔-高斯模 LG_p^l（p=0 径向阶、l=2 方位角阶），束腰 0.35 mm，传播 0.3 m。",
+      "expected": "强度呈 1 个同心环；l≠0 时轴上强度为零、相位绕轴 2 圈 2π（轨道角动量 lħ/光子）；l 的符号决定相位螺旋旋向（l>0 与 l<0 的图样在**强度**上相同、在**相位**上相反）。",
+      "tags": [
+        "拉盖尔-高斯",
+        "OAM",
+        "高阶模"
+      ],
+      "theory": "LG_p^l 有 p+1 个径向节环，相位因子 e^{ilθ}"
+    },
+    "sample": true
+  }
+}

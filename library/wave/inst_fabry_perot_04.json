@@ -1,0 +1,153 @@
+{
+  "name": "法布里-珀罗/平行平板：间隙 40 µm、R=0.5",
+  "grid": {
+    "size": 512,
+    "width": 0.01
+  },
+  "wavelength": 6.328e-07,
+  "polarized": false,
+  "method": "asm",
+  "evanescent": "decay",
+  "evanescent_limit": 0,
+  "backward_regularize": false,
+  "tikhonov_alpha": 0,
+  "bandlimit": {
+    "fraction": 0.9,
+    "sigma": 0.05
+  },
+  "sources": [
+    {
+      "id": "src",
+      "type": "plane",
+      "params": {
+        "power": 0.001
+      },
+      "pos": {
+        "x": 0.0,
+        "y": 0.0,
+        "z": -0.05
+      },
+      "dir": {
+        "x": 0.0,
+        "y": 0.0,
+        "z": 1.0
+      },
+      "wavelength": 6.328e-07
+    }
+  ],
+  "scene": {
+    "components": [
+      {
+        "id": "bs",
+        "type": "beamsplitter",
+        "pos": {
+          "x": 0.0,
+          "y": 0.0,
+          "z": 0.0
+        },
+        "label": "分束器 50:50",
+        "yaw": -0.7853981633974483,
+        "shape": {
+          "kind": "circle",
+          "params": {
+            "radius": 0.0034999999999999996
+          }
+        },
+        "params": {
+          "reflectivity": 0.5
+        }
+      },
+      {
+        "id": "mflat",
+        "type": "mirror",
+        "pos": {
+          "x": 0.0,
+          "y": 0.0,
+          "z": 0.05
+        },
+        "label": "参考臂端镜",
+        "shape": {
+          "kind": "circle",
+          "params": {
+            "radius": 0.0034999999999999996
+          }
+        },
+        "params": {
+          "reflectivity": 1.0
+        }
+      },
+      {
+        "id": "mpart",
+        "type": "mirror",
+        "pos": {
+          "x": 0.05,
+          "y": 0.0,
+          "z": 0.0
+        },
+        "label": "前镜（功率反射率 R=0.5）",
+        "yaw": 1.5707963267948966,
+        "shape": {
+          "kind": "circle",
+          "params": {
+            "radius": 0.0034999999999999996
+          }
+        },
+        "params": {
+          "reflectivity": 0.7071067811865476
+        }
+      },
+      {
+        "id": "mback",
+        "type": "mirror",
+        "pos": {
+          "x": 0.05004,
+          "y": 0.0,
+          "z": 0.0
+        },
+        "label": "后镜（间隙 40 µm、微倾 0.1 mrad）",
+        "yaw": 1.5707963267948966,
+        "shape": {
+          "kind": "circle",
+          "params": {
+            "radius": 0.0034999999999999996
+          }
+        },
+        "params": {
+          "reflectivity": 1.0,
+          "tilt_y": 0.0001
+        }
+      },
+      {
+        "id": "d1",
+        "type": "sensor",
+        "pos": {
+          "x": 0.0,
+          "y": 0.0,
+          "z": -0.05
+        },
+        "label": "反射端口（干涉条纹）",
+        "shape": {
+          "kind": "circle",
+          "params": {
+            "radius": 0.0034999999999999996
+          }
+        }
+      }
+    ]
+  },
+  "meta": {
+    "zod": {
+      "category": "仪器",
+      "difficulty": "高级",
+      "description": "由「前镜部分反射 + 后镜全反」构成的平行平板（法布里-珀罗腔的两光束模型）：间隙 40 µm、前镜功率反射率 R=0.5、后镜微倾 0.1 mrad。",
+      "expected": "返回两束光的光程差 2ngap=126.4λ（间隙每变 λ/2 相位走一圈 2π），叠加后是间距 λ/(2θ)=3.16 mm 的直条纹。理想腔的精细度 F=π√R/(1−R)=4.4、自由光谱范围 Δλ=λ²/(2nL)=5.005 nm、峰值透射=1。**注意本内核只计首次往返**（两光束近似），高反射率时 Airy 多光束的窄峰不在结果中（会给出 scene_cycle_dropped 告警）。",
+      "tags": [
+        "法布里-珀罗",
+        "平行平板",
+        "精细度",
+        "自由光谱范围"
+      ],
+      "theory": "Δλ_FSR=λ²/(2nL)，F=π√R/(1−R)，T_max=1（无吸收）；两光束近似"
+    }
+  }
+}

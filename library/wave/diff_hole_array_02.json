@@ -1,0 +1,394 @@
+{
+  "name": "4×4 圆孔阵列的二维衍射（二维光栅）",
+  "grid": {
+    "size": 1024,
+    "width": 0.02
+  },
+  "wavelength": 6.328e-07,
+  "polarized": false,
+  "method": "asm",
+  "evanescent": "decay",
+  "evanescent_limit": 0,
+  "backward_regularize": false,
+  "tikhonov_alpha": 0,
+  "bandlimit": {
+    "fraction": 0.9,
+    "sigma": 0.05
+  },
+  "sources": [
+    {
+      "id": "src",
+      "type": "plane",
+      "params": {
+        "power": 0.001
+      },
+      "pos": {
+        "x": 0.0,
+        "y": 0.0,
+        "z": -0.05
+      },
+      "dir": {
+        "x": 0.0,
+        "y": 0.0,
+        "z": 1.0
+      },
+      "wavelength": 6.328e-07
+    }
+  ],
+  "scene": {
+    "components": [
+      {
+        "id": "h0",
+        "type": "aperture",
+        "pos": {
+          "x": 0.0,
+          "y": 0.0,
+          "z": 0.0
+        },
+        "shape": {
+          "kind": "circle",
+          "params": {
+            "radius": 0.0004
+          }
+        },
+        "params": {
+          "parallel": true,
+          "x": -0.00375,
+          "y": -0.00375
+        }
+      },
+      {
+        "id": "h1",
+        "type": "aperture",
+        "pos": {
+          "x": 0.0,
+          "y": 0.0,
+          "z": 0.0
+        },
+        "shape": {
+          "kind": "circle",
+          "params": {
+            "radius": 0.0004
+          }
+        },
+        "params": {
+          "parallel": true,
+          "x": -0.00375,
+          "y": -0.00125
+        }
+      },
+      {
+        "id": "h2",
+        "type": "aperture",
+        "pos": {
+          "x": 0.0,
+          "y": 0.0,
+          "z": 0.0
+        },
+        "shape": {
+          "kind": "circle",
+          "params": {
+            "radius": 0.0004
+          }
+        },
+        "params": {
+          "parallel": true,
+          "x": -0.00375,
+          "y": 0.00125
+        }
+      },
+      {
+        "id": "h3",
+        "type": "aperture",
+        "pos": {
+          "x": 0.0,
+          "y": 0.0,
+          "z": 0.0
+        },
+        "shape": {
+          "kind": "circle",
+          "params": {
+            "radius": 0.0004
+          }
+        },
+        "params": {
+          "parallel": true,
+          "x": -0.00375,
+          "y": 0.00375
+        }
+      },
+      {
+        "id": "h4",
+        "type": "aperture",
+        "pos": {
+          "x": 0.0,
+          "y": 0.0,
+          "z": 0.0
+        },
+        "shape": {
+          "kind": "circle",
+          "params": {
+            "radius": 0.0004
+          }
+        },
+        "params": {
+          "parallel": true,
+          "x": -0.00125,
+          "y": -0.00375
+        }
+      },
+      {
+        "id": "h5",
+        "type": "aperture",
+        "pos": {
+          "x": 0.0,
+          "y": 0.0,
+          "z": 0.0
+        },
+        "shape": {
+          "kind": "circle",
+          "params": {
+            "radius": 0.0004
+          }
+        },
+        "params": {
+          "parallel": true,
+          "x": -0.00125,
+          "y": -0.00125
+        }
+      },
+      {
+        "id": "h6",
+        "type": "aperture",
+        "pos": {
+          "x": 0.0,
+          "y": 0.0,
+          "z": 0.0
+        },
+        "shape": {
+          "kind": "circle",
+          "params": {
+            "radius": 0.0004
+          }
+        },
+        "params": {
+          "parallel": true,
+          "x": -0.00125,
+          "y": 0.00125
+        }
+      },
+      {
+        "id": "h7",
+        "type": "aperture",
+        "pos": {
+          "x": 0.0,
+          "y": 0.0,
+          "z": 0.0
+        },
+        "shape": {
+          "kind": "circle",
+          "params": {
+            "radius": 0.0004
+          }
+        },
+        "params": {
+          "parallel": true,
+          "x": -0.00125,
+          "y": 0.00375
+        }
+      },
+      {
+        "id": "h8",
+        "type": "aperture",
+        "pos": {
+          "x": 0.0,
+          "y": 0.0,
+          "z": 0.0
+        },
+        "shape": {
+          "kind": "circle",
+          "params": {
+            "radius": 0.0004
+          }
+        },
+        "params": {
+          "parallel": true,
+          "x": 0.00125,
+          "y": -0.00375
+        }
+      },
+      {
+        "id": "h9",
+        "type": "aperture",
+        "pos": {
+          "x": 0.0,
+          "y": 0.0,
+          "z": 0.0
+        },
+        "shape": {
+          "kind": "circle",
+          "params": {
+            "radius": 0.0004
+          }
+        },
+        "params": {
+          "parallel": true,
+          "x": 0.00125,
+          "y": -0.00125
+        }
+      },
+      {
+        "id": "h10",
+        "type": "aperture",
+        "pos": {
+          "x": 0.0,
+          "y": 0.0,
+          "z": 0.0
+        },
+        "shape": {
+          "kind": "circle",
+          "params": {
+            "radius": 0.0004
+          }
+        },
+        "params": {
+          "parallel": true,
+          "x": 0.00125,
+          "y": 0.00125
+        }
+      },
+      {
+        "id": "h11",
+        "type": "aperture",
+        "pos": {
+          "x": 0.0,
+          "y": 0.0,
+          "z": 0.0
+        },
+        "shape": {
+          "kind": "circle",
+          "params": {
+            "radius": 0.0004
+          }
+        },
+        "params": {
+          "parallel": true,
+          "x": 0.00125,
+          "y": 0.00375
+        }
+      },
+      {
+        "id": "h12",
+        "type": "aperture",
+        "pos": {
+          "x": 0.0,
+          "y": 0.0,
+          "z": 0.0
+        },
+        "shape": {
+          "kind": "circle",
+          "params": {
+            "radius": 0.0004
+          }
+        },
+        "params": {
+          "parallel": true,
+          "x": 0.00375,
+          "y": -0.00375
+        }
+      },
+      {
+        "id": "h13",
+        "type": "aperture",
+        "pos": {
+          "x": 0.0,
+          "y": 0.0,
+          "z": 0.0
+        },
+        "shape": {
+          "kind": "circle",
+          "params": {
+            "radius": 0.0004
+          }
+        },
+        "params": {
+          "parallel": true,
+          "x": 0.00375,
+          "y": -0.00125
+        }
+      },
+      {
+        "id": "h14",
+        "type": "aperture",
+        "pos": {
+          "x": 0.0,
+          "y": 0.0,
+          "z": 0.0
+        },
+        "shape": {
+          "kind": "circle",
+          "params": {
+            "radius": 0.0004
+          }
+        },
+        "params": {
+          "parallel": true,
+          "x": 0.00375,
+          "y": 0.00125
+        }
+      },
+      {
+        "id": "h15",
+        "type": "aperture",
+        "pos": {
+          "x": 0.0,
+          "y": 0.0,
+          "z": 0.0
+        },
+        "shape": {
+          "kind": "circle",
+          "params": {
+            "radius": 0.0004
+          }
+        },
+        "params": {
+          "parallel": true,
+          "x": 0.00375,
+          "y": 0.00375
+        }
+      },
+      {
+        "id": "det",
+        "type": "sensor",
+        "pos": {
+          "x": 0.0,
+          "y": 0.0,
+          "z": 1.0
+        },
+        "label": "二维衍射图",
+        "yaw": 3.141592653589793,
+        "shape": {
+          "kind": "rectangle",
+          "params": {
+            "width": 0.019,
+            "height": 0.019
+          }
+        }
+      }
+    ]
+  },
+  "meta": {
+    "zod": {
+      "category": "衍射",
+      "difficulty": "高级",
+      "description": "4×4 个半径 0.4 mm 的圆孔按 2.5 mm 的二维周期排列（parallel 并集），远场 1 m 观察二维衍射。",
+      "expected": "二维点阵图样：主极大出现在 (m·λz/d, n·λz/d) 的二维格点上（间距 0.25 mm），每个主极大的包络是圆孔艾里图样的二维复制；阵列越大主极大越锐。",
+      "tags": [
+        "二维光栅",
+        "孔阵列",
+        "点阵衍射"
+      ],
+      "theory": "二维周期 a 的阵列 → 远场为倒格点阵，间隔 λz/a"
+    }
+  }
+}

@@ -1,0 +1,91 @@
+{
+  "name": "超椭圆孔衍射：阶数 m=8.0",
+  "grid": {
+    "size": 1024,
+    "width": 0.02
+  },
+  "wavelength": 6.328e-07,
+  "polarized": false,
+  "method": "asm",
+  "evanescent": "decay",
+  "evanescent_limit": 0,
+  "backward_regularize": false,
+  "tikhonov_alpha": 0,
+  "bandlimit": {
+    "fraction": 0.9,
+    "sigma": 0.05
+  },
+  "sources": [
+    {
+      "id": "src",
+      "type": "plane",
+      "params": {
+        "power": 0.001
+      },
+      "pos": {
+        "x": 0.0,
+        "y": 0.0,
+        "z": -0.05
+      },
+      "dir": {
+        "x": 0.0,
+        "y": 0.0,
+        "z": 1.0
+      },
+      "wavelength": 6.328e-07
+    }
+  ],
+  "scene": {
+    "components": [
+      {
+        "id": "ap",
+        "type": "aperture",
+        "pos": {
+          "x": 0.0,
+          "y": 0.0,
+          "z": 0.0
+        },
+        "label": "超椭圆 a=1.0 b=0.6 m=8.0",
+        "shape": {
+          "kind": "superellipse",
+          "params": {
+            "a": 0.001,
+            "b": 0.0006,
+            "order": 8.0
+          }
+        }
+      },
+      {
+        "id": "det",
+        "type": "sensor",
+        "pos": {
+          "x": 0.0,
+          "y": 0.0,
+          "z": 2.0
+        },
+        "label": "观察屏",
+        "yaw": 3.141592653589793,
+        "shape": {
+          "kind": "rectangle",
+          "params": {
+            "width": 0.018000000000000002,
+            "height": 0.018000000000000002
+          }
+        }
+      }
+    ]
+  },
+  "meta": {
+    "zod": {
+      "category": "衍射",
+      "difficulty": "高级",
+      "description": "超椭圆孔径 (|u|/a)^m+(|v|/b)^m≤1，m=8.0：m→2 是椭圆、m→∞ 趋近矩形。",
+      "expected": "介于椭圆与矩形之间的图样：m=2.5 仍接近艾里型同心环，m≥5 已出现矩形的十字亮带与方形副极大网格（角越尖 → 副极大越强）。",
+      "tags": [
+        "超椭圆孔",
+        "形状内插"
+      ],
+      "theory": "超椭圆是椭圆→矩形之间的连续内插，图样随之从 J₁ 型过渡到 sinc 型"
+    }
+  }
+}

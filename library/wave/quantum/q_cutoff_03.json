@@ -1,0 +1,30 @@
+{
+  "name": "截断扫描：cutoff=8（压缩态 r=1.5 的收敛）",
+  "modes": 1,
+  "cutoff": 8,
+  "state": {
+    "type": "squeezed_vacuum",
+    "params": {
+      "mode": 0,
+      "r": 1.5,
+      "phase": 0.0
+    }
+  },
+  "gates": [],
+  "meta": {
+    "name": "截断扫描：cutoff=8（压缩态 r=1.5 的收敛）",
+    "zod": {
+      "category": "量子",
+      "difficulty": "高级",
+      "description": "压缩真空态是 Fock 空间的无穷叠加，数值上必须截断到 cutoff=8。",
+      "expected": "压缩态的系数按 tanhⁿr 衰减（tanh1.5=0.905），需要 cutoff≳92 才能把范数收敛到 1e-3 以内；范数 norm 会随着 cutoff 增大趋近 1（这是判断截断是否足够的标准做法）。⟨n⟩=sinh²1.5=4.534 应在 cutoff≥13 时稳定。",
+      "tags": [
+        "截断",
+        "收敛性",
+        "数值误差"
+      ],
+      "theory": "平面波截断误差 ~tanh^{cutoff}(r)",
+      "protocol": "quantum"
+    }
+  }
+}

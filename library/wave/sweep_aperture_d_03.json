@@ -1,0 +1,114 @@
+{
+  "name": "扫掠·圆孔直径 D=0.8 mm → 艾里半径 289.5 µm",
+  "grid": {
+    "size": 512,
+    "width": 0.008
+  },
+  "wavelength": 6.328e-07,
+  "polarized": false,
+  "method": "asm",
+  "evanescent": "decay",
+  "evanescent_limit": 0,
+  "backward_regularize": false,
+  "tikhonov_alpha": 0,
+  "bandlimit": {
+    "fraction": 0.9,
+    "sigma": 0.05
+  },
+  "sources": [
+    {
+      "id": "src",
+      "type": "plane",
+      "params": {
+        "power": 0.001
+      },
+      "pos": {
+        "x": 0.0,
+        "y": 0.0,
+        "z": -0.05
+      },
+      "dir": {
+        "x": 0.0,
+        "y": 0.0,
+        "z": 1.0
+      },
+      "wavelength": 6.328e-07
+    }
+  ],
+  "scene": {
+    "components": [
+      {
+        "id": "ap",
+        "type": "aperture",
+        "pos": {
+          "x": 0.0,
+          "y": 0.0,
+          "z": 0.0
+        },
+        "label": "圆孔 D=0.8 mm",
+        "shape": {
+          "kind": "circle",
+          "params": {
+            "radius": 0.0004
+          }
+        }
+      },
+      {
+        "id": "fl",
+        "type": "lens",
+        "pos": {
+          "x": 0.0,
+          "y": 0.0,
+          "z": 0.02
+        },
+        "label": "傅里叶透镜 f=0.3 m",
+        "shape": {
+          "kind": "circle",
+          "params": {
+            "radius": 0.00392
+          }
+        },
+        "params": {
+          "f": 0.3
+        }
+      },
+      {
+        "id": "det",
+        "type": "sensor",
+        "pos": {
+          "x": 0.0,
+          "y": 0.0,
+          "z": 0.32
+        },
+        "label": "焦面",
+        "yaw": 3.141592653589793,
+        "shape": {
+          "kind": "circle",
+          "params": {
+            "radius": 0.00392
+          }
+        }
+      }
+    ]
+  },
+  "meta": {
+    "zod": {
+      "category": "参数扫掠",
+      "difficulty": "入门",
+      "description": "同焦距 0.3 m，把圆孔直径从 0.4 mm 扫到 5.0 mm（第 3 条）。",
+      "expected": "艾里第一暗环 r₁=1.22λf/D=289.5 µm，反比于口径；直径加倍 → 焦斑减半、峰值强度变为 4 倍（能量集中）。",
+      "tags": [
+        "口径扫掠",
+        "艾里斑",
+        "分辨率"
+      ],
+      "theory": "r₁ = 1.22λf/D",
+      "sweep": {
+        "param": "D",
+        "value_mm": 0.8,
+        "index": 3,
+        "of": 10
+      }
+    }
+  }
+}

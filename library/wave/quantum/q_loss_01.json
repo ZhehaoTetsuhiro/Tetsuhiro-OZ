@@ -1,0 +1,40 @@
+{
+  "name": "单光子损耗信道：T=0.1",
+  "modes": 1,
+  "cutoff": 5,
+  "state": {
+    "type": "fock",
+    "params": {
+      "occupation": [
+        1
+      ]
+    }
+  },
+  "gates": [
+    {
+      "type": "loss",
+      "params": {
+        "mode": 0,
+        "transmittance": 0.1
+      }
+    }
+  ],
+  "meta": {
+    "name": "单光子损耗信道：T=0.1",
+    "zod": {
+      "category": "量子",
+      "difficulty": "进阶",
+      "description": "单光子态 |1⟩ 经过透射率 0.1 的损耗信道（振幅阻尼 Kraus 算符）。",
+      "expected": "|1⟩ → 二项分布：P(0)=1−T=0.90、P(1)=T=0.10，⟨n⟩=T=0.10。损耗把纯态变成混合态（需要密度矩阵描述）——光子「丢失」的概率就是 1−T。",
+      "tags": [
+        "损耗信道",
+        "振幅阻尼",
+        "二项分布",
+        "混合态"
+      ],
+      "theory": "E_l=√((1−T)^l/l!)T^{n/2}a^l；|1⟩→T|1⟩⟨1|+(1−T)|0⟩⟨0|",
+      "protocol": "quantum"
+    },
+    "sample": true
+  }
+}

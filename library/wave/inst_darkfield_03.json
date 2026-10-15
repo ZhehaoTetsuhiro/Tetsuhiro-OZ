@@ -1,0 +1,111 @@
+{
+  "name": "暗场/环形光阑成像：中心遮挡 60%（强暗场）",
+  "grid": {
+    "size": 512,
+    "width": 0.01
+  },
+  "wavelength": 6.328e-07,
+  "polarized": false,
+  "method": "asm",
+  "evanescent": "decay",
+  "evanescent_limit": 0,
+  "backward_regularize": false,
+  "tikhonov_alpha": 0,
+  "bandlimit": {
+    "fraction": 0.9,
+    "sigma": 0.05
+  },
+  "sources": [
+    {
+      "id": "src",
+      "type": "plane",
+      "params": {
+        "power": 0.001
+      },
+      "pos": {
+        "x": 0.0,
+        "y": 0.0,
+        "z": -0.05
+      },
+      "dir": {
+        "x": 0.0,
+        "y": 0.0,
+        "z": 1.0
+      },
+      "wavelength": 6.328e-07
+    }
+  ],
+  "scene": {
+    "components": [
+      {
+        "id": "l",
+        "type": "lens",
+        "pos": {
+          "x": 0.0,
+          "y": 0.0,
+          "z": 0.0
+        },
+        "label": "物镜 f=100 mm",
+        "shape": {
+          "kind": "circle",
+          "params": {
+            "radius": 0.0045000000000000005
+          }
+        },
+        "params": {
+          "f": 0.1
+        }
+      },
+      {
+        "id": "stop",
+        "type": "aperture",
+        "pos": {
+          "x": 0.0,
+          "y": 0.0,
+          "z": 0.001
+        },
+        "label": "环形光阑（遮挡比 60%）",
+        "shape": {
+          "kind": "ring",
+          "params": {
+            "rin": 0.0027,
+            "rout": 0.0045000000000000005
+          }
+        }
+      },
+      {
+        "id": "det",
+        "type": "sensor",
+        "pos": {
+          "x": 0.0,
+          "y": 0.0,
+          "z": 0.1
+        },
+        "label": "焦面",
+        "yaw": 3.141592653589793,
+        "shape": {
+          "kind": "rectangle",
+          "params": {
+            "width": 0.009000000000000001,
+            "height": 0.009000000000000001
+          }
+        }
+      }
+    ]
+  },
+  "meta": {
+    "zod": {
+      "category": "仪器",
+      "difficulty": "进阶",
+      "description": "在物镜入瞳上加环形光阑（中心遮挡 60%（强暗场））：挡掉低频、只让大角度散射光成像。",
+      "expected": "中央亮斑变窄（等效数值孔径提高）、旁瓣增强——这就是「环形光阑超分辨」的代价与收益：分辨率提高但成像对比度下降（旁瓣是把双刃剑）。暗场显微镜用中心遮挡只收集散射光，背景被压暗、透明小颗粒变得可见。",
+      "tags": [
+        "暗场",
+        "环形光阑",
+        "超分辨",
+        "艾里斑"
+      ],
+      "theory": "中心遮挡 → 截止频率提高、旁瓣能量增加（暗场/环形照明）"
+    }
+  }
+}

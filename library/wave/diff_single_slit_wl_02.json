@@ -1,0 +1,92 @@
+{
+  "name": "单缝衍射：波长扫掠 450 nm",
+  "grid": {
+    "size": 512,
+    "width": 0.02
+  },
+  "wavelength": 4.5e-07,
+  "polarized": false,
+  "method": "asm",
+  "evanescent": "decay",
+  "evanescent_limit": 0,
+  "backward_regularize": false,
+  "tikhonov_alpha": 0,
+  "bandlimit": {
+    "fraction": 0.9,
+    "sigma": 0.05
+  },
+  "sources": [
+    {
+      "id": "src",
+      "type": "plane",
+      "params": {
+        "power": 0.001
+      },
+      "pos": {
+        "x": 0.0,
+        "y": 0.0,
+        "z": -0.05
+      },
+      "dir": {
+        "x": 0.0,
+        "y": 0.0,
+        "z": 1.0
+      },
+      "label": "平面波 450 nm",
+      "wavelength": 4.5e-07
+    }
+  ],
+  "scene": {
+    "components": [
+      {
+        "id": "slit",
+        "type": "aperture",
+        "pos": {
+          "x": 0.0,
+          "y": 0.0,
+          "z": 0.0
+        },
+        "label": "单缝 a=0.25 mm",
+        "shape": {
+          "kind": "rectangle",
+          "params": {
+            "width": 0.00025,
+            "height": 0.019
+          }
+        }
+      },
+      {
+        "id": "det",
+        "type": "sensor",
+        "pos": {
+          "x": 0.0,
+          "y": 0.0,
+          "z": 1.5
+        },
+        "label": "观察屏",
+        "yaw": 3.141592653589793,
+        "shape": {
+          "kind": "rectangle",
+          "params": {
+            "width": 0.018000000000000002,
+            "height": 0.018000000000000002
+          }
+        }
+      }
+    ]
+  },
+  "meta": {
+    "zod": {
+      "category": "衍射",
+      "difficulty": "入门",
+      "description": "同一缝宽 a=0.25 mm、同一距离 z=1.5 m，只换波长（450 nm）。",
+      "expected": "第一暗点 x₁=λz/a=2.70 mm：波长越长衍射角越大、图样按 λ 线性展宽（红光的中央峰比紫光宽 1.11 倍）。",
+      "tags": [
+        "单缝",
+        "波长",
+        "色散"
+      ],
+      "theory": "x₁ = λz/a 与 λ 成正比"
+    }
+  }
+}

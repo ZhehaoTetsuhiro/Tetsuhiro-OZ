@@ -1,0 +1,123 @@
+{
+  "name": "光栅光谱仪：λ=405 nm 的级次位置",
+  "grid": {
+    "size": 1024,
+    "width": 0.008
+  },
+  "wavelength": 4.05e-07,
+  "polarized": false,
+  "method": "asm",
+  "evanescent": "decay",
+  "evanescent_limit": 0,
+  "backward_regularize": false,
+  "tikhonov_alpha": 0,
+  "bandlimit": {
+    "fraction": 0.9,
+    "sigma": 0.05
+  },
+  "sources": [
+    {
+      "id": "src",
+      "type": "plane",
+      "params": {
+        "power": 0.001
+      },
+      "pos": {
+        "x": 0.0,
+        "y": 0.0,
+        "z": -0.05
+      },
+      "dir": {
+        "x": 0.0,
+        "y": 0.0,
+        "z": 1.0
+      },
+      "label": "λ=405 nm",
+      "wavelength": 4.05e-07
+    }
+  ],
+  "scene": {
+    "components": [
+      {
+        "id": "es",
+        "type": "aperture",
+        "pos": {
+          "x": 0.0,
+          "y": 0.0,
+          "z": 0.0
+        },
+        "label": "入射狭缝 0.5 mm",
+        "shape": {
+          "kind": "rectangle",
+          "params": {
+            "width": 0.0005,
+            "height": 0.007200000000000001
+          }
+        }
+      },
+      {
+        "id": "g",
+        "type": "grating",
+        "pos": {
+          "x": 0.0,
+          "y": 0.0,
+          "z": 0.0
+        },
+        "label": "闪耀光栅 Λ=100 µm（能量全进 +1 级）",
+        "params": {
+          "kind": "blazed",
+          "period": 0.0001,
+          "blaze_depth": 6.283185307179586
+        }
+      },
+      {
+        "id": "cl",
+        "type": "cylindrical_lens",
+        "pos": {
+          "x": 0.0,
+          "y": 0.0,
+          "z": 0.02
+        },
+        "label": "柱面傅里叶透镜 f=0.3 m（只沿色散方向聚焦）",
+        "params": {
+          "f": 0.3,
+          "rotation": 0.0
+        }
+      },
+      {
+        "id": "det",
+        "type": "sensor",
+        "pos": {
+          "x": 0.0,
+          "y": 0.0,
+          "z": 0.32
+        },
+        "label": "焦面（谱线）",
+        "yaw": 3.141592653589793,
+        "shape": {
+          "kind": "rectangle",
+          "params": {
+            "width": 0.0076,
+            "height": 0.0076
+          }
+        }
+      }
+    ]
+  },
+  "meta": {
+    "zod": {
+      "category": "仪器",
+      "difficulty": "进阶",
+      "description": "单色仪/光谱仪的核心几何：入射狭缝 → 闪耀光栅（周期 100 µm，闪耀深度 2π 把能量全部送进 +1 级）→ 柱面傅里叶透镜 → 焦面 CCD。",
+      "expected": "谱线位置 x = f·λ/Λ = 1.215 mm（λ=405 nm）；色散率 dλ/dx = Λ/f = 333333.33 nm/mm。闪耀光栅使 +1 级拿到几乎全部功率（±2 级与 0 级都很暗）；柱面透镜让谱线在垂直方向保持狭缝的高度而不是收缩成点。改变波长谱线位置线性移动 → 这就是摄谱仪。",
+      "tags": [
+        "光谱仪",
+        "闪耀光栅",
+        "色散",
+        "谱线"
+      ],
+      "theory": "x = fλ/Λ；色散率 dλ/dx = Λ/f"
+    },
+    "sample": true
+  }
+}

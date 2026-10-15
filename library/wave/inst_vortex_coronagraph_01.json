@@ -1,0 +1,150 @@
+{
+  "name": "涡旋日冕仪：拓扑荷 l=1、Lyot 光阑 60%",
+  "grid": {
+    "size": 512,
+    "width": 0.008
+  },
+  "wavelength": 6.328e-07,
+  "polarized": false,
+  "method": "asm",
+  "evanescent": "decay",
+  "evanescent_limit": 0,
+  "backward_regularize": false,
+  "tikhonov_alpha": 0,
+  "bandlimit": {
+    "fraction": 0.9,
+    "sigma": 0.05
+  },
+  "sources": [
+    {
+      "id": "src",
+      "type": "plane",
+      "params": {
+        "power": 0.001
+      },
+      "pos": {
+        "x": 0.0,
+        "y": 0.0,
+        "z": -0.05
+      },
+      "dir": {
+        "x": 0.0,
+        "y": 0.0,
+        "z": 1.0
+      },
+      "label": "轴上恒星（平面波）",
+      "wavelength": 6.328e-07
+    }
+  ],
+  "scene": {
+    "components": [
+      {
+        "id": "spp",
+        "type": "spiral_phase",
+        "pos": {
+          "x": 0.0,
+          "y": 0.0,
+          "z": 0.0
+        },
+        "label": "涡旋相位板（拓扑荷 1）",
+        "shape": {
+          "kind": "circle",
+          "params": {
+            "radius": 0.0032
+          }
+        },
+        "params": {
+          "charge": 1
+        }
+      },
+      {
+        "id": "l1",
+        "type": "lens",
+        "pos": {
+          "x": 0.0,
+          "y": 0.0,
+          "z": 0.075
+        },
+        "label": "傅里叶透镜 f=75 mm",
+        "shape": {
+          "kind": "circle",
+          "params": {
+            "radius": 0.00392
+          }
+        },
+        "params": {
+          "f": 0.075
+        }
+      },
+      {
+        "id": "lyot",
+        "type": "aperture",
+        "pos": {
+          "x": 0.0,
+          "y": 0.0,
+          "z": 0.15
+        },
+        "label": "Lyot 光阑（透过率 60% 直径）",
+        "shape": {
+          "kind": "circle",
+          "params": {
+            "radius": 0.002352
+          }
+        }
+      },
+      {
+        "id": "l2",
+        "type": "lens",
+        "pos": {
+          "x": 0.0,
+          "y": 0.0,
+          "z": 0.22499999999999998
+        },
+        "label": "逆变换透镜",
+        "shape": {
+          "kind": "circle",
+          "params": {
+            "radius": 0.00392
+          }
+        },
+        "params": {
+          "f": 0.075
+        }
+      },
+      {
+        "id": "det",
+        "type": "sensor",
+        "pos": {
+          "x": 0.0,
+          "y": 0.0,
+          "z": 0.3
+        },
+        "label": "最终像面",
+        "yaw": 3.141592653589793,
+        "shape": {
+          "kind": "rectangle",
+          "params": {
+            "width": 0.0076,
+            "height": 0.0076
+          }
+        }
+      }
+    ]
+  },
+  "meta": {
+    "zod": {
+      "category": "仪器",
+      "difficulty": "高级",
+      "description": "涡旋日冕仪：轴上星光经拓扑荷 1 的涡旋相位板后在傅里叶面上形成**甜甜圈**（轴上严格为零），再用 Lyot 光阑抑制外圈，最后成像。",
+      "expected": "轴上恒星的像在中心被**抑制**（涡旋把中心能量搬到环上，环被 Lyot 光阑挡住）；对照偏移的视场点（另见 vortex_coronagraph 的偏心实例）会保留。这是高对比度成像（寻找系外行星）的核心器件：理想涡旋日冕仪在 l=2 时对轴上光的抑制度最高，且对低阶像差比传统光阑日冕仪宽容。",
+      "tags": [
+        "涡旋日冕仪",
+        "高对比度成像",
+        "Lyot光阑",
+        "系外行星"
+      ],
+      "theory": "涡旋相位 exp(ilθ) 使轴上光在焦面形成暗核；Lyot 光阑挡掉环状能量"
+    },
+    "sample": true
+  }
+}

@@ -1,0 +1,116 @@
+{
+  "name": "激光扩束器：10× 扩束（f1=20 → f2=200 mm）",
+  "grid": {
+    "size": 512,
+    "width": 0.01
+  },
+  "wavelength": 6.328e-07,
+  "polarized": false,
+  "method": "asm",
+  "evanescent": "decay",
+  "evanescent_limit": 0,
+  "backward_regularize": false,
+  "tikhonov_alpha": 0,
+  "bandlimit": {
+    "fraction": 0.9,
+    "sigma": 0.05
+  },
+  "sources": [
+    {
+      "id": "src",
+      "type": "gaussian",
+      "params": {
+        "power": 0.001,
+        "waist": 0.001
+      },
+      "pos": {
+        "x": 0.0,
+        "y": 0.0,
+        "z": -0.05
+      },
+      "dir": {
+        "x": 0.0,
+        "y": 0.0,
+        "z": 1.0
+      },
+      "label": "高斯 w₀=1.0 mm",
+      "wavelength": 6.328e-07
+    }
+  ],
+  "scene": {
+    "components": [
+      {
+        "id": "l1",
+        "type": "lens",
+        "pos": {
+          "x": 0.0,
+          "y": 0.0,
+          "z": 0.0
+        },
+        "label": "短焦透镜 f=20 mm",
+        "shape": {
+          "kind": "circle",
+          "params": {
+            "radius": 0.004
+          }
+        },
+        "params": {
+          "f": 0.02
+        }
+      },
+      {
+        "id": "l2",
+        "type": "lens",
+        "pos": {
+          "x": 0.0,
+          "y": 0.0,
+          "z": 0.22
+        },
+        "label": "长焦透镜 f=200 mm",
+        "shape": {
+          "kind": "circle",
+          "params": {
+            "radius": 0.004
+          }
+        },
+        "params": {
+          "f": 0.2
+        }
+      },
+      {
+        "id": "det",
+        "type": "sensor",
+        "pos": {
+          "x": 0.0,
+          "y": 0.0,
+          "z": 0.52
+        },
+        "label": "扩束后 0.3 m 处",
+        "yaw": 3.141592653589793,
+        "shape": {
+          "kind": "rectangle",
+          "params": {
+            "width": 0.009000000000000001,
+            "height": 0.009000000000000001
+          }
+        }
+      }
+    ]
+  },
+  "meta": {
+    "zod": {
+      "category": "仪器",
+      "difficulty": "进阶",
+      "description": "伽利略/开普勒型扩束器：束腰 1.0 mm 的高斯光束经 f₁=20 mm、f₂=200 mm 的共焦透镜组，束腰放大 M=f₂/f₁=10×。",
+      "expected": "出射束腰 10.00 mm（10×放大），发散角相应缩小到 1/10：θ_out=λ/(πw_out)=0.02 mrad。扩束器同时压缩发散角——这是激光雷达、干涉测量里「准直」的标准手段。两透镜共焦（间距 f₁+f₂）是准直条件。",
+      "tags": [
+        "扩束器",
+        "准直",
+        "束腰变换",
+        "望远镜"
+      ],
+      "theory": "M = f₂/f₁；w_out = M·w_in，θ_out = θ_in/M"
+    },
+    "sample": true
+  }
+}

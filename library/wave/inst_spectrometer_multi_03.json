@@ -1,0 +1,243 @@
+{
+  "name": "多波长光谱仪：7 条谱线同时成像",
+  "grid": {
+    "size": 1024,
+    "width": 0.008
+  },
+  "wavelength": 5.5e-07,
+  "polarized": false,
+  "method": "asm",
+  "evanescent": "decay",
+  "evanescent_limit": 0,
+  "backward_regularize": false,
+  "tikhonov_alpha": 0,
+  "bandlimit": {
+    "fraction": 0.9,
+    "sigma": 0.05
+  },
+  "sources": [
+    {
+      "id": "s405",
+      "type": "plane",
+      "params": {
+        "power": 0.00014285714285714287
+      },
+      "pos": {
+        "x": 0.0,
+        "y": 0.0,
+        "z": -0.05
+      },
+      "dir": {
+        "x": 0.0,
+        "y": 0.0,
+        "z": 1.0
+      },
+      "label": "λ=405 nm",
+      "wavelength": 4.05e-07,
+      "group": "g405"
+    },
+    {
+      "id": "s450",
+      "type": "plane",
+      "params": {
+        "power": 0.00014285714285714287
+      },
+      "pos": {
+        "x": 0.0,
+        "y": 0.0,
+        "z": -0.05
+      },
+      "dir": {
+        "x": 0.0,
+        "y": 0.0,
+        "z": 1.0
+      },
+      "label": "λ=450 nm",
+      "wavelength": 4.5e-07,
+      "group": "g450"
+    },
+    {
+      "id": "s500",
+      "type": "plane",
+      "params": {
+        "power": 0.00014285714285714287
+      },
+      "pos": {
+        "x": 0.0,
+        "y": 0.0,
+        "z": -0.05
+      },
+      "dir": {
+        "x": 0.0,
+        "y": 0.0,
+        "z": 1.0
+      },
+      "label": "λ=500 nm",
+      "wavelength": 5e-07,
+      "group": "g500"
+    },
+    {
+      "id": "s550",
+      "type": "plane",
+      "params": {
+        "power": 0.00014285714285714287
+      },
+      "pos": {
+        "x": 0.0,
+        "y": 0.0,
+        "z": -0.05
+      },
+      "dir": {
+        "x": 0.0,
+        "y": 0.0,
+        "z": 1.0
+      },
+      "label": "λ=550 nm",
+      "wavelength": 5.5e-07,
+      "group": "g550"
+    },
+    {
+      "id": "s600",
+      "type": "plane",
+      "params": {
+        "power": 0.00014285714285714287
+      },
+      "pos": {
+        "x": 0.0,
+        "y": 0.0,
+        "z": -0.05
+      },
+      "dir": {
+        "x": 0.0,
+        "y": 0.0,
+        "z": 1.0
+      },
+      "label": "λ=600 nm",
+      "wavelength": 6e-07,
+      "group": "g600"
+    },
+    {
+      "id": "s650",
+      "type": "plane",
+      "params": {
+        "power": 0.00014285714285714287
+      },
+      "pos": {
+        "x": 0.0,
+        "y": 0.0,
+        "z": -0.05
+      },
+      "dir": {
+        "x": 0.0,
+        "y": 0.0,
+        "z": 1.0
+      },
+      "label": "λ=650 nm",
+      "wavelength": 6.5e-07,
+      "group": "g650"
+    },
+    {
+      "id": "s700",
+      "type": "plane",
+      "params": {
+        "power": 0.00014285714285714287
+      },
+      "pos": {
+        "x": 0.0,
+        "y": 0.0,
+        "z": -0.05
+      },
+      "dir": {
+        "x": 0.0,
+        "y": 0.0,
+        "z": 1.0
+      },
+      "label": "λ=700 nm",
+      "wavelength": 7e-07,
+      "group": "g700"
+    }
+  ],
+  "scene": {
+    "components": [
+      {
+        "id": "es",
+        "type": "aperture",
+        "pos": {
+          "x": 0.0,
+          "y": 0.0,
+          "z": 0.0
+        },
+        "label": "入射狭缝",
+        "shape": {
+          "kind": "rectangle",
+          "params": {
+            "width": 0.0005,
+            "height": 0.007200000000000001
+          }
+        }
+      },
+      {
+        "id": "g",
+        "type": "grating",
+        "pos": {
+          "x": 0.0,
+          "y": 0.0,
+          "z": 0.0
+        },
+        "label": "闪耀光栅 Λ=100 µm",
+        "params": {
+          "kind": "blazed",
+          "period": 0.0001,
+          "blaze_depth": 6.283185307179586
+        }
+      },
+      {
+        "id": "cl",
+        "type": "cylindrical_lens",
+        "pos": {
+          "x": 0.0,
+          "y": 0.0,
+          "z": 0.02
+        },
+        "label": "柱面傅里叶透镜 f=0.3 m",
+        "params": {
+          "f": 0.3,
+          "rotation": 0.0
+        }
+      },
+      {
+        "id": "det",
+        "type": "sensor",
+        "pos": {
+          "x": 0.0,
+          "y": 0.0,
+          "z": 0.32
+        },
+        "label": "焦面（多条谱线）",
+        "yaw": 3.141592653589793,
+        "shape": {
+          "kind": "rectangle",
+          "params": {
+            "width": 0.0076,
+            "height": 0.0076
+          }
+        }
+      }
+    ]
+  },
+  "meta": {
+    "zod": {
+      "category": "仪器",
+      "difficulty": "高级",
+      "description": "7 个波长同时进入光栅光谱仪（各自独立相干组）——焦面上同时出现 7 条谱线，位置 x=fλ/Λ 与波长成正比。",
+      "expected": "谱线按 x=fλ/Λ 线性排开：从 450 nm 的 1.35 mm 到 650 nm 的 1.95 mm，相邻谱线间隔 ≈f·Δλ/Λ。用 GUI 的「图像视图」(field=color) 可以直接看到按波长着色的彩色谱线——这正是光谱仪把波长变成位置的过程。",
+      "tags": [
+        "光谱仪",
+        "多波长",
+        "彩色谱",
+        "色散"
+      ],
+      "theory": "x = fλ/Λ 线性色散；多波长独立叠加"
+    }
+  }
+}

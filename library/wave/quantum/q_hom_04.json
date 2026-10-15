@@ -1,0 +1,41 @@
+{
+  "name": "Hong-Ou-Mandel 干涉：分束比 R=0.6",
+  "modes": 2,
+  "cutoff": 4,
+  "state": {
+    "type": "fock",
+    "params": {
+      "occupation": [
+        1,
+        1
+      ]
+    }
+  },
+  "gates": [
+    {
+      "type": "beam_splitter",
+      "params": {
+        "mode0": 0,
+        "mode1": 1,
+        "reflectivity": 0.6
+      }
+    }
+  ],
+  "meta": {
+    "name": "Hong-Ou-Mandel 干涉：分束比 R=0.6",
+    "zod": {
+      "category": "量子",
+      "difficulty": "进阶",
+      "description": "两个**全同光子**从不同端口同时入射 50:50 分束器（|1,1⟩ → BS）：不可分辨光子的量子干涉。",
+      "expected": "R=0.6 时两光子不再全同地分配到两个输出端口，P(1,1)=2R(1−R)=0.480 不再为零（只有 50:50 分束器才有完美相消）。",
+      "tags": [
+        "HOM",
+        "双光子干涉",
+        "聚束",
+        "全同性"
+      ],
+      "theory": "P(1,1) = |R − (1−R)|² /... 对 50:50 为 0；P(2,0)=P(0,2)=1/2",
+      "protocol": "quantum"
+    }
+  }
+}

@@ -1,0 +1,90 @@
+{
+  "name": "十字孔衍射：臂长 3.0 mm 臂宽 0.30 mm",
+  "grid": {
+    "size": 1024,
+    "width": 0.02
+  },
+  "wavelength": 6.328e-07,
+  "polarized": false,
+  "method": "asm",
+  "evanescent": "decay",
+  "evanescent_limit": 0,
+  "backward_regularize": false,
+  "tikhonov_alpha": 0,
+  "bandlimit": {
+    "fraction": 0.9,
+    "sigma": 0.05
+  },
+  "sources": [
+    {
+      "id": "src",
+      "type": "plane",
+      "params": {
+        "power": 0.001
+      },
+      "pos": {
+        "x": 0.0,
+        "y": 0.0,
+        "z": -0.05
+      },
+      "dir": {
+        "x": 0.0,
+        "y": 0.0,
+        "z": 1.0
+      },
+      "wavelength": 6.328e-07
+    }
+  ],
+  "scene": {
+    "components": [
+      {
+        "id": "ap",
+        "type": "aperture",
+        "pos": {
+          "x": 0.0,
+          "y": 0.0,
+          "z": 0.0
+        },
+        "label": "十字孔",
+        "shape": {
+          "kind": "cross",
+          "params": {
+            "length": 0.003,
+            "width": 0.0003
+          }
+        }
+      },
+      {
+        "id": "det",
+        "type": "sensor",
+        "pos": {
+          "x": 0.0,
+          "y": 0.0,
+          "z": 2.0
+        },
+        "label": "观察屏",
+        "yaw": 3.141592653589793,
+        "shape": {
+          "kind": "rectangle",
+          "params": {
+            "width": 0.018000000000000002,
+            "height": 0.018000000000000002
+          }
+        }
+      }
+    ]
+  },
+  "meta": {
+    "zod": {
+      "category": "衍射",
+      "difficulty": "进阶",
+      "description": "十字形孔径（两臂端到端 3.0 mm、臂宽 0.30 mm），远场 2 m。",
+      "expected": "「十字叉」衍射图：亮纹沿两臂方向展开（纵向狭缝 → 横向展开、横向狭缝 → 纵向展开），两臂各自的 sinc 乘积 = 十字形亮带；臂宽决定亮带宽度 λz/w=4.22 mm。",
+      "tags": [
+        "十字孔",
+        "可分离孔径"
+      ],
+      "theory": "叉形 = 两个正交矩形的并集，sinc 结构沿两轴分开"
+    }
+  }
+}

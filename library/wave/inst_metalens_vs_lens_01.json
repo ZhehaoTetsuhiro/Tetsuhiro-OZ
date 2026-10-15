@@ -1,0 +1,94 @@
+{
+  "name": "超表面 vs 折射透镜：超表面透镜（双曲相位）",
+  "grid": {
+    "size": 1024,
+    "width": 0.006
+  },
+  "wavelength": 6.328e-07,
+  "polarized": false,
+  "method": "asm",
+  "evanescent": "decay",
+  "evanescent_limit": 0,
+  "backward_regularize": false,
+  "tikhonov_alpha": 0,
+  "bandlimit": {
+    "fraction": 0.9,
+    "sigma": 0.05
+  },
+  "sources": [
+    {
+      "id": "src",
+      "type": "plane",
+      "params": {
+        "power": 0.001
+      },
+      "pos": {
+        "x": 0.0,
+        "y": 0.0,
+        "z": -0.05
+      },
+      "dir": {
+        "x": 0.0,
+        "y": 0.0,
+        "z": 1.0
+      },
+      "wavelength": 6.328e-07
+    }
+  ],
+  "scene": {
+    "components": [
+      {
+        "id": "e",
+        "type": "metalens_native",
+        "pos": {
+          "x": 0.0,
+          "y": 0.0,
+          "z": 0.0
+        },
+        "label": "超表面透镜（双曲相位） f=0.3 m",
+        "shape": {
+          "kind": "circle",
+          "params": {
+            "radius": 0.0027
+          }
+        },
+        "params": {
+          "f": 0.3,
+          "wl0": 6.328e-07,
+          "sign": 1
+        }
+      },
+      {
+        "id": "det",
+        "type": "sensor",
+        "pos": {
+          "x": 0.0,
+          "y": 0.0,
+          "z": 0.3
+        },
+        "label": "焦面",
+        "yaw": 3.141592653589793,
+        "params": {
+          "strehl_aperture": 0.0027,
+          "strehl_distance": 0.3
+        }
+      }
+    ]
+  },
+  "meta": {
+    "zod": {
+      "category": "仪器",
+      "difficulty": "高级",
+      "description": "在**设计波长**（633 nm）下比较 超表面透镜（双曲相位） 的聚焦性能。超表面在 λ₀ 处严格聚焦到 f（相位掩模写死），因此 Strehl 应接近 1。",
+      "expected": "两者在设计波长下焦斑都接近艾里极限（r₁=42.9 µm），但走的路不同：超表面用写死的分布式相位（可做到亚波长厚度、任意波前），折射透镜用本体厚度积累相位。区别在**带宽**：超表面随波长迅速失焦（见 inst_metalens_02/03），折射透镜的焦点只在色散修正下缓慢变化。",
+      "tags": [
+        "超表面",
+        "对比",
+        "聚焦效率",
+        "色差"
+      ],
+      "theory": "超表面相位写死 → 单色完美、宽带失色；折射透镜相位 ∝ k → 色散由材料决定"
+    },
+    "sample": true
+  }
+}

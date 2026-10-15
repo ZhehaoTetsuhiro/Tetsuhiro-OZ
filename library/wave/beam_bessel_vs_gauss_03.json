@@ -1,0 +1,95 @@
+{
+  "name": "贝塞尔 vs 高斯：z=300 mm 处的无衍射对比",
+  "grid": {
+    "size": 1024,
+    "width": 0.008
+  },
+  "wavelength": 6.328e-07,
+  "polarized": false,
+  "method": "asm",
+  "evanescent": "decay",
+  "evanescent_limit": 0,
+  "backward_regularize": false,
+  "tikhonov_alpha": 0,
+  "bandlimit": {
+    "fraction": 0.9,
+    "sigma": 0.05
+  },
+  "sources": [
+    {
+      "id": "src",
+      "type": "gaussian",
+      "params": {
+        "power": 0.001,
+        "waist": 0.0015
+      },
+      "pos": {
+        "x": 0.0,
+        "y": 0.0,
+        "z": -0.05
+      },
+      "dir": {
+        "x": 0.0,
+        "y": 0.0,
+        "z": 1.0
+      },
+      "label": "高斯 w₀=1.5 mm",
+      "wavelength": 6.328e-07
+    }
+  ],
+  "scene": {
+    "components": [
+      {
+        "id": "ax",
+        "type": "axicon",
+        "pos": {
+          "x": 0.0,
+          "y": 0.0,
+          "z": 0.0
+        },
+        "label": "轴锥镜 α=30 mrad",
+        "shape": {
+          "kind": "circle",
+          "params": {
+            "radius": 0.0036000000000000003
+          }
+        },
+        "params": {
+          "alpha": 0.03,
+          "index": 1.5
+        }
+      },
+      {
+        "id": "d1",
+        "type": "sensor",
+        "pos": {
+          "x": 0.0,
+          "y": 0.0,
+          "z": 0.3
+        },
+        "label": "贝塞尔光束（轴锥镜后 300 mm）",
+        "yaw": 3.141592653589793,
+        "shape": {
+          "kind": "circle",
+          "params": {
+            "radius": 0.0036000000000000003
+          }
+        }
+      }
+    ]
+  },
+  "meta": {
+    "zod": {
+      "category": "传播/光束",
+      "difficulty": "进阶",
+      "description": "轴锥镜产生的贝塞尔光束在 z=300 mm 处的横向轮廓（无衍射区约 100 mm）。",
+      "expected": "轮廓在 z_max=100 mm 内几乎与 z 无关（中心斑 ~16.1 µm 恒定）；对照同束腰高斯光束在同一距离已展宽 1.0 倍——这展示了贝塞尔光束「无衍射」的价值（激光加工、光学镊子）。",
+      "tags": [
+        "无衍射光束",
+        "贝塞尔",
+        "对比"
+      ],
+      "theory": "贝塞尔光束由锥面波矢叠加而成，横向轮廓在 z_max 内自再现"
+    }
+  }
+}

@@ -1,0 +1,136 @@
+{
+  "name": "单轴晶体双折射：n_e−n_o=0.100（相位差 316.06×2π）",
+  "grid": {
+    "size": 512,
+    "width": 0.01
+  },
+  "wavelength": 6.328e-07,
+  "polarized": true,
+  "method": "asm",
+  "evanescent": "decay",
+  "evanescent_limit": 0,
+  "backward_regularize": false,
+  "tikhonov_alpha": 0,
+  "bandlimit": {
+    "fraction": 0.9,
+    "sigma": 0.05
+  },
+  "sources": [
+    {
+      "id": "src",
+      "type": "plane",
+      "params": {
+        "power": 0.001,
+        "polarization": "d"
+      },
+      "pos": {
+        "x": 0.0,
+        "y": 0.0,
+        "z": -0.05
+      },
+      "dir": {
+        "x": 0.0,
+        "y": 0.0,
+        "z": 1.0
+      },
+      "label": "45° 线偏振平面波",
+      "wavelength": 6.328e-07
+    }
+  ],
+  "scene": {
+    "components": [
+      {
+        "id": "p45",
+        "type": "polarizer",
+        "pos": {
+          "x": 0.0,
+          "y": 0.0,
+          "z": 0.0
+        },
+        "label": "起偏器 45°",
+        "shape": {
+          "kind": "circle",
+          "params": {
+            "radius": 0.0049
+          }
+        },
+        "params": {
+          "angle": 0.7853981633974483
+        }
+      },
+      {
+        "id": "xtal",
+        "type": "uniaxial",
+        "pos": {
+          "x": 0.0,
+          "y": 0.0,
+          "z": 0.03
+        },
+        "label": "单轴晶体（光轴∥x）d=2 mm",
+        "shape": {
+          "kind": "circle",
+          "params": {
+            "radius": 0.0049
+          }
+        },
+        "params": {
+          "distance": 0.002,
+          "n_o": 1.5,
+          "n_e": 1.6
+        }
+      },
+      {
+        "id": "ana",
+        "type": "polarizer",
+        "pos": {
+          "x": 0.0,
+          "y": 0.0,
+          "z": 0.06
+        },
+        "label": "检偏器 135°（正交）",
+        "shape": {
+          "kind": "circle",
+          "params": {
+            "radius": 0.0049
+          }
+        },
+        "params": {
+          "angle": 2.356194490192345
+        }
+      },
+      {
+        "id": "det",
+        "type": "sensor",
+        "pos": {
+          "x": 0.0,
+          "y": 0.0,
+          "z": 0.08
+        },
+        "label": "干涉色读数",
+        "yaw": 3.141592653589793,
+        "shape": {
+          "kind": "circle",
+          "params": {
+            "radius": 0.0049
+          }
+        }
+      }
+    ]
+  },
+  "meta": {
+    "zod": {
+      "category": "介质",
+      "difficulty": "进阶",
+      "description": "45° 线偏振光穿过 2 mm 单轴晶体（光轴沿 x）：o 光（Ey）与 e 光（Ex）感受到不同折射率，出射后由正交的 135° 检偏器读出两者干涉。",
+      "expected": "两分量相位差 δ=k(n_e−n_o)d=1985.84 rad=316.06×2π；正交检偏器下透过率 = sin²(δ/2)。δ 随 Δn 线性变化：Δn 每变化 λ/d=316 ppm，干涉色走一整圈——这就是偏光显微镜、相位延迟片与电光调制器的工作基础。",
+      "tags": [
+        "双折射",
+        "单轴晶体",
+        "o光e光",
+        "相位延迟"
+      ],
+      "theory": "δ = k(n_e−n_o)d；正交偏光下 I = I₀sin²(δ/2)"
+    },
+    "sample": true
+  }
+}

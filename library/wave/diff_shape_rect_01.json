@@ -1,0 +1,91 @@
+{
+  "name": "方/矩孔夫琅禾费衍射：方孔 1.0 mm",
+  "grid": {
+    "size": 1024,
+    "width": 0.02
+  },
+  "wavelength": 6.328e-07,
+  "polarized": false,
+  "method": "asm",
+  "evanescent": "decay",
+  "evanescent_limit": 0,
+  "backward_regularize": false,
+  "tikhonov_alpha": 0,
+  "bandlimit": {
+    "fraction": 0.9,
+    "sigma": 0.05
+  },
+  "sources": [
+    {
+      "id": "src",
+      "type": "plane",
+      "params": {
+        "power": 0.001
+      },
+      "pos": {
+        "x": 0.0,
+        "y": 0.0,
+        "z": -0.05
+      },
+      "dir": {
+        "x": 0.0,
+        "y": 0.0,
+        "z": 1.0
+      },
+      "wavelength": 6.328e-07
+    }
+  ],
+  "scene": {
+    "components": [
+      {
+        "id": "ap",
+        "type": "aperture",
+        "pos": {
+          "x": 0.0,
+          "y": 0.0,
+          "z": 0.0
+        },
+        "label": "方孔 1.0 mm",
+        "shape": {
+          "kind": "rectangle",
+          "params": {
+            "width": 0.001,
+            "height": 0.001
+          }
+        }
+      },
+      {
+        "id": "det",
+        "type": "sensor",
+        "pos": {
+          "x": 0.0,
+          "y": 0.0,
+          "z": 2.0
+        },
+        "label": "观察屏",
+        "yaw": 3.141592653589793,
+        "shape": {
+          "kind": "rectangle",
+          "params": {
+            "width": 0.018000000000000002,
+            "height": 0.018000000000000002
+          }
+        }
+      }
+    ]
+  },
+  "meta": {
+    "zod": {
+      "category": "衍射",
+      "difficulty": "入门",
+      "description": "方孔 1.0 mm 的矩形孔径，传播 2 m 观察远场。",
+      "expected": "二维 sinc² 图样，沿两方向的零点由各自边长决定：最短边方向第一零点 λz/a=1.27 mm，垂直方向 1.27 mm；图样为十字形亮带 + 副极大网格。",
+      "tags": [
+        "方孔",
+        "矩形孔",
+        "二维sinc"
+      ],
+      "theory": "I ∝ sinc²(π a x/(λz))·sinc²(π b y/(λz))"
+    }
+  }
+}
