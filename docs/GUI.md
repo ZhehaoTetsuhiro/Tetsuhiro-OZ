@@ -22,11 +22,12 @@
 
 几何/膜系模式的操作（全部调用服务端 API，见 `docs/API.md` §4）：
 
-1. **设计**：`POST /api/lens/design`，显示报告、优化器统计与处方 JSON；设计成功后启用「评估」与「运行公差」。
+1. **设计**：`POST /api/lens/design`，显示报告、优化器统计与处方 JSON；设计成功后启用「评估」「运行公差」与「高级分析」里的按钮。
 2. **评估当前设计**：`POST /api/lens/eval`，显示 EFL、BFL、F/#、F–C 色差。
 3. **运行公差**：`POST /api/lens/tol`，参数为半径/厚度/Δn 与运行次数；显示良率、各分布统计与失败原因。焦距判据取自设计时的目标 EFL。
-4. **设计膜系**：`POST /api/coating/design`，显示膜层摘要。
-5. **设计并画光谱**：先设计膜系，再 `POST /api/coating/spectrum`（400–750 nm，2 nm 步长，非偏振），在画布上绘制 R(λ)。画布按容器宽度与设备像素比重绘。
+4. **高级分析（折叠区）**：面板由 `oz.js` 在初始化时构建（`index.html` 不感知），复用页面既有的 `ozGrid/ozField/ozActions/ozDetails/ozOut` 类，因此手机断点与触控目标规则同样生效。「热漂移」调用 `POST /api/lens/thermal`（ΔT 与镜筒 α 取自面板输入，λ 用 d 线），显示 EFL/BFL 变化与 mm/K；「灵敏度与公差分配」调用 `POST /api/lens/sens`（`metric=merit`、`inverse=true`、预算取自面板），显示逐参数 ∂M/∂x、分配的 ±公差与封顶标记。两个按钮在首次设计成功前禁用。
+5. **设计膜系**：`POST /api/coating/design`，显示膜层摘要。
+6. **设计并画光谱**：先设计膜系，再 `POST /api/coating/spectrum`（400–750 nm，2 nm 步长，非偏振），在画布上绘制 R(λ)。画布按容器宽度与设备像素比重绘。
 
 ## 3. 键盘
 
