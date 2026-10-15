@@ -1,4 +1,6 @@
-// Package server exposes the optics kernel over HTTP.
+// Package server exposes the wave and quantum optics kernel over HTTP. It
+// provides the WOS part of the single `oz serve` service (cmd/oz mounts
+// Server.Handler under /api/ and the embedded GUI under /; see docs/API.md).
 //
 // Endpoints (all JSON unless noted):
 //

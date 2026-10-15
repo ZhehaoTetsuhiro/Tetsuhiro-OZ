@@ -2068,14 +2068,21 @@ document.addEventListener("keydown", (e) => {
     if (e.key === "Enter" && tag === "INPUT" && (t.type === "number" || t.type === "text")) t.blur();
     return;
   }
+  // 几何/膜系标签：波动与量子的快捷键（空格运行、数字切视图…）不适用，只保留模式循环与帮助。
+  if (S.mode === "oz") {
+    if (e.key === "m") { setMode(MODE_NEXT.oz); }
+    else if (e.key === "?" || e.key === "F1") { openHelp(); e.preventDefault(); }
+    return;
+  }
   if (S.mode === "quantum") {
     if (e.key === " ") { e.preventDefault(); qRun(); }
-    else if (e.key === "m") { setMode("wave"); }
+    else if (e.key === "m") { setMode(MODE_NEXT.quantum); }
+    else if (e.key === "?" || e.key === "F1") { openHelp(); e.preventDefault(); }
     return;
   }
   switch (e.key) {
     case " ": e.preventDefault(); run(); break;
-    case "m": setMode("quantum"); break;
+    case "m": setMode(MODE_NEXT.wave); break;
     case "Enter": if (e.ctrlKey) run(); break;
     case "1": setView("color"); break;
     case "2": setView("phase_u"); break;
@@ -2140,14 +2147,24 @@ function setMode(m) {
   S.mode = m;
   $("#waveModeBtn").classList.toggle("active", m === "wave");
   $("#quantumModeBtn").classList.toggle("active", m === "quantum");
+  $("#ozModeBtn").classList.toggle("active", m === "oz");
   $("#waveEditor").hidden = m !== "wave";
   $("#quantumEditor").hidden = m !== "quantum";
   $("#waveOutput").hidden = m !== "wave";
   $("#quantumOutput").hidden = m !== "quantum";
   $("#waveGlobals").hidden = m !== "wave";
+  $("#waveSection").hidden = m === "oz";
+  // 几何/膜系标签（oz.js 自管表单与结果）；波动的文件按钮与运行键不适用于它。
+  $("#ozEditor").hidden = m !== "oz";
+  $("#ozOutput").hidden = m !== "oz";
+  for (const id of ["#newBtn", "#openBtn", "#saveBtn", "#runBtn"]) $(id).hidden = m === "oz";
+  document.dispatchEvent(new CustomEvent("oz:mode", { detail: m }));
   if (m === "quantum") { renderQuantum(); qRun(); }
-  else { renderAll(); }
+  else if (m === "wave") { renderAll(); }
 }
+
+// 模式循环顺序（m 键）：波动 → 量子 → 几何/膜系 → 波动。
+const MODE_NEXT = { wave: "quantum", quantum: "oz", oz: "wave" };
 
 // A generic parameter row for the quantum editor.
 function qRow(doc, get, set, onCommit) {
@@ -2636,6 +2653,7 @@ function wireUI() {
   });
   $("#waveModeBtn").addEventListener("click", () => setMode("wave"));
   $("#quantumModeBtn").addEventListener("click", () => setMode("quantum"));
+  $("#ozModeBtn").addEventListener("click", () => setMode("oz"));
   $("#qAddGate").addEventListener("click", () => {
     S.qconfig.gates.push({ type: "beam_splitter", params: { mode0: 0, mode1: 1, reflectivity: 0.5 } });
     renderQuantum(); qRun();
@@ -2743,7 +2761,7 @@ async function init() {
   wireCanvasMouse();
   renderProfileBtn();
   $("#exposure").value = "0";
-  setMode("wave");          // 设定界面可见性并渲染全部面板
+  setMode(location.hash === "#oz" ? "oz" : "wave"); // 设定界面可见性并渲染全部面板；#oz 直接打开几何/膜系标签
   setView(S.view);
   renderPatternVisibility();
   clearInspect();

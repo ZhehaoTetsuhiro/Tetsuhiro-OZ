@@ -8,6 +8,8 @@
 //	oz eval lens.json
 //	oz tol lens.json --radius 0.05 --thickness 0.05 --index 0.0005 --runs 2000 \
 //	    --max-rms-on 0.02 --max-focal 0.1 --target-efl 100
+//	oz coating design|spectrum ...
+//	oz serve [-addr :1130] [WOS options]   the one HTTP service: API + GUI (docs/API.md)
 //	oz version
 package main
 
@@ -79,9 +81,14 @@ func usage() {
       模板: single-ar | vcoat | broadband-ar | hr | lwp | swp | splitter（自主设计膜系）
   oz coating spectrum <膜系.json> [--from 400 --to 700 --step 10 --angle 0 --pol s|p|u]
       打印 R/T/A 光谱表。
-  oz serve [--addr :1130]
-      启动本地 HTTP 服务（JSON API + 单页前端）：/api/lens/design、/api/lens/eval、
-      /api/lens/tol、/api/coating/design、/api/coating/spectrum、/api/version。
+  oz serve [选项]
+      启动唯一的 HTTP 服务：GUI 在 /，API 在 /api/。WOS 的全部参数与环境变量同样适用：
+      -addr（默认 :1130；WOS 旧端口用 -addr :1120）  -max-run-mb 512  -elements 目录1,目录2
+      -no-elements-watch  -gpu（或环境变量 WOS_GPU=1）  -check-elements  -gen-go 文件 [-gen-name 名]
+      环境变量 WOS_MUSA_HELPER / WOS_MUSA_SOCKET 指定 MUSA helper（见 docs/GPU.md）。
+      几何/膜系：/api/version、/api/lens/{design,eval,tol}、/api/coating/{design,spectrum}
+      波动/量子：/api/catalog、/api/health、/api/elements、/api/validate、/api/simulate、
+                 /api/runs/...、/api/quantum、/api/convert（完整说明见 docs/API.md）
   oz version | oz help
 `)
 }
