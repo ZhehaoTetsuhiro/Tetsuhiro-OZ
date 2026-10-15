@@ -12,6 +12,7 @@ import (
 	"os"
 	"os/exec"
 	"path/filepath"
+	"strconv"
 	"strings"
 	"testing"
 
@@ -252,6 +253,11 @@ func TestOZEndpointErrors(t *testing.T) {
 		{http.MethodPost, "/api/coating/design", `{"template":"single-ar","incident":"Unobtainium"}`, http.StatusBadRequest},
 		{http.MethodPost, "/api/coating/design", `{"template":"lwp"}`, http.StatusBadRequest},
 		{http.MethodPost, "/api/coating/spectrum", `{"stack":{}, "pol":"x"}`, http.StatusBadRequest},
+		// Work limits: refused before any computation (see the maxSpectrumPoints,
+		// maxTolRuns and maxDesignIter constants).
+		{http.MethodPost, "/api/coating/spectrum", `{"stack":{}, "from_nm":400, "to_nm":700, "step_nm":0.001}`, http.StatusBadRequest},
+		{http.MethodPost, "/api/lens/tol", `{"prescription":{}, "runs":20001}`, http.StatusBadRequest},
+		{http.MethodPost, "/api/lens/design", `{"efl_mm":100, "max_iter":10001}`, http.StatusBadRequest},
 	} {
 		code, hdr, body := doHTTP(t, base, c.method, c.path, c.body)
 		if code != c.want {
@@ -423,5 +429,40 @@ func TestGUIScriptsParse(t *testing.T) {
 		if err != nil {
 			t.Errorf("node --check %s: %v\n%s", f, err, out)
 		}
+	}
+}
+
+// TestSpectrumPointLimit checks the boundary of the spectrum work limit: exactly
+// maxSpectrumPoints points are computed, one more is refused. The step is a
+// binary fraction so that the point count is exact in floating point, and the
+// range stays inside the validity of the BK7 dispersion model (400–2900 nm).
+func TestSpectrumPointLimit(t *testing.T) {
+	ts := httptest.NewServer(ozMux())
+	defer ts.Close()
+	c := postMap(t, ts.URL, "/api/coating/design", `{"template":"single-ar","lambda_nm":550}`)
+	stack, err := json.Marshal(c["stack"])
+	if err != nil {
+		t.Fatal(err)
+	}
+	const step = 0.25
+	spectrum := func(points int) (int, []byte) {
+		to := 400 + float64(points-1)*step
+		body := `{"stack":` + string(stack) + `,"from_nm":400,"to_nm":` + strconv.FormatFloat(to, 'f', -1, 64) +
+			`,"step_nm":` + strconv.FormatFloat(step, 'f', -1, 64) + `}`
+		code, _, out := doHTTP(t, ts.URL, http.MethodPost, "/api/coating/spectrum", body)
+		return code, out
+	}
+	code, out := spectrum(maxSpectrumPoints)
+	if code != http.StatusOK {
+		t.Fatalf("at the limit: %d %s", code, out)
+	}
+	var m struct {
+		Rows []json.RawMessage `json:"rows"`
+	}
+	if err := json.Unmarshal(out, &m); err != nil || len(m.Rows) != maxSpectrumPoints {
+		t.Fatalf("at the limit: %d rows, want %d (%v)", len(m.Rows), maxSpectrumPoints, err)
+	}
+	if code, out := spectrum(maxSpectrumPoints + 1); code != http.StatusBadRequest {
+		t.Fatalf("one point over the limit: %d %s, want 400", code, out)
 	}
 }

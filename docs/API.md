@@ -42,6 +42,7 @@ Tetsuhiro-OZ 只有一个 HTTP 服务：`oz serve`。它在同一个 mux 上提�
 - 请求与响应：JSON（`Content-Type: application/json; charset=utf-8`），除非端点另有说明。
 - 错误：`{"error": "…"}`，状态码 400（请求无效）、404（资源不存在）、405（方法不允许）、409（运行未完成）、429（排队已满）、500（内部错误或响应含 NaN/Inf）。
 - 方法：计算端点为 POST，查询端点为 GET；错误方法返回 405。`GET /api/health` 不限制方法（既有行为）。
+- 工作量上限（超出即 400，计算前拒绝）：光谱点数 ≤ 10000；公差运行次数 ≤ 20000；设计迭代 ≤ 10000。仿真网格与元件数由 `/api/validate` 检查。
 - 请求体上限：`/api/quantum` 1 MB；`/api/validate`、`/api/simulate`、`/api/convert` 2 MB；`/api/lens/design` 与 `/api/lens/eval` 1 MB；`/api/lens/tol` 4 MB；`/api/coating/design` 1 MB；`/api/coating/spectrum` 8 MB。
 - `GET /api/version` 返回的 `version` 与仓库根目录 `VERSION` 文件一致（由 `cmd/oz` 的测试保证）。
 
@@ -64,7 +65,7 @@ Tetsuhiro-OZ 只有一个 HTTP 服务：`oz serve`。它在同一个 mux 上提�
 | `semi_aperture_mm` | number | `efl_mm/10` | 半口径（mm） |
 | `field_deg` | number | 未指定时取 0.5° 的默认视场 | 离轴视场半角（度）；显式给出时生效 |
 | `skip_polish` | bool | false | 只做解析解与厚透镜消色差，不做 DLS 抛光 |
-| `max_iter` | int | 0（默认上限） | DLS 迭代上限 |
+| `max_iter` | int | 0（默认上限） | DLS 迭代上限，最大 10000（超出返回 400） |
 
 响应：`{"prescription": {...}, "report": "…", "optimizer": {"iterations", "evals", "merit", "converged"}}`。`prescription` 可直接作为 `/api/lens/eval`、`/api/lens/tol` 的请求体（或其 `prescription` 字段）。
 
@@ -87,7 +88,7 @@ Tetsuhiro-OZ 只有一个 HTTP 服务：`oz serve`。它在同一个 mux 上提�
       "seed": 1
     }
 
-`criteria` 至少给出一个判据时才计算良率（`yield`）。响应为 `ToleranceReport` JSON：`runs`、`seed`、`yield`（满足全部判据的比例）、`nominal`、`on_axis_rms`、`off_axis_rms`、`color_shift`、`focal_err`（分布统计）、`fail_reasons`、`failed_traces`。`runs` 缺省为 2000，耗时随次数线性增长。
+`criteria` 至少给出一个判据时才计算良率（`yield`）。响应为 `ToleranceReport` JSON：`runs`、`seed`、`yield`（满足全部判据的比例）、`nominal`、`on_axis_rms`、`off_axis_rms`、`color_shift`、`focal_err`（分布统计）、`fail_reasons`、`failed_traces`。`runs` 缺省为 2000，最大 20000（超出返回 400），耗时随次数线性增长。
 
 ### POST /api/coating/design
 
@@ -100,7 +101,7 @@ Tetsuhiro-OZ 只有一个 HTTP 服务：`oz serve`。它在同一个 mux 上提�
 
 ### POST /api/coating/spectrum
 
-请求：`{"stack": <stack>, "from_nm":400, "to_nm":700, "step_nm":5, "angle_deg":0, "pol":"u"}`。`pol` 取 `s`、`p`、`u`（缺省为非偏振 `u`）。响应：`{"rows": [{"lambda_nm", "R", "T", "A"}, …]}`（端点含两端，共 `(to-from)/step+1` 行）。
+请求：`{"stack": <stack>, "from_nm":400, "to_nm":700, "step_nm":5, "angle_deg":0, "pol":"u"}`。`pol` 取 `s`、`p`、`u`（缺省为非偏振 `u`）。点数 `(to-from)/step+1` 最多 10000，超出返回 400。响应：`{"rows": [{"lambda_nm", "R", "T", "A"}, …]}`（端点含两端，共 `(to-from)/step+1` 行）。
 
 ## 5. 波动与量子（WOS，同一服务）
 

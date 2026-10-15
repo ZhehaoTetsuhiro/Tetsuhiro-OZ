@@ -25,6 +25,15 @@ const defaultServeAddr = ":1130"
 // defaultMaxRunMB is the WOS default of -max-run-mb.
 const defaultMaxRunMB = 512
 
+// Work limits of the OZ endpoints. A request above a limit is refused with 400
+// before any computation starts, so one request cannot hold the CPU or memory
+// for an unbounded time. The GUI stays well inside all three.
+const (
+	maxSpectrumPoints = 10000 // /api/coating/spectrum: (to-from)/step+1
+	maxTolRuns        = 20000 // /api/lens/tol: Monte-Carlo runs
+	maxDesignIter     = 10000 // /api/lens/design: DLS iterations
+)
+
 // cmdServe runs the single OZ HTTP service. It accepts every option of the
 // retired `wos` binary (same names and defaults) and serves one mux:
 //
@@ -255,6 +264,10 @@ func handleLensDesign(w http.ResponseWriter, r *http.Request) {
 		writeAPIErr(w, http.StatusBadRequest, errors.New("efl_mm 必填且为正"))
 		return
 	}
+	if req.MaxIter > maxDesignIter {
+		writeAPIErr(w, http.StatusBadRequest, fmt.Errorf("max_iter %d exceeds the limit %d", req.MaxIter, maxDesignIter))
+		return
+	}
 	opts := &lens.DesignOptions{SkipPolish: req.SkipPolish, MaxIter: req.MaxIter}
 	if req.FieldDeg > 0 {
 		// Same field convention as the CLI: on-axis plus the given half-angle.
@@ -307,6 +320,10 @@ func handleLensEval(w http.ResponseWriter, r *http.Request) {
 func handleLensTol(w http.ResponseWriter, r *http.Request) {
 	var req tolRequest
 	if !decodePOST(w, r, &req, 4<<20) {
+		return
+	}
+	if req.Runs > maxTolRuns {
+		writeAPIErr(w, http.StatusBadRequest, fmt.Errorf("runs %d exceeds the limit %d", req.Runs, maxTolRuns))
 		return
 	}
 	rep, err := lens.RunTolerances(&req.Prescription, req.Spec, req.Criteria, &lens.ToleranceOptions{Runs: req.Runs, Seed: req.Seed})
@@ -383,7 +400,12 @@ func handleCoatingSpectrum(w http.ResponseWriter, r *http.Request) {
 		writeAPIErr(w, http.StatusBadRequest, err)
 		return
 	}
-	rows, err := req.Stack.SpectrumRange(defF(req.FromNm, 400), defF(req.ToNm, 700), defF(req.StepNm, 5), req.AngleDeg, pol)
+	from, to, step := defF(req.FromNm, 400), defF(req.ToNm, 700), defF(req.StepNm, 5)
+	if step > 0 && to >= from && (to-from)/step+1 > maxSpectrumPoints {
+		writeAPIErr(w, http.StatusBadRequest, fmt.Errorf("spectrum has more than %d points; raise step_nm or narrow the range", maxSpectrumPoints))
+		return
+	}
+	rows, err := req.Stack.SpectrumRange(from, to, step, req.AngleDeg, pol)
 	if err != nil {
 		writeAPIErr(w, http.StatusBadRequest, err)
 		return
