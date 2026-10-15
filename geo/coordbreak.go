@@ -308,10 +308,29 @@ func (s *System) hasPose() bool {
 	return false
 }
 
+// hasAsymmetricFreeform reports whether the system contains a freeform surface
+// that is not rotationally symmetric (see FreeformProfile). Such a surface has
+// no rotationally symmetric surrogate, so the operations that rely on one
+// (the first- and third-order engines, Reversed) refuse it.
+func (s *System) hasAsymmetricFreeform() bool {
+	for _, sf := range s.Surfaces {
+		if sf.Break || sf.Profile == nil {
+			continue
+		}
+		if fp, ok := sf.Profile.(FreeformProfile); ok && !fp.RotationallySymmetric() {
+			return true
+		}
+	}
+	return false
+}
+
 // requireCoaxial returns an error naming the first element whose pose decentres
-// or tilts the optical axis. The first-order (paraxial) and third-order (Seidel)
-// engines are defined for coaxial systems only and must not silently produce
-// numbers for a decentred or tilted layout.
+// or tilts the optical axis, or whose profile is an asymmetric freeform surface.
+// The first-order (paraxial) and third-order (Seidel) engines are defined for
+// rotationally symmetric coaxial systems only and must not silently produce
+// numbers for a decentred, tilted or freeform layout. A rotationally symmetric
+// XYPolynomial is not freeform in this sense (it is an ordinary rotationally
+// symmetric profile) and passes.
 func (s *System) requireCoaxial(what string) error {
 	for i, sf := range s.Surfaces {
 		if sf.Pose != nil && sf.Pose.decentredOrTilted() {
@@ -321,8 +340,23 @@ func (s *System) requireCoaxial(what string) error {
 			}
 			return errNotCoaxial(what, i, kind, sf.Label(), *sf.Pose)
 		}
+		if sf.Break || sf.Profile == nil {
+			continue
+		}
+		if fp, ok := sf.Profile.(FreeformProfile); ok && !fp.RotationallySymmetric() {
+			return errFreeform(what, i, sf.Label())
+		}
 	}
 	return nil
+}
+
+// errFreeform builds the error of the coaxial-only engines for a freeform
+// surface that is not rotationally symmetric.
+func errFreeform(what string, i int, label string) error {
+	return fmt.Errorf("geo: %s: surface %d (%s) is a freeform surface that is not rotationally symmetric; "+
+		"first- and third-order optics are defined for rotationally symmetric surfaces only: "+
+		"use real ray tracing (Trace, SpotDiagram, RayFan, OPDGrid with an explicit Pupil)",
+		what, i, label)
 }
 
 // errNotCoaxial builds the error of the coaxial-only engines.
