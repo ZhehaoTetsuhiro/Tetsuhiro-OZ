@@ -173,7 +173,7 @@ func TestSensAliasingRejected(t *testing.T) {
 // The step scan is logged for transparency. Measured on the solved achromat
 // (fixed image plane, best focus 0.074 mm from the paraxial focus): the spot
 // derivatives with respect to curvature and index are unreliable at RelStep
-// 1e-3 (truncation, 0.3–15 %) and converged from 1e-4 down; the wavefront
+// 1e-3 (truncation, 0.3–18 % in the logged scan) and converged from 1e-4 down; the wavefront
 // thickness derivative is roundoff-limited below 1e-5. The pair 1e-4 / 1e-5 is
 // inside the converged region for all four parameters of both merits, so the
 // acceptance ≤ 1e-4 is applied to that pair and to the adaptive result, and the
