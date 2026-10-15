@@ -280,6 +280,9 @@ func TestGUIServedAtRoot(t *testing.T) {
 	if !strings.Contains(string(page), `<meta name="viewport" content="width=device-width, initial-scale=1">`) {
 		t.Error("GET / lacks the viewport meta tag")
 	}
+	if cc := hdr.Get("Cache-Control"); cc != "no-cache" {
+		t.Errorf("GET / Cache-Control = %q, want no-cache (GUI must revalidate after an upgrade)", cc)
+	}
 	for path, ctype := range map[string]string{
 		"/app.js":                   "javascript",
 		"/oz.js":                    "javascript",

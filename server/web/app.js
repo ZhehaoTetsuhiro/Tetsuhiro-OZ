@@ -2152,6 +2152,7 @@ function setMode(m) {
   $("#waveOutput").hidden = m !== "wave";
   $("#quantumOutput").hidden = m !== "quantum";
   $("#waveGlobals").hidden = m !== "wave";
+  $("#waveSection").hidden = m === "oz";
   // 几何/膜系标签（oz.js 自管表单与结果）；波动的文件按钮与运行键不适用于它。
   $("#ozEditor").hidden = m !== "oz";
   $("#ozOutput").hidden = m !== "oz";
