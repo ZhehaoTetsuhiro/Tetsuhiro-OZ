@@ -2,6 +2,22 @@
 
 本项目所有显著变更都会记录于此。格式遵循 [Keep a Changelog](https://keepachangelog.com/zh-CN/1.1.0/)，版本号遵循 [语义化版本](https://semver.org/lang/zh-CN/)。
 
+## [未发布]
+
+### 新增
+
+- **扩展（空间不相干）光源 `extended`**：`optics/source_extended.go` 的 `ExpandExtendedSources` 在路由前把发光面按 `samples_x × samples_y` 采样成**互不相干的点源**（每个点自成一个相干单元，屏上强度为各点之和）——这是空间不相干光源唯一严格的模型，任何光路（单缝/双缝/透镜/干涉仪）都能用同一个真实光源驱动。参数 `width`、`height`（0 = 该方向退化为轴上一样本，等价于单个球面波点源）、`samples_x`、`samples_y`、`power`、`profile`（`uniform`/`gaussian`）、`standoff`（波前采样距离，与结果无关）。上限 4096 点/光源、8192 点/场景；参数非法时忽略该光源并给 `extended_source` 警告。新增模板「扩展光源 + 旋转单缝（部分相干）」。
+- **元件的 Roll 现在真正作用到通光孔**：`scene_sim.go` 的 `buildElements` 把 `ComponentSpec.Roll` 折进孔径形状的 `rotation`。此前 Roll 只进了几何朝向，孔径掩膜仍是未旋转的——「旋转单缝」这类设定会完全不动。修复后 roll=90° 的 0.4 mm×20 mm 狭缝把远场条纹从横转竖（`rms_y` 由 5.8 mm 降到 0.36 mm），任意角度的透过面积不变（`TestRotatingSlit*`）。
+- **`rectangle` 形状要求 width 与 height 同时给出**：缺一个时原先静默取默认值，可能把 0.4 mm×20 mm 的缝悄悄变成 0.4 mm 方孔。现在是校验错误（`shape: rectangle needs both width and height`）。
+- **参数扫描**：`optics/scan.go` 的 `RunScan(cfg, ScanSpec{Param,Values,Metric,Plane})` 对同一配置逐个代入一个数值参数并重复仿真，返回逐点指标（功率/峰值/质心/RMS/Strehl/强度极值）。`Param` 只接受有限集合的点分路径（`wavelength`、`sources[i].params.k`、`scene.components[i].{roll,yaw,pitch,pos.{x,y,z},params.k,shape.params.k}`、`elements[i].params.k`），其余一律拒绝；`grid.*` 明确不可扫（网格是采样而非物理）。某个取值使配置非法时只在该点报错，扫描继续。上限 512 个取值。
+- **`POST /api/scan`**：扫描走与 `/api/simulate` 相同的异步提交/轮询/串行队列，返回的 run 元数据含 `"kind":"scan"` 与 `scan` 报告（`server/scan_test.go` 覆盖接受、拒绝、波长扫描、逐点报错与 404 语义）。
+- **GUI 左栏「参数扫描」面板**（`server/web/scan.js`）：自动列出当前配置可扫的数值字段，取值框接受 `0,15,30` 或 `0-90-5`（科学计数法同样支持），结果给逐点表格 + 折线画布 + CSV 导出。手机断点与触控目标（44 px）复用既有规则。
+- **CLI `oz scan --param … --values … [--metric …] [--plane …] [--json out.json] <配置.json>`**：与 HTTP 端点共用 `optics.RunScan`，打印对齐的逐点表。
+
+### 修复
+
+- **`/api/runs/{id}/planes/...` 对扫描运行会 panic**：扫描 run 没有 `res`，子资源路径直接解引用空指针（连接被重置）。现在返回 404「this run is a parameter sweep (no field data)」。
+
 ## [v1.4.0] - 2026-10-10
 
 本版修复两处使用中的硬伤（光栅图样退化成点、在「光源」一栏点「删除」跳回顶部），新增一维/柱面几何所需的**柱面透镜**元件，并给 GUI 加上启动画面与暗色模式。

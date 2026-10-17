@@ -101,6 +101,13 @@ func parseShapeGeom(kind string, params map[string]any) (*shapeGeom, error) {
 		}
 		g.height = g.width
 	case "rectangle":
+		// Both extents are required: defaulting the missing one to width would
+		// silently turn a 0.4 mm x 20 mm slit into a 0.4 mm square (or a
+		// height-only request into a 20 mm square), which changes the physics
+		// without a word. A missing key is a configuration error.
+		if _, ok := params["height"]; !ok || params["height"] == nil {
+			return nil, fmt.Errorf("shape: rectangle needs both width and height (height is required)")
+		}
 		if g.width <= 0 || g.height <= 0 {
 			return nil, fmt.Errorf("shape: rectangle width and height must be > 0")
 		}

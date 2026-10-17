@@ -39,6 +39,14 @@ type sceneUnit struct {
 	hash    uint64
 }
 
+// maxRetainedParts caps how many per-coherent-unit fields one plane keeps.
+// An incoherent extended emitter expands into one unit per point, so a
+// 96 x 10 sampling would otherwise retain 960 full grids per plane (a 1024^2
+// grid is 16 MB per component). Beyond the cap the run keeps summing the
+// intensities — the physically meaningful quantity — and says so in a warning
+// instead of silently dropping fields.
+const maxRetainedParts = 64
+
 // splitUnits groups the sources into the smallest number of coherent runs.
 func splitUnits(sources []SourceSpec, fallbackWL float64, warnings *Warnings) []sceneUnit {
 	var units []sceneUnit
@@ -592,7 +600,10 @@ func unitLabel(group string, wl float64) string {
 	return fmt.Sprintf("%s@%.1fnm", g, wl*1e9)
 }
 
-// applyShapeMask multiplies the field by the component's clear aperture.
+// applyShapeMask multiplies the field by the component's clear aperture. The
+// shape carries its own rotation (the component's Roll was folded into it
+// when the element was compiled), so this stays a plain function of the
+// outline.
 func applyShapeMask(f *Field, sh *shapeGeom) {
 	n := f.N
 	sig := sh.edgeSigma
@@ -639,6 +650,16 @@ func SimulateScene(cfg Config) (*Result, error) {
 		return nil, err
 	}
 	sources := cfg.AllSources()
+	// An extended (spatially incoherent) emitter is a set of mutually
+	// incoherent point sources: expand it before the geometry is routed, so
+	// every point travels the same light path as the emitter it came from.
+	if hasExtendedSource(sources) {
+		expanded, warns := ExpandExtendedSources(sources, cfg.Scene)
+		for _, w := range warns {
+			base.Warnings.Add("extended_source", w, 0)
+		}
+		sources = expanded
+	}
 	g, err := BuildSceneGraph(cfg.Scene, sources)
 	if err != nil {
 		return nil, err
@@ -657,6 +678,7 @@ func SimulateScene(cfg Config) (*Result, error) {
 	var planes []*Plane
 	parts := map[string][]PlanePart{}
 	dropped := 0
+	warnedParts := false
 	for _, u := range units {
 		wl := cfg.Wavelength
 		for _, si := range u.sources {
@@ -681,6 +703,20 @@ func SimulateScene(cfg Config) (*Result, error) {
 		dropped += sim.dropped
 		planes = mergeUnitPlanes(planes, sim.planes)
 		for _, pl := range sim.planes {
+			// The per-unit fields are display data (colour channels, phase,
+			// polarization of one unit). The summed intensity — the physical
+			// result — is computed from every unit regardless of the cap, so
+			// dropping the fields of the weakest units cannot change the
+			// numbers; it only limits what the GUI can show per source.
+			if len(parts[pl.ID]) >= maxRetainedParts {
+				if !warnedParts {
+					warnedParts = true
+					base.Warnings.Add("scene_parts_dropped",
+						fmt.Sprintf("不相干单元超过 %d 个：各单元的分场数据不再逐个保留（总强度仍为全部单元之和；单源视图只保留前 %d 个）",
+							maxRetainedParts, maxRetainedParts), float64(len(units)))
+				}
+				continue
+			}
 			parts[pl.ID] = append(parts[pl.ID], PlanePart{
 				Source: u.sources[0], Label: pl.UnitKey, Wavelength: pl.Wavelength,
 				Power: pl.Stats.Power, Peak: pl.Stats.Peak,
@@ -807,6 +843,11 @@ func (g *sceneGraph) buildElements() error {
 				for k, v := range g.shapes[i].toParams() {
 					params[k] = v
 				}
+				// The component's Roll orients the outline in its own plane
+				// (it is how a slit is rotated away from the v axis), so it
+				// has to reach the mask: without it a "rotating slit" would
+				// stay put no matter what angle the user dials in.
+				params["rotation"] = pfd(params, "rotation", 0) + c.Roll
 			}
 		}
 		el, err := NewElement(ElementSpec{Type: sceneElementType(c.Type), Params: params})

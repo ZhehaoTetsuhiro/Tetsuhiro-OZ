@@ -65,6 +65,7 @@ const (
 type runEntry struct {
 	status  string
 	res     *optics.Result
+	scan    *optics.ScanReport
 	errMsg  string
 	created time.Time
 }
@@ -297,6 +298,50 @@ func (s *Server) Handler() http.Handler {
 		}
 		writeJSON(w, http.StatusAccepted, map[string]any{"run_id": id, "status": StatusRunning})
 	})
+	mux.HandleFunc("/api/scan", func(w http.ResponseWriter, r *http.Request) {
+		if r.Method != http.MethodPost {
+			writeErr(w, http.StatusMethodNotAllowed, "POST only")
+			return
+		}
+		body, err := io.ReadAll(http.MaxBytesReader(w, r.Body, 2<<20))
+		if err != nil {
+			writeErr(w, http.StatusBadRequest, "failed to read request body: "+err.Error())
+			return
+		}
+		var req struct {
+			Config optics.Config   `json:"config"`
+			Scan   optics.ScanSpec `json:"scan"`
+		}
+		if err := json.Unmarshal(body, &req); err != nil {
+			writeErr(w, http.StatusBadRequest, "invalid JSON: "+err.Error())
+			return
+		}
+		if req.Scan.Param == "" {
+			writeErr(w, http.StatusBadRequest, "scan.param is required")
+			return
+		}
+		if len(req.Scan.Values) == 0 {
+			writeErr(w, http.StatusBadRequest, "scan.values is empty")
+			return
+		}
+		// The base configuration is validated once, before the sweep starts:
+		// a broken base config would otherwise fail on every point.
+		if issues := optics.ValidateConfig(&req.Config); len(issues) > 0 {
+			first := issues[0]
+			writeErr(w, http.StatusBadRequest, fmt.Sprintf("config validation failed: %s: %s", first.Path, first.Message))
+			return
+		}
+		if err := optics.CheckGridMemory(req.Config.Grid.Size); err != nil {
+			writeErr(w, http.StatusBadRequest, err.Error())
+			return
+		}
+		id, err := s.submitScan(req.Config, req.Scan)
+		if err != nil {
+			writeErr(w, http.StatusTooManyRequests, err.Error())
+			return
+		}
+		writeJSON(w, http.StatusAccepted, map[string]any{"run_id": id, "status": StatusRunning})
+	})
 	mux.HandleFunc("/api/runs/", func(w http.ResponseWriter, r *http.Request) {
 		if r.Method != http.MethodGet {
 			writeErr(w, http.StatusMethodNotAllowed, "GET only")
@@ -320,6 +365,12 @@ func (s *Server) Handler() http.Handler {
 		}
 		if snap.status != StatusDone {
 			writeErr(w, http.StatusConflict, "run not finished")
+			return
+		}
+		if snap.res == nil {
+			// A parameter sweep has no planes, profiles or scene: its report
+			// is in the run metadata (kind=scan).
+			writeErr(w, http.StatusNotFound, "this run is a parameter sweep (no field data)")
 			return
 		}
 		switch parts[1] {
@@ -464,6 +515,7 @@ type runSnapshot struct {
 	status string
 	errMsg string
 	res    *optics.Result
+	scan   *optics.ScanReport
 }
 
 // snapshot returns a consistent view of a run's state under the lock. Reading
@@ -477,7 +529,65 @@ func (s *Server) snapshot(id string) (*runSnapshot, bool) {
 	if !ok {
 		return nil, false
 	}
-	return &runSnapshot{status: e.status, errMsg: e.errMsg, res: e.res}, true
+	return &runSnapshot{status: e.status, errMsg: e.errMsg, res: e.res, scan: e.scan}, true
+}
+
+// submitScan registers a parameter sweep and runs it in the background, on the
+// same semaphore and with the same queue limit as a single simulation.
+func (s *Server) submitScan(cfg optics.Config, spec optics.ScanSpec) (string, error) {
+	id := newRunID()
+	s.mu.Lock()
+	defer s.mu.Unlock()
+	running := 0
+	for _, e := range s.runs {
+		if e.status == StatusRunning {
+			running++
+		}
+	}
+	if running >= maxQueuedRuns {
+		return "", fmt.Errorf("too many queued simulations (limit %d); try again later", maxQueuedRuns)
+	}
+	s.runs[id] = &runEntry{status: StatusRunning, created: time.Now()}
+	s.order = append(s.order, id)
+	go func() {
+		s.simSem <- struct{}{}
+		defer func() { <-s.simSem }()
+		s.runScan(id, cfg, spec)
+	}()
+	return id, nil
+}
+
+// runScan executes one sweep. Like runSimulation it always releases its slot
+// and converts a panic into an error entry, so one bad request cannot wedge
+// the server.
+func (s *Server) runScan(id string, cfg optics.Config, spec optics.ScanSpec) {
+	defer func() {
+		if r := recover(); r != nil {
+			s.mu.Lock()
+			if e := s.runs[id]; e != nil {
+				e.status = StatusError
+				e.errMsg = fmt.Sprintf("scan panic: %v", r)
+			}
+			s.evict()
+			s.mu.Unlock()
+		}
+	}()
+	rep, err := optics.RunScan(cfg, spec)
+	s.mu.Lock()
+	defer s.mu.Unlock()
+	e := s.runs[id]
+	if e == nil {
+		return
+	}
+	if err != nil {
+		e.status = StatusError
+		e.errMsg = err.Error()
+		s.evict()
+		return
+	}
+	e.status = StatusDone
+	e.scan = rep
+	s.evict()
 }
 
 // runBytes returns the approximate bytes retained for a finished run's plane
@@ -531,7 +641,15 @@ func (s *Server) writeRunMeta(w http.ResponseWriter, id string, e *runSnapshot) 
 		writeJSON(w, http.StatusOK, out)
 		return
 	}
+	if e.scan != nil {
+		// A parameter sweep reports its points instead of planes.
+		out["kind"] = "scan"
+		out["scan"] = e.scan
+		writeJSON(w, http.StatusOK, out)
+		return
+	}
 	if e.res != nil {
+		out["kind"] = "simulate"
 		out["grid"] = map[string]any{"size": e.res.Size, "width": e.res.Width, "dx": e.res.DX}
 		out["wavelength"] = e.res.Wavelength
 		out["elapsed_ms"] = e.res.ElapsedMS

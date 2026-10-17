@@ -6,14 +6,20 @@ import (
 )
 
 // Every advertised aperture shape must construct with its default (or, for
-// custom, a supplied vertex list) parameters.
+// custom, a supplied vertex list) parameters. A rectangle needs both extents
+// — defaulting the missing one silently changes the aperture — so it is
+// constructed with both here.
 func TestApertureAllShapesConstruct(t *testing.T) {
 	plain := []string{
 		"circle", "square", "rectangle", "ellipse", "triangle", "ring",
 		"polygon", "double_slit", "cross", "star", "superellipse",
 	}
 	for _, s := range plain {
-		if _, err := newAperture(map[string]any{"shape": s}); err != nil {
+		p := map[string]any{"shape": s}
+		if s == "rectangle" {
+			p["width"], p["height"] = 2e-3, 1e-3
+		}
+		if _, err := newAperture(p); err != nil {
 			t.Fatalf("shape %q: %v", s, err)
 		}
 	}

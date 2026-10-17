@@ -43,8 +43,8 @@ Tetsuhiro-OZ 只有一个 HTTP 服务：`oz serve`。它在同一个 mux 上提�
 - 请求与响应：JSON（`Content-Type: application/json; charset=utf-8`），除非端点另有说明。
 - 错误：`{"error": "…"}`，状态码 400（请求无效）、404（资源不存在）、405（方法不允许）、409（运行未完成）、429（排队已满）、500（内部错误或响应含 NaN/Inf）。
 - 方法：计算端点为 POST，查询端点为 GET；错误方法返回 405。`GET /api/health` 不限制方法（既有行为）。
-- 工作量上限（超出即 400，计算前拒绝）：光谱点数 ≤ 10000；公差运行次数 ≤ 20000；设计迭代 ≤ 10000；热漂移 |ΔT| ≤ 500 K；灵敏度参数 ≤ 128 个、补偿器迭代 ≤ 10000；MTF 视场 ≤ 64、每视场光线 ≤ 200000、LSF 分箱 ≤ 4096、频率点 ≤ 512；鬼像双反射路径 ≤ 512 条、采样环数 ≤ 8；DOE 网格 ≤ 2048（2 的幂）、级数 ≤ 4096；透镜组元件数 ≤ 512、Hexapolar 采样环数 ≤ 8、焦面搜索粗采样 ≤ 4096、单次编辑 ≤ 512 项。仿真网格与元件数由 `/api/validate` 检查。
-- 请求体上限：`/api/quantum` 1 MB；`/api/ai/chat` 4 MB（消息 + 当前状态）；`/api/ai/element` 1 MB；`/api/validate`、`/api/simulate`、`/api/convert` 2 MB；`/api/lens/design`、`/api/lens/eval`、`/api/lens/thermal`、`/api/lens/sens`、`/api/geo/mtf`、`/api/geo/ghost`、`/api/doe/focus`、`/api/coating/design` 1 MB；`/api/lens/tol`、`/api/lens/parax`、`/api/lens/group/*` 4 MB；`/api/coating/spectrum` 8 MB。
+- 工作量上限（超出即 400，计算前拒绝）：光谱点数 ≤ 10000；公差运行次数 ≤ 20000；设计迭代 ≤ 10000；热漂移 |ΔT| ≤ 500 K；灵敏度参数 ≤ 128 个、补偿器迭代 ≤ 10000；MTF 视场 ≤ 64、每视场光线 ≤ 200000、LSF 分箱 ≤ 4096、频率点 ≤ 512；鬼像双反射路径 ≤ 512 条、采样环数 ≤ 8；DOE 网格 ≤ 2048（2 的幂）、级数 ≤ 4096；透镜组元件数 ≤ 512、Hexapolar 采样环数 ≤ 8、焦面搜索粗采样 ≤ 4096、单次编辑 ≤ 512 项；参数扫描取值 ≤ 512 个。仿真网格与元件数由 `/api/validate` 检查。
+- 请求体上限：`/api/quantum` 1 MB；`/api/ai/chat` 4 MB（消息 + 当前状态）；`/api/ai/element` 1 MB；`/api/validate`、`/api/simulate`、`/api/convert`、`/api/scan` 2 MB；`/api/lens/design`、`/api/lens/eval`、`/api/lens/thermal`、`/api/lens/sens`、`/api/geo/mtf`、`/api/geo/ghost`、`/api/doe/focus`、`/api/coating/design` 1 MB；`/api/lens/tol`、`/api/lens/parax`、`/api/lens/group/*` 4 MB；`/api/coating/spectrum` 8 MB。
 - 确定性：全部计算端点对相同请求给出逐字节相同的响应（无时钟、无 map 迭代顺序、无随机数）；`cmd/oz/analysis_test.go` 的 `TestAnalysisEndpointDeterminism` 与 `cmd/oz/group_api_test.go` 的 `TestGroupEndpointDeterminism` 逐个端点断言。
 - `GET /api/version` 返回的 `version` 与仓库根目录 `VERSION` 文件一致（由 `cmd/oz` 的测试保证）。
 
@@ -415,7 +415,8 @@ N 级量化相位聚焦 DOE 的一级效率与焦点偏差（G8；`oz doe focus`
 | POST | `/api/validate` | 配置校验：`{"ok":bool,"issues":[{"path","message"}]}` |
 | POST | `/api/convert` | 旧的 `elements` 序列转为定位场景：`{"scene":{…},"sources":[…]}`，不计算 |
 | POST | `/api/simulate` | 提交仿真，202 返回 `{"run_id","status":"running"}`；串行执行，排队上限 8 |
-| GET | `/api/runs/{id}` | 状态（`running`/`done`/`error`）与元数据（网格、波长、平面列表、警告、场景） |
+| POST | `/api/scan` | 提交一次参数扫描（对同一配置逐个代入取值并重复仿真），202 返回 `{"run_id","status":"running"}`；与 `/api/simulate` 共用串行队列与排队上限 |
+| GET | `/api/runs/{id}` | 状态（`running`/`done`/`error`）与元数据（网格、波长、平面列表、警告、场景）。扫描运行的元数据含 `"kind":"scan"` 与 `"scan"` 报告，没有 `planes` |
 | GET | `/api/runs/{id}/planes/{pid}` | 平面场：`fmt=bin`（float32 小端 N×N 行主序，`X-Grid-Size` 头）或 `fmt=png` |
 | GET | `/api/runs/{id}/profiles/{pid}` | 一维剖面 JSON：`axis=x|y`、`field`、`coord`、`part` |
 | GET | `/api/runs/{id}/inspect/{pid}` | 像素读数：琼斯矢量、斯托克斯参数、偏振椭圆、相位与波前 PV/RMS。`x`、`y`（像素）缺省为强度质心 |
@@ -423,6 +424,38 @@ N 级量化相位聚焦 DOE 的一级效率与焦点偏差（G8；`oz doe focus`
 | POST | `/api/quantum` | Fock 基线性光学同步计算（`fmt=png|svg` 返回图表） |
 
 仿真配置（`/api/validate`、`/api/simulate`、`/api/convert`）的字段见 `optics.Config`（`docs/kernel/INTEGRATION.md` §1.1）。`/api/simulate` 校验失败返回 400 并给出第一个错误；完整错误列表用 `/api/validate`。
+
+### POST /api/scan（参数扫描）
+
+请求体：`{"config": <完整波动配置>, "scan": {"param": "<路径>", "values": [<数值>...], "metric": "<指标>", "plane": "<平面 id/label，可省>"}}`。
+
+`param` 是配置里的一个**数值**字段的点分路径（内核只支持下列路径，其余一律拒绝——拼错不会静默无效）：
+
+| 路径 | 含义 |
+|---|---|
+| `wavelength` | 全局波长（m） |
+| `sources[i].params.<k>` | 第 i 个光源的参数 |
+| `scene.components[i].roll` / `.yaw` / `.pitch` | 元件的自转/偏航/俯仰（rad） |
+| `scene.components[i].pos.{x,y,z}` | 元件位置（m） |
+| `scene.components[i].shape.params.<k>` | 元件通光孔形状参数（m） |
+| `scene.components[i].params.<k>` | 元件参数（如透镜 `f`） |
+| `elements[i].params.<k>` | 旧式元件序列的参数 |
+
+`metric` 取值：`power`（默认）、`peak`、`centroid_x`、`centroid_y`、`rms_x`、`rms_y`、`strehl`、`intensity_max`、`intensity_min`。
+
+响应（`GET /api/runs/{id}`，`kind=scan`）：
+
+    {"run_id":"…","status":"done","kind":"scan",
+     "scan":{"param":"scene.components[0].roll","metric":"rms_y","plane":"det",
+             "points":[{"value":0,"metric":0.001,"plane":"det"}, …],
+             "warnings":["<去重后的运行警告>"]}}
+
+- 每个取值一次**完整**仿真；`points` 与请求的 `values` 一一对应、顺序一致。
+- 某个取值让配置非法时，该点带 `error` 文本，扫描继续（不会整批失败）。
+- `values` 上限 512 个；基础配置先过一次 `/api/validate`，再入队。
+- `grid.*` **不可扫描**：网格是采样而非物理，扫它得到的曲线衡量的是离散化。
+
+GUI：左栏「参数扫描」面板（`server/web/scan.js`）自动列出当前配置可扫的路径，取值框接受 `0,15,30` 或 `0-90-5`（起-止-步长）两种写法，结果同时给表格与曲线，可导出 CSV。CLI：`oz scan --param … --values … [--metric …] <配置.json>`。
 
 平面视图参数（`/api/runs/{id}/planes/{pid}`）：`field`（`total`、`amplitude`、`ex`、`ey`、`ez`、`phase_x|y|z|u`、`pol_azimuth|ellip|s1|s2|s3|degree|intensity`、`color`，默认 `total`；`color` 仅 `fmt=png`）、`part`（相干单元序号，默认合成）、`scale`（`lin|log`）、`cmap`（`inferno|phase|gray|diverging`）、`mask`、`exposure`、`gamma`、`pmin`、`pmax`。
 
@@ -486,6 +519,10 @@ GUI 与助手的协作协议：助手把**完整配置**放在 ```` ```oz-config
     curl -s -X POST localhost:1130/api/lens/group/prescription -d "$G"
     # DOE（G8）：一级效率与解析 η_N 的对比
     curl -s -X POST localhost:1130/api/doe/focus -d '{"focal_mm":10,"levels":4}'
+    # 波动：不相干扩展光源 + 旋转单缝（屏上的远场图样）
+    oz scan --param scene.components[0].roll --values 0-90-15 --metric rms_y \
+        --json roll-scan.json extended-slit.json
+    # 等价 HTTP：POST /api/scan  {"config":{…},"scan":{"param":…,"values":[…],"metric":…}} → GET /api/runs/{id}
     # 膜系光谱
     curl -s -X POST localhost:1130/api/coating/design -d '{"template":"single-ar","lambda_nm":550}' > c.json
     curl -s -X POST localhost:1130/api/coating/spectrum -d "{\"stack\":$(python3 -c 'import json;print(json.dumps(json.load(open("c.json"))["stack"]))'),\"from_nm\":500,\"to_nm\":600,\"step_nm\":10}"

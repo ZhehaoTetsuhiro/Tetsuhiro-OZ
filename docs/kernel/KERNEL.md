@@ -7,6 +7,8 @@
     optics/fft.go          并行 radix-2 FFT（plan 缓存 + sync.Pool 列缓冲）
     optics/field.go        场类型 Field、Context、Warnings、带限滤波
     optics/source.go       光源构造（含 LG/HG 多项式递推）
+    optics/source_extended.go 扩展（不相干）光源：采样成互不相干的点源
+    optics/scan.go         参数扫描：同一配置逐点代入一个数值参数并重复仿真
     optics/propagate.go    传播算法 ASM / ASMPad / ASMShift / Fresnel / Fraunhofer / Auto
     optics/elements.go     元件库与注册表（薄元件 + 琼斯元件）
     optics/expr.go         脚本元件的表达式语言（解析 + 闭包编译，含错误定位）
@@ -63,6 +65,8 @@
 - 全矢量 ASM（含 Ez，非傍轴）：PropagateVectorial(f, z, ctx) 由散度条件 Ez=-(kx Ex+ky Ey)/kz 重构纵分量并三分量传播；NewVectorialField(n, dx) 构造三分量场。
 - 3-D 体传播：Propagate3D(f, zs, method, ctx) 把输入场一次传播到多个 z，返回平面栈（x,y,z 体积场）。
 - 部分相干（Gaussian Schell 模型）：GenerateSchellRealizations(n, dx, SchellSourceParams{Width,Coherence,Seed}, m) 生成 m 个满足 I=exp(-2r²/w0²)、μ=exp(-|dr|²/(2σc²)) 的相干实现；AverageIntensity 做系综平均；PropagatePartiallyCoherent 生成+传播+平均（非相干叠加）。
+- 扩展（空间不相干）光源：SourceSpec{Type:"extended", Params:{width,height,samples_x,samples_y,power,profile,standoff}}。ExpandExtendedSources 在路由前把发光面采样成 samples_x×samples_y 个互不相干的点源（每个自成一个相干单元，强度相加），因此**任何**光路（缝、透镜、干涉仪）都能用同一个真实光源驱动。width/height 为 0 时该方向退化为轴上一样本，等价于单个球面波点源。上限 samples_x×samples_y ≤ 4096、总光源数 ≤ 8192；参数非法时忽略该光源并给 extended_source 警告。standoff 只是波前采样距离（结果与它无关，默认取到第一个元件距离的 0.95）。
+- 参数扫描：RunScan(cfg, ScanSpec{Param,Values,Metric,Plane}) 对同一配置逐个代入一个数值参数并重复仿真，返回逐点指标；每个取值是一次完整仿真（成本线性）。单个取值让配置非法时只在该点报错，扫描继续。Param 只接受有限集合的点分路径（sources[i].params.k、scene.components[i].{roll,yaw,pitch,pos.x/y/z,params.k,shape.params.k}、elements[i].params.k、wavelength），其余拒绝——拼错不会静默无效；grid.* 明确不可扫（采样而非物理）。
 - 各向异性/双折射介质：PropagateUniaxial(f, z, no, ne, ctx) 在光轴沿 x 的单轴晶体中传播；PropagateAnisotropic(f, z, eps [3][3]complex128, ctx) 用完整 Berreman 4×4 传播任意（双轴/复）介电张量。
 - 传播介质元件（已注册，GUI 可用）：uniaxial{n_o,n_e,distance}、medium{index,absorption,steps,distance}（split-step）、biaxial{n_x,n_y,n_z,distance}（Berreman）。矢量角谱法 method=vectorial 会填充 Plane.Ez，GUI 视图 6/7 显示 |Ez|²/相位。
 
@@ -218,6 +222,8 @@
 - sensor：记录输出平面（克隆场 + 指标）。参数 strehl_aperture/strehl_distance 启用 Strehl。参数 **`passthrough: true`（或 `monitor: true`）使其成为无损监视器**：记录该面后让光继续，于是一次运行可读多个端口（旧行为是探测器终结光路、一条路径只记第一个面）；不带该参数时仍吸收光并终结光路。
 
 限制常量（simulator.go）：MinGridSize=2、MaxGridSize=65536×4（=262144）、MaxElements=256、MaxPlanes=64、MaxArmDepth=8。
+
+扩展光源的单元与内存：一个 extended 光源会展开成 N= samples_x×samples_y 个相干单元，每个单元各跑一次完整光路，因此耗时与内存随 N 线性增长（实测参考：512² 网格、18 个点约 2 s/run）。平面按 maxRetainedParts=64 个单元保留分场（超出部分仍计入总强度，仅单源视图不再可查），并在 run 警告里说明。GUI 的左栏「参数扫描」面板与 CLI `oz scan` 共用 optics.RunScan，每个取值同样是一次完整仿真。
 
 ## 8. 并发与内存
 

@@ -213,6 +213,19 @@ var SourceDocs = []ElementDoc{
 			fp("x", "中心 x", "m", -0.05, 0.05, 1e-4, 0, ""),
 			fp("y", "中心 y", "m", -0.05, 0.05, 1e-4, 0, ""),
 		}},
+	{Type: "extended", Label: "扩展光源（不相干）", Help: "空间不相干的矩形发光面：按 samples_x × samples_y 采样成互不相干的点源，各自完整传播后强度相加（单个点源不会干涉）。width/height 为 0 表示该方向退化为轴上一样本，此时等价于单个球面波点源。",
+		Params: []ParamSpec{
+			fp("width", "发光面宽度", "m", 0, 0.2, 1e-3, 0, "沿 u 方向的全宽；0 = 该方向只有轴上一点"),
+			fp("height", "发光面高度", "m", 0, 0.2, 1e-3, 0, "沿 v 方向的全宽；0 = 该方向只有轴上一点"),
+			ip("samples_x", "u 方向采样数", "", 1, 64, 1, "点源数量 = samples_x × samples_y，每个点源是一次完整仿真"),
+			ip("samples_y", "v 方向采样数", "", 1, 64, 1, ""),
+			cp("profile", "亮度分布", []string{"uniform", "gaussian"}, "uniform", "uniform=均匀发光；gaussian=exp(-2r²/w²) 中心亮"),
+			fp("power", "总光功率", "W", 1e-9, 10, 1e-4, 1e-3, "全部点源功率之和"),
+			fp("standoff", "波面曲率半径", "m", 0, 10, 1e-3, 0, "每个点源球面波的曲率半径；0 = 平面波前"),
+			bp("converging", "会聚", false, "勾选后点源为会聚球面波（需 standoff > 0）"),
+			fp("x", "中心 x", "m", -0.05, 0.05, 1e-4, 0, ""),
+			fp("y", "中心 y", "m", -0.05, 0.05, 1e-4, 0, ""),
+		}},
 }
 
 // ElementDocs documents the built-in element types (catalog order = GUI menu
@@ -854,6 +867,27 @@ func sceneExamples(bl *BandlimitOpts) []Example {
 			Shape: CircleOutline(4e-3)},
 	}}
 
+	// ---- incoherent extended source, rotatable slit, screen -----------------
+	// The emitter is sampled into mutually incoherent point sources (the exact
+	// model for a spatially incoherent lamp): 6 x 3 points at 632.8 nm, a
+	// 0.4 mm slit 150 mm away, and a screen 300 mm behind the slit. The slit's
+	// Roll is the angle that turns the classic single-slit pattern sideways —
+	// sweep it with the 参数扫描 panel to see the far-field streak rotate.
+	es := base(512, 0.03, false)
+	es.Sources = []SourceSpec{{
+		ID: "src", Label: "扩展光源（不相干）", Type: "extended", Pos: pos(0, 0, -0.30), Dir: dir(0, 0, 1),
+		Params: map[string]any{
+			"width": 1e-2, "height": 1e-3, "samples_x": 6, "samples_y": 3,
+			"power": 1e-3, "profile": "uniform", "standoff": 0.14,
+		},
+	}}
+	es.Scene = &SceneSpec{Components: []ComponentSpec{
+		{ID: "slit", Type: "aperture", Label: "单缝（可旋转）", Pos: v3(0, 0, -0.15),
+			Shape: RectOutline(4e-4, 0.02)},
+		{ID: "det", Type: "sensor", Label: "屏", Pos: v3(0, 0, 0.15), Yaw: math.Pi,
+			Shape: CircleOutline(0.02)},
+	}}
+
 	return []Example{
 		{Name: "迈克尔逊干涉仪", Config: mi},
 		{Name: "马赫-曾德尔干涉仪", Config: mz},
@@ -870,6 +904,7 @@ func sceneExamples(bl *BandlimitOpts) []Example {
 		{Name: "双光源：相干条纹与双波长颜色", Config: ts},
 		{Name: "偏振与相位：线偏振→波片→焦面", Config: pol},
 		{Name: "偏振片与波片", Config: pw},
+		{Name: "扩展光源 + 旋转单缝（部分相干）", Config: es},
 		{Name: "直线光路：光阑+透镜聚焦", Config: line},
 	}
 }

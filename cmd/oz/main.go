@@ -49,6 +49,8 @@ func main() {
 		err = cmdGeo(os.Args[2:])
 	case "doe":
 		err = cmdDoe(os.Args[2:])
+	case "scan":
+		err = cmdScan(os.Args[2:])
 	case "coating":
 		err = cmdCoating(os.Args[2:])
 	case "serve":
@@ -107,6 +109,14 @@ func usage() {
       双反射鬼像路径表：面对 (I,J)、相对能量 R_I·R_J、近轴落点与杂散光斑。
   oz doe focus --focal-mm F --levels N [--lambda 632.8 --grid-size 1024 ...]   （G8）
       衍射光学元件一级效率 η 与解析 η_N 对比、焦点偏差。
+  oz scan --param <路径> --values <列表> [--metric power] <配置.json>
+      参数扫描：对配置里的一个参数逐点代入并重复仿真，输出该指标曲线。
+      --param  scene.components[0].roll（旋转角）| scene.components[0].params.f
+               | scene.components[0].shape.params.width | sources[0].params.tilt_x
+               | wavelength（只支持数值型字段）
+      --values 0,15,30,45（逗号列表）或 0-90-5（起-止-步长）
+      --metric power|peak|centroid_x|centroid_y|rms_x|rms_y|strehl|intensity_max
+      --plane  记录平面 id/label（默认第一个）；--json 导出完整报告
   oz serve [选项]
       启动唯一的 HTTP 服务：GUI 在 /，API 在 /api/。WOS 的全部参数与环境变量同样适用：
       -addr（默认 :1130；WOS 旧端口用 -addr :1120）  -max-run-mb 512  -elements 目录1,目录2

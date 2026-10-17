@@ -356,6 +356,7 @@ func TestGUIServedAtRoot(t *testing.T) {
 		"/app.js":                   "javascript",
 		"/oz.js":                    "javascript",
 		"/ai.js":                    "javascript",
+		"/scan.js":                  "javascript",
 		"/style.css":                "text/css",
 		"/favicon.svg":              "image/svg+xml",
 		"/fonts/rajdhani-700.woff2": "font/woff2",
@@ -488,7 +489,7 @@ func TestGUIScriptsParse(t *testing.T) {
 		}
 		node = found
 	}
-	for _, f := range []string{"app.js", "oz.js", "ai.js"} {
+	for _, f := range []string{"app.js", "oz.js", "ai.js", "scan.js"} {
 		out, err := exec.Command(node, "--check", filepath.Join("..", "..", "server", "web", f)).CombinedOutput()
 		if err != nil {
 			t.Errorf("node --check %s: %v\n%s", f, err, out)

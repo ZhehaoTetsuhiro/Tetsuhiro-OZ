@@ -14,6 +14,7 @@ type Issue struct {
 var knownSources = map[string]bool{
 	"plane": true, "gaussian": true, "laguerre_gaussian": true,
 	"hermite_gaussian": true, "bessel": true, "spherical": true,
+	"extended": true,
 }
 
 // validateScene checks a positioned scene: component types, outlines, and that
@@ -85,6 +86,11 @@ func validateScene(cfg *Config, add func(path, msg string)) error {
 		}
 		if d := s.Direction(); !finiteVec(d) {
 			add(path+".dir", "must be finite")
+		}
+		if s.Type == "extended" {
+			if _, err := parseExtendedSource(s.Params); err != nil {
+				add(path+".params", err.Error())
+			}
 		}
 	}
 	return nil
