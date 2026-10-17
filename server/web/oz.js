@@ -246,6 +246,9 @@
   let groupObj = null;                         // 当前透镜组（wire form）
   let groupLayout = null;                      // 最近一次 layout 响应（画布数据）
   let groupView = { yaw: -0.62, pitch: 0.45 }; // 画布视角（弧度）
+  let groupSel = 0;                            // 当前选中的元件下标
+
+  const GROUP_KINDS = [["lens", "lens 透镜"], ["mirror", "mirror 反射镜"], ["stop", "stop 光阑"]];
 
   function buildGroup() {
     const host = $("ozPanelGroup");
@@ -253,38 +256,56 @@
     const opts = GROUP_EXAMPLES.map(function (ex, i) {
       return '<option value="' + i + '">' + ex.label + "</option>";
     }).join("");
+    const kindOpts = GROUP_KINDS.map(function (k) {
+      return '<option value="' + k[0] + '">' + k[1] + "</option>";
+    }).join("");
     const det = document.createElement("details");
     det.className = "ozDetails";
     det.id = "ozGroup";
     det.open = true; // 默认子模式：展开着，没有多余的点击
-    // 左栏只放「要算什么」：示例、束参数、测量按钮。画布、元件表格与结果
-    // 文本都在右侧主区（#ozGroupView），与波动光学沿用同一套分栏习惯。
+    // 左栏是「波动光学」那套编辑方式：物（位置/大小）+ 元件列表 + 选中元件的
+    // 参数（位置/大小/形状），外加 / 复制 / 删除。画布与结果文本在右侧主区
+    // （#ozGroupView），一次只显示一个元件的字段，而不是把所有元件摊在左栏。
     det.innerHTML =
       '<summary>透镜组（3D，含镜）</summary>' +
-      '<div class="ozGrid">' +
-      '<label class="ozField"><span>示例组</span><select id="ozGroupExample">' + opts + "</select></label>" +
-      '<label class="ozField"><span>视场角（°）</span>' +
-      '<input type="number" id="ozGroupFieldDeg" value="0" step="0.1" inputmode="decimal"></label>' +
-      '<label class="ozField"><span>波长（nm）</span>' +
-      '<input type="number" id="ozGroupLambda" value="587.5618" step="1" inputmode="decimal"></label>' +
-      '<label class="ozField"><span>光瞳半径（mm，0 = 自动）</span>' +
-      '<input type="number" id="ozGroupPupil" value="0" min="0" step="1" inputmode="decimal"></label>' +
+      '<div class="subhead">物（位置 · 大小）</div>' +
+      '<div class="prow"><label for="ozObjMode" title="无穷远＝平行光入射（用视场角）；有限距离＝物在 z 处（用物高）">物在</label>' +
+      '<select id="ozObjMode"><option value="inf">无穷远</option><option value="near">有限距离</option></select></div>' +
+      '<div class="prow" id="ozObjDistRow" hidden><label for="ozObjDist">物距（mm）</label>' +
+      '<input type="number" id="ozObjDist" value="500" min="0.001" step="10" inputmode="decimal"></div>' +
+      '<div class="prow" id="ozObjDegRow"><label for="ozObjFieldDeg">视场角（°）</label>' +
+      '<input type="number" id="ozObjFieldDeg" value="0" step="0.1" inputmode="decimal"></div>' +
+      '<div class="prow" id="ozObjHRow" hidden><label for="ozObjH" title="有限距离物的物高（mm，子午 y 方向）">物高（mm）</label>' +
+      '<input type="number" id="ozObjH" value="0" step="0.1" inputmode="decimal"></div>' +
+      '<div class="prow"><label for="ozGroupLambda">波长（nm）</label>' +
+      '<input type="number" id="ozGroupLambda" value="587.5618" step="1" inputmode="decimal"></div>' +
+      '<div class="prow"><label for="ozGroupPupil" title="采样光瞳半径；0 = 用光阑半口径">光瞳半径（mm）</label>' +
+      '<input type="number" id="ozGroupPupil" value="0" min="0" step="1" inputmode="decimal"></div>' +
+      '<div class="subhead">元件（<span id="ozGroupCount">0</span>）</div>' +
+      '<div id="ozGroupList" role="listbox" aria-label="元件列表" tabindex="0"></div>' +
+      '<div class="prow"><label for="ozGroupAddKind">新增</label><select id="ozGroupAddKind">' + kindOpts + "</select></div>" +
+      '<div class="row">' +
+      '<button id="ozGroupAddBtn" type="button">+ 元件</button>' +
+      '<button id="ozGroupDupBtn" type="button">复制</button>' +
+      '<button id="ozGroupDelBtn" type="button">删除</button>' +
       "</div>" +
+      '<div id="ozGroupEditor" aria-label="选中元件参数"></div>' +
+      '<div class="ozActions"><button id="ozGroupApplyBtn" type="button" disabled>应用编辑</button></div>' +
+      '<div class="prow"><label for="ozGroupExample">示例组</label><select id="ozGroupExample">' + opts + "</select></div>" +
       '<div class="ozActions">' +
-      '<button id="ozGroupLoadBtn" type="button">载入示例</button>' +
+      '<button id="ozGroupLoadBtn" type="button" class="secondary">载入示例</button>' +
       '<button id="ozGroupLayoutBtn" type="button" class="secondary" disabled>布局</button>' +
       '<button id="ozGroupImageBtn" type="button" class="secondary" disabled>成像位置</button>' +
       '<button id="ozGroupAfocalBtn" type="button" class="secondary" disabled>角放大率</button>' +
       '<button id="ozGroupDispBtn" type="button" class="secondary" disabled>色散</button>' +
       '<button id="ozGroupPrescBtn" type="button" class="secondary" disabled>转处方</button>' +
       "</div>" +
-      '<p class="hint">画布、元件表格与测量结果在右侧：拖拽画布旋转视角，表格里改完点「应用编辑」。</p>';
+      '<p class="hint">选元件（↑/↓ 也行）→ 改下面的位置/大小/形状 → 「应用编辑」，服务端逐项校验并原样回显错误；+ 元件 / 复制 / 删除 改的是光路本身，校验失败会退回。</p>';
     host.appendChild(det);
   }
 
-  // buildGroupView 在右侧主区搭出画布、视角按钮、元件表格与结果文本
-  // （index.html 只留 #ozGroupView 这个空容器）。工具栏里的「应用编辑」
-  // 紧挨着它要写入的表格，测量按钮留在左栏。
+  // buildGroupView 在右侧主区搭出画布与结果文本（index.html 只留 #ozGroupView
+  // 这个空容器）。元件编辑在左栏，这里不再有表格。
   function buildGroupView() {
     const host = $("ozGroupView");
     if (!host || $("ozGroupPlot")) return;
@@ -294,12 +315,10 @@
       '<button id="ozGroupXZBtn" type="button" class="secondary miniBtn">XZ 面</button>' +
       '<button id="ozGroupXYBtn" type="button" class="secondary miniBtn">XY 面</button>' +
       '<span class="ozHint" id="ozGroupViewHint">拖拽画布旋转视角</span>' +
-      '<button id="ozGroupApplyBtn" type="button" class="miniBtn" disabled>应用编辑</button>' +
       "</div>" +
       '<div id="ozGroupCanvasWrap">' +
       '<canvas id="ozGroupPlot" aria-label="透镜组 3D 布局（拖拽旋转）"></canvas>' +
       "</div>" +
-      '<div id="ozGroupTable"></div>' +
       '<pre class="ozOut" id="ozGroupOut" aria-live="polite">点「载入示例」开始。</pre>';
   }
 
@@ -311,43 +330,44 @@
     }
   }
 
-  // gNum / gText / gSel build one labelled control of the element table.
-  function gLabel(parent, label) {
+  /* --- 选中元件的参数面板：一行一个 .prow（与波动光学的参数面板同款） --- */
+  function pRow(parent, label, title) {
+    const row = document.createElement("div");
+    row.className = "prow";
     const l = document.createElement("label");
-    l.className = "ozField";
-    const s = document.createElement("span");
-    s.textContent = label;
-    l.appendChild(s);
-    parent.appendChild(l);
-    return l;
+    l.textContent = label;
+    if (title) l.title = title;
+    row.appendChild(l);
+    parent.appendChild(row);
+    return row;
   }
 
-  function gNum(parent, label, id, value, step) {
-    const l = gLabel(parent, label);
+  function pNum(parent, label, id, value, step, title) {
+    const row = pRow(parent, label, title);
     const i = document.createElement("input");
     i.type = "number";
     i.id = id;
     i.step = String(step);
     i.inputMode = "decimal";
     i.value = (value === undefined || value === null) ? "" : String(value);
-    l.appendChild(i);
+    row.appendChild(i);
     return i;
   }
 
-  function gText(parent, label, id, value) {
-    const l = gLabel(parent, label);
+  function pText(parent, label, id, value, title) {
+    const row = pRow(parent, label, title);
     const i = document.createElement("input");
     i.type = "text";
     i.id = id;
     i.spellcheck = false;
     i.autocapitalize = "off";
     i.value = value === undefined || value === null ? "" : String(value);
-    l.appendChild(i);
+    row.appendChild(i);
     return i;
   }
 
-  function gSel(parent, label, id, options, value) {
-    const l = gLabel(parent, label);
+  function pSel(parent, label, id, options, value, title) {
+    const row = pRow(parent, label, title);
     const sel = document.createElement("select");
     sel.id = id;
     for (const o of options) {
@@ -357,51 +377,133 @@
       sel.appendChild(op);
     }
     sel.value = value;
-    l.appendChild(sel);
+    row.appendChild(sel);
     return sel;
   }
 
-  // rebuildGroupTable draws one block per element (kind, surfaces, media,
-  // thickness, gap, pose, fold). Values are the current wire form of groupObj.
-  function rebuildGroupTable() {
-    const host = $("ozGroupTable");
-    if (!host) return;
-    host.textContent = "";
-    if (!groupObj || !groupObj.elements) return;
+  function pSubhead(parent, text) {
+    const h = document.createElement("div");
+    h.className = "subhead";
+    h.textContent = text;
+    parent.appendChild(h);
+  }
+
+  // kindDot 给元件列表的小圆点上色：透镜蓝、反射镜橙、光阑灰（与波动的 .sc 一致）。
+  function kindDot(kind) {
+    if (kind === "mirror") return "#e8590c";
+    if (kind === "stop") return "#868e96";
+    return "#1976d2";
+  }
+
+  // elementTitle 是列表行上的一句话摘要：类型 + 关键尺寸 + 口径。
+  function elementTitle(e) {
+    const bits = [e.kind];
+    if (e.front && e.front.radius_mm) bits.push("R=" + fx(e.front.radius_mm));
+    if (e.rear) bits.push("R2=" + fx(e.rear.radius_mm));
+    if (e.glass) bits.push(e.glass);
+    return bits.join(" · ");
+  }
+
+  function renderGroupList() {
+    const list = $("ozGroupList");
+    if (!list) return;
+    list.textContent = "";
+    const n = groupObj && groupObj.elements ? groupObj.elements.length : 0;
+    const count = $("ozGroupCount");
+    if (count) count.textContent = String(n);
+    if (!groupObj) return;
     groupObj.elements.forEach(function (e, i) {
-      const box = document.createElement("div");
-      box.className = "ozGroupEl";
-      const h = document.createElement("h4");
-      const semi = e.front && e.front.semi_aperture_mm ? " · 口径 " + e.front.semi_aperture_mm + " mm" : "";
-      h.textContent = "[" + i + "] " + (e.name ? e.name + " · " : "") + e.kind + semi;
-      box.appendChild(h);
-      const grid = document.createElement("div");
-      grid.className = "ozGrid";
-      gSel(grid, "类型", "ozGroupK" + i,
-        [["lens", "lens 透镜"], ["mirror", "mirror 反射镜"], ["stop", "stop 光阑"]], e.kind);
-      gNum(grid, "前表面 R（mm，0=平面）", "ozGroupR1" + i, e.front.radius_mm, 1);
-      gNum(grid, "前表面 K（圆锥）", "ozGroupK1" + i, e.front.conic_k, 0.1);
-      gNum(grid, "前表面半口径（mm）", "ozGroupS1" + i, e.front.semi_aperture_mm, 0.5);
-      gNum(grid, "后表面 R（mm，空=无后表面）", "ozGroupR2" + i, e.rear ? e.rear.radius_mm : null, 1);
-      gNum(grid, "后表面 K", "ozGroupK2" + i, e.rear ? e.rear.conic_k : null, 0.1);
-      gText(grid, "玻璃（元件内）", "ozGroupGlass" + i, e.glass);
-      gText(grid, "间隔介质 gap_glass", "ozGroupGapGlass" + i, e.gap_glass);
-      gNum(grid, "中心厚度 thk（mm）", "ozGroupThk" + i, e.thickness_mm, 0.1);
-      gNum(grid, "到下一元件 gap（mm，可负）", "ozGroupGap" + i, e.gap_mm, 1);
-      gNum(grid, "偏心 dx（mm）", "ozGroupDx" + i, e.decenter_x_mm, 0.1);
-      gNum(grid, "偏心 dy（mm）", "ozGroupDy" + i, e.decenter_y_mm, 0.1);
-      gNum(grid, "倾斜 tx（°）", "ozGroupTx" + i, e.tilt_x_deg, 1);
-      gNum(grid, "倾斜 ty（°）", "ozGroupTy" + i, e.tilt_y_deg, 1);
-      gNum(grid, "倾斜 tz（°）", "ozGroupTz" + i, e.tilt_z_deg, 1);
-      gSel(grid, "折转 fold", "ozGroupFold" + i,
-        [["auto", "auto（倾斜镜折转链）"], ["off", "off（不折转）"]],
-        (e.fold === 1 || e.fold === "off") ? "off" : "auto");
-      box.appendChild(grid);
-      host.appendChild(box);
+      const b = document.createElement("button");
+      b.type = "button";
+      b.className = "sc" + (i === groupSel ? " sel" : "");
+      b.dataset.i = String(i);
+      b.setAttribute("role", "option");
+      b.setAttribute("aria-selected", i === groupSel ? "true" : "false");
+      const dot = document.createElement("span");
+      dot.className = "dot";
+      dot.style.background = kindDot(e.kind);
+      b.appendChild(dot);
+      const name = document.createElement("span");
+      name.textContent = "[" + i + "] " + elementTitle(e);
+      b.appendChild(name);
+      const tag = document.createElement("span");
+      tag.className = "tag";
+      tag.textContent = e.front && e.front.semi_aperture_mm ? "口径 " + e.front.semi_aperture_mm : "";
+      b.appendChild(tag);
+      b.addEventListener("click", function () { selectGroupEl(i); });
+      list.appendChild(b);
     });
   }
 
-  // numOrNull reads a table input; "" (untouched) means "keep the server value".
+  // renderGroupEditor rebuilds the parameter panel of the selected element:
+  // 位置（gap、偏心、倾斜）→ 大小（半口径）→ 形状（R、K、后表面、玻璃、间隔介质、折转）。
+  function renderGroupEditor() {
+    const host = $("ozGroupEditor");
+    if (!host) return;
+    host.textContent = "";
+    if (!groupObj || !groupObj.elements || !groupObj.elements.length) {
+      const p = document.createElement("p");
+      p.className = "hint";
+      p.textContent = "没有元件：用「+ 元件」加一个。";
+      host.appendChild(p);
+      return;
+    }
+    if (groupSel >= groupObj.elements.length) groupSel = groupObj.elements.length - 1;
+    const e = groupObj.elements[groupSel];
+    const box = document.createElement("div");
+    box.className = "ozGroupEdit";
+    host.appendChild(box);
+    pStyleSubhead(box, "选中元件 [" + groupSel + "]");
+    pSel(box, "类型", "ozGEKind", GROUP_KINDS, e.kind, "lens 有前后两面与玻璃；mirror/stop 只有前表面");
+
+    pStyleSubhead(box, "位置");
+    pNum(box, "gap（mm）", "ozGEGap", e.gap_mm, 1, "到下一元件的轴向距离，可负（轴向折返）");
+    pNum(box, "偏心 dx（mm）", "ozGEDx", e.decenter_x_mm, 0.1);
+    pNum(box, "偏心 dy（mm）", "ozGEDy", e.decenter_y_mm, 0.1);
+    pNum(box, "倾斜 tx（°）", "ozGETx", e.tilt_x_deg, 0.5);
+    pNum(box, "倾斜 ty（°）", "ozGETy", e.tilt_y_deg, 0.5);
+    pNum(box, "倾斜 tz（°）", "ozGETz", e.tilt_z_deg, 0.5);
+
+    pStyleSubhead(box, "大小");
+    pNum(box, "半口径（mm）", "ozGESemi",
+      e.front ? e.front.semi_aperture_mm : null, 0.5, "前表面通光半口径");
+    if (e.rear) {
+      pNum(box, "后半口径（mm）", "ozGESemi2", e.rear.semi_aperture_mm, 0.5);
+    }
+
+    pStyleSubhead(box, "形状");
+    pNum(box, "前表面 R（mm）", "ozGER1", e.front ? e.front.radius_mm : null, 1, "0 = 平面");
+    pNum(box, "前表面 K", "ozGEK1", e.front ? e.front.conic_k : null, 0.1, "圆锥常数，0 = 球面");
+    if (e.kind === "lens") {
+      pNum(box, "后表面 R（mm）", "ozGER2", e.rear ? e.rear.radius_mm : null, 1);
+      pNum(box, "后表面 K", "ozGEK2", e.rear ? e.rear.conic_k : null, 0.1);
+      pNum(box, "中心厚度（mm）", "ozGEThk", e.thickness_mm, 0.1);
+      pText(box, "玻璃", "ozGEGlass", e.glass, "如 N-BK7 / F2 / Air");
+    }
+    if (e.kind !== "stop") {
+      pText(box, "间隔介质", "ozGEGapGlass", e.gap_glass, "到下一元件的介质，空 = 空气；胶合面写后一片的玻璃");
+    }
+    pSel(box, "折转 fold", "ozGEFold",
+      [["auto", "auto（倾斜镜折转链）"], ["off", "off（不折转）"]],
+      (e.fold === 1 || e.fold === "off") ? "off" : "auto",
+      "auto：倾斜的反射镜把链轴转到反射光束");
+  }
+
+  // pStyleSubhead 是编辑器内部的小标题（比 .subhead 轻一点）。
+  function pStyleSubhead(parent, text) {
+    const h = document.createElement("h4");
+    h.textContent = text;
+    parent.appendChild(h);
+  }
+
+  function selectGroupEl(i) {
+    if (!groupObj || !groupObj.elements) return;
+    groupSel = Math.max(0, Math.min(i, groupObj.elements.length - 1));
+    renderGroupList();
+    renderGroupEditor();
+  }
+
+  // numOrNull reads a number input; "" (untouched) means "keep the server value".
   function numOrNull(id) {
     const el = $(id);
     if (!el) return null;
@@ -411,55 +513,53 @@
     return isNaN(v) ? null : v;
   }
 
-  // collectGroup applies the table to a copy of groupObj: kind / glass /
-  // gap_glass / fold (and a rear surface typed into an empty R2 field) go into
-  // the JSON itself, the numeric fields become the sets of /api/lens/group/set.
-  function collectGroup() {
+  // collectSelected applies the editor of the selected element to a copy of
+  // groupObj: kind / glass / gap_glass / fold (and a rear surface invented when
+  // a lens has none) go into the JSON itself, the numbers become the sets of
+  // /api/lens/group/set. Only the selected element is sent.
+  function collectSelected() {
+    const i = groupSel;
     const g = JSON.parse(JSON.stringify(groupObj));
+    const e = g.elements[i];
     const sets = [];
     const push = function (param, value) {
       if (value !== null && value !== undefined) sets.push({ param: param, value: value });
     };
-    g.elements.forEach(function (e, i) {
-      const kind = $("ozGroupK" + i).value;
-      e.kind = kind;
-      const r2 = numOrNull("ozGroupR2" + i);
-      if (kind === "lens" && !e.rear && r2 !== null) {
-        // A rear radius typed on a one-surface element turns it into a lens.
-        e.rear = { radius_mm: r2 };
+    const kind = $("ozGEKind").value;
+    e.kind = kind;
+    if (kind === "lens") {
+      if (!e.rear) {
+        const r2 = numOrNull("ozGER2");
+        e.rear = { radius_mm: r2 === null ? 0 : r2 };
         if (e.front && e.front.semi_aperture_mm) e.rear.semi_aperture_mm = e.front.semi_aperture_mm;
       }
-      if (kind === "lens") {
-        const glass = $("ozGroupGlass" + i).value.trim();
-        if (e.rear && glass) e.glass = glass;
-        else delete e.glass;
-      } else {
-        delete e.glass;
-        delete e.rear;
-        e.thickness_mm = 0;
-      }
-      const gapGlass = $("ozGroupGapGlass" + i).value.trim();
-      if (kind !== "stop" && gapGlass) e.gap_glass = gapGlass;
-      else delete e.gap_glass;
-      e.fold = ($("ozGroupFold" + i).value === "off") ? 1 : 0;
-      if (e.fold === 0) delete e.fold;
-      push("e" + i + ".front.R", numOrNull("ozGroupR1" + i));
-      push("e" + i + ".front.K", numOrNull("ozGroupK1" + i));
-      push("e" + i + ".front.semi", numOrNull("ozGroupS1" + i));
-      if (e.rear) {
-        push("e" + i + ".rear.R", r2);
-        push("e" + i + ".rear.K", numOrNull("ozGroupK2" + i));
-      }
-      // A thickness on a one-surface element is a rejected edit and the
-      // server's message says so; an empty field stays "keep the value".
-      push("e" + i + ".thk", numOrNull("ozGroupThk" + i));
-      push("e" + i + ".gap", numOrNull("ozGroupGap" + i));
-      push("e" + i + ".dx", numOrNull("ozGroupDx" + i));
-      push("e" + i + ".dy", numOrNull("ozGroupDy" + i));
-      push("e" + i + ".tx", numOrNull("ozGroupTx" + i));
-      push("e" + i + ".ty", numOrNull("ozGroupTy" + i));
-      push("e" + i + ".tz", numOrNull("ozGroupTz" + i));
-    });
+      const glass = $("ozGEGlass").value.trim();
+      if (glass) e.glass = glass; else delete e.glass;
+    } else {
+      delete e.glass;
+      delete e.rear;
+      e.thickness_mm = 0;
+    }
+    const gapGlass = $("ozGEGapGlass") ? $("ozGEGapGlass").value.trim() : "";
+    if (kind !== "stop" && gapGlass) e.gap_glass = gapGlass; else delete e.gap_glass;
+    e.fold = ($("ozGEFold").value === "off") ? 1 : 0;
+    if (e.fold === 0) delete e.fold;
+
+    push("e" + i + ".front.R", numOrNull("ozGER1"));
+    push("e" + i + ".front.K", numOrNull("ozGEK1"));
+    push("e" + i + ".front.semi", numOrNull("ozGESemi"));
+    if (e.rear) {
+      push("e" + i + ".rear.R", numOrNull("ozGER2"));
+      push("e" + i + ".rear.K", numOrNull("ozGEK2"));
+      push("e" + i + ".rear.semi", numOrNull("ozGESemi2"));
+    }
+    if (kind === "lens") push("e" + i + ".thk", numOrNull("ozGEThk"));
+    push("e" + i + ".gap", numOrNull("ozGEGap"));
+    push("e" + i + ".dx", numOrNull("ozGEDx"));
+    push("e" + i + ".dy", numOrNull("ozGEDy"));
+    push("e" + i + ".tx", numOrNull("ozGETx"));
+    push("e" + i + ".ty", numOrNull("ozGETy"));
+    push("e" + i + ".tz", numOrNull("ozGETz"));
     return { group: g, sets: sets };
   }
 
@@ -471,19 +571,61 @@
     return "(" + fx(p.x) + ", " + fx(p.y) + ", " + fx(p.z) + ")";
   }
 
+  // objectIsFinite reports whether the group images a finite object (its
+  // object_z_mm is a number, not "inf").
+  function objectIsFinite() {
+    return !!groupObj && typeof groupObj.object_z_mm === "number" && isFinite(groupObj.object_z_mm);
+  }
+
   // groupBody is the shared body of the group measurements: the group itself
-  // plus the bundle parameters of the panel.
+  // plus the bundle parameters of the panel. An object at infinity carries a
+  // field angle (field_deg); a finite object carries its height in mm
+  // (field_tan) — the API rejects field_deg for a finite object on purpose.
   function groupBody(extra) {
     const body = {
       group: groupObj,
-      field_deg: num("ozGroupFieldDeg"),
       lambda_nm: num("ozGroupLambda"),
       pupil_radius_mm: num("ozGroupPupil"),
     };
+    if (objectIsFinite()) {
+      body.field_tan = num("ozObjH");
+    } else {
+      body.field_deg = num("ozObjFieldDeg");
+    }
     for (const k in extra) {
       body[k] = extra[k];
     }
     return body;
+  }
+
+  // renderObjectBlock writes the 物 panel from groupObj (∞ / 有限距离) and
+  // toggles which size field applies: 视场角 (°) for an object at infinity,
+  // 物高 (mm) for a finite one.
+  function renderObjectBlock() {
+    const mode = $("ozObjMode");
+    if (!mode) return;
+    const finite = objectIsFinite();
+    mode.value = finite ? "near" : "inf";
+    const dist = $("ozObjDist");
+    if (finite && dist) dist.value = String(Math.abs(groupObj.object_z_mm));
+    $("ozObjDistRow").hidden = !finite;
+    $("ozObjHRow").hidden = !finite;
+    $("ozObjDegRow").hidden = finite;
+  }
+
+  // applyObjectMode pushes the 物 panel into groupObj: "inf" keeps the design
+  // object at infinity, "near" stores the object plane as a negative z (in
+  // front of the first surface, the convention of lens.Group).
+  function applyObjectMode() {
+    if (!groupObj) return;
+    const mode = $("ozObjMode").value;
+    if (mode === "near") {
+      const d = Math.abs(num("ozObjDist")) || 500;
+      groupObj.object_z_mm = -d;
+    } else {
+      groupObj.object_z_mm = "inf";
+    }
+    renderObjectBlock();
   }
 
   async function groupLoad() {
@@ -491,7 +633,10 @@
     const ex = GROUP_EXAMPLES[isNaN(idx) ? 0 : idx];
     groupObj = JSON.parse(JSON.stringify(ex.group));
     groupLayout = null;
-    rebuildGroupTable();
+    groupSel = 0;
+    renderObjectBlock();
+    renderGroupList();
+    renderGroupEditor();
     setGroupButtons(true);
     setGroupStatus(ex.label + " · " + groupObj.elements.length + " 元件");
     show("ozGroupOut", "已载入「" + ex.label + "」：" + groupObj.elements.length + " 个元件。", false);
@@ -500,12 +645,97 @@
 
   async function groupApply() {
     if (!groupObj) { show("ozGroupOut", "先「载入示例」。", true); return; }
-    const packed = collectGroup();
+    const packed = collectSelected();
     const d = await api("/api/lens/group/set", packed);
     groupObj = d.group;
     groupLayout = null;
-    rebuildGroupTable();
-    show("ozGroupOut", "已应用 " + d.applied + " 项编辑（数值参数由服务端校验）。\n" + groupSummary(), false);
+    renderGroupList();
+    renderGroupEditor();
+    await groupLayoutCall();
+    show("ozGroupOut", "已应用 " + d.applied + " 项编辑（第 " + groupSel + " 个元件）。\n" + groupSummary(), false);
+  }
+
+  // fixStop points groupObj.stop at the first stop element (or drops the field
+  // when the group has none, which the server then judges).
+  function fixStop() {
+    let idx = -1;
+    groupObj.elements.forEach(function (e, i) {
+      if (e.kind === "stop" && idx < 0) idx = i;
+    });
+    if (idx < 0) delete groupObj.stop;
+    else groupObj.stop = idx;
+  }
+
+  // structural runs a structural edit of the optical path (insert / duplicate /
+  // delete). The group is client-held, so the edit is applied locally and then
+  // validated by one layout call; if the server rejects it the previous group
+  // comes back untouched and the error text is shown as usual.
+  async function structural(label, mutate) {
+    if (!groupObj) { show("ozGroupOut", "先「载入示例」。", true); return; }
+    const prev = JSON.parse(JSON.stringify(groupObj));
+    const prevSel = groupSel;
+    mutate();
+    fixStop();
+    if (!groupObj.elements.length) {
+      groupObj = prev;
+      groupSel = prevSel;
+      show("ozGroupOut", "至少要保留一个元件。", true);
+      return;
+    }
+    groupSel = Math.max(0, Math.min(groupSel, groupObj.elements.length - 1));
+    renderGroupList();
+    renderGroupEditor();
+    try {
+      await groupLayoutCall();
+    } catch (err) {
+      groupObj = prev;
+      groupSel = prevSel;
+      renderGroupList();
+      renderGroupEditor();
+      throw new Error(label + "失败：" + err.message);
+    }
+  }
+
+  // newElement is the default element of each kind: a plano-convex-ish lens,
+  // a concave mirror or a flat stop, each with a sane gap.
+  function newElement(kind) {
+    if (kind === "stop") {
+      return { kind: "stop", front: { radius_mm: 0, semi_aperture_mm: 10 }, thickness_mm: 0, gap_mm: 20 };
+    }
+    if (kind === "mirror") {
+      return { kind: "mirror", front: { radius_mm: -400, semi_aperture_mm: 10 }, thickness_mm: 0, gap_mm: 40 };
+    }
+    return {
+      kind: "lens",
+      front: { radius_mm: 100, semi_aperture_mm: 10 },
+      rear: { radius_mm: -100, semi_aperture_mm: 10 },
+      glass: "N-BK7",
+      thickness_mm: 4,
+      gap_mm: 20,
+    };
+  }
+
+  function groupInsert() {
+    const kind = $("ozGroupAddKind").value;
+    return structural("新增元件", function () {
+      groupObj.elements.splice(groupSel + 1, 0, newElement(kind));
+      groupSel = groupSel + 1;
+    });
+  }
+
+  function groupDup() {
+    return structural("复制元件", function () {
+      const src = JSON.parse(JSON.stringify(groupObj.elements[groupSel]));
+      if (src.name) src.name = src.name + " copy";
+      groupObj.elements.splice(groupSel + 1, 0, src);
+      groupSel = groupSel + 1;
+    });
+  }
+
+  function groupDel() {
+    return structural("删除元件", function () {
+      groupObj.elements.splice(groupSel, 1);
+    });
   }
 
   function groupSummary() {
@@ -612,6 +842,15 @@
     const pts = [];
     for (const s of groupLayout.surfaces) pts.push(s.vertex);
     pts.push(groupLayout.exit_vertex);
+    // 有限距离的物：按真实物高在物面上画一支箭头（位置 = object_z_mm，
+    // 长度 = 物高 mm）。∞ 物没有可画的长度，只在状态栏标视场角。
+    const objPts = [];
+    if (objectIsFinite()) {
+      const z0 = groupObj.object_z_mm;
+      const h0 = num("ozObjH");
+      objPts.push({ x: 0, y: 0, z: z0 }, { x: 0, y: h0, z: z0 });
+      pts.push(objPts[0], objPts[1]);
+    }
     // 世界包围盒（决定轴线/法向的线段长度）
     let wlo = { x: Infinity, y: Infinity, z: Infinity };
     let whi = { x: -Infinity, y: -Infinity, z: -Infinity };
@@ -689,11 +928,38 @@
       c.textAlign = "center";
       c.fillText(t[1], q.x, q.y - 2);
     }
+    // 5) 物（有限距离时按真实物高画箭头；物高 0 就是一个物点）
+    if (objPts.length) {
+      const a = map(objPts[0]), b = map(objPts[1]);
+      c.strokeStyle = "#c92a2a";
+      c.lineWidth = 2;
+      c.beginPath(); c.moveTo(a.x, a.y); c.lineTo(b.x, b.y); c.stroke();
+      // 箭头尖（物高非 0 时）
+      if (Math.hypot(b.x - a.x, b.y - a.y) > 6) {
+        const ang = Math.atan2(b.y - a.y, b.x - a.x);
+        const L = 8;
+        c.beginPath();
+        c.moveTo(b.x, b.y);
+        c.lineTo(b.x - L * Math.cos(ang - 0.4), b.y - L * Math.sin(ang - 0.4));
+        c.moveTo(b.x, b.y);
+        c.lineTo(b.x - L * Math.cos(ang + 0.4), b.y - L * Math.sin(ang + 0.4));
+        c.stroke();
+      }
+      c.fillStyle = "#c92a2a";
+      c.beginPath(); c.arc(a.x, a.y, 3, 0, 2 * Math.PI); c.fill();
+      c.textAlign = "left";
+      c.fillText("物", a.x + 6, a.y + 4);
+    }
     c.fillStyle = "#5a7d9e";
     c.textAlign = "right";
     const viewLabel = viewName();
     c.fillText(viewLabel, w - 6, 14);
-    if (hint) hint.textContent = viewLabel + " · 拖拽画布旋转";
+    if (hint) {
+      hint.textContent = viewLabel + " · 拖拽画布旋转 · " +
+        (objectIsFinite()
+          ? "物 " + fx(Math.abs(groupObj.object_z_mm)) + " mm，物高 " + fx(num("ozObjH")) + " mm"
+          : "物 ∞，视场角 " + fx(num("ozObjFieldDeg")) + "°");
+    }
   }
 
   function viewName() {
@@ -945,6 +1211,9 @@
     guard("ozAdvSensBtn", "ozAdvOut", sensitivity);
     guard("ozGroupLoadBtn", "ozGroupOut", groupLoad);
     guard("ozGroupApplyBtn", "ozGroupOut", groupApply);
+    guard("ozGroupAddBtn", "ozGroupOut", groupInsert);
+    guard("ozGroupDupBtn", "ozGroupOut", groupDup);
+    guard("ozGroupDelBtn", "ozGroupOut", groupDel);
     guard("ozGroupLayoutBtn", "ozGroupOut", groupLayoutCall);
     guard("ozGroupImageBtn", "ozGroupOut", groupImageCall);
     guard("ozGroupAfocalBtn", "ozGroupOut", groupAfocalCall);
@@ -966,6 +1235,20 @@
     const sel = $("ozModeSel");
     if (sel) sel.addEventListener("change", function () { setSubmode(sel.value); });
     loadSubmode();
+    // 物：∞ ↔ 有限距离的切换只改 group 的 object_z_mm，测量时按物距选
+    // field_deg（∞）或 field_tan=物高（有限）。改完补一次画布重绘，让物
+    // 箭头的位置/长度跟着变。
+    $("ozObjMode").addEventListener("change", function () { applyObjectMode(); drawGroupPlot(); });
+    $("ozObjDist").addEventListener("change", function () {
+      if (objectIsFinite()) { applyObjectMode(); drawGroupPlot(); }
+    });
+    $("ozObjH").addEventListener("change", function () { drawGroupPlot(); });
+    $("ozObjFieldDeg").addEventListener("change", function () { drawGroupPlot(); });
+    // 元件列表的 ↑/↓（与波动光学的元件列表同习惯）。
+    $("ozGroupList").addEventListener("keydown", function (ev) {
+      if (ev.key === "ArrowDown") { ev.preventDefault(); selectGroupEl(groupSel + 1); }
+      else if (ev.key === "ArrowUp") { ev.preventDefault(); selectGroupEl(groupSel - 1); }
+    });
     window.addEventListener("resize", drawPlot);
     window.addEventListener("orientationchange", drawPlot);
     window.addEventListener("resize", drawGroupPlot);

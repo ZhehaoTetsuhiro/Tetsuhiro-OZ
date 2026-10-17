@@ -28,7 +28,7 @@
 
 | 选项 | 左栏面板 | 右栏卡片 | 内容 |
 |---|---|---|---|
-| 透镜组（3D，含镜） | `#ozPanelGroup` | `#ozCardGroup` | 元件级透镜组：示例组、视场角/波长/光瞳、七个测量按钮、3D 布局画布与元件表格（§2.1） |
+| 透镜组（3D，含镜） | `#ozPanelGroup` | `#ozCardGroup` | 物（位置/大小）+ 元件列表与增删复制 + 选中元件的参数（位置/大小/形状）+ 测量按钮；右侧 3D 布局画布与结果（§2.1） |
 | 消色差设计（双胶合） | `#ozPanelAchromat` | `#ozCardAchromat` | EFL/半口径/视场角/冕玻璃/火石玻璃 + 设计、评估、处方 JSON |
 | 公差分析（Monte-Carlo） | `#ozPanelTol` | `#ozCardTol` | 半径/厚度/Δn/运行次数 + 良率与分布统计 |
 | 膜系设计（光谱） | `#ozPanelCoat` | `#ozCardCoat` | 模板与波段参数 + 设计膜系、设计并画光谱、R(λ) 画布 |
@@ -50,19 +50,27 @@
 
 ### 2.1 透镜组（3D，含镜）
 
-元件级透镜组（`lens.Group`：透镜/反射镜/光阑、前后表面面型与圆锥/非球面参数、玻璃与间隔介质、中心厚度、可负的 gap、偏心与倾斜、fold 折转）的交互面板，与 `docs/API.md` §4 的 `/api/lens/group/*` 一一对应。它是几何光学的**默认子模式**，版面按波动光学的分栏习惯排：
+元件级透镜组（`lens.Group`：透镜/反射镜/光阑、前后表面面型与圆锥/非球面参数、玻璃与间隔介质、中心厚度、可负的 gap、偏心与倾斜、fold 折转）的交互面板，与 `docs/API.md` §4 的 `/api/lens/group/*` 一一对应。它是几何光学的**默认子模式**，编辑方式与波动光学的「光路场景」一致：
 
-- **左栏（`#ozPanelGroup`，`oz.js` 构建）只放「要算什么」**：示例组下拉、视场角/波长/光瞳半径、载入示例与五个测量按钮（布局/成像位置/角放大率/色散/转处方）。不塞画布，也不塞元件表格。
-- **右侧主区（`#ozCardGroup` 里的 `#ozGroupView`）放「算出了什么」**：工具栏（等轴测 / XZ 面 / XY 面 / 应用编辑）、大画布 `#ozGroupCanvasWrap`（`flex: 3`，跟随窗口吃掉剩余高度，最小 220 px）、元件表格（`flex: 2`，限高 42% 滚动）、结果文本（`#ozGroupOut`，限高 6 rem）。表格每个元件一行，内部固定 4 列（≤1100 px 三列、手机一列），比挤在 260 px 左栏里宽了一倍以上。
-- 标题旁的一行摘要（`#ozGroupStatus`）显示「N 元件 · M 面 · 折转 k 次」，与波动视图的 `#stats` 同一位置感。
+**左栏 = 编辑（`#ozPanelGroup`，`oz.js` 构建）**
+
+- **物（位置 · 大小）**：`物在`下拉选「无穷远」或「有限距离」。无穷远→平行光入射，大小由**视场角（°）**给出（`field_deg`）；有限距离→物在 `object_z_mm` 处（界面填正数物距，存成负 z），大小由**物高（mm）**给出（`field_tan`，内核按 `geo.FieldHeight` 追迹）。两种物都用同一套测量按钮，`groupBody()` 按物距自动选参数——API 对有限物 + `field_deg` 是**故意** 400 的。另有两个束参数：波长、采样光瞳半径（0 = 用光阑半口径）。
+- **元件列表（`#ozGroupList`）**：与波动的 `#sceneList` 同款 `.sc` 行——彩色圆点（透镜蓝 / 反射镜橙 / 光阑灰）、`[i] kind · R · R2 · 玻璃`、右侧口径。点一行选中，聚焦列表后 `↑/↓` 也能换（事件从行按钮冒泡到列表容器）。
+- **新增 / 复制 / 删除**：`新增`下拉选 lens / mirror / stop（默认值分别是平凸透镜 R=±100、凹面镜 R=−400、平面光阑），`+ 元件` 插到当前选中项之后并选中它；`复制` 复制选中项（名字加 `copy`）；`删除` 删掉选中项。这三个是**改光路本身**：group 在浏览器里，所以先本地改、`stop` 下标自动重指向第一个光阑，再用一次 `/api/lens/group/layout` 让服务端校验；被拒绝时整组回滚并显示服务端原文（如「至少要保留一个元件」是前端先拦下的）。`#ozGroupStatus` 显示「N 元件 · M 面 · 折转 k 次」。
+- **选中元件的参数（`#ozGroupEditor`）**：按 **位置 → 大小 → 形状** 三组排列，一行一个 `.prow`（与波动参数面板同款）：位置 = `gap`（到下一元件，可负）、偏心 dx/dy、倾斜 tx/ty/tz；大小 = 前/后半口径；形状 = 前表面 R/K、后表面 R/K（仅 lens）、中心厚度、玻璃、间隔介质、`fold` 折转。空输入框表示「不修改」。`应用编辑` 只发送**当前选中元件**的字段：kind/玻璃/间隔介质/fold 写进 group JSON，数值作为 `sets` 发到 `POST /api/lens/group/set`，服务端逐项校验并原样回显错误。
+
+**右侧主区 = 画布与结果（`#ozCardGroup` 的 `#ozGroupView`）**
+
+- 工具栏（等轴测 / XZ 面 / XY 面）、大画布 `#ozGroupCanvasWrap`（`flex: 1`，跟随窗口吃掉剩余高度，最小 240 px）、结果文本 `#ozGroupOut`（限高 6 rem）。元件表格已取消——编辑在左栏一次只显示一个元件。
+- 画布画：顶点连线的链轴（灰）、每面的局部轴（蓝实线）与顶点法向（橙虚线）、出射方向（绿虚线）、x/y/z 三向标，以及**物**：有限距离时按真实物高在物面画一支红色箭头（物高 0 就是一个点），位置/长度就是 `object_z_mm`/物高；∞ 物没有可画长度，视场角显示在画布左下角的提示行里。拖拽旋转（Pointer Events，鼠标与触摸同样有效），`devicePixelRatio` 后备像素，`oz:mode`/`resize`/`orientationchange` 时重绘。
 
 进入标签时会**自动载入第一个示例**（卡塞格林）并调用一次「布局」，所以打开就有 3D 光轴可看。
 
 - **载入示例**：下拉里有三个构造好的 group（JSON 直接内嵌在 `oz.js` 里，`cmd/oz` 的 `TestGroupExamplesInGUI` 按 `/*oz:example*/` 标记提取并逐个解码 + `Validate()` + `System()` 校验）：卡塞格林（两镜，库例 F1000 d300 b300）、BK7/F2 双胶合 f=100 mm（`oz design achromat` 的设计值）、折叠式开普勒（45° 折转，Γ=−1）。载入后自动调用一次「布局」并绘出 3D 光轴。
-- **元件表格**：每个元件一块，含类型（lens/mirror/stop）、前后半径与圆锥常数、半口径、玻璃、间隔介质 `gap_glass`、中心厚度、到下一元件的 gap、偏心 dx/dy、倾斜 tx/ty/tz、折转 fold。空的输入框表示「不修改」；在空的后表面 R 里填一个数会给单面元件补上后表面。**类型/玻璃/间隔介质/fold 由前端写进 group JSON**（`frames` 之类不能由数值参数表达的字段），数值输入作为 `sets` 发到 `POST /api/lens/group/set` 由服务端逐项校验 —— 编辑失败时**服务端错误文本原样显示**在结果区（如 `lens: parameter e0.rear.R: lens: element 0 (stop) has no rear surface`），返回的更新后 group 会重建整张表格。表格里的输入框**全部**会被发送（包括光阑的半径 0），所以「应用编辑」对含光阑的组也必须成功：平面的 JSON 写法是 `radius_mm: 0`（内部用 ±Inf 表示，`SurfaceSpec.MarshalJSON` 负责转换，见 `lens/group_edit_test.go` 的 `TestGroupPlaneRadiusRoundTrips`）。
-- **布局**：`POST /api/lens/group/layout`，结果表给出逐面「顶点/轴向/折转」，并在画布上绘制：顶点连线的链轴（灰）、每个面的局部轴（蓝实线）与顶点法向（橙虚线）、出射方向（绿虚线）、原点处的 x/y/z 三向标。**画布支持拖拽旋转**（Pointer Events，鼠标与触摸同样有效；`pointerdown` 按下、`pointermove` 转身、`pointerup/leave` 结束），另有「等轴测 / XZ 面 / XY 面」三个预设视角按钮；缩放自动适配包围盒，`devicePixelRatio` 后备像素，`oz:mode`/`resize`/`orientationchange` 时重绘。
-- **成像位置 / 角放大率 / 色散 / 转处方**：分别调用 `POST /api/lens/group/image`（像点、RMS、焦面距离、主光线）、`/afocal`（Γ、束径比、准直残差）、`/dispersion`（F–C 焦移与两个焦面）、`/prescription`（卡片链处方 JSON）。束参数用面板上的视场角、波长与光瞳半径（0 = 自动用人眼口径/光阑口径）。非无焦系统的「角放大率」、不可表达为卡片的「转处方」都会把服务端的原因显示在结果区。
-- **分派到元素表格的量**：kind/glass/gap_glass/fold 走 JSON，其余走 `/set` 的 `sets`（参数名与 CLI 的 `-p` 同语法，见 `docs/API.md` §4）。手机断点：画布 `clamp(220px, 62vw, 340px)` + `touch-action: none`，表格限高 46 vh 滚动，单列，按钮 44 px（工具栏的 `miniBtn` 在触屏上同样 44 px）。
+- **布局**：`POST /api/lens/group/layout`，结果表给出逐面「顶点/轴向/折转」。
+- **成像位置 / 角放大率 / 色散 / 转处方**：分别调用 `POST /api/lens/group/image`（像点、RMS、焦面距离、主光线）、`/afocal`（Γ、束径比、准直残差）、`/dispersion`（F–C 焦移与两个焦面）、`/prescription`（卡片链处方 JSON）。非无焦系统的「角放大率」、不可表达为卡片的「转处方」都会把服务端的原因显示在结果区。
+- **手机**：画布 `clamp(220px, 62vw, 340px)` + `touch-action: none`，元件列表限高 40 vh 滚动，按钮与行 44 px（工具栏的 `miniBtn` 在触屏上同样 44 px）。
+- **平面的 JSON 写法**：`radius_mm: 0`（内部 ±Inf，`SurfaceSpec.MarshalJSON` 转换，`TestGroupPlaneRadiusRoundTrips` 锁定；含光阑的组也能正常「应用编辑」）。
 
 ### 2.2 波动模式的「参数扫描」面板
 
@@ -111,7 +119,7 @@
 - `<meta name="viewport" content="width=device-width, initial-scale=1">`。
 - 宽度 ≤ 700 px：页头按钮换行；左右两栏堆叠为单列，页面整体纵向滚动，不出现横向滚动条。助手栏同样占满整行（`#aiPanel { width:100% }`），对话区限高 60vh。
 - 触控设备（`pointer: coarse`）与几何/膜系标签内的按钮、输入框最小高度 44 px。
-- 光谱画布高度 `clamp(150px, 38vw, 300px)`，宽度跟随容器，按 `devicePixelRatio` 设置后备像素；透镜组 3D 画布在桌面端跟随剩余高度（`flex: 3`，最小 220 px），手机端固定 `clamp(220px, 62vw, 340px)`，`touch-action: none` 让拖拽旋转在触屏上可用；元件表格在手机上限高 46 vh 滚动，不把页面撑成好几屏。
+- 光谱画布高度 `clamp(150px, 38vw, 300px)`，宽度跟随容器，按 `devicePixelRatio` 设置后备像素；透镜组 3D 画布在桌面端跟随剩余高度（`flex: 1`，最小 240 px），手机端固定 `clamp(220px, 62vw, 340px)`，`touch-action: none` 让拖拽旋转在触屏上可用；元件列表在手机上限高 40 vh 滚动。
 
 验证方法（浏览器开发者工具，或 Chrome DevTools Protocol 的 `Emulation.setDeviceMetricsOverride`）：视口 390×844，检查 `document.documentElement.scrollWidth <= innerWidth`，检查几何/膜系标签内按钮的 `getBoundingClientRect().height >= 44`。2026-10-15 的实测结果见 `/root/autodl-tmp/wt-notes/server-merge.md`；高级分析折叠区的同一检查（390×844 + 触控模拟：`scrollWidth` 390 = `innerWidth`、面板内所有元素无横向溢出、3 个输入框与 2 个按钮均 44 px）见 `/root/autodl-tmp/wt-notes/wiring.md`。
 

@@ -118,6 +118,9 @@ func TestServeEndpoints(t *testing.T) {
 		"ozModeSel", "ozPanelGroup", "ozPanelAchromat", "ozPanelTol", "ozPanelCoat",
 		"ozCardGroup", "ozCardAchromat", "ozCardTol", "ozCardCoat",
 		"oz.submode", "oz:submode", "SUBMODE_NEXT",
+		// 光路编辑（波动光学那套）：物 + 元件列表 + 选中元件参数 + 增删复制。
+		"ozObjMode", "ozObjDist", "ozObjH", "field_tan",
+		"ozGroupList", "ozGroupEditor", "ozGroupAddBtn", "ozGroupDupBtn", "ozGroupDelBtn",
 	} {
 		if !strings.Contains(js, want) {
 			t.Errorf("oz.js missing %q", want)

@@ -271,7 +271,7 @@ group 的 wire form（`lens.Group` 的 JSON）：
 
 请求：`{"group": <group wire form>, "sets": [{"param": "e1.front.R", "value": -1600}, …]}`（`sets` 最多 512 项）。响应：`{"group": <更新后的 group>, "applied": n}`。
 
-响应里的**平面一律写作 `radius_mm: 0`**：内部实现把平面存成 ±Inf，而 JSON 没有无穷大，`lens.SurfaceSpec.MarshalJSON` 负责转换（`TestGroupPlaneRadiusRoundTrips` 锁住编码与往返字节稳定）。因此「把 `e0.front.R` 设成 0」这类**空操作编辑也会成功**，不会被 500 拒绝——GUI 的元件表格每次都发送全部字段，含光阑的组必然走到这条路径。
+响应里的**平面一律写作 `radius_mm: 0`**：内部实现把平面存成 ±Inf，而 JSON 没有无穷大，`lens.SurfaceSpec.MarshalJSON` 负责转换（`TestGroupPlaneRadiusRoundTrips` 锁住编码与往返字节稳定）。因此「把 `e0.front.R` 设成 0」这类**空操作编辑也会成功**，不会被 500 拒绝——GUI 的元件编辑器把选中元件的字段（含光阑的半径 0）一起发送，含光阑的组必然走到这条路径。
 
 编辑失败返回 400，**错误文本就是 `lens` 包的文本**（含元件下标与原因），例如：
 

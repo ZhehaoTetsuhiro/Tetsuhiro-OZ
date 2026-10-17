@@ -400,28 +400,26 @@ html[data-theme="dark"] .splashTitle { text-shadow: 0 0 42px rgba(77, 184, 255, 
   .aiQuick button { min-height: 44px; }
   #aiInput { min-height: 88px; }
 }
-/* ---- 透镜组（3D，含镜）：左栏只放参数与测量按钮，画布/表格/结果在右侧主区 ---- */
+/* ---- 透镜组（3D，含镜）：左栏编辑（波动光学那套），右侧画布与结果 ---- */
 .ozCardSpread { flex: 1 1 auto; display: flex; flex-direction: column; min-height: 0; }
 #ozGroupView { flex: 1; display: flex; flex-direction: column; gap: 8px; min-height: 0; }
-/* 工具栏：视角预设 + 应用编辑（紧挨它要写入的表格） */
+/* 工具栏：视角预设（编辑在左栏，这里只管画布） */
 .ozGroupBar { display: flex; flex-wrap: wrap; align-items: center; gap: 6px; }
 .ozGroupBar .ozHint { margin: 0 2px 0 4px; margin-right: auto; }
 button.miniBtn { flex: none; min-height: 32px; padding: 3px 10px; font-size: 12px; }
-/* 画布：像波动光学的 #canvasWrap 一样吃掉剩余高度（表格 : 画布 = 2 : 3） */
-#ozGroupCanvasWrap { position: relative; flex: 3 1 0; min-height: 220px; display: flex;
+/* 画布：像波动光学的 #canvasWrap 一样吃掉剩余高度（表格搬走后不再分高） */
+#ozGroupCanvasWrap { position: relative; flex: 1 1 auto; min-height: 240px; display: flex;
   background: var(--canvas-bg); border: 1px solid var(--border); border-radius: 8px; overflow: hidden; }
 #ozGroupPlot { display: block; width: 100%; height: 100%; touch-action: none; cursor: grab;
   border: 0; border-radius: 0; margin: 0; background: transparent; }
-/* 元件表格：一行一个元件，内部固定 4 列（窄屏 3 列、手机 1 列） */
-#ozGroupTable { flex: 2 1 0; min-height: 150px; max-height: 42%; overflow-y: auto;
-  display: flex; flex-direction: column; gap: 8px; padding-right: 2px; }
-#ozGroupTable .ozGroupEl { margin: 0; }
-.ozGroupEl .ozGrid { grid-template-columns: repeat(4, minmax(0, 1fr)); }
+/* 元件列表：与波动光学的 #sceneList 同款（.sc 行 + 选中高亮） */
+#ozGroupList { display: flex; flex-direction: column; gap: 3px; margin: 4px 0; max-height: 30vh; overflow-y: auto; }
+/* 选中元件的参数面板：一行一个 .prow；小标题按 位置 / 大小 / 形状 分组 */
+.ozGroupEdit h4 { margin: 9px 0 2px; font-size: 11px; font-weight: 600; color: var(--muted);
+  letter-spacing: .6px; }
+.ozGroupEdit .prow { margin: 3px 0; }
+.ozGroupEdit .prow label { width: 104px; }
 #ozGroupOut { flex: 0 0 auto; max-height: 6rem; margin-top: 0; }
-.ozGroupEl { border: 1px solid var(--border); border-radius: 8px; padding: 6px 8px; margin: 6px 0 0;
-  background: var(--panel2); min-width: 0; }
-.ozGroupEl h4 { margin: 0 0 4px; font-size: 12px; font-weight: 600; color: var(--label);
-  overflow-wrap: anywhere; }
 .ozHint { align-self: center; font-size: 12px; color: var(--muted); min-width: 0; }
 
 /* ---- 触控设备：按钮与输入框的点击目标不小于 44px ---- */
@@ -450,10 +448,9 @@ button.miniBtn { flex: none; min-height: 32px; padding: 3px 10px; font-size: 12p
   #waveOutput, #quantumOutput, #ozOutput { overflow: visible; }
   #sceneList, #sourceList { max-height: 40vh; }
   #canvasWrap { min-height: 0; }
-  /* 手机：画布给固定高度，元件表格限高滚动（三个元件也不至于把页面撑到 3 屏） */
+  /* 手机：画布给固定高度，元件编辑在左栏随页面滚动 */
   #ozGroupCanvasWrap { flex: none; height: clamp(220px, 62vw, 340px); min-height: 0; }
-  #ozGroupTable { flex: none; max-height: 46vh; overflow-y: auto; }
-  .ozGroupEl .ozGrid { grid-template-columns: 1fr; } /* 压过上面的 4 列规则 */
+  #ozGroupList { max-height: 40vh; }
   #ozGroupOut { max-height: 16rem; }
   #channelBar select, #viewTabs button { min-height: 44px; }
   .ozGrid { grid-template-columns: 1fr; }
