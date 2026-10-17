@@ -57,6 +57,14 @@
     el.classList.toggle("err", !!isErr);
   }
 
+  // setGroupStatus 写透镜组卡片标题旁的一行摘要（与立体视图的 #stats 同位置感）。
+  function setGroupStatus(msg, isErr) {
+    const el = $("ozGroupStatus");
+    if (!el) return;
+    el.textContent = msg || "";
+    el.classList.toggle("err", !!isErr);
+  }
+
   /* --- 高级分析（热漂移 / 灵敏度）：折叠区由本文件构建，index.html 不感知 ---
    * 面板复用页面已有的 ozGrid/ozField/ozActions/ozDetails/ozOut 类，所以手机断点与
    * 触控目标规则（style.css 的 @media 规则）对它同样生效。 */
@@ -249,6 +257,8 @@
     det.className = "ozDetails";
     det.id = "ozGroup";
     det.open = true; // 默认子模式：展开着，没有多余的点击
+    // 左栏只放「要算什么」：示例、束参数、测量按钮。画布、元件表格与结果
+    // 文本都在右侧主区（#ozGroupView），与波动光学沿用同一套分栏习惯。
     det.innerHTML =
       '<summary>透镜组（3D，含镜）</summary>' +
       '<div class="ozGrid">' +
@@ -261,27 +271,36 @@
       '<input type="number" id="ozGroupPupil" value="0" min="0" step="1" inputmode="decimal"></label>' +
       "</div>" +
       '<div class="ozActions">' +
-      '<button id="ozGroupLoadBtn" type="button" class="secondary">载入示例</button>' +
-      '<button id="ozGroupApplyBtn" type="button" class="secondary" disabled>应用编辑</button>' +
+      '<button id="ozGroupLoadBtn" type="button">载入示例</button>' +
       '<button id="ozGroupLayoutBtn" type="button" class="secondary" disabled>布局</button>' +
       '<button id="ozGroupImageBtn" type="button" class="secondary" disabled>成像位置</button>' +
       '<button id="ozGroupAfocalBtn" type="button" class="secondary" disabled>角放大率</button>' +
       '<button id="ozGroupDispBtn" type="button" class="secondary" disabled>色散</button>' +
       '<button id="ozGroupPrescBtn" type="button" class="secondary" disabled>转处方</button>' +
       "</div>" +
-      '<canvas id="ozGroupPlot" aria-label="透镜组 3D 布局（拖拽旋转）"></canvas>' +
-      '<div class="ozActions">' +
-      '<button id="ozGroupIsoBtn" type="button" class="secondary">等轴测</button>' +
-      '<button id="ozGroupXZBtn" type="button" class="secondary">XZ 面</button>' +
-      '<button id="ozGroupXYBtn" type="button" class="secondary">XY 面</button>' +
-      '<span class="ozHint" id="ozGroupViewHint">拖拽画布旋转视角</span>' +
-      "</div>" +
-      '<div id="ozGroupTable"></div>';
-    // The canvas has no size while the details is closed: redraw on open.
-    det.addEventListener("toggle", function () {
-      if (det.open) drawGroupPlot();
-    });
+      '<p class="hint">画布、元件表格与测量结果在右侧：拖拽画布旋转视角，表格里改完点「应用编辑」。</p>';
     host.appendChild(det);
+  }
+
+  // buildGroupView 在右侧主区搭出画布、视角按钮、元件表格与结果文本
+  // （index.html 只留 #ozGroupView 这个空容器）。工具栏里的「应用编辑」
+  // 紧挨着它要写入的表格，测量按钮留在左栏。
+  function buildGroupView() {
+    const host = $("ozGroupView");
+    if (!host || $("ozGroupPlot")) return;
+    host.innerHTML =
+      '<div class="ozGroupBar">' +
+      '<button id="ozGroupIsoBtn" type="button" class="secondary miniBtn">等轴测</button>' +
+      '<button id="ozGroupXZBtn" type="button" class="secondary miniBtn">XZ 面</button>' +
+      '<button id="ozGroupXYBtn" type="button" class="secondary miniBtn">XY 面</button>' +
+      '<span class="ozHint" id="ozGroupViewHint">拖拽画布旋转视角</span>' +
+      '<button id="ozGroupApplyBtn" type="button" class="miniBtn" disabled>应用编辑</button>' +
+      "</div>" +
+      '<div id="ozGroupCanvasWrap">' +
+      '<canvas id="ozGroupPlot" aria-label="透镜组 3D 布局（拖拽旋转）"></canvas>' +
+      "</div>" +
+      '<div id="ozGroupTable"></div>' +
+      '<pre class="ozOut" id="ozGroupOut" aria-live="polite">点「载入示例」开始。</pre>';
   }
 
   function setGroupButtons(enabled) {
@@ -474,6 +493,7 @@
     groupLayout = null;
     rebuildGroupTable();
     setGroupButtons(true);
+    setGroupStatus(ex.label + " · " + groupObj.elements.length + " 元件");
     show("ozGroupOut", "已载入「" + ex.label + "」：" + groupObj.elements.length + " 个元件。", false);
     await groupLayoutCall();
   }
@@ -509,6 +529,7 @@
     const d = await api("/api/lens/group/layout", groupBody());
     groupLayout = d;
     drawGroupPlot();
+    setGroupStatus(groupObj.elements.length + " 元件 · " + d.num_surfaces + " 面 · 折转 " + d.folds + " 次");
     const lines = ["布局：" + d.num_surfaces + " 面，折转 " + d.folds + " 次"];
     for (const s of d.surfaces) {
       lines.push("  [e" + s.element + " " + s.face + "] 面 " + s.surface + "  顶点 " + fv(s.vertex) +
@@ -916,6 +937,7 @@
   function init() {
     buildAdvanced();
     buildGroup();
+    buildGroupView();
     guard("ozDesignBtn", "ozLensOut", design);
     guard("ozEvalBtn", "ozLensOut", evaluate);
     guard("ozTolBtn", "ozTolOut", tolerance);
@@ -957,7 +979,8 @@
         drawGroupPlot();
       }
     });
-    // app.js 的 k 键（或将来别的入口）发来的子模式切换。
+    // k 键（app.js）与下拉之外的入口都通过这个事件切换子模式；setSubmode
+    // 自己也会发同名事件，currentSubmode() 判等后不会重入。
     document.addEventListener("oz:submode", function (ev) {
       if (ev.detail && ev.detail !== currentSubmode()) setSubmode(ev.detail);
     });

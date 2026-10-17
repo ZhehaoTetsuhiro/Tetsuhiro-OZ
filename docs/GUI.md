@@ -50,13 +50,19 @@
 
 ### 2.1 透镜组（3D，含镜）
 
-元件级透镜组（`lens.Group`：透镜/反射镜/光阑、前后表面面型与圆锥/非球面参数、玻璃与间隔介质、中心厚度、可负的 gap、偏心与倾斜、fold 折转）的交互面板，与 `docs/API.md` §4 的 `/api/lens/group/*` 一一对应。它是几何光学的**默认子模式**：面板由 `oz.js` 构建后挂到 `index.html` 的 `#ozPanelGroup`（`index.html` 只保留那个空容器），结果卡片是右栏的 `#ozCardGroup`。进入标签时会**自动载入第一个示例**（卡塞格林）并调用一次「布局」，所以打开就有 3D 光轴可看。
+元件级透镜组（`lens.Group`：透镜/反射镜/光阑、前后表面面型与圆锥/非球面参数、玻璃与间隔介质、中心厚度、可负的 gap、偏心与倾斜、fold 折转）的交互面板，与 `docs/API.md` §4 的 `/api/lens/group/*` 一一对应。它是几何光学的**默认子模式**，版面按波动光学的分栏习惯排：
+
+- **左栏（`#ozPanelGroup`，`oz.js` 构建）只放「要算什么」**：示例组下拉、视场角/波长/光瞳半径、载入示例与五个测量按钮（布局/成像位置/角放大率/色散/转处方）。不塞画布，也不塞元件表格。
+- **右侧主区（`#ozCardGroup` 里的 `#ozGroupView`）放「算出了什么」**：工具栏（等轴测 / XZ 面 / XY 面 / 应用编辑）、大画布 `#ozGroupCanvasWrap`（`flex: 3`，跟随窗口吃掉剩余高度，最小 220 px）、元件表格（`flex: 2`，限高 42% 滚动）、结果文本（`#ozGroupOut`，限高 6 rem）。表格每个元件一行，内部固定 4 列（≤1100 px 三列、手机一列），比挤在 260 px 左栏里宽了一倍以上。
+- 标题旁的一行摘要（`#ozGroupStatus`）显示「N 元件 · M 面 · 折转 k 次」，与波动视图的 `#stats` 同一位置感。
+
+进入标签时会**自动载入第一个示例**（卡塞格林）并调用一次「布局」，所以打开就有 3D 光轴可看。
 
 - **载入示例**：下拉里有三个构造好的 group（JSON 直接内嵌在 `oz.js` 里，`cmd/oz` 的 `TestGroupExamplesInGUI` 按 `/*oz:example*/` 标记提取并逐个解码 + `Validate()` + `System()` 校验）：卡塞格林（两镜，库例 F1000 d300 b300）、BK7/F2 双胶合 f=100 mm（`oz design achromat` 的设计值）、折叠式开普勒（45° 折转，Γ=−1）。载入后自动调用一次「布局」并绘出 3D 光轴。
-- **元件表格**：每个元件一块，含类型（lens/mirror/stop）、前后半径与圆锥常数、半口径、玻璃、间隔介质 `gap_glass`、中心厚度、到下一元件的 gap、偏心 dx/dy、倾斜 tx/ty/tz、折转 fold。空的输入框表示「不修改」；在空的后表面 R 里填一个数会给单面元件补上后表面。**类型/玻璃/间隔介质/fold 由前端写进 group JSON**（`frames` 之类不能由数值参数表达的字段），数值输入作为 `sets` 发到 `POST /api/lens/group/set` 由服务端逐项校验 —— 编辑失败时**服务端错误文本原样显示**在结果区（如 `lens: parameter e0.rear.R: lens: element 0 (stop) has no rear surface`），返回的更新后 group 会重建整张表格。
+- **元件表格**：每个元件一块，含类型（lens/mirror/stop）、前后半径与圆锥常数、半口径、玻璃、间隔介质 `gap_glass`、中心厚度、到下一元件的 gap、偏心 dx/dy、倾斜 tx/ty/tz、折转 fold。空的输入框表示「不修改」；在空的后表面 R 里填一个数会给单面元件补上后表面。**类型/玻璃/间隔介质/fold 由前端写进 group JSON**（`frames` 之类不能由数值参数表达的字段），数值输入作为 `sets` 发到 `POST /api/lens/group/set` 由服务端逐项校验 —— 编辑失败时**服务端错误文本原样显示**在结果区（如 `lens: parameter e0.rear.R: lens: element 0 (stop) has no rear surface`），返回的更新后 group 会重建整张表格。表格里的输入框**全部**会被发送（包括光阑的半径 0），所以「应用编辑」对含光阑的组也必须成功：平面的 JSON 写法是 `radius_mm: 0`（内部用 ±Inf 表示，`SurfaceSpec.MarshalJSON` 负责转换，见 `lens/group_edit_test.go` 的 `TestGroupPlaneRadiusRoundTrips`）。
 - **布局**：`POST /api/lens/group/layout`，结果表给出逐面「顶点/轴向/折转」，并在画布上绘制：顶点连线的链轴（灰）、每个面的局部轴（蓝实线）与顶点法向（橙虚线）、出射方向（绿虚线）、原点处的 x/y/z 三向标。**画布支持拖拽旋转**（Pointer Events，鼠标与触摸同样有效；`pointerdown` 按下、`pointermove` 转身、`pointerup/leave` 结束），另有「等轴测 / XZ 面 / XY 面」三个预设视角按钮；缩放自动适配包围盒，`devicePixelRatio` 后备像素，`oz:mode`/`resize`/`orientationchange` 时重绘。
 - **成像位置 / 角放大率 / 色散 / 转处方**：分别调用 `POST /api/lens/group/image`（像点、RMS、焦面距离、主光线）、`/afocal`（Γ、束径比、准直残差）、`/dispersion`（F–C 焦移与两个焦面）、`/prescription`（卡片链处方 JSON）。束参数用面板上的视场角、波长与光瞳半径（0 = 自动用人眼口径/光阑口径）。非无焦系统的「角放大率」、不可表达为卡片的「转处方」都会把服务端的原因显示在结果区。
-- **分派到元素表格的量**：kind/glass/gap_glass/fold 走 JSON，其余走 `/set` 的 `sets`（参数名与 CLI 的 `-p` 同语法，见 `docs/API.md` §4）。手机断点（`.ozGrid` 单列、按钮 44 px、画布 `clamp(180px, 44vw, 340px)` + `touch-action: none`）与前两个折叠区完全一致。
+- **分派到元素表格的量**：kind/glass/gap_glass/fold 走 JSON，其余走 `/set` 的 `sets`（参数名与 CLI 的 `-p` 同语法，见 `docs/API.md` §4）。手机断点：画布 `clamp(220px, 62vw, 340px)` + `touch-action: none`，表格限高 46 vh 滚动，单列，按钮 44 px（工具栏的 `miniBtn` 在触屏上同样 44 px）。
 
 ### 2.2 波动模式的「参数扫描」面板
 
@@ -105,11 +111,11 @@
 - `<meta name="viewport" content="width=device-width, initial-scale=1">`。
 - 宽度 ≤ 700 px：页头按钮换行；左右两栏堆叠为单列，页面整体纵向滚动，不出现横向滚动条。助手栏同样占满整行（`#aiPanel { width:100% }`），对话区限高 60vh。
 - 触控设备（`pointer: coarse`）与几何/膜系标签内的按钮、输入框最小高度 44 px。
-- 光谱画布高度 `clamp(150px, 38vw, 300px)`，宽度跟随容器，按 `devicePixelRatio` 设置后备像素；透镜组 3D 画布同样处理（`clamp(180px, 44vw, 340px)`，`touch-action: none` 让拖拽旋转在触屏上可用）。
+- 光谱画布高度 `clamp(150px, 38vw, 300px)`，宽度跟随容器，按 `devicePixelRatio` 设置后备像素；透镜组 3D 画布在桌面端跟随剩余高度（`flex: 3`，最小 220 px），手机端固定 `clamp(220px, 62vw, 340px)`，`touch-action: none` 让拖拽旋转在触屏上可用；元件表格在手机上限高 46 vh 滚动，不把页面撑成好几屏。
 
 验证方法（浏览器开发者工具，或 Chrome DevTools Protocol 的 `Emulation.setDeviceMetricsOverride`）：视口 390×844，检查 `document.documentElement.scrollWidth <= innerWidth`，检查几何/膜系标签内按钮的 `getBoundingClientRect().height >= 44`。2026-10-15 的实测结果见 `/root/autodl-tmp/wt-notes/server-merge.md`；高级分析折叠区的同一检查（390×844 + 触控模拟：`scrollWidth` 390 = `innerWidth`、面板内所有元素无横向溢出、3 个输入框与 2 个按钮均 44 px）见 `/root/autodl-tmp/wt-notes/wiring.md`。
 
-**透镜组（3D）面板的检查状态**（如实记录）：本次接线在无浏览器的构建环境里完成，GUI 只做了**静态审查 + 端点自测**：`node --check server/web/oz.js`（`cmd/oz` 的 `TestGUIScriptsParse` 在没有 node 时会 skip，本机把 `OZ_NODE` 指向内置的 node 26.7 可跑）、`TestGroupExamplesInGUI`（示例 JSON 解码）、`TestServeEndpoints`/`TestGUIServedAtRoot`（页面/脚本/样式的结构断言与 MIME）、以及用 `curl` 对新端点的逐个自测（数字见 `/root/autodl-tmp/wt-notes/wiring2.md`）。尚未做的：真机/`Emulation.setDeviceMetricsOverride` 的 390×844 实测与拖拽手势实测。
+**透镜组（3D）面板的检查状态**（如实记录）：默认子模式与下拉切换、画布/表格搬到右侧主区之后，用**真浏览器**（Chrome DevTools Protocol 驱动）实测过：默认进入即为透镜组且自动载入卡塞格林（表格 3 行、画布已绘制）、下拉四项逐一切换时左右两栏同步显隐、`k` 键循环、`localStorage('oz.submode')` 刷新保持、表格改半径后「应用编辑」200 并重建、五个测量按钮返回真实数值、画布在 1280×577 / 1280×900 / 1600×1000 / 1920×1080 与 390×844 下重绘且 `scrollWidth == innerWidth`、手机端按钮 44 px。静态侧仍保留 `TestGUIScriptsParse`（无 node 时 skip；本机用 `scripts/check-js.py` 补）、`TestGroupExamplesInGUI`、`TestServeEndpoints`/`TestGUIServedAtRoot`。尚未做的：真机（iOS/Android 实机）的手势实测。
 
 ## 5. 缓存
 

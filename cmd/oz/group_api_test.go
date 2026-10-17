@@ -271,6 +271,31 @@ func TestGroupSetEndpoint(t *testing.T) {
 		t.Errorf("the returned group is not the group that was measured: %g vs %g", img2.FocusMM, img.FocusMM)
 	}
 
+	// The GUI sends every field of every element (its table has them all), and
+	// a stop's flat surface is radius 0. That used to answer 500 "response
+	// contains non-finite numbers", because SetParam stores +Inf for a plane
+	// and JSON cannot carry it — so no edit could be applied to a group that
+	// has a stop. The wire form spells a plane as radius_mm 0.
+	var applied groupSetResponse
+	groupCall(t, ts.URL, "/api/lens/group/set",
+		`{"group":`+cass+`,"sets":[`+
+			`{"param":"e0.front.R","value":0},{"param":"e0.front.semi","value":150},`+
+			`{"param":"e0.thk","value":0},{"param":"e0.gap","value":60},`+
+			`{"param":"e1.front.R","value":-1900},{"param":"e2.front.R","value":8400}]}`, &applied)
+	if applied.Applied != 6 {
+		t.Fatalf("applied %d edits of 6", applied.Applied)
+	}
+	if got := applied.Group.Elements[0].Front.RadiusMM; got != 0 && !math.IsInf(got, 0) {
+		t.Errorf("the stop radius came back as %g, want a plane (0 or ±Inf)", got)
+	}
+	wire, err := json.Marshal(applied.Group)
+	if err != nil {
+		t.Fatalf("the answer with a plane surface does not marshal: %v", err)
+	}
+	if !strings.Contains(string(wire), `"radius_mm":0`) {
+		t.Errorf("a plane is not written as radius_mm 0: %s", wire)
+	}
+
 	for _, c := range []struct{ name, body, want string }{
 		{"missing group", `{"sets":[{"param":"e1.front.R","value":1}]}`, "缺少 group"},
 		{"missing sets", `{"group":` + cass + `}`, "缺少 sets"},

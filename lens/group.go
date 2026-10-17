@@ -1,6 +1,7 @@
 package lens
 
 import (
+	"encoding/json"
 	"fmt"
 	"math"
 
@@ -120,6 +121,34 @@ type SurfaceSpec struct {
 	XYPoly     *XYCard        `json:"xy_polynomial,omitempty"` // geo.XYPolynomial (freeform)
 	Zernike    *ZernikeCard   `json:"zernike,omitempty"`       // geo.ZernikeSurface
 	SemiAperMM float64        `json:"semi_aperture_mm,omitempty"`
+}
+
+// surfaceJSON is SurfaceSpec with the radius replaced by its wire form: JSON
+// has no infinity, and the wire form spells a plane as radius_mm 0 (the
+// decoder reads 0, ±Inf or an absent field the same way). Without the
+// override, a surface whose radius was set to 0 (SetParam stores +Inf for a
+// plane) made json.Marshal fail, so every /api/lens/group/set that touched a
+// flat surface answered 500 "response contains non-finite numbers".
+// surfaceAlias is SurfaceSpec without its methods: embedding it in
+// surfaceJSON promotes every field without calling MarshalJSON again (a
+// direct embed of SurfaceSpec would recurse forever).
+type surfaceAlias SurfaceSpec
+
+type surfaceJSON struct {
+	surfaceAlias
+	RadiusMM float64 `json:"radius_mm"`
+}
+
+// MarshalJSON writes a plane radius (0 or ±Inf internally) as 0.
+func (s SurfaceSpec) MarshalJSON() ([]byte, error) {
+	r := s.RadiusMM
+	if math.IsNaN(r) {
+		return nil, fmt.Errorf("lens: surface radius is NaN")
+	}
+	if math.IsInf(r, 0) {
+		r = 0
+	}
+	return json.Marshal(surfaceJSON{surfaceAlias: surfaceAlias(s), RadiusMM: r})
 }
 
 // card returns the Card image of the surface, so that the profile builder and

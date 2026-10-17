@@ -1,6 +1,7 @@
 package lens
 
 import (
+	"bytes"
 	"encoding/json"
 	"math"
 	"os"
@@ -801,5 +802,44 @@ func TestGroupJSONFileRoundTrip(t *testing.T) {
 	gClose(t, "rear radius through the Card schema", probe.Elements[2].Rear.RadiusMM, 0, 0)
 	if probe.Elements[2].Glass != "N-BK7" {
 		t.Errorf("glass %q in the JSON", probe.Elements[2].Glass)
+	}
+}
+
+// TestGroupPlaneRadiusRoundTrips pins the wire form of a plane. SetParam
+// stores +Inf for radius 0 (the in-memory convention), but JSON has no
+// infinity: MarshalJSON must write radius_mm 0, and reading it back must keep
+// the surface flat and re-marshal to the same bytes. Without this, a group
+// with a flat surface could not be serialised at all and /api/lens/group/set
+// answered 500 for every table edit of a group that has a stop.
+func TestGroupPlaneRadiusRoundTrips(t *testing.T) {
+	m := MirrorElement(-400, -1, 10)
+	stop := Element{Kind: ElementStop, Front: SurfaceSpec{SemiAperMM: 25}}
+	g := gWantGroup(t, &Group{Name: "plane", ObjectZMM: math.Inf(-1), Elements: []Element{stop, m}})
+	if err := g.SetParam(GroupParam{Surf: SurfRef{Element: 0}, Kind: GPRadius}, 0); err != nil {
+		t.Fatal(err)
+	}
+	if r := mustGet(t, g, GroupParam{Surf: SurfRef{Element: 0}, Kind: GPRadius}); !math.IsInf(r, 0) {
+		t.Fatalf("the in-memory convention is +Inf for a plane, got %v", r)
+	}
+	buf, err := json.Marshal(g)
+	if err != nil {
+		t.Fatalf("a plane surface does not marshal: %v", err)
+	}
+	if !bytes.Contains(buf, []byte(`"radius_mm":0`)) {
+		t.Errorf("a plane must be written as radius_mm 0: %s", buf)
+	}
+	var back Group
+	if err := json.Unmarshal(buf, &back); err != nil {
+		t.Fatal(err)
+	}
+	if !back.Elements[0].Front.isPlane() {
+		t.Errorf("the decoded surface is not flat: %+v", back.Elements[0].Front)
+	}
+	buf2, err := json.Marshal(&back)
+	if err != nil {
+		t.Fatal(err)
+	}
+	if !bytes.Equal(buf, buf2) {
+		t.Errorf("the round trip is not byte-stable:\n%s\n%s", buf, buf2)
 	}
 }
