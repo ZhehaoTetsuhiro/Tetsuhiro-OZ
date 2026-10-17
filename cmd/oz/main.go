@@ -28,7 +28,7 @@ import (
 )
 
 // version of the OZ preview; keep in sync with /VERSION at the repo root.
-const version = "0.1.0-Preview"
+const version = "0.1.0"
 
 func main() {
 	if len(os.Args) < 2 {

@@ -54,7 +54,7 @@ Tetsuhiro-OZ 只有一个 HTTP 服务：`oz serve`。它在同一个 mux 上提�
 
 ### GET /api/version
 
-    {"name":"tetsuhiro-oz","version":"0.1.0-Preview","go":"go1.25.10","time":"2026-10-15T18:43:17+08:00"}
+    {"name":"tetsuhiro-oz","version":"0.1.0","go":"go1.25.10","time":"2026-10-15T18:43:17+08:00"}
 
 ### POST /api/lens/design
 

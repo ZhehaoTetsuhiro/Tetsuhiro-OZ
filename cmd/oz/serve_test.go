@@ -54,7 +54,7 @@ func TestServeEndpoints(t *testing.T) {
 	// Version, then the GUI. The geometry/coating tab is part of the one page
 	// at /; the page, its stylesheet and its script must stay mobile-ready and
 	// must reach every OZ endpoint.
-	if !strings.Contains(get("/api/version"), "0.1.0-Preview") {
+	if !strings.Contains(get("/api/version"), "0.1.0") {
 		t.Fatal("version endpoint missing version")
 	}
 	page := get("/")
