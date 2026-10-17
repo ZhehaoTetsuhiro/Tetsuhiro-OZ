@@ -112,6 +112,10 @@ type aiState struct {
 	Quantum string `json:"quantum,omitempty"`
 	Lens    string `json:"lens,omitempty"`
 	Coating string `json:"coating,omitempty"`
+	// Group is the lens-group (3D) tab's result text; Submode names which
+	// sub-mode of the geometry/coating tab the user is in ("group" by default).
+	Group   string `json:"group,omitempty"`
+	Submode string `json:"submode,omitempty"`
 }
 
 // aiChatRequest is the POST /api/ai/chat body.
@@ -726,6 +730,9 @@ func aiSystemPrompt(st *aiState) string {
 	if st.Mode != "" {
 		b.WriteString("模式: " + st.Mode + "\n")
 	}
+	if st.Mode == "oz" && st.Submode != "" {
+		b.WriteString("几何/膜系子模式: " + st.Submode + "（透镜组为默认；消色差设计 / 公差分析 / 膜系设计由下拉切换）\n")
+	}
 	if len(st.Config) > 0 {
 		b.WriteString("当前配置 config（JSON，单位 SI）: " + aiCap(string(st.Config), aiMaxStateChars) + "\n")
 	}
@@ -749,6 +756,9 @@ func aiSystemPrompt(st *aiState) string {
 	}
 	if st.Lens != "" {
 		b.WriteString("几何设计结果（文本）: " + aiCap(st.Lens, 4000) + "\n")
+	}
+	if st.Group != "" {
+		b.WriteString("透镜组结果（文本，3D 含镜）: " + aiCap(st.Group, 4000) + "\n")
 	}
 	if st.Coating != "" {
 		b.WriteString("膜系设计结果（文本）: " + aiCap(st.Coating, 4000) + "\n")

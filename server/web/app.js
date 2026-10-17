@@ -48,7 +48,8 @@ const S = {
   timer: null,
   inspectTimer: null,
   insertSel: 0,
-  mode: "wave",        // "wave" | "quantum"
+  mode: "wave",        // "wave" | "quantum" | "oz"
+  ozSubmode: "group",  // 几何/膜系标签内的子模式："group" | "achromat" | "tol" | "coat"
   qconfig: null,
   qresult: null,
   qtimer: null,
@@ -1863,7 +1864,8 @@ const HELP_ROWS = [
   ["o", "打开 JSON 配置文件（内置模板见左侧“模板”下拉）"],
   ["s", "把当前配置保存为 JSON 文件"],
   ["Esc", "关闭对话框"],
-  ["m", "波动光学 / 量子光学 模式切换"],
+  ["m", "循环主模式：波动光学 → 量子光学 → 几何/膜系 → 波动光学"],
+  ["k", "几何/膜系模式内循环子模式：透镜组 → 消色差设计 → 公差分析 → 膜系设计（也可用左上角「计算模式」下拉直接选；默认透镜组）"],
   ["✦ AI 助手", "右侧栏助手（默认隐藏）：配置自己的提供方与 API Key 后，可解释元件、检查当前配置、设计光路（```oz-config 一键应用）或写新元件定义（```oz-element 一键落盘）"],
 ];
 
@@ -2075,6 +2077,7 @@ document.addEventListener("keydown", (e) => {
   // 几何/膜系标签：波动与量子的快捷键（空格运行、数字切视图…）不适用，只保留模式循环与帮助。
   if (S.mode === "oz") {
     if (e.key === "m") { setMode(MODE_NEXT.oz); }
+    else if (e.key === "k") { setOzSubmode(OZ_SUBMODE_NEXT[S.ozSubmode] || "group"); }
     else if (e.key === "?" || e.key === "F1") { openHelp(); e.preventDefault(); }
     return;
   }
@@ -2169,6 +2172,20 @@ function setMode(m) {
 
 // 模式循环顺序（m 键）：波动 → 量子 → 几何/膜系 → 波动。
 const MODE_NEXT = { wave: "quantum", quantum: "oz", oz: "wave" };
+
+// 几何/膜系标签内部的子模式（k 键循环，与 oz.js 的 SUBMODE_NEXT 一致）：
+// 透镜组 → 消色差设计 → 公差分析 → 膜系设计 → 透镜组。
+const OZ_SUBMODE_NEXT = { group: "achromat", achromat: "tol", tol: "coat", coat: "group" };
+
+// setOzSubmode 把子模式切换委托给 oz.js（它拥有 #ozModeSel 与各面板的显隐），
+// 顺带记下 S.ozSubmode。oz.js 每次真的换了子模式都会回发一个同名事件，
+// 这里据此把 S.ozSubmode 对齐（不回发，所以不会成环）。
+function setOzSubmode(name) {
+  if (!OZ_SUBMODE_NEXT[name] && name !== "group") name = "group";
+  document.dispatchEvent(new CustomEvent("oz:submode", { detail: name }));
+}
+
+document.addEventListener("oz:submode", (ev) => { S.ozSubmode = ev.detail || "group"; });
 
 // A generic parameter row for the quantum editor.
 function qRow(doc, get, set, onCommit) {

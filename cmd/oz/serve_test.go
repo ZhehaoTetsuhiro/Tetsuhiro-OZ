@@ -5,6 +5,7 @@ import (
 	"encoding/json"
 	"net/http"
 	"net/http/httptest"
+	"regexp"
 	"strings"
 	"testing"
 )
@@ -64,6 +65,10 @@ func TestServeEndpoints(t *testing.T) {
 		`<meta name="viewport" content="width=device-width, initial-scale=1">`,
 		`id="ozModeBtn"`, `id="ozEditor"`, `id="ozOutput"`, `id="ozPlot"`,
 		`<script src="oz.js"></script>`,
+		// 几何光学子模式：下拉切换，「透镜组」是默认（selected 的那一项）。
+		`id="ozModeSel"`, `id="ozPanelGroup"`, `id="ozPanelAchromat"`, `id="ozPanelTol"`,
+		`id="ozPanelCoat"`, `id="ozCardGroup"`, `id="ozCardAchromat"`, `id="ozCardTol"`,
+		`id="ozCardCoat"`, `<option value="group" selected>`,
 		// AI 助手：右侧栏默认隐藏，顶栏按钮打开；设置与对话面板齐全。
 		`id="aiBtn"`, `id="aiPanel"`, `id="aiSettings"`, `id="aiLog"`, `id="aiInput"`,
 		`id="aiPanel" aria-label="AI 助手" hidden`,
@@ -72,6 +77,18 @@ func TestServeEndpoints(t *testing.T) {
 		if !strings.Contains(page, want) {
 			t.Errorf("GUI page missing %q", want)
 		}
+	}
+	// 默认子模式必须是「透镜组」：页面加载时它就可见，其余三个面板（与右栏
+	// 对应的结果卡片）都带 hidden，切走之前不会露出来。
+	for _, id := range []string{"ozPanelAchromat", "ozPanelTol", "ozPanelCoat",
+		"ozCardAchromat", "ozCardTol", "ozCardCoat"} {
+		re := regexp.MustCompile(`id="` + id + `"[^>]*\bhidden\b`)
+		if !re.MatchString(page) {
+			t.Errorf("GUI page: %s must carry hidden so the default tab is the lens group", id)
+		}
+	}
+	if !strings.Contains(page, `<option value="group" selected>透镜组`) {
+		t.Error("GUI page: the mode dropdown must default to the lens group")
 	}
 	// The right-hand column must not be a second scroll container on phones.
 	css := get("/style.css")
@@ -97,6 +114,10 @@ func TestServeEndpoints(t *testing.T) {
 		"/api/lens/group/dispersion", "/api/lens/group/set", "/api/lens/group/prescription",
 		"ozGroup", "ozGroupPlot", "pointerdown",
 		"/api/coating/design", "/api/coating/spectrum", "/api/version",
+		// 子模式：透镜组是默认（SUBMODES 的第一项与 #ozPanelGroup 的宿主）。
+		"ozModeSel", "ozPanelGroup", "ozPanelAchromat", "ozPanelTol", "ozPanelCoat",
+		"ozCardGroup", "ozCardAchromat", "ozCardTol", "ozCardCoat",
+		"oz.submode", "oz:submode", "SUBMODE_NEXT",
 	} {
 		if !strings.Contains(js, want) {
 			t.Errorf("oz.js missing %q", want)

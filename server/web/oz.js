@@ -62,7 +62,9 @@
    * 触控目标规则（style.css 的 @media 规则）对它同样生效。 */
 
   function buildAdvanced() {
-    const host = $("ozEditor");
+    // 高级分析是消色差设计的延伸（温度与灵敏度都针对那条处方），所以挂在
+    // #ozPanelAchromat 里：跟随该子模式一起显隐，而不是常驻在左栏底部。
+    const host = $("ozPanelAchromat");
     if (!host || $("ozAdv")) return;
     const det = document.createElement("details");
     det.className = "ozDetails";
@@ -129,11 +131,12 @@
   }
 
   /* --- 透镜组（3D，含镜）--------------------------------------------------
-   * 面板与元件表格都在本文件里构建（index.html 不感知），按钮全部走
-   * /api/lens/group/*（docs/API.md §4）。表格里的 kind / 玻璃 / 间隔介质 /
-   * fold 由前端写进 group JSON，数值参数走 /set 的 sets —— 服务端校验并把
-   * 错误文本原样回显。示例组的 JSON 由 cmd/oz 的测试用 /*oz:example* 标记
-   * 提取并逐个解码校验（见 TestGroupExamplesInGUI）。 */
+   * 「透镜组」是几何光学的默认子模式：面板直接挂在 index.html 的
+   * #ozPanelGroup 里（没有折叠区，也不需要点「载入示例」之外的手动展开），
+   * 按钮全部走 /api/lens/group/*（docs/API.md §4）。表格里的 kind / 玻璃 /
+   * 间隔介质 / fold 由前端写进 group JSON，数值参数走 /set 的 sets —— 服务端
+   * 校验并把错误文本原样回显。示例组的 JSON 由 cmd/oz 的测试用「oz:example」
+   * 标记提取并逐个解码校验（见 TestGroupExamplesInGUI）。 */
 
   const GROUP_EXAMPLES = [
     {
@@ -237,7 +240,7 @@
   let groupView = { yaw: -0.62, pitch: 0.45 }; // 画布视角（弧度）
 
   function buildGroup() {
-    const host = $("ozEditor");
+    const host = $("ozPanelGroup");
     if (!host || $("ozGroup")) return;
     const opts = GROUP_EXAMPLES.map(function (ex, i) {
       return '<option value="' + i + '">' + ex.label + "</option>";
@@ -245,8 +248,9 @@
     const det = document.createElement("details");
     det.className = "ozDetails";
     det.id = "ozGroup";
+    det.open = true; // 默认子模式：展开着，没有多余的点击
     det.innerHTML =
-      "<summary>透镜组（3D，含镜）</summary>" +
+      '<summary>透镜组（3D，含镜）</summary>' +
       '<div class="ozGrid">' +
       '<label class="ozField"><span>示例组</span><select id="ozGroupExample">' + opts + "</select></label>" +
       '<label class="ozField"><span>视场角（°）</span>' +
@@ -272,8 +276,7 @@
       '<button id="ozGroupXYBtn" type="button" class="secondary">XY 面</button>' +
       '<span class="ozHint" id="ozGroupViewHint">拖拽画布旋转视角</span>' +
       "</div>" +
-      '<div id="ozGroupTable"></div>' +
-      '<pre class="ozOut" id="ozGroupOut" aria-live="polite">点「载入示例」开始。</pre>';
+      '<div id="ozGroupTable"></div>';
     // The canvas has no size while the details is closed: redraw on open.
     det.addEventListener("toggle", function () {
       if (det.open) drawGroupPlot();
@@ -854,6 +857,52 @@
     });
   }
 
+  /* --- 几何光学子模式（下拉）------------------------------------------------
+   * 「透镜组」是默认子模式：index.html 的 #ozModeSel 里 selected 的选项，
+   * 左栏只显示 #ozPanelGroup，右栏只显示 #ozCardGroup。其它三个子模式
+   * （消色差设计 / 公差分析 / 膜系设计）从同一个下拉切换。选择记在
+   * localStorage（键 oz.submode），与主题、立体视图拖动方向同一套做法：
+   * 隐私模式下写入失败就静默退回默认值。 */
+
+  const SUBMODE_KEY = "oz.submode";
+  const SUBMODES = {
+    group: { panels: ["ozPanelGroup"], cards: ["ozCardGroup"] },
+    achromat: { panels: ["ozPanelAchromat"], cards: ["ozCardAchromat"] },
+    tol: { panels: ["ozPanelTol"], cards: ["ozCardTol"] },
+    coat: { panels: ["ozPanelCoat"], cards: ["ozCardCoat"] },
+  };
+  // 子模式循环顺序（k 键）：透镜组 → 消色差 → 公差 → 膜系 → 透镜组。
+  const SUBMODE_NEXT = { group: "achromat", achromat: "tol", tol: "coat", coat: "group" };
+
+  function currentSubmode() {
+    const sel = $("ozModeSel");
+    const v = sel ? sel.value : "group";
+    return SUBMODES[v] ? v : "group";
+  }
+
+  function setSubmode(name) {
+    if (!SUBMODES[name]) name = "group";
+    const sel = $("ozModeSel");
+    if (sel && sel.value !== name) sel.value = name;
+    for (const key of Object.keys(SUBMODES)) {
+      const on = key === name;
+      for (const id of SUBMODES[key].panels) if ($(id)) $(id).hidden = !on;
+      for (const id of SUBMODES[key].cards) if ($(id)) $(id).hidden = !on;
+    }
+    // 画布只有在可见时才有尺寸：切回「透镜组」立刻补一次重绘。
+    if (name === "group") drawGroupPlot();
+    if (name === "coat") drawPlot();
+    try { localStorage.setItem(SUBMODE_KEY, name); } catch (e) { /* 隐私模式 */ }
+    // 让 app.js（与 AI 助手）看到当前子模式。
+    document.dispatchEvent(new CustomEvent("oz:submode", { detail: name }));
+  }
+
+  function loadSubmode() {
+    let v = "group";
+    try { v = localStorage.getItem(SUBMODE_KEY) || "group"; } catch (e) { v = "group"; }
+    setSubmode(SUBMODES[v] ? v : "group");
+  }
+
   async function loadVersion() {
     try {
       const r = await fetch("/api/version");
@@ -891,6 +940,10 @@
     $("ozGroupXZBtn").addEventListener("click", function () { setView(0, -Math.PI / 2); });
     $("ozGroupXYBtn").addEventListener("click", function () { setView(0, 0); });
     bindGroupCanvas();
+    // 几何光学子模式：下拉切换（透镜组为默认），k 键循环。
+    const sel = $("ozModeSel");
+    if (sel) sel.addEventListener("change", function () { setSubmode(sel.value); });
+    loadSubmode();
     window.addEventListener("resize", drawPlot);
     window.addEventListener("orientationchange", drawPlot);
     window.addEventListener("resize", drawGroupPlot);
@@ -904,6 +957,13 @@
         drawGroupPlot();
       }
     });
+    // app.js 的 k 键（或将来别的入口）发来的子模式切换。
+    document.addEventListener("oz:submode", function (ev) {
+      if (ev.detail && ev.detail !== currentSubmode()) setSubmode(ev.detail);
+    });
+    // 「透镜组」是默认子模式：进页面就有内容可看，自动载入第一个示例
+    // （失败不阻塞初始化，结果区会显示服务端的错误文本）。
+    groupLoad().catch(function (e) { show("ozGroupOut", "错误：" + e.message, true); });
     loadVersion();
     drawPlot();
     drawGroupPlot();

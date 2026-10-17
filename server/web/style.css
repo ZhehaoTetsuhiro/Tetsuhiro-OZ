@@ -333,6 +333,11 @@ html[data-theme="dark"] .splashTitle { text-shadow: 0 0 42px rgba(77, 184, 255, 
 #ozEditor, #ozOutput { display: flex; flex-direction: column; gap: 8px; min-width: 0; }
 #ozOutput { flex: 1; min-height: 0; overflow-y: auto; }
 #ozEditor h2.ozSub { margin-top: 12px; }
+/* 计算模式下拉：默认「透镜组」，其它子模式从这里切换。与 .ozField 同规格
+   （触屏 ≥44px、可收缩），但不并进下面的双列 ozGrid，单独占一行。 */
+.ozTabs { display: flex; flex-wrap: wrap; gap: 8px; }
+.ozTabs .ozField { flex: 1 1 auto; }
+.ozTabs .ozField select { min-height: 44px; font-weight: 600; }
 .ozGrid { display: grid; grid-template-columns: 1fr 1fr; gap: 8px; }
 .ozField { display: flex; flex-direction: column; gap: 3px; min-width: 0; font-size: 12px; color: var(--label); }
 .ozField input, .ozField select { width: 100%; min-width: 0; min-height: 44px; }

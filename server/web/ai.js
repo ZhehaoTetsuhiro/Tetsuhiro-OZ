@@ -123,9 +123,11 @@
       }
       // 几何/膜系模式的结果在 oz.js 的 DOM 里（只读取文本）。
       if (st.mode === "oz") {
-        const lens = $("ozLensOut"), coat = $("ozCoatOut");
+        const lens = $("ozLensOut"), coat = $("ozCoatOut"), grp = $("ozGroupOut");
         if (lens && lens.textContent.trim()) st.lens = lens.textContent.trim().slice(0, 3000);
         if (coat && coat.textContent.trim()) st.coating = coat.textContent.trim().slice(0, 3000);
+        if (grp && grp.textContent.trim()) st.group = grp.textContent.trim().slice(0, 3000);
+        st.submode = (typeof S !== "undefined" && S.ozSubmode) || "group";
       }
     } catch (e) { /* 状态收集失败不阻断对话 */ }
     return st;
